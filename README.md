@@ -2139,3 +2139,16 @@ This will only work for locales that have been explicitly imported before.
 ## Something Missing?
 
 If you have ideas for more “How To” recipes that should be on this page, [let us know](https://github.com/facebookincubator/create-react-app/issues) or [contribute some!](https://github.com/facebookincubator/create-react-app/edit/master/packages/react-scripts/template/README.md)
+
+## Using with docker
+
+The application can be run inside of a docker container.  Build the image:
+
+```
+docker build -t <your username>/manager-cloud-installer .
+```
+And then run it with:
+```
+docker run -p 3000:3000 -d <your username>/manager-cloud-installer
+```
+
