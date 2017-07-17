@@ -5,9 +5,9 @@ class ArdanaServerList extends Component {
     constructor() {
         super();
         this.state = {
-            ardanaServiceUrl : 'https://192.168.245.10',
+            ardanaServiceUrl : 'https://192.168.245.10',//point this to your own system to avoid re-entering in the UI
             ardanaServicePort: '9085',
-            keystoneToken: '4665b70981684dac87b6fe5c90a7fac8',
+            keystoneToken: '',
             ardanaServiceQuery: '/api/v1/hlm/model/cp_output/server_info_yml',
             serverData: '',
             queryList: []
