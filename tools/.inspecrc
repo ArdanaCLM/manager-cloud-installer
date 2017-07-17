@@ -1,0 +1,4 @@
+# using https will lead to problems for self-signed certificates
+export MANAGER_URL="http://suma-manager-ip/rpc/api"
+export MANAGER_LOGIN=
+export MANAGER_PASSWORD=
