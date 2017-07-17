@@ -127,26 +127,24 @@ class SimpleQueryList extends Component {
     render() {
         var listItems = this.props.items.map(function(item) {
             return (
-                <div>
-                    <table>
-                        <tr>
-                            <td>endpoint</td><td>{item.endpoint}</td>
-                        </tr>
-                        <tr>
-                            <td>method</td><td>{item.method}</td>
-                        </tr>
-                        <tr>
-                            <td>description</td><td>{item.description}</td>
-                        </tr>
-                    </table>
-                    <br/><br/>
-                </div>
+              <tr>
+                <td>{item.endpoint}</td>
+                <td>{item.method}</td>
+                <td>{item.description}</td>
+              </tr>
             );
         });
 
         return (
             <div>
-                    {listItems}
+              <table>
+                <tr style={{'font-weight': 'bold'}}>
+                  <td>endpoint</td>
+                  <td>method</td>
+                  <td>description</td>
+                </tr>
+                {listItems}
+              </table>
             </div>
         )
     }
