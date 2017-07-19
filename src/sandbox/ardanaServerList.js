@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import '../App.css';
+import { translate } from '../localization/localize.js';
 
 class ArdanaServerList extends Component {
     constructor() {
@@ -105,9 +106,10 @@ class ArdanaServerList extends Component {
                     The url and port can be found with "openstack endpoint list".<br/>
                     Keystone token generation is "openstack token issue"<br/>
                 </p>
-                <p> current url: {this.state.ardanaServiceUrl}<br/>
+                <p> {translate("ardana.url.port", this.state.ardanaServiceUrl, this.state.ardanaServicePort)}<br/>
+                current url: {this.state.ardanaServiceUrl}<br/>
                 current port: {this.state.ardanaServicePort}<br/>
-                keystone token: {this.state.keystoneToken}<br/>
+                {translate("keystone.token")}: {this.state.keystoneToken}<br/>
                 query: {this.state.ardanaServiceQuery}</p>
                 <button onClick={this.triggerQuery.bind(this)}>Run Query</button>
                 <button onClick={this.showQueryList.bind(this)}>List Known Queries</button>
