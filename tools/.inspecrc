@@ -2,3 +2,5 @@
 export MANAGER_URL="http://suma-manager-ip/rpc/api"
 export MANAGER_LOGIN=
 export MANAGER_PASSWORD=
+
+export MANAGER_COOKIE=
