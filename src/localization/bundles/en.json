@@ -1,0 +1,4 @@
+{
+    "keystone.token":"keystone token",
+    "ardana.url.port": "current url:port - {0}:{1}"
+}
