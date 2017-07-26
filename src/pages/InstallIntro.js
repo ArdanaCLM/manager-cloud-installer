@@ -16,7 +16,7 @@ class InstallIntro extends Component {
             <div>
                 {translate("welcome.cloud.install")}
                 <button onClick={this.goForward.bind(this)}>
-                    Next
+		  {translate("next")}
                 </button>
             </div>
         );

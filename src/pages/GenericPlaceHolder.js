@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import '../App.css';
 import { translate } from '../localization/localize.js';
 
-class CloudModelPicker extends Component {
+class GenericPlaceHolder extends Component {
 
     goBack( e ){
         e.preventDefault();
@@ -19,18 +19,22 @@ class CloudModelPicker extends Component {
 
 
     render() {
+	let forward = null;
+	if(this.props.next !== undefined){
+                forward = <button onClick={this.goForward.bind(this)}>
+		  {translate("next")}
+                </button>
+	}
         return (
             <div>
-                {translate("model.picker.heading")}
+                {translate("generic.placeholder.heading")}
                 <button onClick={this.goBack.bind(this)}>
-		   {translate("back")}
+		  {translate("back")}
                 </button>
-                <button onClick={this.goForward.bind(this)}>
-		   {translate("next")}
-                </button>
+		{forward}
             </div>
         );
     }
 }
 
-export default CloudModelPicker;
+export default GenericPlaceHolder;
