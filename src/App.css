@@ -26,3 +26,23 @@
 .longInput {
     width: 300px;
 }
+
+body {
+  background-color: white;
+}
+
+.progress {
+  border-radius: 14px;
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  margin: 10px;
+}
+
+.done{
+  background-color: green;
+}
+
+.notdone{
+  background-color: gray;
+}
