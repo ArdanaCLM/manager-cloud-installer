@@ -19,14 +19,22 @@
     "style-loader": "^0.18.2",
     "webpack": "^3.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^4.3.0",
+    "eslint-plugin-react": "^7.1.0",
+    "pre-commit": "^1.2.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prestart": "webpack",
-    "start": "node server.js | json-server --port 8080 --watch api/api.json"
+    "start": "node server.js | json-server --port 8080 --watch api/api.json",
+    "lints": "eslint ."
   },
   "description": "The cloud installer that will reside with SUSE Manager",
   "main": "index.js",
+  "pre-commit-disabled": [
+    "lints"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sidthe/manager-cloud-installer.git"
