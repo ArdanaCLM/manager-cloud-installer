@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import '../App.css';
 import { translate } from '../localization/localize.js';
 
 class ArdanaServerList extends Component {
