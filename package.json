@@ -1,17 +1,38 @@
 {
-  "name": "manager_cloud_installer",
+  "name": "suse-cloud-deployer",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2015-loose": "^8.0.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "es2015": "0.0.0",
+    "express": "^4.15.3",
+    "json-server": "^0.11.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-localization": "^0.1.1",
-    "react-scripts": "1.0.10"
+    "react-router-dom": "^4.1.1",
+    "webpack": "^3.2.0"
   },
+  "devDependencies": {},
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  }
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "webpack",
+    "start": "node server.js"
+  },
+  "description": "The cloud installer that will reside with SUSE Manager",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sidthe/manager-cloud-installer.git"
+  },
+  "author": "SUSE",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sidthe/manager-cloud-installer/issues"
+  },
+  "homepage": "https://github.com/sidthe/manager-cloud-installer#readme"
 }
