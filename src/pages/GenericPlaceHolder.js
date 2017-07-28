@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../App.css';
+import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 
 class GenericPlaceHolder extends Component {

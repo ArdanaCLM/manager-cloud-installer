@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { stepStateValues } from './StepStateValues.js';
-//import '../App.css';
+//import '../Deployer.css';
 //import { translate } from './localization/localize.js';
 
 class WizardProgress extends Component {

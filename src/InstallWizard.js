@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import './App.css';
+import './Deployer.css';
 import { translate } from './localization/localize.js';
 import { stepStateValues } from './components/StepStateValues.js';
 import CloudModelPicker from './pages/CloudModelPicker';
 import GenericPlaceHolder from './pages/GenericPlaceHolder';
 import InstallIntro from './pages/InstallIntro';
 import WizardProgress from './components/WizardProgress';
+
 
 class InstallWizard extends Component {
     constructor()
