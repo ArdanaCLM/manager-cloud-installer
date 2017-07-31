@@ -2,10 +2,10 @@
 //run with "node server.js" in terminal
 
 var express = require('express');
-var jsonServer = require('json-server');
+//var jsonServer = require('json-server');
 
 var port = process.env.PORT || 3000;
-var server = express()
+var server = express();
 
 server.use(express.static("./public"));
 
