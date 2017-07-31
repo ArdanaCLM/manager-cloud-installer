@@ -1,12 +1,12 @@
-import React, { Component } from 'react'
-import './Deployer.css'
-import InstallWizard from './InstallWizard'
+import React, { Component } from 'react';
+import './Deployer.css';
+import InstallWizard from './InstallWizard';
 
 class Deployer extends Component {
   render() {
     return (
       <div>
-          <InstallWizard/>
+        <InstallWizard/>
       </div>
     );
   }
