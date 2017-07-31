@@ -1,4 +1,10 @@
 {
     "keystone.token":"keystone token",
-    "ardana.url.port": "current url:port - {0}:{1}"
+    "ardana.url.port": "current url:port - {0}:{1}",
+    "welcome.cloud.install" : "Welcome To the Openstack Cloud Installer",
+    "model.picker.heading" : "Choose an Openstack Cloud Model",
+    "generic.placeholder.heading" : "This is just a placeholder page",
+    "next" : "Next",
+    "back" : "Back",
+    "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer"
 }
