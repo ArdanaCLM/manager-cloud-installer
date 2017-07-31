@@ -1,5 +1,5 @@
 import { AppContainer } from 'react-hot-loader';
-import React from "react";
+import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Deployer from './src/Deployer';
