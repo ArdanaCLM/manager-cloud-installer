@@ -7,5 +7,15 @@
     "next" : "Next",
     "back" : "Back",
     "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
-    "wizard.loading.pleasewait": "Loading... Please wait"
+    "wizard.loading.pleasewait": "Loading... Please wait",
+
+    "model.picker.entry-scale-esx-kvm-vsa": "Entry Scale ESX KVM VSA",
+    "model.picker.entry-scale-ironic-flat-network": "Entry Scale Ironic Flat Network",
+    "model.picker.entry-scale-kvm-ceph": "Entry Scale KVM CEPH",
+    "model.picker.entry-scale-swift": "Entry Scale Swift",
+    "model.picker.mid-scale-kvm-vsa": "Midsize Scale KVM VSA",
+    "model.picker.select-template-heading" : "Select A Template",
+    "model.picker.select-template" : "Select Template",
+    "model.picker.help-choose-heading": "Help Me Choose A Template",
+    "model.picker.help-choose": "Help Choose"
 }
