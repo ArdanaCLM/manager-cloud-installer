@@ -1,6 +1,7 @@
 import CloudModelPicker from '../pages/CloudModelPicker';
 import GenericPlaceHolder from '../pages/GenericPlaceHolder';
 import InstallIntro from '../pages/InstallIntro';
+import ArdanaServerList from '../sandbox/ardanaServerList';
 
 /**
  * The element name for each step is stored in the state object. To convert it to its proper React
@@ -10,7 +11,8 @@ import InstallIntro from '../pages/InstallIntro';
 export const elementMapping = {
   'InstallIntro': InstallIntro,
   'CloudModelPicker': CloudModelPicker,
-  'GenericPlaceHolder': GenericPlaceHolder
+  'GenericPlaceHolder': GenericPlaceHolder,
+  'ArdanaServerList': ArdanaServerList
 };
 
 /**
@@ -49,7 +51,7 @@ export const expectedPageOrder = [{
 }, {
   'index': 7,
   'state': 0,
-  'jsxelement': 'GenericPlaceHolder'
+  'jsxelement': 'ArdanaServerList'
 }
 ];
 
