@@ -58,7 +58,8 @@
           "index": 7,
           "state": 0,
           "jsxelement": "GenericPlaceHolder"
-      }]
+      }],
+      "selectedModelName": "mid-scale-kvm-vsa"
   },
 
   "templates": [

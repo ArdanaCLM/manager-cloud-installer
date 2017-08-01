@@ -39,11 +39,13 @@ class InstallWizard extends Component {
           wizardProgress.steps[currentIndex].state = stepStateValues.inprogress;
         }
 
+        var selectedModelName = wizardProgress.selectedModelName;
         this.setState({
           step: currentIndex,
           state: currentState,
           steps: wizardProgress.steps,//need these to write them back to the state object later
-          jsx: this.buildElement(wizardProgress.steps, currentIndex)
+          jsx: this.buildElement(wizardProgress.steps, currentIndex, selectedModelName),
+          selectedModelName: selectedModelName
         });
       });
 
@@ -52,7 +54,8 @@ class InstallWizard extends Component {
       step: 0,
       state: 0,
       steps: [],//need these to write them back to the state object later
-      jsx: undefined
+      jsx: undefined,
+      selectedModelName: ''
     };
   }
 
@@ -62,7 +65,7 @@ class InstallWizard extends Component {
    * @param {Array} an array of objects representing the list of states, their indexes and state
    * @param {number} the current index (how far along in the wizard), a whole number matching some step index
    */
-  buildElement(steps, currentIndex) {
+  buildElement(steps, currentIndex, selectedModelName) {
     var i, stepElement = undefined;
     for(i = 0; i < steps.length; i++) {
       if(steps[i].index === currentIndex) {
@@ -79,6 +82,13 @@ class InstallWizard extends Component {
           props.next = this.stepForward.bind(this);
         }
 
+        //TODO: pass selectedModelName to all the step
+        //once we figure out how pass around model name...we know how to pass around the
+        //model object
+        props.selectedModelName = selectedModelName;
+        //idea here is use this when select model in model picker
+        //call this callback to update the selectedModelName here
+        props.updateModelName = this.updateModelName.bind(this);
         stepElement = React.createElement(this.props.elementMapping[steps[i].jsxelement], props);
         break;
       }
@@ -99,7 +109,8 @@ class InstallWizard extends Component {
         'step': this.state.step,
         'state': this.state.state
       },
-      'steps': this.state.steps
+      'steps': this.state.steps,
+      'selectedModelName': this.state.selectedModelName
     };
 
     console.log(JSON.stringify(stateToPersist));
@@ -125,7 +136,8 @@ class InstallWizard extends Component {
 
         //prepared to advance to the next page
         stateUpdates.step = this.state.step + 1;
-        stateUpdates.jsx = this.buildElement(this.state.steps, this.state.step + 1);
+        stateUpdates.jsx =
+            this.buildElement(this.state.steps, this.state.step + 1, this.state.selectedModelName);
       }
     }
 
@@ -154,12 +166,21 @@ class InstallWizard extends Component {
 
       //prepare to go back a page
       stateUpdates.step = this.state.step - 1;
-      stateUpdates.jsx = this.buildElement(this.state.steps, this.state.step - 1);
+      stateUpdates.jsx =
+          this.buildElement(this.state.steps, this.state.step - 1 , this.state.selectedModelName);
     }
     stateUpdates.steps = steps;
 
     //setState is asynchronous, call the persistState function as a callback
     this.setState(stateUpdates, this.persistState);
+  }
+
+  //TODO experimental
+  updateModelName(modelName) {
+    console.log("Current ModelName " + this.state.selectedModelName);
+    console.log("New ModelName " + modelName);
+    //don't want to render all the UI
+    this.state.selectedModelName = modelName;
   }
 
   /**
@@ -168,6 +189,7 @@ class InstallWizard extends Component {
   render()
   {
     let currentStepComponent = this.state.jsx;
+
     if(currentStepComponent === undefined) {
       currentStepComponent = <div>{translate('wizard.loading.pleasewait')}</div>;
     }

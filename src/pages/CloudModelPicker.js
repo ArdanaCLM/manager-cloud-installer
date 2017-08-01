@@ -17,7 +17,7 @@ class CloudModelPicker extends GenericPlaceHolder {
         //TODO some states need to be coordinated with others
         this.state = {
             isNextButtonDisabled : false,
-            selectedModelName: '', //TODO how to pass this out to the next page???
+            selectedModelName: this.props.selectedModelName,
             selectedDetails: '',
             selectedModel: undefined, //TODO how to pass this out to the next page???
             simpleModels: [],
@@ -31,12 +31,12 @@ class CloudModelPicker extends GenericPlaceHolder {
         this.helpChoose = this.helpChoose.bind(this);
         this.showSelectTemplateHelp = this.showSelectTemplateHelp.bind(this);
         this.showHelpChooseHelp = this.showHelpChooseHelp.bind(this);
+        //TODO experimental
+        this.updateParentSelectedModelName = this.updateParentSelectedModelName.bind(this);
     }
 
     componentWillMount() {
-        //TODO some of the data need to be passed in
-        //will ajust next around
-        this.state.selectedModelName = 'mid-scale-kvm-vsa';
+        //TODO might need to be passed in
         this.state.simpleModels = [
             'entry-scale-esx-kvm-vsa',
             'entry-scale-ironic-flat-network',
@@ -92,36 +92,52 @@ class CloudModelPicker extends GenericPlaceHolder {
     }
 
     goBack( e ){
+        e.preventDefault();
+        var isError = false;
         //if going back involved unsetting some parameters, do that here
-        this.props.back();
+        this.props.back(isError);
     }
 
     goNext(e){
+        e.preventDefault();
+        var isError = false;
         //typical pages would do some validation here before deciding to advance
         //however the intro page has no validation
-        this.props.next();
+        this.props.next(isError);
+    }
+
+    //TODO experimental
+    updateParentSelectedModelName(modelName) {
+        this.props.updateModelName(modelName)
     }
 
     pickModel(e) {
+        e.preventDefault();
         let modelName = e.target.getAttribute('name');
         this.setState({selectedModelName: modelName});
         this.setSelectedDetails(modelName);
         this.getModelObject(modelName);
+        //TODO experimental
+        this.updateParentSelectedModelName(modelName);
     }
 
     selectTemplate(e) {
+        e.preventDefault();
         //TODO
     }
 
     helpChoose(e) {
+        e.preventDefault();
         //TODO
     }
 
     showSelectTemplateHelp(e) {
+        e.preventDefault();
         //TODO
     }
 
     showHelpChooseHelp(e) {
+        e.preventDefault();
         //TODO
     }
 

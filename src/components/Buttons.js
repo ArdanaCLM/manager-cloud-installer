@@ -6,7 +6,6 @@ class BackButton extends Component {
     constructor(props) {
         super(props);
     }
-
     render() {
         let buttonClass = "btn btn-primary btn-back";
         let buttonAction = this.props.clickAction;
@@ -25,9 +24,7 @@ class NextButton extends Component {
     }
 
     render() {
-        //add additional button class if it is specified
         let buttonClass = "btn btn-primary btn-next";
-        //add disable class if it is disabled
         buttonClass =
             this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
@@ -45,11 +42,8 @@ class ActionButton extends Component {
     constructor(props) {
         super(props);
     }
-
     render() {
-        //add additional button class if it is specified
         let buttonClass = "btn btn-primary";
-        //add disable class if it is disabled
         buttonClass =
             this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
@@ -68,7 +62,6 @@ class PickerButton extends Component {
     constructor(props) {
         super(props);
     }
-
     render() {
         let buttonAction = this.props.clickAction;
         let buttonLabel = this.props.displayLabel;
