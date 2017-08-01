@@ -33,7 +33,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prestart": "webpack",
-    "start": "json-server --port 8080 api/api.json --watch | webpack-dev-server --port 3000 --content-base --hot",
+    "start": "json-server --port 8080 api/api.json --watch | webpack-dev-server --port 3000 --hot",
     "lints": "eslint .",
     "protractor-setup": "./node_modules/protractor/bin/webdriver-manager update",
     "protractor": "./node_modules/protractor/bin/protractor protractor.conf.js"

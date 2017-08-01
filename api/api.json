@@ -22,46 +22,92 @@
     }
   ],
   "installprogress": {
-      "currentState": {
-          "step": 0,
-          "state": 0
+    "currentState": {
+      "step": 0,
+      "state": 0
+    },
+    "steps": [
+      {
+        "index": 0,
+        "state": 0,
+        "jsxelement": "InstallIntro"
       },
-      "steps": [{
-          "index": 0,
-          "state": 0,
-          "jsxelement": "InstallIntro"
-      }, {
-          "index": 1,
-          "state": 0,
-          "jsxelement": "CloudModelPicker"
-      }, {
-          "index": 2,
-          "state": 0,
-          "jsxelement": "GenericPlaceHolder"
-      }, {
-          "index": 3,
-          "state": 0,
-          "jsxelement": "GenericPlaceHolder"
-      }, {
-          "index": 4,
-          "state": 0,
-          "jsxelement": "GenericPlaceHolder"
-      }, {
-          "index": 5,
-          "state": 0,
-          "jsxelement": "GenericPlaceHolder"
-      }, {
-          "index": 6,
-          "state": 0,
-          "jsxelement": "GenericPlaceHolder"
-      }, {
-          "index": 7,
-          "state": 0,
-          "jsxelement": "GenericPlaceHolder"
-      }],
-      "selectedModelName": "mid-scale-kvm-vsa"
+      {
+        "index": 1,
+        "state": 0,
+        "jsxelement": "CloudModelPicker"
+      },
+      {
+        "index": 2,
+        "state": 0,
+        "jsxelement": "CloudModelSummary"
+      },
+      {
+        "index": 3,
+        "state": 0,
+        "jsxelement": "GenericPlaceHolder"
+      },
+      {
+        "index": 4,
+        "state": 0,
+        "jsxelement": "GenericPlaceHolder"
+      },
+      {
+        "index": 5,
+        "state": 0,
+        "jsxelement": "GenericPlaceHolder"
+      },
+      {
+        "index": 6,
+        "state": 0,
+        "jsxelement": "GenericPlaceHolder"
+      },
+      {
+        "index": 7,
+        "state": 0,
+        "jsxelement": "GenericPlaceHolder"
+      }
+    ],
+    "selectedModelName": "mid-scale-kvm-vsa"
   },
-
+  "models": [
+    {
+      "id": 1,
+      "name": "entry-scale-kvm-ceph",
+      "description": "Entry level setup suitable for exploratory installations",
+      "controllers": 3,
+      "compute": 10,
+      "monitoring": 1,
+      "storage": 4
+    },
+    {
+      "id": 2,
+      "name": "mid-scale-kvm-vsa",
+      "description": "Mid level setup suitable for exploratory installations",
+      "controllers": 3,
+      "compute": 20,
+      "monitoring": 2,
+      "storage": 8
+    }
+  ],
+  "customModels": [
+    {
+      "id": 1,
+      "tyoe": "custom",
+      "name": "mid-scale-kvm-vsa",
+      "description": "Entry level setup suitable for exploratory installations",
+      "controllers": "2",
+      "compute": "21",
+      "monitoring": "5",
+      "storage": 4
+    }
+  ],
+  "modeldata": {
+    "controllers": "Controllers are an essential component of an OpenStack Cloud. We will deploy services such as Keystone, Horizon, Glance here.",
+    "compute": "Compute nodes is where your workload will eventually run. We will host services such as Nova on those machines. Make sure those machines have enough capacity.",
+    "monitoring": "SUSE OpenStack Cloud is an enterprise class solution, this is why we ship monitoring capabilities with our system to allow for Day 2 operations out of the box.",
+    "storage": "You can optionally add storage nodes to your deployment, and configure access to those nodes right from this panel."
+  },
   "templates": [
     {
       "href": "/api/v2/templates/entry-scale-esx-kvm-vsa",
@@ -105,1283 +151,2266 @@
     }
   ],
   "mid-scale-kvm-vsa": {
-    "errors":[],
-    "fileInfo":{
-      "_object_data":{},
-      "configFile":"/home/gugl/dev/ardana-service/data/hlm-input-model/2.0/examples/mid-scale-kvm-vsa/cloudConfig.yml",
-      "directory":"/home/gugl/dev/ardana-service/data/hlm-input-model/2.0/examples/mid-scale-kvm-vsa",
+    "errors": [],
+    "fileInfo": {
+      "_object_data": {},
+      "configFile": "/home/gugl/dev/ardana-service/data/hlm-input-model/2.0/examples/mid-scale-kvm-vsa/cloudConfig.yml",
+      "directory": "/home/gugl/dev/ardana-service/data/hlm-input-model/2.0/examples/mid-scale-kvm-vsa",
       "fileSectionMap": {
-        "cloudConfig.yml":["product","cloud"],
-        "data/control_plane.yml":[
+        "cloudConfig.yml": [
           "product",
-          {"control-planes":["control-plane-1"],
-            "keyField":"name","type":"array"}
+          "cloud"
         ],
-        "data/designate/designate_config.yml":[
+        "data/control_plane.yml": [
           "product",
-          {"configuration-data":["DESIGNATE-CONFIG-CP1"],
-            "keyField":"name","type":"array"}
+          {
+            "control-planes": [
+              "control-plane-1"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/disks_compute.yml":[
+        "data/designate/designate_config.yml": [
           "product",
-          {"disk-models":["COMPUTE-DISKS"],
-            "keyField":"name","type":"array"}
+          {
+            "configuration-data": [
+              "DESIGNATE-CONFIG-CP1"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/disks_control_common_600GB.yml":[
-          "product",{
-            "disk-models":["COMMON-CONTROL-600GB-DISKS"],
-            "keyField":"name","type":"array"}
+        "data/disks_compute.yml": [
+          "product",
+          {
+            "disk-models": [
+              "COMPUTE-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
+        ],
+        "data/disks_control_common_600GB.yml": [
+          "product",
+          {
+            "disk-models": [
+              "COMMON-CONTROL-600GB-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
         "data/disks_dbmq_600GB.yml": [
-          "product",{
-            "disk-models":["DBMQ-600GB-DISKS"],
-            "keyField":"name","type":"array"}
+          "product",
+          {
+            "disk-models": [
+              "DBMQ-600GB-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/disks_mtrmon_2TB.yml":[
-          "product",{
-            "disk-models":["MTRMON-2TB-DISKS"],
-            "keyField":"name",
-            "type":"array"}
+        "data/disks_mtrmon_2TB.yml": [
+          "product",
+          {
+            "disk-models": [
+              "MTRMON-2TB-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/disks_mtrmon_4.5TB.yml":[
-          "product",{
-            "disk-models":["MTRMON-4.5TB-DISKS"],
-            "keyField":"name",
-            "type":"array"}
+        "data/disks_mtrmon_4.5TB.yml": [
+          "product",
+          {
+            "disk-models": [
+              "MTRMON-4.5TB-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/disks_mtrmon_600GB.yml":[
-          "product",{
-            "disk-models":["MTRMON-600GB-DISKS"],
-            "keyField":"name",
-            "type":"array"}
+        "data/disks_mtrmon_600GB.yml": [
+          "product",
+          {
+            "disk-models": [
+              "MTRMON-600GB-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/disks_swobj.yml":[
-          "product",{
-            "disk-models":["SWOBJ-DISKS"],
-            "keyField":"name",
-            "type":"array"}
+        "data/disks_swobj.yml": [
+          "product",
+          {
+            "disk-models": [
+              "SWOBJ-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/disks_swpac.yml":[
-          "product",{
-            "disk-models":["SWPAC-DISKS"],
-            "keyField":"name",
-            "type":"array"}
+        "data/disks_swpac.yml": [
+          "product",
+          {
+            "disk-models": [
+              "SWPAC-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/disks_vsa.yml":[
-          "product",{
-            "disk-models":["VSA-DISKS"],
-            "keyField":"name",
-            "type":"array"}
+        "data/disks_vsa.yml": [
+          "product",
+          {
+            "disk-models": [
+              "VSA-DISKS"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/firewall_rules.yml":[
-          "product",{
-            "firewall-rules":["PING"],
-            "keyField":"name",
-            "type":"array"}
+        "data/firewall_rules.yml": [
+          "product",
+          {
+            "firewall-rules": [
+              "PING"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/net_interfaces.yml":[
-          "product",{
-            "interface-models":["CORE-INTERFACES","NEUTRON-INTERFACES","COMPUTE-INTERFACES","VSA-INTERFACES","SWOBJ-INTERFACES","SWPAC-INTERFACES","DBMQ-INTERFACES","MTRMON-INTERFACES"],
-            "keyField":"name",
-            "type":"array"}
+        "data/net_interfaces.yml": [
+          "product",
+          {
+            "interface-models": [
+              "CORE-INTERFACES",
+              "NEUTRON-INTERFACES",
+              "COMPUTE-INTERFACES",
+              "VSA-INTERFACES",
+              "SWOBJ-INTERFACES",
+              "SWPAC-INTERFACES",
+              "DBMQ-INTERFACES",
+              "MTRMON-INTERFACES"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/network_groups.yml":[
-          "product",{
-            "keyField":"name",
-            "network-groups":["EXTERNAL-API","EXTERNAL-VM","GUEST","INTERNAL-API","MANAGEMENT","ISCSI","SWIFT","CONF"],"type":"array"}],"data/networks.yml":["product",{"keyField":"name","networks":["EXTERNAL-API-NET","INTERNAL-API-NET","EXTERNAL-VM-NET","ISCSI-NET","CONF-NET","GUEST-NET-RACK1","GUEST-NET-RACK2","GUEST-NET-RACK3","SWIFT-NET-RACK1","SWIFT-NET-RACK2","SWIFT-NET-RACK3","MANAGEMENT-NET-RACK1","MANAGEMENT-NET-RACK2","MANAGEMENT-NET-RACK3"],
-          "type":"array"}
-        ],"data/neutron/neutron_config.yml":[
-          "product",{
-            "configuration-data":["NEUTRON-CONFIG-CP1"],
-            "keyField":"name",
-            "type":"array"}
+        "data/network_groups.yml": [
+          "product",
+          {
+            "keyField": "name",
+            "network-groups": [
+              "EXTERNAL-API",
+              "EXTERNAL-VM",
+              "GUEST",
+              "INTERNAL-API",
+              "MANAGEMENT",
+              "ISCSI",
+              "SWIFT",
+              "CONF"
+            ],
+            "type": "array"
+          }
         ],
-        "data/nic_mappings.yml":[
-          "product",{
-            "keyField":"name",
-            "nic-mappings":["HP-DL360-6PORT","MY-2PORT-SERVER"],
-            "type":"array"}
+        "data/networks.yml": [
+          "product",
+          {
+            "keyField": "name",
+            "networks": [
+              "EXTERNAL-API-NET",
+              "INTERNAL-API-NET",
+              "EXTERNAL-VM-NET",
+              "ISCSI-NET",
+              "CONF-NET",
+              "GUEST-NET-RACK1",
+              "GUEST-NET-RACK2",
+              "GUEST-NET-RACK3",
+              "SWIFT-NET-RACK1",
+              "SWIFT-NET-RACK2",
+              "SWIFT-NET-RACK3",
+              "MANAGEMENT-NET-RACK1",
+              "MANAGEMENT-NET-RACK2",
+              "MANAGEMENT-NET-RACK3"
+            ],
+            "type": "array"
+          }
         ],
-        "data/octavia/octavia_config.yml":[
-          "product",{
-            "configuration-data":["OCTAVIA-CONFIG-CP1"],
-            "keyField":"name",
-            "type":"array"}
+        "data/neutron/neutron_config.yml": [
+          "product",
+          {
+            "configuration-data": [
+              "NEUTRON-CONFIG-CP1"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
         ],
-        "data/server_groups.yml":[{
-          "keyField":"name",
-          "server-groups":["CLOUD","AZ1","AZ2","AZ3","rack1","rack2","rack3"],
-          "type":"array"},
+        "data/nic_mappings.yml": [
+          "product",
+          {
+            "keyField": "name",
+            "nic-mappings": [
+              "HP-DL360-6PORT",
+              "MY-2PORT-SERVER"
+            ],
+            "type": "array"
+          }
+        ],
+        "data/octavia/octavia_config.yml": [
+          "product",
+          {
+            "configuration-data": [
+              "OCTAVIA-CONFIG-CP1"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
+        ],
+        "data/server_groups.yml": [
+          {
+            "keyField": "name",
+            "server-groups": [
+              "CLOUD",
+              "AZ1",
+              "AZ2",
+              "AZ3",
+              "rack1",
+              "rack2",
+              "rack3"
+            ],
+            "type": "array"
+          },
           "product"
         ],
-        "data/server_roles.yml":[
-          "product", {
-            "keyField":"name",
-            "server-roles":["CORE-ROLE","MTRMON-ROLE","NEUTRON-ROLE","DBMQ-ROLE","SWPAC-ROLE","COMPUTE-ROLE","SWOBJ-ROLE","VSA-ROLE"],
-            "type":"array"}
+        "data/server_roles.yml": [
+          "product",
+          {
+            "keyField": "name",
+            "server-roles": [
+              "CORE-ROLE",
+              "MTRMON-ROLE",
+              "NEUTRON-ROLE",
+              "DBMQ-ROLE",
+              "SWPAC-ROLE",
+              "COMPUTE-ROLE",
+              "SWOBJ-ROLE",
+              "VSA-ROLE"
+            ],
+            "type": "array"
+          }
         ],
-        "data/servers.yml":[
+        "data/servers.yml": [
           "product",
           "baremetal",
-          {"keyField":"id",
-            "servers":["core1","mtrmon1","dbmq1","swpac1","neut1","swobj1","compute1","vsa1","core2","mtrmon2","dbmq2","swpac2","neut2","swobj2","compute2","vsa2","mtrmon3","dbmq3","swpac3","swobj3","compute3","vsa3"],
-            "type":"array"}],
-        "data/swift/swift_config.yml":[
-          "product",{
-            "configuration-data":["SWIFT-CONFIG-CP1"],
-            "keyField":"name",
-            "type":"array"
-          }]
+          {
+            "keyField": "id",
+            "servers": [
+              "core1",
+              "mtrmon1",
+              "dbmq1",
+              "swpac1",
+              "neut1",
+              "swobj1",
+              "compute1",
+              "vsa1",
+              "core2",
+              "mtrmon2",
+              "dbmq2",
+              "swpac2",
+              "neut2",
+              "swobj2",
+              "compute2",
+              "vsa2",
+              "mtrmon3",
+              "dbmq3",
+              "swpac3",
+              "swobj3",
+              "compute3",
+              "vsa3"
+            ],
+            "type": "array"
+          }
+        ],
+        "data/swift/swift_config.yml": [
+          "product",
+          {
+            "configuration-data": [
+              "SWIFT-CONFIG-CP1"
+            ],
+            "keyField": "name",
+            "type": "array"
+          }
+        ]
       },
-      "files":["cloudConfig.yml","data/control_plane.yml","data/disks_compute.yml","data/disks_control_common_600GB.yml","data/disks_dbmq_600GB.yml","data/disks_mtrmon_2TB.yml","data/disks_mtrmon_4.5TB.yml","data/disks_mtrmon_600GB.yml","data/disks_swobj.yml","data/disks_swpac.yml","data/disks_vsa.yml","data/firewall_rules.yml","data/net_interfaces.yml","data/network_groups.yml","data/networks.yml","data/nic_mappings.yml","data/server_groups.yml","data/server_roles.yml","data/servers.yml","data/designate/designate_config.yml","data/neutron/neutron_config.yml","data/octavia/octavia_config.yml","data/swift/swift_config.yml"],"mtime":1501282442853,
-      "sections":{
-        "baremetal":["data/servers.yml"],
-        "cloud":["cloudConfig.yml"],
-        "configuration-data":["data/designate/designate_config.yml","data/neutron/neutron_config.yml","data/octavia/octavia_config.yml","data/swift/swift_config.yml"],
-        "control-planes":["data/control_plane.yml"],
-        "disk-models":["data/disks_compute.yml","data/disks_control_common_600GB.yml","data/disks_dbmq_600GB.yml","data/disks_mtrmon_2TB.yml","data/disks_mtrmon_4.5TB.yml","data/disks_mtrmon_600GB.yml","data/disks_swobj.yml","data/disks_swpac.yml","data/disks_vsa.yml"],"firewall-rules":["data/firewall_rules.yml"],
-        "interface-models":["data/net_interfaces.yml"],
-        "network-groups":["data/network_groups.yml"],
-        "networks":["data/networks.yml"],
-        "nic-mappings":["data/nic_mappings.yml"],
-        "pass-through":[],
-        "product":["cloudConfig.yml","data/control_plane.yml","data/disks_compute.yml","data/disks_control_common_600GB.yml","data/disks_dbmq_600GB.yml","data/disks_mtrmon_2TB.yml","data/disks_mtrmon_4.5TB.yml","data/disks_mtrmon_600GB.yml","data/disks_swobj.yml","data/disks_swpac.yml","data/disks_vsa.yml","data/firewall_rules.yml","data/net_interfaces.yml","data/network_groups.yml","data/networks.yml","data/nic_mappings.yml","data/server_groups.yml","data/server_roles.yml","data/servers.yml","data/designate/designate_config.yml","data/neutron/neutron_config.yml","data/octavia/octavia_config.yml","data/swift/swift_config.yml"],
-        "server-groups":["data/server_groups.yml"],
-        "server-roles":["data/server_roles.yml"],
-        "servers":["data/servers.yml"]
+      "files": [
+        "cloudConfig.yml",
+        "data/control_plane.yml",
+        "data/disks_compute.yml",
+        "data/disks_control_common_600GB.yml",
+        "data/disks_dbmq_600GB.yml",
+        "data/disks_mtrmon_2TB.yml",
+        "data/disks_mtrmon_4.5TB.yml",
+        "data/disks_mtrmon_600GB.yml",
+        "data/disks_swobj.yml",
+        "data/disks_swpac.yml",
+        "data/disks_vsa.yml",
+        "data/firewall_rules.yml",
+        "data/net_interfaces.yml",
+        "data/network_groups.yml",
+        "data/networks.yml",
+        "data/nic_mappings.yml",
+        "data/server_groups.yml",
+        "data/server_roles.yml",
+        "data/servers.yml",
+        "data/designate/designate_config.yml",
+        "data/neutron/neutron_config.yml",
+        "data/octavia/octavia_config.yml",
+        "data/swift/swift_config.yml"
+      ],
+      "mtime": 1501282442853,
+      "sections": {
+        "baremetal": [
+          "data/servers.yml"
+        ],
+        "cloud": [
+          "cloudConfig.yml"
+        ],
+        "configuration-data": [
+          "data/designate/designate_config.yml",
+          "data/neutron/neutron_config.yml",
+          "data/octavia/octavia_config.yml",
+          "data/swift/swift_config.yml"
+        ],
+        "control-planes": [
+          "data/control_plane.yml"
+        ],
+        "disk-models": [
+          "data/disks_compute.yml",
+          "data/disks_control_common_600GB.yml",
+          "data/disks_dbmq_600GB.yml",
+          "data/disks_mtrmon_2TB.yml",
+          "data/disks_mtrmon_4.5TB.yml",
+          "data/disks_mtrmon_600GB.yml",
+          "data/disks_swobj.yml",
+          "data/disks_swpac.yml",
+          "data/disks_vsa.yml"
+        ],
+        "firewall-rules": [
+          "data/firewall_rules.yml"
+        ],
+        "interface-models": [
+          "data/net_interfaces.yml"
+        ],
+        "network-groups": [
+          "data/network_groups.yml"
+        ],
+        "networks": [
+          "data/networks.yml"
+        ],
+        "nic-mappings": [
+          "data/nic_mappings.yml"
+        ],
+        "pass-through": [],
+        "product": [
+          "cloudConfig.yml",
+          "data/control_plane.yml",
+          "data/disks_compute.yml",
+          "data/disks_control_common_600GB.yml",
+          "data/disks_dbmq_600GB.yml",
+          "data/disks_mtrmon_2TB.yml",
+          "data/disks_mtrmon_4.5TB.yml",
+          "data/disks_mtrmon_600GB.yml",
+          "data/disks_swobj.yml",
+          "data/disks_swpac.yml",
+          "data/disks_vsa.yml",
+          "data/firewall_rules.yml",
+          "data/net_interfaces.yml",
+          "data/network_groups.yml",
+          "data/networks.yml",
+          "data/nic_mappings.yml",
+          "data/server_groups.yml",
+          "data/server_roles.yml",
+          "data/servers.yml",
+          "data/designate/designate_config.yml",
+          "data/neutron/neutron_config.yml",
+          "data/octavia/octavia_config.yml",
+          "data/swift/swift_config.yml"
+        ],
+        "server-groups": [
+          "data/server_groups.yml"
+        ],
+        "server-roles": [
+          "data/server_roles.yml"
+        ],
+        "servers": [
+          "data/servers.yml"
+        ]
       }
     },
-    "inputModel":{
-      "baremetal":{
-        "netmask":"255.255.255.0",
-        "subnet":"10.243.140.0"},
-      "cloud":{
-        "audit-settings":{
-          "audit-dir":"/var/audit",
-          "default":"disabled",
-          "disabled-services":["nova","barbican","keystone","cinder","ceilometer","neutron","swift"]
-        },
-        "dns-settings":null,
-        "firewall-settings":{
-          "enable":true,
-          "logging":true
-        },
-        "hostname-data":{
-          "host-prefix":"helion",
-          "member-prefix":"-m"
-        },
-        "name":"mid-scale-kvm-vsa",
-        "ntp-servers":["ntp.hp.net"],
-        "smtp-settings":null
+    "inputModel": {
+      "baremetal": {
+        "netmask": "255.255.255.0",
+        "subnet": "10.243.140.0"
       },
-      "configuration-data":[{
-        "data":{
-          "dns_domain":"example.org.",
-          "ns_records":[{
-            "hostname":"ns1.example.org.",
-            "priority":1
-          },{
-            "hostname":"ns2.example.org.",
-            "priority":2}
+      "cloud": {
+        "audit-settings": {
+          "audit-dir": "/var/audit",
+          "default": "disabled",
+          "disabled-services": [
+            "nova",
+            "barbican",
+            "keystone",
+            "cinder",
+            "ceilometer",
+            "neutron",
+            "swift"
           ]
         },
-        "name":"DESIGNATE-CONFIG-CP1",
-        "services":["designate"]
-      },{
-        "data":{
-          "neutron_provider_networks":[{
-            "allocation_pools":[{
-              "end":"172.30.1.250",
-              "start":"172.30.1.10"}],
-            "cidr":"172.30.1.0/24",
-            "enable_dhcp":true,
-            "host_routes":[{
-              "destination":"10.243.130.0/24",
-              "nexthop":"172.30.1.1"
-            },{
-              "destination":"10.243.131.0/24",
-              "nexthop":"172.30.1.1"
-            },{
-              "destination":"10.243.132.0/24",
-              "nexthop":"172.30.1.1"}
-            ],
-            "name":"OCTAVIA-MGMT-NET",
-            "no_gateway":true,
-            "provider":[{
-              "network_type":"vlan",
-              "physical_network":"physnet1",
-              "segmentation_id":106}]}
-          ]
+        "dns-settings": null,
+        "firewall-settings": {
+          "enable": true,
+          "logging": true
         },
-        "name":"NEUTRON-CONFIG-CP1",
-        "services":["neutron"]
-      },{
-        "data":{
-          "amp_network_name":"OCTAVIA-MGMT-NET"
+        "hostname-data": {
+          "host-prefix": "helion",
+          "member-prefix": "-m"
         },
-        "name":"OCTAVIA-CONFIG-CP1",
-        "services":["octavia"]
-      },{
-        "data":{
-          "control_plane_rings":{
-            "rings":[{
-              "display-name":"Account Ring",
-              "min-part-hours":16,
-              "name":"account",
-              "partition-power":14,
-              "replication-policy":{"replica-count":3}
-            },{
-              "display-name":"Container Ring",
-              "min-part-hours":16,
-              "name":"container",
-              "partition-power":14,
-              "replication-policy":{"replica-count":3}
-            },{
-              "default":true,
-              "display-name":"General",
-              "min-part-hours":16,
-              "name":"object-0",
-              "partition-power":14,
-              "replication-policy":{
-                "replica-count":3}
-            }],
-            "swift-zones":[{
-              "id":1,
-              "server-groups":["AZ1"]
-            },{
-              "id":2,
-              "server-groups":["AZ2"]
-            },{
-              "id":3,
-              "server-groups":["AZ3"]
-            }]
-          }},
-        "name":"SWIFT-CONFIG-CP1",
-        "services":["swift"]}
-      ],
-      "control-planes":[{
-        "clusters":[{
-          "allocation-policy":"strict",
-          "cluster-prefix":"core",
-          "member-count":2,
-          "name":"core",
-          "server-role":"CORE-ROLE",
-          "service-components":["lifecycle-manager","tempest","apache2","keystone-api","cinder-api","cinder-scheduler","cinder-volume","cinder-backup","cinder-client","cmc-service","keystone-client","glance-api","glance-registry","glance-client","horizon","heat-api","heat-api-cfn","heat-api-cloudwatch","heat-engine","heat-client","ip-cluster","memcached","openstack-client","nova-api","nova-scheduler","nova-conductor","nova-console-auth","nova-novncproxy","nova-client","neutron-server","neutron-ml2-plugin","neutron-client","octavia-api","octavia-health-manager","ntp-server","ops-console-web","ops-console-monitor","barbican-api","barbican-client","barbican-worker","designate-api","designate-central","designate-pool-manager","designate-zone-manager","designate-mdns","designate-client","powerdns","magnum-api","magnum-conductor"]
-        },{
-          "allocation-policy": "strict",
-          "cluster-prefix":"mtrmon",
-          "member-count":3,
-          "name":"mtrmon",
-          "server-role":"MTRMON-ROLE",
-          "service-components":["ntp-client","ceilometer-api","ceilometer-polling","ceilometer-agent-notification","ceilometer-common","ceilometer-client","vertica","kafka","spark","logging-server","apache2","storm","monasca-api","monasca-persister","monasca-notifier","monasca-threshold","monasca-client","monasca-transform","zookeeper","freezer-api"]
-        },{
-          "allocation-policy":"strict",
-          "cluster-prefix":"dbmq",
-          "member-count":3,
-          "name":"dbmq",
-          "server-role":"DBMQ-ROLE",
-          "service-components":["ntp-client","mysql","rabbitmq"]
-        },{
-          "allocation-policy":"strict",
-          "cluster-prefix":"swpac",
-          "member-count":3,
-          "name":"swpac",
-          "server-role":"SWPAC-ROLE",
-          "service-components":["ntp-client","swift-proxy","swift-account","swift-container","swift-ring-builder","swift-client"]
-        },{
-          "allocation-policy":"strict",
-          "cluster-prefix":"neut",
-          "member-count":2,
-          "name":"neut",
-          "server-role":"NEUTRON-ROLE",
-          "service-components":["ntp-client","neutron-vpn-agent","neutron-dhcp-agent","neutron-metadata-agent","neutron-openvswitch-agent"]
-        }],
-        "common-service-components":["logging-rotate","logging-producer","monasca-agent","freezer-agent","stunnel","lifecycle-manager-target"],
-        "configuration-data":["DESIGNATE-CONFIG-CP1","OCTAVIA-CONFIG-CP1","NEUTRON-CONFIG-CP1","SWIFT-CONFIG-CP1"],
-        "control-plane-prefix":"cp1",
-        "failure-zones":["AZ1","AZ2","AZ3"],
-        "name":"control-plane-1",
-        "region-name":"region1",
-        "resources":[{
-          "allocation-policy":"strict",
-          "min-count":0,
-          "name":"compute",
-          "resource-prefix":"comp",
-          "server-role":"COMPUTE-ROLE",
-          "service-components":["ntp-client","nova-compute-kvm","nova-compute","neutron-l3-agent","neutron-metadata-agent","neutron-openvswitch-agent","neutron-lbaasv2-agent"]
-        },{
-          "allocation-policy":"strict",
-          "min-count":3,
-          "name":"vsa",
-          "resource-prefix":"vsa",
-          "server-role":"VSA-ROLE",
-          "service-components":["ntp-client","vsa"]
-        },{
-          "allocation-policy":"strict",
-          "min-count":3,
-          "name":"swobj",
-          "resource-prefix":"swobj",
-          "server-role":"SWOBJ-ROLE",
-          "service-components":["ntp-client","swift-object"]
-        }]
-      }],
-      "disk-models":[{
-        "name":"COMPUTE-DISKS","volume-groups":[{
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"45%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"25%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"10%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]
-        },{
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/lib/nova",
-            "name":"compute",
-            "size":"95%"
-          }],
-          "name":"vg-comp",
-          "physical-volumes":["/dev/sdb"]
-        }
-        ]},{
-        "name":"COMMON-CONTROL-600GB-DISKS",
-        "volume-groups":[{
-          "consumer":{"name":"os"},
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"10%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"11%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"17%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]
-        }]
-      },{
-        "name":"DBMQ-600GB-DISKS","volume-groups":[{
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"10%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"11%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"17%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]
-        },{
-          "logical-volumes":[{
-            "consumer":{"name":"mysql"},
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/lib/mysql",
-            "name":"mysql",
-            "size":"10%"
-          },{
-            "consumer":{"name":"rabbitmq","rabbitmq_env":"home"},
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/lib/rabbitmq",
-            "name":"rabbitmq",
-            "size":"13%"
-          }],
-          "name":"hlm-dbmq",
-          "physical-volumes":["/dev/sdb"]
-        }]
-      },{
-        "name":"MTRMON-2TB-DISKS",
-        "volume-groups":[{
-          "consumer":{"name":"os"},
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"3%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"3%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"5%"
-          },{
-            "consumer":{"name":"vertica"},
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/vertica",
-            "name":"vertica",
-            "size":"18%"
-          },{
-            "consumer":{"name":"kafka"},
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/kafka",
-            "name":"kafka",
-            "size":"19%"
-          },{
-            "fstype":"ext4",
-            "mount":"/var/lib/elasticsearch",
-            "name":"elasticsearch",
-            "size":"40%"
-          },{
-            "fstype":"ext4",
-            "mount":"/var/lib/zookeeper",
-            "name":"zookeeper",
-            "size":"1%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]
-        }]
-      },{
-        "name":"MTRMON-4.5TB-DISKS",
-        "volume-groups":[{
-          "consumer":{"name":"os"},
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"1%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"1%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"2%"
-          },{
-            "consumer":{"name":"vertica"},
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/vertica",
-            "name":"vertica",
-            "size":"12%"
-          },{
-            "consumer":{"name":"kafka"},
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/kafka",
-            "name":"kafka",
-            "size":"13%"
-          },{
-            "fstype":"ext4",
-            "mount":"/var/lib/elasticsearch",
-            "name":"elasticsearch",
-            "size":"49%"
-          },{
-            "fstype":"ext4",
-            "mount":"/var/lib/zookeeper",
-            "name":"zookeeper",
-            "size":"1%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]
-        }]
-      },{
-        "name":"MTRMON-600GB-DISKS",
-        "volume-groups":[{
-          "consumer":{"name":"os"},
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"10%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"11%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"10%"
-          },{
-            "consumer":{"name":"vertica"},
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/vertica",
-            "name":"vertica",
-            "size":"21%"
-          },{
-            "consumer":{"name":"kafka"},
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/kafka",
-            "name":"kafka",
-            "size":"12%"
-          },{
-            "fstype":"ext4",
-            "mount":"/var/lib/elasticsearch",
-            "name":"elasticsearch",
-            "size":"22%"
-          },{
-            "fstype":"ext4",
-            "mount":"/var/lib/zookeeper",
-            "name":"zookeeper",
-            "size":"1%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]
-        }]
-      },{
-        "device-groups":[{
-          "consumer":{
-            "attrs":{"rings":["object-0"]},
-            "name":"swift"},
-          "devices":[{
-            "name":"/dev/sdb"
-          },{
-            "name":"/dev/sdc"
-          },{
-            "name":"/dev/sdd"}
-          ],
-          "name":"swiftobj"
-        }],
-        "name":"SWOBJ-DISKS",
-        "volume-groups":[{
-          "consumer":{"name":"os"},
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"20%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"8%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"10%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]}
-        ]
-      },{
-        "device-groups":[{
-          "consumer":{
-            "attrs":{"rings":["account","container"]},
-            "name":"swift"
-          },
-          "devices":[{"name":"/dev/sdb"}],
-          "name":"swiftpac"
-        }],
-        "name":"SWPAC-DISKS",
-        "volume-groups":[{
-          "consumer":{"name":"os"},
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"20%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"8%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"10%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]
-        }]
-      },{
-        "device_groups":[{
-          "consumer":{"name":"vsa","usage":"data"},
-          "devices":[
-            {"name":"/dev/sdb"},
-            {"name":"/dev/sdc"},
-            {"name":"/dev/sdd"}],
-          "name":"vsa-data"}
+        "name": "mid-scale-kvm-vsa",
+        "ntp-servers": [
+          "ntp.hp.net"
         ],
-        "name":"VSA-DISKS",
-        "volume-groups":[{
-          "consumer":{"name":"os"},
-          "logical-volumes":[{
-            "fstype":"ext4",
-            "mount":"/",
-            "name":"root",
-            "size":"20%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/crash",
-            "name":"crash",
-            "size":"8%"
-          },{
-            "fstype":"ext4",
-            "mkfs-opts":"-O large_file",
-            "mount":"/var/log",
-            "name":"log",
-            "size":"10%"
-          }],
-          "name":"hlm-vg",
-          "physical-volumes":["/dev/sda_root"]
-        }]
-      }],
-      "firewall-rules":[{
-        "name":"PING",
-        "network-groups":["MANAGEMENT","GUEST","EXTERNAL-API","INTERNAL-API","ISCSI","SWIFT"],
-        "rules":[{
-          "port-range-max":0,
-          "port-range-min":8,
-          "protocol":"icmp",
-          "remote-ip-prefix":"0.0.0.0/0",
-          "type":"allow"}
-        ]}
-      ],
-      "interface-models":[{
-        "name":"CORE-INTERFACES",
-        "network-interfaces":[{
-          "device":{"name":"hed3"},
-          "name":"hed3",
-          "network-groups":["CONF"]
-        },{
-          "bond-data":{
-            "devices":[{
-              "name":"hed4"
-            },{
-              "name":"hed5"
-            }],
-            "options":{
-              "miimon":200,
-              "mode":"active-backup",
-              "primary":"hed4"
-            },
-            "provider":"linux"
+        "smtp-settings": null
+      },
+      "configuration-data": [
+        {
+          "data": {
+            "dns_domain": "example.org.",
+            "ns_records": [
+              {
+                "hostname": "ns1.example.org.",
+                "priority": 1
+              },
+              {
+                "hostname": "ns2.example.org.",
+                "priority": 2
+              }
+            ]
           },
-          "device":{"name":"bond0"},
-          "forced-network-groups":["ISCSI"],
-          "name":"BOND0",
-          "network-groups":["EXTERNAL-API","INTERNAL-API","MANAGEMENT"]
-        }]
-      },{
-        "name":"NEUTRON-INTERFACES",
-        "network-interfaces":[{
-          "device":{"name":"hed3"},
-          "name":"hed3",
-          "network-groups":["CONF"]
-        },{
-          "bond-data":{
-            "devices":[{
-              "name":"hed4"},
-              {"name":"hed5"}
-            ],
-            "options":{
-              "miimon":200,
-              "mode":"active-backup",
-              "primary":"hed4"},
-            "provider":"linux"},
-          "device":{"name":"bond0"},
-          "name":"BOND0",
-          "network-groups":["EXTERNAL-VM","GUEST","MANAGEMENT"]}
-        ]
-      },{
-        "name":"COMPUTE-INTERFACES",
-        "network-interfaces":[{
-          "device":{"name":"hed3"},
-          "name":"hed3",
-          "network-groups":["CONF"]
-        },{
-          "bond-data":{
-            "devices":[{"name":"hed4"},{"name":"hed5"}],
-            "options":{"miimon":200,"mode":"active-backup","primary":"hed4"},
-            "provider":"linux"},"device":{"name":"bond0"},
-          "forced-network-groups":["ISCSI"],
-          "name":"BOND0",
-          "network-groups":["EXTERNAL-VM","GUEST","MANAGEMENT"]}]
-      },{
-        "name":"VSA-INTERFACES",
-        "network-interfaces":[{
-          "device":{
-            "name":"hed3"},"name":"hed3",
-          "network-groups":["CONF"]
-        },{
-          "bond-data":{
-            "devices":[{"name":"hed4"},{"name":"hed5"}],
-            "options":{
-              "miimon":200,
-              "mode":"active-backup",
-              "primary":"hed4"
-            },
-            "provider":"linux"
-          },
-          "device":{"name":"bond0"},
-          "name":"BOND0",
-          "network-groups":["MANAGEMENT","ISCSI"]
-        }]
-      },{
-        "name":"SWOBJ-INTERFACES",
-        "network-interfaces":[{
-          "device":{"name":"hed3"},
-          "name":"hed3","network-groups":["CONF"]
-        },{
-          "bond-data":{
-            "devices":[{"name":"hed4"},{"name":"hed5"}],
-            "options":{"miimon":200,"mode":"active-backup","primary":"hed4"},
-            "provider":"linux"
-          },
-          "device":{"name":"bond0"},"name":"BOND0","network-groups":["MANAGEMENT","SWIFT"]
-        }]
-      },{
-        "name":"SWPAC-INTERFACES",
-        "network-interfaces":[{
-          "device":{"name":"hed3"},
-          "name":"hed3",
-          "network-groups":["CONF"]
-        },{
-          "bond-data":{
-            "devices":[{"name":"hed4"},{"name":"hed5"}],
-            "options":{"miimon":200,"mode":"active-backup","primary":"hed4"},
-            "provider":"linux"
-          },
-          "device":{"name":"bond0"},
-          "name":"BOND0",
-          "network-groups":["MANAGEMENT","SWIFT"]
-        }]
-      },{
-        "name":"DBMQ-INTERFACES",
-        "network-interfaces":[{
-          "device":{"name":"hed3"},
-          "name":"hed3",
-          "network-groups":["CONF"]
-        },{
-          "bond-data":{
-            "devices":[{"name":"hed4"},{"name":"hed5"}],
-            "options":{"miimon":200,"mode":"active-backup","primary":"hed4"},
-            "provider":"linux"
-          },
-          "device":{"name":"bond0"},
-          "name":"BOND0",
-          "network-groups":["MANAGEMENT"]
-        }]
-      },{
-        "name":"MTRMON-INTERFACES",
-        "network-interfaces":[{
-          "device":{"name":"hed3"},
-          "name":"hed3",
-          "network-groups":["CONF"
+          "name": "DESIGNATE-CONFIG-CP1",
+          "services": [
+            "designate"
           ]
-        },{
-          "bond-data":{
-            "devices":[{"name":"hed4"},{"name":"hed5"}],
-            "options":{"miimon":200,"mode":"active-backup","primary":"hed4"},
-            "provider":"linux"
+        },
+        {
+          "data": {
+            "neutron_provider_networks": [
+              {
+                "allocation_pools": [
+                  {
+                    "end": "172.30.1.250",
+                    "start": "172.30.1.10"
+                  }
+                ],
+                "cidr": "172.30.1.0/24",
+                "enable_dhcp": true,
+                "host_routes": [
+                  {
+                    "destination": "10.243.130.0/24",
+                    "nexthop": "172.30.1.1"
+                  },
+                  {
+                    "destination": "10.243.131.0/24",
+                    "nexthop": "172.30.1.1"
+                  },
+                  {
+                    "destination": "10.243.132.0/24",
+                    "nexthop": "172.30.1.1"
+                  }
+                ],
+                "name": "OCTAVIA-MGMT-NET",
+                "no_gateway": true,
+                "provider": [
+                  {
+                    "network_type": "vlan",
+                    "physical_network": "physnet1",
+                    "segmentation_id": 106
+                  }
+                ]
+              }
+            ]
           },
-          "device":{"name":"bond0"},
-          "name":"BOND0",
-          "network-groups":["MANAGEMENT"]
-        }]
-      }],
-      "network-groups":[{
-        "component-endpoints":["powerdns-ext"],
-        "hostname-suffix":"extapi",
-        "load-balancers":[{
-          "cert-file":"my-public-mid-scale-kvm-vsa-cert",
-          "external-name":null,
-          "name":"extlb",
-          "provider":"ip-cluster",
-          "roles":["public"],
-          "tls-components":["default"]
-        }],
-        "name":"EXTERNAL-API"
-      }, {
-        "name":"EXTERNAL-VM",
-        "tags":["neutron.l3_agent.external_network_bridge"]
-      },{
-        "hostname-suffix":"guest",
-        "name":"GUEST",
-        "tags":["neutron.networks.vxlan"]
-      },{
-        "hostname-suffix":"intapi",
-        "load-balancers":[{
-          "cert-file":"helion-internal-cert",
-          "components":["vertica","nova-metadata"],
-          "name":"lb",
-          "provider":"ip-cluster",
-          "roles":["internal","admin"],
-          "tls-components":["default"]
-        }],
-        "name":"INTERNAL-API"
-      },{
-        "component-endpoints":["default"],
-        "hostname":true,
-        "hostname-suffix":"mgmt",
-        "name":"MANAGEMENT",
-        "routes":["INTERNAL-API","OCTAVIA-MGMT-NET","default"],
-        "tags":[{
-          "neutron.networks.vlan":{"provider-physical-network":"physnet1"}
-        }],
-        "tls-component-endpoints":["barbican-api"]
-      },{
-        "component-endpoints":["vsa"],
-        "hostname-suffix":"iscsi",
-        "name":"ISCSI"
-      },{
-        "component-endpoints":["swift-container","swift-account","swift-object","swift-rsync"],
-        "hostname-suffix":"swift",
-        "name":"SWIFT"
-      },{
-        "component-endpoints":["lifecycle-manager","lifecycle-manager-target"],
-        "hostname-suffix":"conf",
-        "name":"CONF"
-      }],
-      "networks":[{
-        "cidr":"10.243.125.0/24",
-        "gateway-ip":"10.243.125.1",
-        "name":"EXTERNAL-API-NET",
-        "network-group":"EXTERNAL-API",
-        "tagged-vlan":true,
-        "vlanid":3365
-      },{
-        "cidr":"10.243.126.0/24",
-        "gateway-ip":"10.243.126.1",
-        "name":"INTERNAL-API-NET",
-        "network-group":"INTERNAL-API",
-        "tagged-vlan":true,
-        "vlanid":3366
-      },{"name":"EXTERNAL-VM-NET",
-        "network-group":"EXTERNAL-VM",
-        "tagged-vlan":true,"vlanid":3367
-      },{
-        "cidr":"10.243.133.0/24",
-        "gateway-ip":"10.243.133.1",
-        "name":"ISCSI-NET",
-        "network-group":"ISCSI",
-        "tagged-vlan":true,"vlanid":3374
-      },{
-        "cidr":"10.243.140.0/24",
-        "gateway-ip":"10.243.140.1",
-        "name":"CONF-NET",
-        "network-group":"CONF",
-        "tagged-vlan":false,
-        "vlanid":3380
-      },{
-        "cidr":"10.243.127.0/24",
-        "gateway-ip":"10.243.127.1",
-        "name":"GUEST-NET-RACK1",
-        "network-group":"GUEST",
-        "tagged-vlan":true,
-        "vlanid":3368
-      },{
-        "cidr":"10.243.128.0/24",
-        "gateway-ip":"10.243.128.1",
-        "name":"GUEST-NET-RACK2",
-        "network-group":"GUEST",
-        "tagged-vlan":true,
-        "vlanid":3369
-      },{
-        "cidr":"10.243.129.0/24",
-        "gateway-ip":"10.243.129.1",
-        "name":"GUEST-NET-RACK3",
-        "network-group":"GUEST",
-        "tagged-vlan":true,
-        "vlanid":3370
-      },{
-        "cidr":"10.243.136.0/24",
-        "gateway-ip":"10.243.136.1",
-        "name":"SWIFT-NET-RACK1",
-        "network-group":"SWIFT",
-        "tagged-vlan":true,
-        "vlanid":3377
-      },{
-        "cidr":"10.243.137.0/24",
-        "gateway-ip":"10.243.137.1",
-        "name":"SWIFT-NET-RACK2",
-        "network-group":"SWIFT",
-        "tagged-vlan":true,
-        "vlanid":3378
-      },{
-        "cidr":"10.243.138.0/24",
-        "gateway-ip":"10.243.138.1",
-        "name":"SWIFT-NET-RACK3",
-        "network-group":"SWIFT",
-        "tagged-vlan":true,"vlanid":3379
-      },{
-        "cidr":"10.243.130.0/24",
-        "gateway-ip":"10.243.130.1",
-        "name":"MANAGEMENT-NET-RACK1",
-        "network-group":"MANAGEMENT",
-        "tagged-vlan":false,
-        "vlanid":3371
-      },{
-        "cidr":"10.243.131.0/24",
-        "gateway-ip":"10.243.131.1",
-        "name":"MANAGEMENT-NET-RACK2",
-        "network-group":"MANAGEMENT",
-        "tagged-vlan":false,"vlanid":3372
-      },{
-        "cidr":"10.243.132.0/24",
-        "gateway-ip":"10.243.132.1",
-        "name":"MANAGEMENT-NET-RACK3",
-        "network-group":"MANAGEMENT",
-        "tagged-vlan":false,
-        "vlanid":3373
-      }],
-      "nic-mappings":[{
-        "name":"HP-DL360-6PORT",
-        "physical-ports":[{
-          "bus-address":"0000:02:00.0",
-          "logical-name":"hed0",
-          "type":"simple-port"
-        },{
-          "bus-address":"0000:02:00.1",
-          "logical-name":"hed1",
-          "type":"simple-port"
-        },{
-          "bus-address":"0000:02:00.2",
-          "logical-name":"hed2",
-          "type":"simple-port"
-        },{
-          "bus-address":"0000:02:00.3",
-          "logical-name":"hed3","type":"simple-port"
-        },{
-          "bus-address":"0000:04:00.0",
-          "logical-name":"hed4",
-          "type":"simple-port"
-        },{
-          "bus-address":"0000:04:00.1",
-          "logical-name":"hed5",
-          "type":"simple-port"}
-        ]},{
-        "name":"MY-2PORT-SERVER",
-        "physical-ports":[{
-          "bus-address":"0000:04:00.0",
-          "logical-name":"hed3",
-          "type":"simple-port"
-        },{
-          "bus-address":"0000:04:00.1",
-          "logical-name":"hed4",
-          "type":"simple-port"}
-        ]}],
-      "product":{
-        "version":2},
-      "server-groups":[{
-        "name":"CLOUD",
-        "networks":["EXTERNAL-API-NET","EXTERNAL-VM-NET","INTERNAL-API-NET","ISCSI-NET","CONF-NET"],
-        "server-groups":["AZ1","AZ2","AZ3"]
-      },{
-        "name":"AZ1","server-groups":["rack1"]
-      },{
-        "name":"AZ2","server-groups":["rack2"]
-      },{
-        "name":"AZ3","server-groups":["rack3"]
-      },{
-        "name":"rack1","networks":["GUEST-NET-RACK1","MANAGEMENT-NET-RACK1","SWIFT-NET-RACK1"]
-      },{
-        "name":"rack2","networks":["GUEST-NET-RACK2","MANAGEMENT-NET-RACK2","SWIFT-NET-RACK2"]
-      },{
-        "name":"rack3","networks":["GUEST-NET-RACK3","MANAGEMENT-NET-RACK3","SWIFT-NET-RACK3"]}
+          "name": "NEUTRON-CONFIG-CP1",
+          "services": [
+            "neutron"
+          ]
+        },
+        {
+          "data": {
+            "amp_network_name": "OCTAVIA-MGMT-NET"
+          },
+          "name": "OCTAVIA-CONFIG-CP1",
+          "services": [
+            "octavia"
+          ]
+        },
+        {
+          "data": {
+            "control_plane_rings": {
+              "rings": [
+                {
+                  "display-name": "Account Ring",
+                  "min-part-hours": 16,
+                  "name": "account",
+                  "partition-power": 14,
+                  "replication-policy": {
+                    "replica-count": 3
+                  }
+                },
+                {
+                  "display-name": "Container Ring",
+                  "min-part-hours": 16,
+                  "name": "container",
+                  "partition-power": 14,
+                  "replication-policy": {
+                    "replica-count": 3
+                  }
+                },
+                {
+                  "default": true,
+                  "display-name": "General",
+                  "min-part-hours": 16,
+                  "name": "object-0",
+                  "partition-power": 14,
+                  "replication-policy": {
+                    "replica-count": 3
+                  }
+                }
+              ],
+              "swift-zones": [
+                {
+                  "id": 1,
+                  "server-groups": [
+                    "AZ1"
+                  ]
+                },
+                {
+                  "id": 2,
+                  "server-groups": [
+                    "AZ2"
+                  ]
+                },
+                {
+                  "id": 3,
+                  "server-groups": [
+                    "AZ3"
+                  ]
+                }
+              ]
+            }
+          },
+          "name": "SWIFT-CONFIG-CP1",
+          "services": [
+            "swift"
+          ]
+        }
       ],
-      "server-roles":[{
-        "disk-model":"COMMON-CONTROL-600GB-DISKS",
-        "interface-model":"CORE-INTERFACES",
-        "name":"CORE-ROLE"
-      },{
-        "disk-model":"MTRMON-2TB-DISKS",
-        "interface-model":"MTRMON-INTERFACES",
-        "name":"MTRMON-ROLE"
-      },{
-        "disk-model":"COMMON-CONTROL-600GB-DISKS",
-        "interface-model":"NEUTRON-INTERFACES",
-        "name":"NEUTRON-ROLE"
-      },{
-        "disk-model":"DBMQ-600GB-DISKS",
-        "interface-model":"DBMQ-INTERFACES",
-        "name":"DBMQ-ROLE"
-      },{
-        "disk-model":"SWPAC-DISKS",
-        "interface-model":"SWPAC-INTERFACES",
-        "name":"SWPAC-ROLE"
-      },{
-        "disk-model":"COMPUTE-DISKS",
-        "interface-model":"COMPUTE-INTERFACES",
-        "name":"COMPUTE-ROLE"
-      },{
-        "disk-model":"SWOBJ-DISKS",
-        "interface-model":"SWOBJ-INTERFACES",
-        "name":"SWOBJ-ROLE"
-      },{
-        "disk-model":"VSA-DISKS",
-        "interface-model":"VSA-INTERFACES",
-        "name":"VSA-ROLE"
-      }],
-      "servers":[{
-        "id":"core1","ilo-ip":"10.1.8.90",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.10",
-        "mac-addr":"8c:dc:d4:b5:cc:ac",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"CORE-ROLE",
-        "server-group":"rack1"
-      },{
-        "id":"mtrmon1",
-        "ilo-ip":"10.1.12.96",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.11",
-        "mac-addr":"8c:dc:d4:b5:ce:10",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"MTRMON-ROLE",
-        "server-group":"rack1"
-      },{
-        "id":"dbmq1",
-        "ilo-ip":"10.1.8.86",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.12",
-        "mac-addr":"5c:b9:01:89:b7:20",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"DBMQ-ROLE",
-        "server-group":"rack1"
-      },{
-        "id":"swpac1",
-        "ilo-ip":"10.1.12.88",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.13",
-        "mac-addr":"8c:dc:d4:b5:cb:bc",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"SWPAC-ROLE",
-        "server-group":"rack1"
-      },{
-        "id":"neut1",
-        "ilo-ip":"10.1.12.91",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.14",
-        "mac-addr":"5c:b9:01:89:b6:18",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"NEUTRON-ROLE",
-        "server-group":"rack1"
-      },{
-        "id":"swobj1",
-        "ilo-ip":"10.1.12.85",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.15",
-        "mac-addr":"8c:dc:d4:b5:ca:e0",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"SWOBJ-ROLE",
-        "server-group":"rack1"
-      },{
-        "id":"compute1",
-        "ilo-ip":"10.1.12.86",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.16",
-        "mac-addr":"8c:dc:d4:b5:78:c4",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"COMPUTE-ROLE","server-group":"rack1"
-      },{
-        "id":"vsa1",
-        "ilo-ip":"10.1.12.86",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.17",
-        "mac-addr":"8c:dc:d4:b5:78:c4",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"VSA-ROLE","server-group":"rack1"
-      },{
-        "id":"core2",
-        "ilo-ip":"10.1.12.94",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.18",
-        "mac-addr":"8c:dc:d4:af:92:c0",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"CORE-ROLE","server-group":"rack2"
-      },{
-        "id":"mtrmon2",
-        "ilo-ip":"10.1.12.96",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.19",
-        "mac-addr":"8c:dc:d4:b5:ce:10",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"MTRMON-ROLE","server-group":"rack2"
-      },{
-        "id":"dbmq2",
-        "ilo-ip":"10.1.8.86",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.20",
-        "mac-addr":"5c:b9:01:89:b7:20",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"DBMQ-ROLE",
-        "server-group":"rack2"
-      },{
-        "id":"swpac2",
-        "ilo-ip":"10.1.8.93",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.21",
-        "mac-addr":"8c:dc:d4:b5:7e:08",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"SWPAC-ROLE",
-        "server-group":"rack2"
-      },{
-        "id":"neut2",
-        "ilo-ip":"10.1.12.91",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.22",
-        "mac-addr":"5c:b9:01:89:b6:18",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"NEUTRON-ROLE",
-        "server-group":"rack2"
-      },{
-        "id":"swobj2",
-        "ilo-ip":"10.1.12.83",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.23",
-        "mac-addr":"8c:dc:d4:b5:cd:00",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"SWOBJ-ROLE",
-        "server-group":"rack2"
-      },{
-        "id":"compute2",
-        "ilo-ip":"10.1.12.90",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.24",
-        "mac-addr":"8c:dc:d4:b5:0f:48",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"COMPUTE-ROLE",
-        "server-group":"rack2"
-      },{"id":"vsa2",
-        "ilo-ip":"10.1.12.90",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.25",
-        "mac-addr":"8c:dc:d4:b5:0f:48",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"VSA-ROLE","server-group":"rack2"
-      },{
-        "id":"mtrmon3",
-        "ilo-ip":"10.1.12.96",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.26",
-        "mac-addr":"8c:dc:d4:b5:ce:10",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"MTRMON-ROLE",
-        "server-group":"rack3"
-      },{
-        "id":"dbmq3",
-        "ilo-ip":"10.1.8.86",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.27",
-        "mac-addr":"5c:b9:01:89:b7:20",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"DBMQ-ROLE",
-        "server-group":"rack3"
-      },{
-        "id":"swpac3",
-        "ilo-ip":"10.1.12.206",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.28",
-        "mac-addr":"5c:b9:01:89:b4:1c",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"SWPAC-ROLE",
-        "server-group":"rack3"
-      },{
-        "id":"swobj3",
-        "ilo-ip":"10.1.8.205",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.29",
-        "mac-addr":"8c:dc:d4:b5:f0:80",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"SWOBJ-ROLE",
-        "server-group":"rack3"
-      },{
-        "id":"compute3",
-        "ilo-ip":"10.1.12.204",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.30",
-        "mac-addr":"5c:b9:01:88:d4:3c",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"COMPUTE-ROLE",
-        "server-group":"rack3"
-      },{
-        "id":"vsa3",
-        "ilo-ip":"10.1.12.212",
-        "ilo-password":"password",
-        "ilo-user":"admin",
-        "ip-addr":"10.243.140.31",
-        "mac-addr":"5c:b9:01:88:d0:a0",
-        "nic-mapping":"HP-DL360-6PORT",
-        "role":"VSA-ROLE",
-        "server-group":"rack3"
-      }]
+      "control-planes": [
+        {
+          "clusters": [
+            {
+              "allocation-policy": "strict",
+              "cluster-prefix": "core",
+              "member-count": 2,
+              "name": "core",
+              "server-role": "CORE-ROLE",
+              "service-components": [
+                "lifecycle-manager",
+                "tempest",
+                "apache2",
+                "keystone-api",
+                "cinder-api",
+                "cinder-scheduler",
+                "cinder-volume",
+                "cinder-backup",
+                "cinder-client",
+                "cmc-service",
+                "keystone-client",
+                "glance-api",
+                "glance-registry",
+                "glance-client",
+                "horizon",
+                "heat-api",
+                "heat-api-cfn",
+                "heat-api-cloudwatch",
+                "heat-engine",
+                "heat-client",
+                "ip-cluster",
+                "memcached",
+                "openstack-client",
+                "nova-api",
+                "nova-scheduler",
+                "nova-conductor",
+                "nova-console-auth",
+                "nova-novncproxy",
+                "nova-client",
+                "neutron-server",
+                "neutron-ml2-plugin",
+                "neutron-client",
+                "octavia-api",
+                "octavia-health-manager",
+                "ntp-server",
+                "ops-console-web",
+                "ops-console-monitor",
+                "barbican-api",
+                "barbican-client",
+                "barbican-worker",
+                "designate-api",
+                "designate-central",
+                "designate-pool-manager",
+                "designate-zone-manager",
+                "designate-mdns",
+                "designate-client",
+                "powerdns",
+                "magnum-api",
+                "magnum-conductor"
+              ]
+            },
+            {
+              "allocation-policy": "strict",
+              "cluster-prefix": "mtrmon",
+              "member-count": 3,
+              "name": "mtrmon",
+              "server-role": "MTRMON-ROLE",
+              "service-components": [
+                "ntp-client",
+                "ceilometer-api",
+                "ceilometer-polling",
+                "ceilometer-agent-notification",
+                "ceilometer-common",
+                "ceilometer-client",
+                "vertica",
+                "kafka",
+                "spark",
+                "logging-server",
+                "apache2",
+                "storm",
+                "monasca-api",
+                "monasca-persister",
+                "monasca-notifier",
+                "monasca-threshold",
+                "monasca-client",
+                "monasca-transform",
+                "zookeeper",
+                "freezer-api"
+              ]
+            },
+            {
+              "allocation-policy": "strict",
+              "cluster-prefix": "dbmq",
+              "member-count": 3,
+              "name": "dbmq",
+              "server-role": "DBMQ-ROLE",
+              "service-components": [
+                "ntp-client",
+                "mysql",
+                "rabbitmq"
+              ]
+            },
+            {
+              "allocation-policy": "strict",
+              "cluster-prefix": "swpac",
+              "member-count": 3,
+              "name": "swpac",
+              "server-role": "SWPAC-ROLE",
+              "service-components": [
+                "ntp-client",
+                "swift-proxy",
+                "swift-account",
+                "swift-container",
+                "swift-ring-builder",
+                "swift-client"
+              ]
+            },
+            {
+              "allocation-policy": "strict",
+              "cluster-prefix": "neut",
+              "member-count": 2,
+              "name": "neut",
+              "server-role": "NEUTRON-ROLE",
+              "service-components": [
+                "ntp-client",
+                "neutron-vpn-agent",
+                "neutron-dhcp-agent",
+                "neutron-metadata-agent",
+                "neutron-openvswitch-agent"
+              ]
+            }
+          ],
+          "common-service-components": [
+            "logging-rotate",
+            "logging-producer",
+            "monasca-agent",
+            "freezer-agent",
+            "stunnel",
+            "lifecycle-manager-target"
+          ],
+          "configuration-data": [
+            "DESIGNATE-CONFIG-CP1",
+            "OCTAVIA-CONFIG-CP1",
+            "NEUTRON-CONFIG-CP1",
+            "SWIFT-CONFIG-CP1"
+          ],
+          "control-plane-prefix": "cp1",
+          "failure-zones": [
+            "AZ1",
+            "AZ2",
+            "AZ3"
+          ],
+          "name": "control-plane-1",
+          "region-name": "region1",
+          "resources": [
+            {
+              "allocation-policy": "strict",
+              "min-count": 0,
+              "name": "compute",
+              "resource-prefix": "comp",
+              "server-role": "COMPUTE-ROLE",
+              "service-components": [
+                "ntp-client",
+                "nova-compute-kvm",
+                "nova-compute",
+                "neutron-l3-agent",
+                "neutron-metadata-agent",
+                "neutron-openvswitch-agent",
+                "neutron-lbaasv2-agent"
+              ]
+            },
+            {
+              "allocation-policy": "strict",
+              "min-count": 3,
+              "name": "vsa",
+              "resource-prefix": "vsa",
+              "server-role": "VSA-ROLE",
+              "service-components": [
+                "ntp-client",
+                "vsa"
+              ]
+            },
+            {
+              "allocation-policy": "strict",
+              "min-count": 3,
+              "name": "swobj",
+              "resource-prefix": "swobj",
+              "server-role": "SWOBJ-ROLE",
+              "service-components": [
+                "ntp-client",
+                "swift-object"
+              ]
+            }
+          ]
+        }
+      ],
+      "disk-models": [
+        {
+          "name": "COMPUTE-DISKS",
+          "volume-groups": [
+            {
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "45%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "25%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "10%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            },
+            {
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/lib/nova",
+                  "name": "compute",
+                  "size": "95%"
+                }
+              ],
+              "name": "vg-comp",
+              "physical-volumes": [
+                "/dev/sdb"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "COMMON-CONTROL-600GB-DISKS",
+          "volume-groups": [
+            {
+              "consumer": {
+                "name": "os"
+              },
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "10%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "11%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "17%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "DBMQ-600GB-DISKS",
+          "volume-groups": [
+            {
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "10%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "11%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "17%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            },
+            {
+              "logical-volumes": [
+                {
+                  "consumer": {
+                    "name": "mysql"
+                  },
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/lib/mysql",
+                  "name": "mysql",
+                  "size": "10%"
+                },
+                {
+                  "consumer": {
+                    "name": "rabbitmq",
+                    "rabbitmq_env": "home"
+                  },
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/lib/rabbitmq",
+                  "name": "rabbitmq",
+                  "size": "13%"
+                }
+              ],
+              "name": "hlm-dbmq",
+              "physical-volumes": [
+                "/dev/sdb"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "MTRMON-2TB-DISKS",
+          "volume-groups": [
+            {
+              "consumer": {
+                "name": "os"
+              },
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "3%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "3%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "5%"
+                },
+                {
+                  "consumer": {
+                    "name": "vertica"
+                  },
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/vertica",
+                  "name": "vertica",
+                  "size": "18%"
+                },
+                {
+                  "consumer": {
+                    "name": "kafka"
+                  },
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/kafka",
+                  "name": "kafka",
+                  "size": "19%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mount": "/var/lib/elasticsearch",
+                  "name": "elasticsearch",
+                  "size": "40%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mount": "/var/lib/zookeeper",
+                  "name": "zookeeper",
+                  "size": "1%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "MTRMON-4.5TB-DISKS",
+          "volume-groups": [
+            {
+              "consumer": {
+                "name": "os"
+              },
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "1%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "1%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "2%"
+                },
+                {
+                  "consumer": {
+                    "name": "vertica"
+                  },
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/vertica",
+                  "name": "vertica",
+                  "size": "12%"
+                },
+                {
+                  "consumer": {
+                    "name": "kafka"
+                  },
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/kafka",
+                  "name": "kafka",
+                  "size": "13%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mount": "/var/lib/elasticsearch",
+                  "name": "elasticsearch",
+                  "size": "49%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mount": "/var/lib/zookeeper",
+                  "name": "zookeeper",
+                  "size": "1%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "MTRMON-600GB-DISKS",
+          "volume-groups": [
+            {
+              "consumer": {
+                "name": "os"
+              },
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "10%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "11%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "10%"
+                },
+                {
+                  "consumer": {
+                    "name": "vertica"
+                  },
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/vertica",
+                  "name": "vertica",
+                  "size": "21%"
+                },
+                {
+                  "consumer": {
+                    "name": "kafka"
+                  },
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/kafka",
+                  "name": "kafka",
+                  "size": "12%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mount": "/var/lib/elasticsearch",
+                  "name": "elasticsearch",
+                  "size": "22%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mount": "/var/lib/zookeeper",
+                  "name": "zookeeper",
+                  "size": "1%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            }
+          ]
+        },
+        {
+          "device-groups": [
+            {
+              "consumer": {
+                "attrs": {
+                  "rings": [
+                    "object-0"
+                  ]
+                },
+                "name": "swift"
+              },
+              "devices": [
+                {
+                  "name": "/dev/sdb"
+                },
+                {
+                  "name": "/dev/sdc"
+                },
+                {
+                  "name": "/dev/sdd"
+                }
+              ],
+              "name": "swiftobj"
+            }
+          ],
+          "name": "SWOBJ-DISKS",
+          "volume-groups": [
+            {
+              "consumer": {
+                "name": "os"
+              },
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "20%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "8%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "10%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            }
+          ]
+        },
+        {
+          "device-groups": [
+            {
+              "consumer": {
+                "attrs": {
+                  "rings": [
+                    "account",
+                    "container"
+                  ]
+                },
+                "name": "swift"
+              },
+              "devices": [
+                {
+                  "name": "/dev/sdb"
+                }
+              ],
+              "name": "swiftpac"
+            }
+          ],
+          "name": "SWPAC-DISKS",
+          "volume-groups": [
+            {
+              "consumer": {
+                "name": "os"
+              },
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "20%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "8%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "10%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            }
+          ]
+        },
+        {
+          "device_groups": [
+            {
+              "consumer": {
+                "name": "vsa",
+                "usage": "data"
+              },
+              "devices": [
+                {
+                  "name": "/dev/sdb"
+                },
+                {
+                  "name": "/dev/sdc"
+                },
+                {
+                  "name": "/dev/sdd"
+                }
+              ],
+              "name": "vsa-data"
+            }
+          ],
+          "name": "VSA-DISKS",
+          "volume-groups": [
+            {
+              "consumer": {
+                "name": "os"
+              },
+              "logical-volumes": [
+                {
+                  "fstype": "ext4",
+                  "mount": "/",
+                  "name": "root",
+                  "size": "20%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/crash",
+                  "name": "crash",
+                  "size": "8%"
+                },
+                {
+                  "fstype": "ext4",
+                  "mkfs-opts": "-O large_file",
+                  "mount": "/var/log",
+                  "name": "log",
+                  "size": "10%"
+                }
+              ],
+              "name": "hlm-vg",
+              "physical-volumes": [
+                "/dev/sda_root"
+              ]
+            }
+          ]
+        }
+      ],
+      "firewall-rules": [
+        {
+          "name": "PING",
+          "network-groups": [
+            "MANAGEMENT",
+            "GUEST",
+            "EXTERNAL-API",
+            "INTERNAL-API",
+            "ISCSI",
+            "SWIFT"
+          ],
+          "rules": [
+            {
+              "port-range-max": 0,
+              "port-range-min": 8,
+              "protocol": "icmp",
+              "remote-ip-prefix": "0.0.0.0/0",
+              "type": "allow"
+            }
+          ]
+        }
+      ],
+      "interface-models": [
+        {
+          "name": "CORE-INTERFACES",
+          "network-interfaces": [
+            {
+              "device": {
+                "name": "hed3"
+              },
+              "name": "hed3",
+              "network-groups": [
+                "CONF"
+              ]
+            },
+            {
+              "bond-data": {
+                "devices": [
+                  {
+                    "name": "hed4"
+                  },
+                  {
+                    "name": "hed5"
+                  }
+                ],
+                "options": {
+                  "miimon": 200,
+                  "mode": "active-backup",
+                  "primary": "hed4"
+                },
+                "provider": "linux"
+              },
+              "device": {
+                "name": "bond0"
+              },
+              "forced-network-groups": [
+                "ISCSI"
+              ],
+              "name": "BOND0",
+              "network-groups": [
+                "EXTERNAL-API",
+                "INTERNAL-API",
+                "MANAGEMENT"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "NEUTRON-INTERFACES",
+          "network-interfaces": [
+            {
+              "device": {
+                "name": "hed3"
+              },
+              "name": "hed3",
+              "network-groups": [
+                "CONF"
+              ]
+            },
+            {
+              "bond-data": {
+                "devices": [
+                  {
+                    "name": "hed4"
+                  },
+                  {
+                    "name": "hed5"
+                  }
+                ],
+                "options": {
+                  "miimon": 200,
+                  "mode": "active-backup",
+                  "primary": "hed4"
+                },
+                "provider": "linux"
+              },
+              "device": {
+                "name": "bond0"
+              },
+              "name": "BOND0",
+              "network-groups": [
+                "EXTERNAL-VM",
+                "GUEST",
+                "MANAGEMENT"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "COMPUTE-INTERFACES",
+          "network-interfaces": [
+            {
+              "device": {
+                "name": "hed3"
+              },
+              "name": "hed3",
+              "network-groups": [
+                "CONF"
+              ]
+            },
+            {
+              "bond-data": {
+                "devices": [
+                  {
+                    "name": "hed4"
+                  },
+                  {
+                    "name": "hed5"
+                  }
+                ],
+                "options": {
+                  "miimon": 200,
+                  "mode": "active-backup",
+                  "primary": "hed4"
+                },
+                "provider": "linux"
+              },
+              "device": {
+                "name": "bond0"
+              },
+              "forced-network-groups": [
+                "ISCSI"
+              ],
+              "name": "BOND0",
+              "network-groups": [
+                "EXTERNAL-VM",
+                "GUEST",
+                "MANAGEMENT"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "VSA-INTERFACES",
+          "network-interfaces": [
+            {
+              "device": {
+                "name": "hed3"
+              },
+              "name": "hed3",
+              "network-groups": [
+                "CONF"
+              ]
+            },
+            {
+              "bond-data": {
+                "devices": [
+                  {
+                    "name": "hed4"
+                  },
+                  {
+                    "name": "hed5"
+                  }
+                ],
+                "options": {
+                  "miimon": 200,
+                  "mode": "active-backup",
+                  "primary": "hed4"
+                },
+                "provider": "linux"
+              },
+              "device": {
+                "name": "bond0"
+              },
+              "name": "BOND0",
+              "network-groups": [
+                "MANAGEMENT",
+                "ISCSI"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "SWOBJ-INTERFACES",
+          "network-interfaces": [
+            {
+              "device": {
+                "name": "hed3"
+              },
+              "name": "hed3",
+              "network-groups": [
+                "CONF"
+              ]
+            },
+            {
+              "bond-data": {
+                "devices": [
+                  {
+                    "name": "hed4"
+                  },
+                  {
+                    "name": "hed5"
+                  }
+                ],
+                "options": {
+                  "miimon": 200,
+                  "mode": "active-backup",
+                  "primary": "hed4"
+                },
+                "provider": "linux"
+              },
+              "device": {
+                "name": "bond0"
+              },
+              "name": "BOND0",
+              "network-groups": [
+                "MANAGEMENT",
+                "SWIFT"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "SWPAC-INTERFACES",
+          "network-interfaces": [
+            {
+              "device": {
+                "name": "hed3"
+              },
+              "name": "hed3",
+              "network-groups": [
+                "CONF"
+              ]
+            },
+            {
+              "bond-data": {
+                "devices": [
+                  {
+                    "name": "hed4"
+                  },
+                  {
+                    "name": "hed5"
+                  }
+                ],
+                "options": {
+                  "miimon": 200,
+                  "mode": "active-backup",
+                  "primary": "hed4"
+                },
+                "provider": "linux"
+              },
+              "device": {
+                "name": "bond0"
+              },
+              "name": "BOND0",
+              "network-groups": [
+                "MANAGEMENT",
+                "SWIFT"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "DBMQ-INTERFACES",
+          "network-interfaces": [
+            {
+              "device": {
+                "name": "hed3"
+              },
+              "name": "hed3",
+              "network-groups": [
+                "CONF"
+              ]
+            },
+            {
+              "bond-data": {
+                "devices": [
+                  {
+                    "name": "hed4"
+                  },
+                  {
+                    "name": "hed5"
+                  }
+                ],
+                "options": {
+                  "miimon": 200,
+                  "mode": "active-backup",
+                  "primary": "hed4"
+                },
+                "provider": "linux"
+              },
+              "device": {
+                "name": "bond0"
+              },
+              "name": "BOND0",
+              "network-groups": [
+                "MANAGEMENT"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "MTRMON-INTERFACES",
+          "network-interfaces": [
+            {
+              "device": {
+                "name": "hed3"
+              },
+              "name": "hed3",
+              "network-groups": [
+                "CONF"
+              ]
+            },
+            {
+              "bond-data": {
+                "devices": [
+                  {
+                    "name": "hed4"
+                  },
+                  {
+                    "name": "hed5"
+                  }
+                ],
+                "options": {
+                  "miimon": 200,
+                  "mode": "active-backup",
+                  "primary": "hed4"
+                },
+                "provider": "linux"
+              },
+              "device": {
+                "name": "bond0"
+              },
+              "name": "BOND0",
+              "network-groups": [
+                "MANAGEMENT"
+              ]
+            }
+          ]
+        }
+      ],
+      "network-groups": [
+        {
+          "component-endpoints": [
+            "powerdns-ext"
+          ],
+          "hostname-suffix": "extapi",
+          "load-balancers": [
+            {
+              "cert-file": "my-public-mid-scale-kvm-vsa-cert",
+              "external-name": null,
+              "name": "extlb",
+              "provider": "ip-cluster",
+              "roles": [
+                "public"
+              ],
+              "tls-components": [
+                "default"
+              ]
+            }
+          ],
+          "name": "EXTERNAL-API"
+        },
+        {
+          "name": "EXTERNAL-VM",
+          "tags": [
+            "neutron.l3_agent.external_network_bridge"
+          ]
+        },
+        {
+          "hostname-suffix": "guest",
+          "name": "GUEST",
+          "tags": [
+            "neutron.networks.vxlan"
+          ]
+        },
+        {
+          "hostname-suffix": "intapi",
+          "load-balancers": [
+            {
+              "cert-file": "helion-internal-cert",
+              "components": [
+                "vertica",
+                "nova-metadata"
+              ],
+              "name": "lb",
+              "provider": "ip-cluster",
+              "roles": [
+                "internal",
+                "admin"
+              ],
+              "tls-components": [
+                "default"
+              ]
+            }
+          ],
+          "name": "INTERNAL-API"
+        },
+        {
+          "component-endpoints": [
+            "default"
+          ],
+          "hostname": true,
+          "hostname-suffix": "mgmt",
+          "name": "MANAGEMENT",
+          "routes": [
+            "INTERNAL-API",
+            "OCTAVIA-MGMT-NET",
+            "default"
+          ],
+          "tags": [
+            {
+              "neutron.networks.vlan": {
+                "provider-physical-network": "physnet1"
+              }
+            }
+          ],
+          "tls-component-endpoints": [
+            "barbican-api"
+          ]
+        },
+        {
+          "component-endpoints": [
+            "vsa"
+          ],
+          "hostname-suffix": "iscsi",
+          "name": "ISCSI"
+        },
+        {
+          "component-endpoints": [
+            "swift-container",
+            "swift-account",
+            "swift-object",
+            "swift-rsync"
+          ],
+          "hostname-suffix": "swift",
+          "name": "SWIFT"
+        },
+        {
+          "component-endpoints": [
+            "lifecycle-manager",
+            "lifecycle-manager-target"
+          ],
+          "hostname-suffix": "conf",
+          "name": "CONF"
+        }
+      ],
+      "networks": [
+        {
+          "cidr": "10.243.125.0/24",
+          "gateway-ip": "10.243.125.1",
+          "name": "EXTERNAL-API-NET",
+          "network-group": "EXTERNAL-API",
+          "tagged-vlan": true,
+          "vlanid": 3365
+        },
+        {
+          "cidr": "10.243.126.0/24",
+          "gateway-ip": "10.243.126.1",
+          "name": "INTERNAL-API-NET",
+          "network-group": "INTERNAL-API",
+          "tagged-vlan": true,
+          "vlanid": 3366
+        },
+        {
+          "name": "EXTERNAL-VM-NET",
+          "network-group": "EXTERNAL-VM",
+          "tagged-vlan": true,
+          "vlanid": 3367
+        },
+        {
+          "cidr": "10.243.133.0/24",
+          "gateway-ip": "10.243.133.1",
+          "name": "ISCSI-NET",
+          "network-group": "ISCSI",
+          "tagged-vlan": true,
+          "vlanid": 3374
+        },
+        {
+          "cidr": "10.243.140.0/24",
+          "gateway-ip": "10.243.140.1",
+          "name": "CONF-NET",
+          "network-group": "CONF",
+          "tagged-vlan": false,
+          "vlanid": 3380
+        },
+        {
+          "cidr": "10.243.127.0/24",
+          "gateway-ip": "10.243.127.1",
+          "name": "GUEST-NET-RACK1",
+          "network-group": "GUEST",
+          "tagged-vlan": true,
+          "vlanid": 3368
+        },
+        {
+          "cidr": "10.243.128.0/24",
+          "gateway-ip": "10.243.128.1",
+          "name": "GUEST-NET-RACK2",
+          "network-group": "GUEST",
+          "tagged-vlan": true,
+          "vlanid": 3369
+        },
+        {
+          "cidr": "10.243.129.0/24",
+          "gateway-ip": "10.243.129.1",
+          "name": "GUEST-NET-RACK3",
+          "network-group": "GUEST",
+          "tagged-vlan": true,
+          "vlanid": 3370
+        },
+        {
+          "cidr": "10.243.136.0/24",
+          "gateway-ip": "10.243.136.1",
+          "name": "SWIFT-NET-RACK1",
+          "network-group": "SWIFT",
+          "tagged-vlan": true,
+          "vlanid": 3377
+        },
+        {
+          "cidr": "10.243.137.0/24",
+          "gateway-ip": "10.243.137.1",
+          "name": "SWIFT-NET-RACK2",
+          "network-group": "SWIFT",
+          "tagged-vlan": true,
+          "vlanid": 3378
+        },
+        {
+          "cidr": "10.243.138.0/24",
+          "gateway-ip": "10.243.138.1",
+          "name": "SWIFT-NET-RACK3",
+          "network-group": "SWIFT",
+          "tagged-vlan": true,
+          "vlanid": 3379
+        },
+        {
+          "cidr": "10.243.130.0/24",
+          "gateway-ip": "10.243.130.1",
+          "name": "MANAGEMENT-NET-RACK1",
+          "network-group": "MANAGEMENT",
+          "tagged-vlan": false,
+          "vlanid": 3371
+        },
+        {
+          "cidr": "10.243.131.0/24",
+          "gateway-ip": "10.243.131.1",
+          "name": "MANAGEMENT-NET-RACK2",
+          "network-group": "MANAGEMENT",
+          "tagged-vlan": false,
+          "vlanid": 3372
+        },
+        {
+          "cidr": "10.243.132.0/24",
+          "gateway-ip": "10.243.132.1",
+          "name": "MANAGEMENT-NET-RACK3",
+          "network-group": "MANAGEMENT",
+          "tagged-vlan": false,
+          "vlanid": 3373
+        }
+      ],
+      "nic-mappings": [
+        {
+          "name": "HP-DL360-6PORT",
+          "physical-ports": [
+            {
+              "bus-address": "0000:02:00.0",
+              "logical-name": "hed0",
+              "type": "simple-port"
+            },
+            {
+              "bus-address": "0000:02:00.1",
+              "logical-name": "hed1",
+              "type": "simple-port"
+            },
+            {
+              "bus-address": "0000:02:00.2",
+              "logical-name": "hed2",
+              "type": "simple-port"
+            },
+            {
+              "bus-address": "0000:02:00.3",
+              "logical-name": "hed3",
+              "type": "simple-port"
+            },
+            {
+              "bus-address": "0000:04:00.0",
+              "logical-name": "hed4",
+              "type": "simple-port"
+            },
+            {
+              "bus-address": "0000:04:00.1",
+              "logical-name": "hed5",
+              "type": "simple-port"
+            }
+          ]
+        },
+        {
+          "name": "MY-2PORT-SERVER",
+          "physical-ports": [
+            {
+              "bus-address": "0000:04:00.0",
+              "logical-name": "hed3",
+              "type": "simple-port"
+            },
+            {
+              "bus-address": "0000:04:00.1",
+              "logical-name": "hed4",
+              "type": "simple-port"
+            }
+          ]
+        }
+      ],
+      "product": {
+        "version": 2
+      },
+      "server-groups": [
+        {
+          "name": "CLOUD",
+          "networks": [
+            "EXTERNAL-API-NET",
+            "EXTERNAL-VM-NET",
+            "INTERNAL-API-NET",
+            "ISCSI-NET",
+            "CONF-NET"
+          ],
+          "server-groups": [
+            "AZ1",
+            "AZ2",
+            "AZ3"
+          ]
+        },
+        {
+          "name": "AZ1",
+          "server-groups": [
+            "rack1"
+          ]
+        },
+        {
+          "name": "AZ2",
+          "server-groups": [
+            "rack2"
+          ]
+        },
+        {
+          "name": "AZ3",
+          "server-groups": [
+            "rack3"
+          ]
+        },
+        {
+          "name": "rack1",
+          "networks": [
+            "GUEST-NET-RACK1",
+            "MANAGEMENT-NET-RACK1",
+            "SWIFT-NET-RACK1"
+          ]
+        },
+        {
+          "name": "rack2",
+          "networks": [
+            "GUEST-NET-RACK2",
+            "MANAGEMENT-NET-RACK2",
+            "SWIFT-NET-RACK2"
+          ]
+        },
+        {
+          "name": "rack3",
+          "networks": [
+            "GUEST-NET-RACK3",
+            "MANAGEMENT-NET-RACK3",
+            "SWIFT-NET-RACK3"
+          ]
+        }
+      ],
+      "server-roles": [
+        {
+          "disk-model": "COMMON-CONTROL-600GB-DISKS",
+          "interface-model": "CORE-INTERFACES",
+          "name": "CORE-ROLE"
+        },
+        {
+          "disk-model": "MTRMON-2TB-DISKS",
+          "interface-model": "MTRMON-INTERFACES",
+          "name": "MTRMON-ROLE"
+        },
+        {
+          "disk-model": "COMMON-CONTROL-600GB-DISKS",
+          "interface-model": "NEUTRON-INTERFACES",
+          "name": "NEUTRON-ROLE"
+        },
+        {
+          "disk-model": "DBMQ-600GB-DISKS",
+          "interface-model": "DBMQ-INTERFACES",
+          "name": "DBMQ-ROLE"
+        },
+        {
+          "disk-model": "SWPAC-DISKS",
+          "interface-model": "SWPAC-INTERFACES",
+          "name": "SWPAC-ROLE"
+        },
+        {
+          "disk-model": "COMPUTE-DISKS",
+          "interface-model": "COMPUTE-INTERFACES",
+          "name": "COMPUTE-ROLE"
+        },
+        {
+          "disk-model": "SWOBJ-DISKS",
+          "interface-model": "SWOBJ-INTERFACES",
+          "name": "SWOBJ-ROLE"
+        },
+        {
+          "disk-model": "VSA-DISKS",
+          "interface-model": "VSA-INTERFACES",
+          "name": "VSA-ROLE"
+        }
+      ],
+      "servers": [
+        {
+          "id": "core1",
+          "ilo-ip": "10.1.8.90",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.10",
+          "mac-addr": "8c:dc:d4:b5:cc:ac",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "CORE-ROLE",
+          "server-group": "rack1"
+        },
+        {
+          "id": "mtrmon1",
+          "ilo-ip": "10.1.12.96",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.11",
+          "mac-addr": "8c:dc:d4:b5:ce:10",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "MTRMON-ROLE",
+          "server-group": "rack1"
+        },
+        {
+          "id": "dbmq1",
+          "ilo-ip": "10.1.8.86",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.12",
+          "mac-addr": "5c:b9:01:89:b7:20",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "DBMQ-ROLE",
+          "server-group": "rack1"
+        },
+        {
+          "id": "swpac1",
+          "ilo-ip": "10.1.12.88",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.13",
+          "mac-addr": "8c:dc:d4:b5:cb:bc",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "SWPAC-ROLE",
+          "server-group": "rack1"
+        },
+        {
+          "id": "neut1",
+          "ilo-ip": "10.1.12.91",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.14",
+          "mac-addr": "5c:b9:01:89:b6:18",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "NEUTRON-ROLE",
+          "server-group": "rack1"
+        },
+        {
+          "id": "swobj1",
+          "ilo-ip": "10.1.12.85",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.15",
+          "mac-addr": "8c:dc:d4:b5:ca:e0",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "SWOBJ-ROLE",
+          "server-group": "rack1"
+        },
+        {
+          "id": "compute1",
+          "ilo-ip": "10.1.12.86",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.16",
+          "mac-addr": "8c:dc:d4:b5:78:c4",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "COMPUTE-ROLE",
+          "server-group": "rack1"
+        },
+        {
+          "id": "vsa1",
+          "ilo-ip": "10.1.12.86",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.17",
+          "mac-addr": "8c:dc:d4:b5:78:c4",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "VSA-ROLE",
+          "server-group": "rack1"
+        },
+        {
+          "id": "core2",
+          "ilo-ip": "10.1.12.94",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.18",
+          "mac-addr": "8c:dc:d4:af:92:c0",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "CORE-ROLE",
+          "server-group": "rack2"
+        },
+        {
+          "id": "mtrmon2",
+          "ilo-ip": "10.1.12.96",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.19",
+          "mac-addr": "8c:dc:d4:b5:ce:10",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "MTRMON-ROLE",
+          "server-group": "rack2"
+        },
+        {
+          "id": "dbmq2",
+          "ilo-ip": "10.1.8.86",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.20",
+          "mac-addr": "5c:b9:01:89:b7:20",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "DBMQ-ROLE",
+          "server-group": "rack2"
+        },
+        {
+          "id": "swpac2",
+          "ilo-ip": "10.1.8.93",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.21",
+          "mac-addr": "8c:dc:d4:b5:7e:08",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "SWPAC-ROLE",
+          "server-group": "rack2"
+        },
+        {
+          "id": "neut2",
+          "ilo-ip": "10.1.12.91",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.22",
+          "mac-addr": "5c:b9:01:89:b6:18",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "NEUTRON-ROLE",
+          "server-group": "rack2"
+        },
+        {
+          "id": "swobj2",
+          "ilo-ip": "10.1.12.83",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.23",
+          "mac-addr": "8c:dc:d4:b5:cd:00",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "SWOBJ-ROLE",
+          "server-group": "rack2"
+        },
+        {
+          "id": "compute2",
+          "ilo-ip": "10.1.12.90",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.24",
+          "mac-addr": "8c:dc:d4:b5:0f:48",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "COMPUTE-ROLE",
+          "server-group": "rack2"
+        },
+        {
+          "id": "vsa2",
+          "ilo-ip": "10.1.12.90",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.25",
+          "mac-addr": "8c:dc:d4:b5:0f:48",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "VSA-ROLE",
+          "server-group": "rack2"
+        },
+        {
+          "id": "mtrmon3",
+          "ilo-ip": "10.1.12.96",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.26",
+          "mac-addr": "8c:dc:d4:b5:ce:10",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "MTRMON-ROLE",
+          "server-group": "rack3"
+        },
+        {
+          "id": "dbmq3",
+          "ilo-ip": "10.1.8.86",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.27",
+          "mac-addr": "5c:b9:01:89:b7:20",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "DBMQ-ROLE",
+          "server-group": "rack3"
+        },
+        {
+          "id": "swpac3",
+          "ilo-ip": "10.1.12.206",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.28",
+          "mac-addr": "5c:b9:01:89:b4:1c",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "SWPAC-ROLE",
+          "server-group": "rack3"
+        },
+        {
+          "id": "swobj3",
+          "ilo-ip": "10.1.8.205",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.29",
+          "mac-addr": "8c:dc:d4:b5:f0:80",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "SWOBJ-ROLE",
+          "server-group": "rack3"
+        },
+        {
+          "id": "compute3",
+          "ilo-ip": "10.1.12.204",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.30",
+          "mac-addr": "5c:b9:01:88:d4:3c",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "COMPUTE-ROLE",
+          "server-group": "rack3"
+        },
+        {
+          "id": "vsa3",
+          "ilo-ip": "10.1.12.212",
+          "ilo-password": "password",
+          "ilo-user": "admin",
+          "ip-addr": "10.243.140.31",
+          "mac-addr": "5c:b9:01:88:d0:a0",
+          "nic-mapping": "HP-DL360-6PORT",
+          "role": "VSA-ROLE",
+          "server-group": "rack3"
+        }
+      ]
     },
-    "name":"mid-scale-kvm-vsa",
-    "readme":{
-      "html":"<ol start=\"3\" style=\"list-style-type: lower-alpha\">\n<h2 id=\"helion-single-region-mid-size-model\">Helion Single Region Mid-Size model</h2>\n<h3 id=\"introduction\">Introduction</h3>\n<p>The mid-size model is intended as a template for a moderate sized cloud. The Control plane is made up of multiple server clusters to provide sufficient computational, network and IOPS capacity for a mid-size production style cloud.</p>\n<p>The Helion mid size model is architected as follows:</p>\n<h4 id=\"control-plane\">Control plane:</h4>\n<ul>\n<li><p>Core cluster: Runs Core OpenStack Services, (e.g. keystone, nova api, glance api, neutron api, horizon, heat api). Default configuration is two nodes of role type CORE-ROLE</p></li>\n<li><p>Metering &amp; Monitoring cluster: Runs the OpenStack Services for metering &amp; monitoring (e.g. celiometer, monasca &amp; logging). Default configuration is three nodes of role type MTRMON-ROLE</p></li>\n<li><p>Database &amp; Message Queue Cluster: Runs clustered MySQL and RabbitMQ services to support the Helion cloud infrastructure. Default configuration is three nodes of role type DBMQ-ROLE. Three nodes are required for high availability.</p></li>\n<li>Swift PAC cluster: Runs the Swift Proxy, Account and Container services. Default configuration is three nodes or role type SWPAC-ROLE.</li>\n<li><p>Neutron Agent cluster: Runs Neutron VPN (L3), DHCP, Metadata and OpenVswitch agents. Default configuration is three nodes or role type NEUTRON-ROLE.</p></li>\n</ul>\n<h4 id=\"resource-nodes-three-resource-pools-are-defined\">Resource nodes: Three resource pools are defined:</h4>\n<ul>\n<li><p>Compute: Runs nova compute sand associated services. Runs on nodes of role type COMPUTE-ROLE. The example lists 3 nodes, one node is required at a minimum.</p></li>\n<li><p>Vsa: Runs the Store Virtual VSA appliance. Runs on nodes of role type VSA-ROLE. One node minimum is required for demo purposes, three for high availability. The example lists 1 node.</p></li>\n<li><p>Object: Runs the Swift object service. Runs on nodes of role type SWOBJ-ROLE. The minimum node count should match your Swift replica count. The example lists 3 nodes.</p></li>\n</ul>\n<p>The minimum node count required to run the model un-modified is 20 nodes. This can be reduced by consolidating servies on the control plance clusters.</p>\n<h3 id=\"networking\">Networking</h3>\n<p>The example requires the following networks:</p>\n<p>IMPI/iLO network, connected to the deployer and the IPMI/iLO ports of all servers</p>\n<p>A network connected to a dedicated NIC on each server used to install the OS and install and configure Helion. In a future Beta release this network can be subsumed into system networks (below).</p>\n<p>A pair of bonded NICs which are used used by the following networks:</p>\n<ul>\n<li>External API - This is the network that users will use to make requests to the cloud</li>\n<li>Internal API - This is the network that will be used within the cloud for API access between services</li>\n<li>External VM - This is the network that will be used to provide access to VMs (via floating IP addresses)</li>\n<li>Guest - This is the network that will carry traffic between VMs on private networks within the cloud</li>\n<li>Cloud Management - This is the network that will be used for all internal traffic between the cloud services. In the example this is shown as untagged. It can be tagged if needed.</li>\n<li>iSCSI - This network is used to host all iSCSI (Cinder back end) traffic between Nova compute and the VSA servers</li>\n<li>SWIFT - This network is used for internal Swift comunications between the Swift servers</li>\n</ul>\n<p>Note that the EXTERNAL_API network must be reachable from the EXTERNAL_VM network if you want VMS to be able to make API calls to the cloud.</p>\n<p>An example set of networks are defined in <strong><em>data/networks.yml</em></strong>. You will need to modify this file to reflect your environment.</p>\n<p>The example uses eth2 for the install network and eth3 &amp; eth4 for the bonded network. If you need to modify these for your environment they are defined in <strong><em>data/net_interfaces.yml</em></strong></p>\n<h3 id=\"adapting-the-mid-size-model-to-fit-your-environment\">Adapting the mid-size model to fit your environment</h3>\n<p>The minimum set of changes you need to make to adapt the model for your environment are:</p>\n<ul>\n<li><p>Update baremetalConfig.yml to list the details of your bare metal servers. You need to perform this step if you are using the HLM supplied Cobber playbooks to install hLinux on your servers.</p></li>\n<li><p>Update servers.yml to list the details of your bare metal servers.</p></li>\n<li><p>Update the networks.yml file to replace network CIDRs and VLANs with site specific values</p></li>\n<li><p>Update the nic_mappings.yml file to ensure that network devices are mapped to the correct physical port(s)</p></li>\n<li><p>Review the disk models (disks_*.yml) and confirm that the associated servers have the number of disks required by the disk model. The device names in the disk models might need to be adjusted to match the probe oder of your servers. The default number of disks for the Swift nodes (3 disks) is set low on purpose to facilitate deployment on generic hardware. For production scale Swift the servers should have more disks, e.g. 6 on SWPAC nodes and 12 on SWOBJ nodes. If you allocate more Swift disks then you should review the ring power in the Swift ring confguration. This is documented in the Swift section Disk models are provided as follows:</p></li>\n<li>DISK SET CONTROLLER: Minimum 1 disk</li>\n<li>DISK SET DBMQ: Minimum 3 disks</li>\n<li>DISK SET COMPUTE: Minimum 2 disks</li>\n<li>DISK SET SWPAC: Minimum 3 disks</li>\n<li>DISK SET SWOBJ: Minimum 3 disks</li>\n<li><p>DISK SET VSA: Minimum 3 disks</p></li>\n<li><p>Update the net interfaces.yml file to match the server NICs used in your configuration. This file has a separate interface model definition for each of the following:</p></li>\n<li>INTERFACE SET CONTROLLER</li>\n<li>INTERFACE SET VSA</li>\n<li>INTERFACE SET DBMQ</li>\n<li>INTERFACE SET SWPAC</li>\n<li>INTERFACE SET SWOBJ</li>\n<li><p>INTERFACE SET COMPUTE</p></li>\n</ul>\n<footer>\n  <small>(c) Copyright 2015 Hewlett Packard Enterprise Development LP\n  <small>(c) Copyright 2017 SUSE LLC\n  <small>Licensed under the Apache License, Version 2.0 (the \"License\"); you may </small>\n  <small>not use this file except in compliance with the License. You may obtain </small>\n  <small>a copy of the License at<br><br></small>\n  <small>http://www.apache.org/licenses/LICENSE-2.0<br><br></small>\n  <small>Unless required by applicable law or agreed to in writing, software </small>\n  <small>distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT </small>\n  <small>WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the </small>\n  <small>License for the specific language governing permissions and limitations </small>\n  <small>under the License.<br></small>\n</footer>\n","md":"\n(c) Copyright 2015 Hewlett Packard Enterprise Development LP\n(c) Copyright 2017 SUSE LLC\n\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may\nnot use this file except in compliance with the License. You may obtain\na copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\nWARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the\nLicense for the specific language governing permissions and limitations\nunder the License.\n\n\n##Helion Single Region Mid-Size model##\n###Introduction###\n\nThe mid-size model is intended as a template for a moderate sized cloud. The Control plane is made up of multiple server clusters to provide sufficient computational, network and IOPS capacity for a mid-size production style cloud.  \n\nThe Helion mid size model is architected as follows:\n\n####Control plane:\n\n  - Core cluster: Runs Core OpenStack Services, (e.g. keystone, nova api, glance api, neutron api, horizon, heat api). Default configuration is two nodes of role type CORE-ROLE\n\n  - Metering & Monitoring cluster: Runs the OpenStack Services for metering & monitoring (e.g. celiometer, monasca & logging). Default configuration is three nodes of role type MTRMON-ROLE\n\n  - Database & Message Queue Cluster: Runs clustered MySQL and RabbitMQ services to support the Helion cloud infrastructure. Default configuration is three nodes of role type DBMQ-ROLE. Three nodes are required for high availability.\n\n  - Swift PAC cluster: Runs the Swift Proxy, Account and Container services. Default configuration is three nodes or role type SWPAC-ROLE.\n  - Neutron Agent cluster: Runs Neutron VPN (L3), DHCP, Metadata and OpenVswitch agents. Default configuration is three nodes or role type NEUTRON-ROLE.\n\n####Resource nodes: Three resource pools are defined:\n\n  - Compute: Runs nova compute sand associated services. Runs on nodes of role type COMPUTE-ROLE. The example lists 3 nodes, one node is required at a minimum.\n\n  - Vsa: Runs the Store Virtual VSA appliance. Runs on nodes of role type VSA-ROLE. One node minimum is required for demo purposes, three for high availability. The example lists 1 node.\n\n  - Object: Runs the Swift object service. Runs on nodes of role type SWOBJ-ROLE. The minimum node count should match your Swift replica count. The example lists 3 nodes.\n\n\n\nThe minimum node count required to run the model un-modified is 20 nodes. This can be reduced by consolidating servies on the control plance clusters.\n\n###Networking###\n\nThe example requires the following networks:\n\nIMPI/iLO network, connected to the deployer and the IPMI/iLO ports of all servers\n\nA network connected to a dedicated NIC on each server used to install the OS and install and configure Helion. In a future Beta release this network can be subsumed into system networks (below).\n\nA pair of bonded NICs which are used used by the following networks:\n\n- External API - This is the network that users will use to make requests to the cloud \n- Internal API - This is the network that will be used within the cloud for API access between services\n- External VM - This is the network that will be used to provide access to VMs (via floating IP addresses)\n- Guest - This is the network that will carry traffic between VMs on private networks within the cloud\n- Cloud Management - This is the network that will be used for all internal traffic between the cloud services. In the example this is shown as untagged. It can be tagged if needed.\n- iSCSI - This network is used to host all iSCSI (Cinder back end) traffic between Nova compute and the VSA servers\n- SWIFT - This network is used for internal Swift comunications between the Swift servers \n\nNote that the EXTERNAL\\_API network must be reachable from the EXTERNAL\\_VM network if you want VMS to be able to make  API calls to the cloud.\n\nAn example set of networks are defined in ***data/networks.yml***.    You will need to modify this file to reflect your environment.\n\nThe example uses eth2 for the install network and eth3 & eth4 for the bonded network.   If you need to modify these\nfor your environment they are defined in ***data/net_interfaces.yml***\n\n###Adapting the mid-size model to fit your environment###\n\nThe minimum set of changes you need to make to adapt the model for your environment are:\n\n- Update baremetalConfig.yml to list the details of your bare metal servers. You need to perform this step if you are using the HLM supplied Cobber playbooks to install hLinux on your servers. \n\n- Update servers.yml to list the details of your bare metal servers.\n\n- Update the networks.yml file to replace network CIDRs and VLANs with site specific values\n\n- Update the nic_mappings.yml file to ensure that network devices are mapped to the correct physical port(s)\n\n- Review the disk models (disks_*.yml) and confirm that the associated\n    servers have the number of disks required by the disk model. The device\n    names in the disk models might need to be adjusted to match the probe oder\n    of your servers. \nThe default number of disks for the Swift nodes (3 disks) is set low on purpose to facilitate deployment on generic hardware. For production scale Swift the servers should have more disks, e.g. 6 on SWPAC nodes and 12 on SWOBJ nodes. If you allocate more Swift disks then you should review the ring power in the Swift ring confguration. This is documented in the Swift section\nDisk models are provided as follows:\n\n  - DISK SET CONTROLLER: Minimum 1 disk\n  - DISK SET DBMQ: Minimum 3 disks\n  - DISK SET COMPUTE: Minimum 2 disks\n  - DISK SET SWPAC: Minimum 3 disks\n  - DISK SET SWOBJ: Minimum 3 disks\n  - DISK SET VSA: Minimum 3 disks\n\n\n\n- Update the net interfaces.yml file to match the server NICs used in your configuration. This file has a separate interface model definition for each of the following:\n\n  - INTERFACE SET CONTROLLER\n  - INTERFACE SET VSA\n  - INTERFACE SET DBMQ\n  - INTERFACE SET SWPAC\n  - INTERFACE SET SWOBJ\n  - INTERFACE SET COMPUTE\n\n"
+    "name": "mid-scale-kvm-vsa",
+    "readme": {
+      "html": "<ol start=\"3\" style=\"list-style-type: lower-alpha\">\n<h2 id=\"helion-single-region-mid-size-model\">Helion Single Region Mid-Size model</h2>\n<h3 id=\"introduction\">Introduction</h3>\n<p>The mid-size model is intended as a template for a moderate sized cloud. The Control plane is made up of multiple server clusters to provide sufficient computational, network and IOPS capacity for a mid-size production style cloud.</p>\n<p>The Helion mid size model is architected as follows:</p>\n<h4 id=\"control-plane\">Control plane:</h4>\n<ul>\n<li><p>Core cluster: Runs Core OpenStack Services, (e.g. keystone, nova api, glance api, neutron api, horizon, heat api). Default configuration is two nodes of role type CORE-ROLE</p></li>\n<li><p>Metering &amp; Monitoring cluster: Runs the OpenStack Services for metering &amp; monitoring (e.g. celiometer, monasca &amp; logging). Default configuration is three nodes of role type MTRMON-ROLE</p></li>\n<li><p>Database &amp; Message Queue Cluster: Runs clustered MySQL and RabbitMQ services to support the Helion cloud infrastructure. Default configuration is three nodes of role type DBMQ-ROLE. Three nodes are required for high availability.</p></li>\n<li>Swift PAC cluster: Runs the Swift Proxy, Account and Container services. Default configuration is three nodes or role type SWPAC-ROLE.</li>\n<li><p>Neutron Agent cluster: Runs Neutron VPN (L3), DHCP, Metadata and OpenVswitch agents. Default configuration is three nodes or role type NEUTRON-ROLE.</p></li>\n</ul>\n<h4 id=\"resource-nodes-three-resource-pools-are-defined\">Resource nodes: Three resource pools are defined:</h4>\n<ul>\n<li><p>Compute: Runs nova compute sand associated services. Runs on nodes of role type COMPUTE-ROLE. The example lists 3 nodes, one node is required at a minimum.</p></li>\n<li><p>Vsa: Runs the Store Virtual VSA appliance. Runs on nodes of role type VSA-ROLE. One node minimum is required for demo purposes, three for high availability. The example lists 1 node.</p></li>\n<li><p>Object: Runs the Swift object service. Runs on nodes of role type SWOBJ-ROLE. The minimum node count should match your Swift replica count. The example lists 3 nodes.</p></li>\n</ul>\n<p>The minimum node count required to run the model un-modified is 20 nodes. This can be reduced by consolidating servies on the control plance clusters.</p>\n<h3 id=\"networking\">Networking</h3>\n<p>The example requires the following networks:</p>\n<p>IMPI/iLO network, connected to the deployer and the IPMI/iLO ports of all servers</p>\n<p>A network connected to a dedicated NIC on each server used to install the OS and install and configure Helion. In a future Beta release this network can be subsumed into system networks (below).</p>\n<p>A pair of bonded NICs which are used used by the following networks:</p>\n<ul>\n<li>External API - This is the network that users will use to make requests to the cloud</li>\n<li>Internal API - This is the network that will be used within the cloud for API access between services</li>\n<li>External VM - This is the network that will be used to provide access to VMs (via floating IP addresses)</li>\n<li>Guest - This is the network that will carry traffic between VMs on private networks within the cloud</li>\n<li>Cloud Management - This is the network that will be used for all internal traffic between the cloud services. In the example this is shown as untagged. It can be tagged if needed.</li>\n<li>iSCSI - This network is used to host all iSCSI (Cinder back end) traffic between Nova compute and the VSA servers</li>\n<li>SWIFT - This network is used for internal Swift comunications between the Swift servers</li>\n</ul>\n<p>Note that the EXTERNAL_API network must be reachable from the EXTERNAL_VM network if you want VMS to be able to make API calls to the cloud.</p>\n<p>An example set of networks are defined in <strong><em>data/networks.yml</em></strong>. You will need to modify this file to reflect your environment.</p>\n<p>The example uses eth2 for the install network and eth3 &amp; eth4 for the bonded network. If you need to modify these for your environment they are defined in <strong><em>data/net_interfaces.yml</em></strong></p>\n<h3 id=\"adapting-the-mid-size-model-to-fit-your-environment\">Adapting the mid-size model to fit your environment</h3>\n<p>The minimum set of changes you need to make to adapt the model for your environment are:</p>\n<ul>\n<li><p>Update baremetalConfig.yml to list the details of your bare metal servers. You need to perform this step if you are using the HLM supplied Cobber playbooks to install hLinux on your servers.</p></li>\n<li><p>Update servers.yml to list the details of your bare metal servers.</p></li>\n<li><p>Update the networks.yml file to replace network CIDRs and VLANs with site specific values</p></li>\n<li><p>Update the nic_mappings.yml file to ensure that network devices are mapped to the correct physical port(s)</p></li>\n<li><p>Review the disk models (disks_*.yml) and confirm that the associated servers have the number of disks required by the disk model. The device names in the disk models might need to be adjusted to match the probe oder of your servers. The default number of disks for the Swift nodes (3 disks) is set low on purpose to facilitate deployment on generic hardware. For production scale Swift the servers should have more disks, e.g. 6 on SWPAC nodes and 12 on SWOBJ nodes. If you allocate more Swift disks then you should review the ring power in the Swift ring confguration. This is documented in the Swift section Disk models are provided as follows:</p></li>\n<li>DISK SET CONTROLLER: Minimum 1 disk</li>\n<li>DISK SET DBMQ: Minimum 3 disks</li>\n<li>DISK SET COMPUTE: Minimum 2 disks</li>\n<li>DISK SET SWPAC: Minimum 3 disks</li>\n<li>DISK SET SWOBJ: Minimum 3 disks</li>\n<li><p>DISK SET VSA: Minimum 3 disks</p></li>\n<li><p>Update the net interfaces.yml file to match the server NICs used in your configuration. This file has a separate interface model definition for each of the following:</p></li>\n<li>INTERFACE SET CONTROLLER</li>\n<li>INTERFACE SET VSA</li>\n<li>INTERFACE SET DBMQ</li>\n<li>INTERFACE SET SWPAC</li>\n<li>INTERFACE SET SWOBJ</li>\n<li><p>INTERFACE SET COMPUTE</p></li>\n</ul>\n<footer>\n  <small>(c) Copyright 2015 Hewlett Packard Enterprise Development LP\n  <small>(c) Copyright 2017 SUSE LLC\n  <small>Licensed under the Apache License, Version 2.0 (the \"License\"); you may </small>\n  <small>not use this file except in compliance with the License. You may obtain </small>\n  <small>a copy of the License at<br><br></small>\n  <small>http://www.apache.org/licenses/LICENSE-2.0<br><br></small>\n  <small>Unless required by applicable law or agreed to in writing, software </small>\n  <small>distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT </small>\n  <small>WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the </small>\n  <small>License for the specific language governing permissions and limitations </small>\n  <small>under the License.<br></small>\n</footer>\n",
+      "md": "\n(c) Copyright 2015 Hewlett Packard Enterprise Development LP\n(c) Copyright 2017 SUSE LLC\n\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may\nnot use this file except in compliance with the License. You may obtain\na copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\nWARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the\nLicense for the specific language governing permissions and limitations\nunder the License.\n\n\n##Helion Single Region Mid-Size model##\n###Introduction###\n\nThe mid-size model is intended as a template for a moderate sized cloud. The Control plane is made up of multiple server clusters to provide sufficient computational, network and IOPS capacity for a mid-size production style cloud.  \n\nThe Helion mid size model is architected as follows:\n\n####Control plane:\n\n  - Core cluster: Runs Core OpenStack Services, (e.g. keystone, nova api, glance api, neutron api, horizon, heat api). Default configuration is two nodes of role type CORE-ROLE\n\n  - Metering & Monitoring cluster: Runs the OpenStack Services for metering & monitoring (e.g. celiometer, monasca & logging). Default configuration is three nodes of role type MTRMON-ROLE\n\n  - Database & Message Queue Cluster: Runs clustered MySQL and RabbitMQ services to support the Helion cloud infrastructure. Default configuration is three nodes of role type DBMQ-ROLE. Three nodes are required for high availability.\n\n  - Swift PAC cluster: Runs the Swift Proxy, Account and Container services. Default configuration is three nodes or role type SWPAC-ROLE.\n  - Neutron Agent cluster: Runs Neutron VPN (L3), DHCP, Metadata and OpenVswitch agents. Default configuration is three nodes or role type NEUTRON-ROLE.\n\n####Resource nodes: Three resource pools are defined:\n\n  - Compute: Runs nova compute sand associated services. Runs on nodes of role type COMPUTE-ROLE. The example lists 3 nodes, one node is required at a minimum.\n\n  - Vsa: Runs the Store Virtual VSA appliance. Runs on nodes of role type VSA-ROLE. One node minimum is required for demo purposes, three for high availability. The example lists 1 node.\n\n  - Object: Runs the Swift object service. Runs on nodes of role type SWOBJ-ROLE. The minimum node count should match your Swift replica count. The example lists 3 nodes.\n\n\n\nThe minimum node count required to run the model un-modified is 20 nodes. This can be reduced by consolidating servies on the control plance clusters.\n\n###Networking###\n\nThe example requires the following networks:\n\nIMPI/iLO network, connected to the deployer and the IPMI/iLO ports of all servers\n\nA network connected to a dedicated NIC on each server used to install the OS and install and configure Helion. In a future Beta release this network can be subsumed into system networks (below).\n\nA pair of bonded NICs which are used used by the following networks:\n\n- External API - This is the network that users will use to make requests to the cloud \n- Internal API - This is the network that will be used within the cloud for API access between services\n- External VM - This is the network that will be used to provide access to VMs (via floating IP addresses)\n- Guest - This is the network that will carry traffic between VMs on private networks within the cloud\n- Cloud Management - This is the network that will be used for all internal traffic between the cloud services. In the example this is shown as untagged. It can be tagged if needed.\n- iSCSI - This network is used to host all iSCSI (Cinder back end) traffic between Nova compute and the VSA servers\n- SWIFT - This network is used for internal Swift comunications between the Swift servers \n\nNote that the EXTERNAL\\_API network must be reachable from the EXTERNAL\\_VM network if you want VMS to be able to make  API calls to the cloud.\n\nAn example set of networks are defined in ***data/networks.yml***.    You will need to modify this file to reflect your environment.\n\nThe example uses eth2 for the install network and eth3 & eth4 for the bonded network.   If you need to modify these\nfor your environment they are defined in ***data/net_interfaces.yml***\n\n###Adapting the mid-size model to fit your environment###\n\nThe minimum set of changes you need to make to adapt the model for your environment are:\n\n- Update baremetalConfig.yml to list the details of your bare metal servers. You need to perform this step if you are using the HLM supplied Cobber playbooks to install hLinux on your servers. \n\n- Update servers.yml to list the details of your bare metal servers.\n\n- Update the networks.yml file to replace network CIDRs and VLANs with site specific values\n\n- Update the nic_mappings.yml file to ensure that network devices are mapped to the correct physical port(s)\n\n- Review the disk models (disks_*.yml) and confirm that the associated\n    servers have the number of disks required by the disk model. The device\n    names in the disk models might need to be adjusted to match the probe oder\n    of your servers. \nThe default number of disks for the Swift nodes (3 disks) is set low on purpose to facilitate deployment on generic hardware. For production scale Swift the servers should have more disks, e.g. 6 on SWPAC nodes and 12 on SWOBJ nodes. If you allocate more Swift disks then you should review the ring power in the Swift ring confguration. This is documented in the Swift section\nDisk models are provided as follows:\n\n  - DISK SET CONTROLLER: Minimum 1 disk\n  - DISK SET DBMQ: Minimum 3 disks\n  - DISK SET COMPUTE: Minimum 2 disks\n  - DISK SET SWPAC: Minimum 3 disks\n  - DISK SET SWOBJ: Minimum 3 disks\n  - DISK SET VSA: Minimum 3 disks\n\n\n\n- Update the net interfaces.yml file to match the server NICs used in your configuration. This file has a separate interface model definition for each of the following:\n\n  - INTERFACE SET CONTROLLER\n  - INTERFACE SET VSA\n  - INTERFACE SET DBMQ\n  - INTERFACE SET SWPAC\n  - INTERFACE SET SWOBJ\n  - INTERFACE SET COMPUTE\n\n"
     },
-    "version":2
+    "version": 2
   }
 }
