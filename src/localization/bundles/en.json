@@ -6,5 +6,6 @@
     "generic.placeholder.heading" : "This is just a placeholder page",
     "next" : "Next",
     "back" : "Back",
-    "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer"
+    "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
+    "wizard.loading.pleasewait": "Loading... Please wait"
 }

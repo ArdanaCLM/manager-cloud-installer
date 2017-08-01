@@ -2,21 +2,8 @@ import React, { Component } from 'react';
 import './Deployer.css';
 import { translate } from './localization/localize.js';
 import { stepStateValues } from './components/StepStateValues.js';
-import CloudModelPicker from './pages/CloudModelPicker';
-import GenericPlaceHolder from './pages/GenericPlaceHolder';
-import InstallIntro from './pages/InstallIntro';
 import WizardProgress from './components/WizardProgress';
 
-/**
- * The element name for each step is stored in the state object. To convert it to its proper React
- * Component class, there needs to be a mapping between the name and the actual class implementation.
- * The string should match the class name, and the class should be imported into this file
- */
-let elementMapping = {
-  'InstallIntro': InstallIntro,
-  'CloudModelPicker': CloudModelPicker,
-  'GenericPlaceHolder': GenericPlaceHolder
-};
 
 /**
  * The InstallWizard component is a container for ordering the install pages and tracking some amount
@@ -36,6 +23,17 @@ class InstallWizard extends Component {
         var wizardProgress = responseData;
         var currentIndex = wizardProgress.currentState.step;
         var currentState = wizardProgress.currentState.state;
+
+        /**
+         * if the state loaded from the backend has the pages in a different order than
+         * expected by the UI, discard that state and use the default values
+         */
+        if(!this.props.stepsInOrder(wizardProgress.steps, this.props.expectedPageOrder)) {
+          wizardProgress.steps = this.props.expectedPageOrder;
+          currentState = stepStateValues.inprogress;
+          currentIndex = 0;
+        }
+
         if(currentState !== stepStateValues.error && currentIndex === 0) {
           currentState = stepStateValues.inprogress;
           wizardProgress.steps[currentIndex].state = stepStateValues.inprogress;
@@ -81,7 +79,7 @@ class InstallWizard extends Component {
           props.next = this.stepForward.bind(this);
         }
 
-        stepElement = React.createElement(elementMapping[steps[i].jsxelement], props);
+        stepElement = React.createElement(this.props.elementMapping[steps[i].jsxelement], props);
         break;
       }
     }
@@ -171,7 +169,7 @@ class InstallWizard extends Component {
   {
     let currentStepComponent = this.state.jsx;
     if(currentStepComponent === undefined) {
-      currentStepComponent = <InstallIntro />;
+      currentStepComponent = <div>{translate('wizard.loading.pleasewait')}</div>;
     }
 
     return(
