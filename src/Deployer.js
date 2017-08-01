@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
+import './Deployer.css';
+import InstallWizard from './InstallWizard';
+import { elementMapping , stepsInOrder, expectedPageOrder } from './components/WizardDefaults.js';
 
 class Deployer extends Component {
   render() {
     return (
       <div>
-        <div className="container">
-          <div className="well">
-            <h1>I am the mighty SUSE Cloud Deployer</h1>
-          </div>
-        </div>
+        <InstallWizard
+          elementMapping={elementMapping}
+          stepsInOrder={stepsInOrder}
+          expectedPageOrder={expectedPageOrder}/>
       </div>
     );
   }

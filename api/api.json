@@ -20,5 +20,44 @@
       "id": 5,
       "title": "Deploy Cloud"
     }
-  ]
+  ],
+  "installprogress": {
+      "currentState": {
+          "step": 0,
+          "state": 0
+      },
+      "steps": [{
+          "index": 0,
+          "state": 0,
+          "jsxelement": "InstallIntro"
+      }, {
+          "index": 1,
+          "state": 0,
+          "jsxelement": "CloudModelPicker"
+      }, {
+          "index": 2,
+          "state": 0,
+          "jsxelement": "GenericPlaceHolder"
+      }, {
+          "index": 3,
+          "state": 0,
+          "jsxelement": "GenericPlaceHolder"
+      }, {
+          "index": 4,
+          "state": 0,
+          "jsxelement": "GenericPlaceHolder"
+      }, {
+          "index": 5,
+          "state": 0,
+          "jsxelement": "GenericPlaceHolder"
+      }, {
+          "index": 6,
+          "state": 0,
+          "jsxelement": "GenericPlaceHolder"
+      }, {
+          "index": 7,
+          "state": 0,
+          "jsxelement": "GenericPlaceHolder"
+      }]
+  }
 }
