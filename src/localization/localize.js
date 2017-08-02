@@ -4,7 +4,7 @@ var supportedLangs = ['en', 'ja'];
 var translationData, bundlename, catalog = {};
 
 for (var i = 0; i < supportedLangs.length; i++) {
-  bundlename = "./bundles/" + supportedLangs[i] + ".json";
+  bundlename = './bundles/' + supportedLangs[i] + '.json';
   //require doesn't interpret this as a string correctly unless its converted
   //easiest conversion is to use + ''
   translationData = require(bundlename + '');

@@ -1,12 +1,13 @@
+/* eslint no-undef: 0 */
 describe('basic sanity tests', function() {
 
-  beforeAll(function(){
+  beforeAll(function() {
     browser.get('localhost:3000');
     browser.sleep(1000);
   });
 
   it('loads the app', function() {
-     expect(browser.getTitle()).toEqual('SUSE OpenStack Cloud Installer');
+    expect(browser.getTitle()).toEqual('SUSE OpenStack Cloud Installer');
   });
 
   it('has the first step selected by default', function() {

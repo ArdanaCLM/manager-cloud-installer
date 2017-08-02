@@ -59,7 +59,7 @@ class ArdanaServerList extends Component {
   }
 
   showQueryList() {
-    var queryJson = require("./querylist.json");
+    var queryJson = require('./querylist.json');
     this.setState({serverData: '',
       queryList: queryJson});
   }
@@ -70,48 +70,48 @@ class ArdanaServerList extends Component {
 
   render() {
     return (
-      <div className="ArdanaServerList">
+      <div className='ArdanaServerList'>
         <div>
           <h3>Ardana Service Access page</h3>
         </div>
         <p>
-          Ardana Service URL: <input type="text" className="longInput"
+          Ardana Service URL: <input type='text' className='longInput'
             onChange={this.updateServiceUrl.bind(this)}
             defaultValue={this.state.ardanaServiceUrl} />
           <br/>
-          Ardana Service Port: <input type="text"
+          Ardana Service Port: <input type='text'
             onChange={this.updateServicePort.bind(this)}
             defaultValue={this.state.ardanaServicePort} />
           <br/>
-          Keystone Token: <input type="text" className="longInput"
+          Keystone Token: <input type='text' className='longInput'
             onChange={this.updateKeystoneToken.bind(this)}
             defaultValue={this.state.keystoneToken} />
           <br/>
-          Query: <input type="text" className="longInput"
+          Query: <input type='text' className='longInput'
             onChange={this.updateServiceQuery.bind(this)}
             value={this.state.ardanaServiceQuery}/>
           <br/>
-          <button onClick={this.setServiceQuery.bind(this, "/api/v1/hlm/model/cp_output/server_info_yml")}>
+          <button onClick={this.setServiceQuery.bind(this, '/api/v1/hlm/model/cp_output/server_info_yml')}>
             Servers
           </button>
-          <button onClick={this.setServiceQuery.bind(this, "/api/v1/hlm/templates")}>
+          <button onClick={this.setServiceQuery.bind(this, '/api/v1/hlm/templates')}>
             Templates
           </button>
-          <button onClick={this.setServiceQuery.bind(this, "/api/v1/hlm/model")}>
+          <button onClick={this.setServiceQuery.bind(this, '/api/v1/hlm/model')}>
             Model
           </button>
-          <button onClick={this.setServiceQuery.bind(this, "/api/v1/hlm/model/history")}>
+          <button onClick={this.setServiceQuery.bind(this, '/api/v1/hlm/model/history')}>
             Model History
           </button>
           <br/><br/>
-          The url and port can be found with "openstack endpoint list".<br/>
-          Keystone token generation is "openstack token issue"<br/>
+          The url and port can be found with 'openstack endpoint list'.<br/>
+          Keystone token generation is 'openstack token issue'<br/>
         </p>
         <p>
-          {translate("ardana.url.port", this.state.ardanaServiceUrl, this.state.ardanaServicePort)}<br/>
+          {translate('ardana.url.port', this.state.ardanaServiceUrl, this.state.ardanaServicePort)}<br/>
           current url: {this.state.ardanaServiceUrl}<br/>
           current port: {this.state.ardanaServicePort}<br/>
-          {translate("keystone.token")}: {this.state.keystoneToken}<br/>
+          {translate('keystone.token')}: {this.state.keystoneToken}<br/>
           query: {this.state.ardanaServiceQuery}
         </p>
         <button onClick={this.triggerQuery.bind(this)}>Run Query</button>
