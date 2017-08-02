@@ -1,5 +1,5 @@
 import { AppContainer } from 'react-hot-loader';
-import React from "react";
+import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Deployer from './src/Deployer';
@@ -12,7 +12,7 @@ const render = Component => {
     </AppContainer>,
     document.getElementById('root')
   );
-}
+};
 
 render(Deployer);
 
@@ -20,5 +20,5 @@ render(Deployer);
 if (module.hot) {
   module.hot.accept('./src/Deployer', () => {
     const Deployer = require('./src/Deployer.js').default;
-    render(Deployer) });
+    render(Deployer); });
 }

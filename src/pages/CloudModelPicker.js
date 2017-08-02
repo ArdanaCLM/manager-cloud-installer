@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import BaseWizardPage from './BaseWizardPage.js';
@@ -47,16 +47,17 @@ class CloudModelPicker extends BaseWizardPage {
 
   getModelObject(modelName) {
     //we only have midsize data
-    fetch( "http://localhost:8080/" + "mid-scale-kvm-vsa")
+    console.log('modelName passed in is' + modelName);
+    fetch('http://localhost:8080/' + 'mid-scale-kvm-vsa')
       .then(response => response.json())
       .then((responseData) => {
         this.state.selectedModel = responseData;
-      })
+      });
     //TODO handle error
   }
 
   getTemplates() {
-    fetch( "http://localhost:8080/templates")
+    fetch('http://localhost:8080/templates')
       .then(response => response.json())
       .then((responseData) => {
         this.state.templates = responseData;
@@ -67,8 +68,9 @@ class CloudModelPicker extends BaseWizardPage {
         if(temp) {
           this.setState({selectedDetails: temp.overview});
         }
-          this.getModelObject(mName);
-      })
+
+        this.getModelObject(mName);
+      });
     //TODO handle error
   }
 
@@ -89,14 +91,14 @@ class CloudModelPicker extends BaseWizardPage {
     }
   }
 
-  goBack( e ){
+  goBack(e) {
     e.preventDefault();
     var isError = false;
     //if going back involved unsetting some parameters, do that here
     this.props.back(isError);
   }
 
-  goNext(e){
+  goNext(e) {
     e.preventDefault();
     var isError = false;
     //typical pages would do some validation here before deciding to advance
@@ -106,7 +108,7 @@ class CloudModelPicker extends BaseWizardPage {
 
   //TODO experimental
   updateParentSelectedModelName(modelName) {
-    this.props.updateModelName(modelName)
+    this.props.updateModelName(modelName);
   }
 
   pickModel(e) {
@@ -125,18 +127,18 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   helpChoose(e) {
-      e.preventDefault();
-      //TODO
+    e.preventDefault();
+    //TODO
   }
 
   showSelectTemplateHelp(e) {
-      e.preventDefault();
-      //TODO
+    e.preventDefault();
+    //TODO
   }
 
   showHelpChooseHelp(e) {
-      e.preventDefault();
-      //TODO
+    e.preventDefault();
+    //TODO
   }
 
   renderPickerButtons() {
@@ -144,14 +146,14 @@ class CloudModelPicker extends BaseWizardPage {
     for (let i = 0; i < this.state.simpleModels.length; i++) {
       let name = this.state.simpleModels[i];
       //TODO need better name to display
-      let displayLabel = translate("model.picker." + name);
-      if(name === this.state.selectedModelName){
+      let displayLabel = translate('model.picker.' + name);
+      if(name === this.state.selectedModelName) {
         btns.push(<PickerButton key={i} keyName={name} isSelected
-                                displayLabel={displayLabel} clickAction={this.pickModel}/>);
+          displayLabel={displayLabel} clickAction={this.pickModel}/>);
       }
       else {
         btns.push(<PickerButton key={i} keyName={name}
-                                displayLabel={displayLabel} clickAction={this.pickModel}/>);
+          displayLabel={displayLabel} clickAction={this.pickModel}/>);
       }
     }
     return btns;
@@ -159,39 +161,41 @@ class CloudModelPicker extends BaseWizardPage {
 
   renderModelDetails(details) {
     return (
-      <div className="model-details" dangerouslySetInnerHTML={{__html: details}}/>
-    )
+      <div className='model-details' dangerouslySetInnerHTML={{__html: details}}/>
+    );
   }
 
   render() {
     let details = this.state.selectedDetails;
     return (
-      <div className="model-picker-container">
-        <div className="heading">{translate("model.picker.heading")}</div>
-        <div className="picker-container">
+      <div className='model-picker-container'>
+        <div className='heading'>{translate('model.picker.heading')}</div>
+        <div className='picker-container'>
           {this.renderPickerButtons()}
         </div>
-        <div className="details-container">
+        <div className='details-container'>
           {this.renderModelDetails(details)}
         </div>
-        <div className="action-btn-container">
-          <div className="select-template">
-            <div className="select-template-heading">
-              {translate("model.picker.select-template-heading")}
+        <div className='action-btn-container'>
+          <div className='select-template'>
+            <div className='select-template-heading'>
+              {translate('model.picker.select-template-heading')}
               <ItemHelpButton clickAction={this.showSelectTemplateHelp}/>
             </div>
-            <ActionButton displayLabel={translate("model.picker.select-template")}
-                          clickAction={this.selectTemplate}/>
+            <ActionButton
+              displayLabel={translate('model.picker.select-template')}
+              clickAction={this.selectTemplate}/>
           </div>
-          <div className="help-choose">
-            <div className="help-choose-heading">{translate("model.picker.help-choose-heading")}
+          <div className='help-choose'>
+            <div className='help-choose-heading'>{translate('model.picker.help-choose-heading')}
               <ItemHelpButton clickAction={this.showHelpChooseHelp}/>
             </div>
-            <ActionButton displayLabel={translate("model.picker.help-choose")}
-                            clickAction={this.helpChoose}/>
+            <ActionButton
+              displayLabel={translate('model.picker.help-choose')}
+              clickAction={this.helpChoose}/>
           </div>
         </div>
-        <div className="footer-container">{this.renderNavButtons()}</div>
+        <div className='footer-container'>{this.renderNavButtons()}</div>
       </div>
     );
     //TODO need fix issue of order of next and back button

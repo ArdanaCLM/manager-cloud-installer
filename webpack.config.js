@@ -1,3 +1,4 @@
+/* eslint no-unused-vars: 0 */
 var path = require('path');
 var webpack = require('webpack');
 

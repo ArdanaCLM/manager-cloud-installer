@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import BaseWizardPage from './BaseWizardPage.js';

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../Deployer.css'
+import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 
 class BackButton extends Component {
@@ -7,12 +7,12 @@ class BackButton extends Component {
     super(props);
   }
   render() {
-    let buttonClass = "btn btn-primary btn-back";
+    let buttonClass = 'btn btn-primary btn-back';
     let buttonAction = this.props.clickAction;
 
     return (
       <button className={buttonClass} onClick={buttonAction}>
-          {translate("back")}
+        {translate('back')}
       </button>
     );
   }
@@ -24,7 +24,7 @@ class NextButton extends Component {
   }
 
   render() {
-    let buttonClass = "btn btn-primary btn-next";
+    let buttonClass = 'btn btn-primary btn-next';
     buttonClass =
       this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
@@ -32,7 +32,7 @@ class NextButton extends Component {
 
     return (
       <button className={buttonClass} onClick={buttonAction}>
-          {translate("next")}
+        {translate('next')}
       </button>
     );
   }
@@ -43,7 +43,7 @@ class ActionButton extends Component {
     super(props);
   }
   render() {
-    let buttonClass = "btn btn-primary";
+    let buttonClass = 'btn btn-primary';
     buttonClass =
       this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
@@ -65,12 +65,12 @@ class PickerButton extends Component {
   render() {
     let buttonAction = this.props.clickAction;
     let buttonLabel = this.props.displayLabel;
-    let classN = "picker-card " + (this.props.isSelected ? "selected" : '');
+    let classN = 'picker-card ' + (this.props.isSelected ? 'selected' : '');
     let kName = this.props.keyName;
     return (
       <div className={classN} name={kName}
-           onClick={buttonAction}>{buttonLabel}</div>
-    )
+        onClick={buttonAction}>{buttonLabel}</div>
+    );
   }
 }
 
@@ -81,9 +81,9 @@ class ItemHelpButton extends Component {
   render() {
     let helpAction = this.props.clickAction;
     return (
-      <span className="glyphicon glyphicon-question-sign helper"
-            onClick={helpAction}></span>
-    )
+      <span className='glyphicon glyphicon-question-sign helper'
+        onClick={helpAction}></span>
+    );
   }
 }
 
@@ -93,4 +93,4 @@ module.exports = {
   PickerButton: PickerButton,
   ActionButton: ActionButton,
   ItemHelpButton: ItemHelpButton
-}
+};

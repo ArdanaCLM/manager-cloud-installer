@@ -7,7 +7,7 @@ var express = require('express');
 var port = process.env.PORT || 3000;
 var server = express();
 
-server.use(express.static("./public"));
+server.use(express.static('./public'));
 
 server.listen(port);
-console.log("Cloud deployer server listening on port " + port);
+console.log('Cloud deployer server listening on port ' + port);

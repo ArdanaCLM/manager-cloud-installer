@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import '../Deployer.css';
-import { translate } from '../localization/localize.js';
+//import { translate } from '../localization/localize.js';
 
 import {
-    NextButton,
-    BackButton,
+  NextButton,
+  BackButton,
 } from '../components/Buttons.js';
 
 
@@ -52,7 +52,7 @@ class BaseWizardPage extends Component {
 
     let forward = null;
     if(this.props.next !== undefined) {
-      forward = <NextButton clickAction={this.goForward.bind(this)}/>
+      forward = <NextButton clickAction={this.goForward.bind(this)}/>;
     }
 
     return (
