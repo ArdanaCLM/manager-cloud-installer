@@ -24,7 +24,7 @@ describe('basic sanity tests', function() {
     //the first indicator is the correct "in-progress" color
     expect(firstIndicator.getCssValue('background-color')).toEqual('rgba(2, 164, 156, 1)');//the rgba value of #02A49C
 
-    var nextButton = element(by.xpath('.//*[.="Next"]'));
+    var nextButton = element(by.xpath('.//Button[.="Next"]'));
     nextButton.click();
     //the first indicator has updated to the "complete" color
     expect(firstIndicator.getCssValue('background-color')).toEqual('rgba(0, 192, 129, 1)');//the rgba value of #00C081
