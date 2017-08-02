@@ -56,12 +56,20 @@ class BaseWizardPage extends Component {
     }
 
     return (
-      <div>
+      <div className='footer-container'>
         {back}
         {forward}
       </div>
     );
   }
+
+  renderHeading(text) {
+    return (
+      <div className='heading'>{text}</div>
+    );
+  }
+
+
 }
 
 export default BaseWizardPage;

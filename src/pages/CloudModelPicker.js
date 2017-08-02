@@ -169,7 +169,7 @@ class CloudModelPicker extends BaseWizardPage {
     let details = this.state.selectedDetails;
     return (
       <div className='model-picker-container'>
-        <div className='heading'>{translate('model.picker.heading')}</div>
+        {this.renderHeading(translate('model.picker.heading'))}
         <div className='picker-container'>
           {this.renderPickerButtons()}
         </div>
@@ -195,7 +195,7 @@ class CloudModelPicker extends BaseWizardPage {
               clickAction={this.helpChoose}/>
           </div>
         </div>
-        <div className='footer-container'>{this.renderNavButtons()}</div>
+        {this.renderNavButtons()}
       </div>
     );
     //TODO need fix issue of order of next and back button

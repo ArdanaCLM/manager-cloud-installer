@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
+import BaseWizardPage from '../pages/BaseWizardPage';
+import { ActionButton } from '../components/Buttons.js';
 
-class ArdanaServerList extends Component {
+class ArdanaServerList extends BaseWizardPage {
   constructor() {
     super();
     this.state = {
@@ -70,10 +72,8 @@ class ArdanaServerList extends Component {
 
   render() {
     return (
-      <div className='ArdanaServerList'>
-        <div>
-          <h3>Ardana Service Access page</h3>
-        </div>
+      <div className='generic-container'>
+        {this.renderHeading('Ardana Service Access page')}
         <p>
           Ardana Service URL: <input type='text' className='longInput'
             onChange={this.updateServiceUrl.bind(this)}
@@ -91,18 +91,16 @@ class ArdanaServerList extends Component {
             onChange={this.updateServiceQuery.bind(this)}
             value={this.state.ardanaServiceQuery}/>
           <br/>
-          <button onClick={this.setServiceQuery.bind(this, '/api/v1/hlm/model/cp_output/server_info_yml')}>
-            Servers
-          </button>
-          <button onClick={this.setServiceQuery.bind(this, '/api/v1/hlm/templates')}>
-            Templates
-          </button>
-          <button onClick={this.setServiceQuery.bind(this, '/api/v1/hlm/model')}>
-            Model
-          </button>
-          <button onClick={this.setServiceQuery.bind(this, '/api/v1/hlm/model/history')}>
-            Model History
-          </button>
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/heartbeat')}
+            displayLabel='Heartbeat' />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/model/cp_output/server_info_yml')}
+            displayLabel='Servers' />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/templates')}
+            displayLabel='Templates' />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/model')}
+            displayLabel='Model' />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/model/history')}
+            displayLabel='Model History' />
           <br/><br/>
           The url and port can be found with 'openstack endpoint list'.<br/>
           Keystone token generation is 'openstack token issue'<br/>
@@ -114,14 +112,17 @@ class ArdanaServerList extends Component {
           {translate('keystone.token')}: {this.state.keystoneToken}<br/>
           query: {this.state.ardanaServiceQuery}
         </p>
-        <button onClick={this.triggerQuery.bind(this)}>Run Query</button>
-        <button onClick={this.showQueryList.bind(this)}>List Known Queries</button>
+        <ActionButton clickAction={this.triggerQuery.bind(this)}
+          displayLabel="Run Query"/>
+        <ActionButton clickAction={this.showQueryList.bind(this)}
+          displayLabel="List Known Queries"/>
 
         <pre>
           {this.state.serverData}
         </pre>
 
         <SimpleQueryList items={this.state.queryList}/>
+        {this.renderNavButtons()}
       </div>
     );
   }
@@ -133,7 +134,7 @@ class SimpleQueryList extends Component {
     var listItems = this.props.items.map(function(item) {
       return (
         <tr>
-          <td>{item.endpoint}</td>
+          <td id='{item.endpoint}'>{item.endpoint}</td>
           <td>{item.method}</td>
           <td>{item.description}</td>
         </tr>

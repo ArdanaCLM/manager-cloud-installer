@@ -1,15 +1,15 @@
 import React from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
-import GenericPlaceHolder from './GenericPlaceHolder';
+import BaseWizardPage from './BaseWizardPage';
 
-class InstallIntro extends GenericPlaceHolder {
+class InstallIntro extends BaseWizardPage {
 
   render() {
     return (
-      <div className="generic-container">
-        <div className="heading">{translate('welcome.cloud.install')}</div>
-        <div className="footer-container">{this.renderNavButtons()}</div>
+      <div className='generic-container'>
+        {this.renderHeading(translate('welcome.cloud.install'))}
+        {this.renderNavButtons()}
       </div>
     );
   }
