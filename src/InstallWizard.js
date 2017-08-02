@@ -177,8 +177,6 @@ class InstallWizard extends Component {
 
   //TODO experimental
   updateModelName(modelName) {
-    console.log("Current ModelName " + this.state.selectedModelName);
-    console.log("New ModelName " + modelName);
     //don't want to render all the UI
     this.state.selectedModelName = modelName;
   }
