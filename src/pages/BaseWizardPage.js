@@ -56,10 +56,10 @@ class BaseWizardPage extends Component {
     }
 
     return (
-        <div className='footer-container'>
-          {back}
-          {forward}
-        </div>
+      <div className='footer-container'>
+        {back}
+        {forward}
+      </div>
     );
   }
 
