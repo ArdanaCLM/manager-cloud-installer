@@ -91,16 +91,16 @@ class ArdanaServerList extends BaseWizardPage {
             onChange={this.updateServiceQuery.bind(this)}
             value={this.state.ardanaServiceQuery}/>
           <br/>
-          <ActionButton clickAction={this.setServiceQuery.bind(this, "/api/v1/hlm/heartbeat")}
-            displayLabel="Heartbeat" />
-          <ActionButton clickAction={this.setServiceQuery.bind(this, "/api/v1/hlm/model/cp_output/server_info_yml")}
-            displayLabel="Servers" />
-          <ActionButton clickAction={this.setServiceQuery.bind(this, "/api/v1/hlm/templates")}
-            displayLabel="Templates" />
-          <ActionButton clickAction={this.setServiceQuery.bind(this, "/api/v1/hlm/model")}
-            displayLabel="Model" />
-          <ActionButton clickAction={this.setServiceQuery.bind(this, "/api/v1/hlm/model/history")}
-            displayLabel="Model History" />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/heartbeat')}
+            displayLabel='Heartbeat' />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/model/cp_output/server_info_yml')}
+            displayLabel='Servers' />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/templates')}
+            displayLabel='Templates' />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/model')}
+            displayLabel='Model' />
+          <ActionButton clickAction={this.setServiceQuery.bind(this, '/api/v1/hlm/model/history')}
+            displayLabel='Model History' />
           <br/><br/>
           The url and port can be found with 'openstack endpoint list'.<br/>
           Keystone token generation is 'openstack token issue'<br/>
