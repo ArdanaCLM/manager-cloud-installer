@@ -2,6 +2,12 @@ import React, { Component } from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 
+import {
+    NextButton,
+    BackButton,
+} from '../components/Buttons.js';
+
+
 /**
  * This base class handles the generic back and forward navigation that is common to
  * most wizard pages.
@@ -41,16 +47,12 @@ class BaseWizardPage extends Component {
 
     let back = null;
     if(this.props.back !== undefined) {
-      back= <button onClick={this.goBack.bind(this)}>
-        {translate('back')}
-      </button>;
+      back= <BackButton clickAction={this.goBack.bind(this)}/>;
     }
 
     let forward = null;
     if(this.props.next !== undefined) {
-      forward = <button onClick={this.goForward.bind(this)}>
-        {translate('next')}
-      </button>;
+      forward = <NextButton clickAction={this.goForward.bind(this)}/>
     }
 
     return (

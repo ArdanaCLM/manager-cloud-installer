@@ -7,9 +7,9 @@ class InstallIntro extends GenericPlaceHolder {
 
   render() {
     return (
-      <div>
-        {translate('welcome.cloud.install')}
-        {this.renderNavButtons()}
+      <div className="generic-container">
+        <div className="heading">{translate('welcome.cloud.install')}</div>
+        <div className="footer-container">{this.renderNavButtons()}</div>
       </div>
     );
   }
