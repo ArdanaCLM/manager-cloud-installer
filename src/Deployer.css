@@ -79,7 +79,7 @@ body {
   background-color: white;
   margin: 25px;
   position: absolute;
-  top: 90%;
+  bottom: 2%;
   float: right;
   right: 50px;
 }
@@ -212,4 +212,68 @@ body {
   background-color: #00B2E2;
   border: 2px solid  #00B2E2;
   display: inline-block;
+}
+
+.model-elements div {
+  color: white;
+  margin: 10px;
+  min-width: 150px;
+}
+
+.card {
+  background: #b1b4b1;
+  padding: 15px;
+  box-shadow: 5px 5px 15px #c5c5c5;
+}
+
+.card-active {
+  background: #6abc6d;
+  padding: 15px;
+  box-shadow: 10px 10px 15px #c5c5c5;
+}
+
+.card-text-unit {
+  font-size: 3em;
+  margin-top: 10px;
+}
+
+.counter-width {
+  width: 70px;
+}
+
+.edit-icon {
+  font-size: 1em;
+}
+
+.text-header {
+  color: gray;
+  margin-left: 20px;
+}
+
+.text-theme {
+  color: gray;
+}
+
+.verticalLine {
+  border-right: thin solid lightgray;
+}
+
+.margin-top-10 {
+  margin-top: 10px;
+}
+
+.margin-top-20 {
+  margin-top: 20px;
+}
+
+.margin-top-30 {
+  margin-top: 30px;
+}
+
+.margin-top-80 {
+  margin-top: 80px;
+}
+
+.margin-left-10 {
+  margin-left: 10px;
 }
