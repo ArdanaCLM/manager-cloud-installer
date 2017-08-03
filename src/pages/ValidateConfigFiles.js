@@ -44,7 +44,7 @@ class ValidateConfigFiles extends GenericPlaceHolder {
             displayLabel={translate('validate.config.files.validate')}
             clickAction={() => alert('click')}/>
         </div>
-        <div className="footer-container">{this.renderNavButtons()}</div>
+        {this.renderNavButtons()}
       </div>
     );
   }
