@@ -3,6 +3,7 @@ import CloudModelSummary from '../pages/CloudModelSummary';
 import GenericPlaceHolder from '../pages/GenericPlaceHolder';
 import InstallIntro from '../pages/InstallIntro';
 import ArdanaServerList from '../sandbox/ardanaServerList';
+import ValidateConfigFiles from '../pages/ValidateConfigFiles';
 
 /**
  * The element name for each step is stored in the state object. To convert it to its proper React
@@ -14,7 +15,8 @@ export const elementMapping = {
   'CloudModelPicker': CloudModelPicker,
   'CloudModelSummary': CloudModelSummary,
   'GenericPlaceHolder': GenericPlaceHolder,
-  'ArdanaServerList': ArdanaServerList
+  'ArdanaServerList': ArdanaServerList,
+  'ValidateConfigFiles': ValidateConfigFiles
 };
 
 /**
@@ -37,7 +39,7 @@ export const expectedPageOrder = [{
 }, {
   'index': 3,
   'state': 0,
-  'jsxelement': 'GenericPlaceHolder'
+  'jsxelement': 'ValidateConfigFiles'
 }, {
   'index': 4,
   'state': 0,

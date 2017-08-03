@@ -17,5 +17,8 @@
     "model.picker.select-template-heading" : "Select A Template",
     "model.picker.select-template" : "Select Template",
     "model.picker.help-choose-heading": "Help Me Choose A Template",
-    "model.picker.help-choose": "Help Choose"
+    "model.picker.help-choose": "Help Choose",
+
+    "validate.config.files.heading": "Review Configuration Files",
+    "validate.config.files.validate": "Validate"
 }
