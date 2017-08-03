@@ -1,11 +1,8 @@
 import CloudModelPicker from '../pages/CloudModelPicker';
 import GenericPlaceHolder from '../pages/GenericPlaceHolder';
 import InstallIntro from '../pages/InstallIntro';
-<<<<<<< HEAD
 import ArdanaServerList from '../sandbox/ardanaServerList';
-=======
 import ValidateConfigFiles from '../pages/ValidateConfigFiles';
->>>>>>> validat_config_files
 
 /**
  * The element name for each step is stored in the state object. To convert it to its proper React
