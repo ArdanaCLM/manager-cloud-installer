@@ -20,5 +20,7 @@
     "model.picker.help-choose": "Help Choose",
 
     "validate.config.files.heading": "Review Configuration Files",
-    "validate.config.files.validate": "Validate"
+    "validate.config.files.validate": "Validate",
+
+    "edit.config.files.heading": "Update Configuration File: {0} ({1})"
 }
