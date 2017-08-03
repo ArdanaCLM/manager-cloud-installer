@@ -213,3 +213,19 @@ body {
   border: 2px solid  #00B2E2;
   display: inline-block;
 }
+
+.wizardContentPage {
+  margin: 24px;
+}
+
+.wizardContentPage > .heading {
+  font-size: 16px;
+}
+
+.validateConfigFiles ul {
+  list-style-type: none;
+  margin-top: 12px;
+  padding-left: 24px;
+  color: #FD9A2B;
+  line-height: 20px;
+}
