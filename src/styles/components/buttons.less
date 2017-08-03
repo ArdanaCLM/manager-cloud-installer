@@ -1,0 +1,79 @@
+@import "./../palette.less";
+
+.btn {
+  border: 1px solid transparent;
+  padding-left: 24px;
+  padding-right: 24px;
+  color: white;
+  line-height: 20px;
+  height: 40px;
+  margin: 5px;
+}
+
+.btn-primary {
+  background-color: @preferredcolor;
+  color: white;
+  border: 2px solid  @preferredcolor;
+  font-size: 16px;
+  font-weight: 500;
+  vertical-align: middle;
+  padding: 0 24px 0 24px;
+  margin: 15px;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: @selectedcolor;
+  border: 2px solid @selectedcolor;
+}
+
+.btn-back {
+  display:inline-block;
+}
+
+.btn-next {
+  background-color: @nextcolor;
+  border: 2px solid  @nextcolor;
+  display: inline-block;
+}
+
+.card {
+  background: #b1b4b1;
+  padding: 15px;
+  box-shadow: 5px 5px 15px @defaultshadow;
+}
+
+.card-active {
+  background: #6abc6d;
+  padding: 15px;
+  box-shadow: 10px 10px 15px @defaultshadow;
+}
+
+.card-text-unit {
+  font-size: 3em;
+  margin-top: 10px;
+}
+
+.model-elements div {
+  color: white;
+  margin: 10px;
+  min-width: 150px;
+}
+
+.selected {
+  background-color: @selectedcolor;
+}
+
+.picker-card {
+  display: inline-block;
+  height: 180px;
+  width: 180px;
+  background-color: @inactivecolor;
+  color: #4a4a4a;
+  font-size: 24px;
+  padding: 10px;
+  float: left;
+  margin: 10px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 5px 5px 5px @inactivecolor ;
+}

@@ -1,0 +1,63 @@
+@import "./../palette.less";
+
+.stateOuterWrapper {
+  margin-top: 20px;
+}
+
+.stateLineWrapper {
+  background: #000;
+  height: 1px;
+  margin-top: 10px;
+}
+
+.stateLineWrapper > span{
+  background: transparent;
+  padding: 10px;
+  position: relative;
+  top: -26px;
+}
+
+.wizardHeader {
+  margin-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 40px;
+}
+
+.wizardHeader > .heading {
+  font-size: 16px;
+  height: 30px;
+}
+
+.progress {
+  border-radius: 16px;
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  margin: 10px;
+  border: 1px solid black;
+}
+
+.done{
+  background-color: @preferredcolor;
+}
+
+.notdone{
+  background-color: @inactivecolor;
+}
+
+.inprogress{
+  background-color: @selectedcolor;
+}
+
+.error{
+  background-color: red;
+}
+
+.wizardContentPage {
+  margin: 24px;
+}
+
+.wizardContentPage > .heading {
+  font-size: 16px;
+}
