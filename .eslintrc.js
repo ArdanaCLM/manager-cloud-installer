@@ -28,6 +28,7 @@ module.exports = {
     'space-before-blocks': ['error', 'always'],
     'no-console': 'warn',
     'no-trailing-spaces': 'error',
+    'no-unused-vars': ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false}],
     'react/jsx-uses-react': 'error',
     'react/jsx-uses-vars': 'error',
   }
