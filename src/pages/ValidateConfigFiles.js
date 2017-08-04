@@ -63,7 +63,6 @@ class DisplayFileList extends Component {
     return (
       <div className='validateConfigFiles'>
         <div className='heading'>{translate('validate.config.files.heading')}</div>
-        <div>{this.props.valid}</div>
         <div className='body'>
           <div className='col-xs-6 verticalLine'>
             <ul>{list}</ul>
