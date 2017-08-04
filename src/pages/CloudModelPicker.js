@@ -48,7 +48,7 @@ class CloudModelPicker extends BaseWizardPage {
   getModelObject(modelName) {
     //we only have midsize data
     console.log('modelName passed in is' + modelName);
-    fetch('http://localhost:8080/' + 'mid-scale-kvm-vsa')
+    fetch('http://localhost:8081/api/v1/clm/templates/' + 'mid-scale-kvm-vsa')
       .then(response => response.json())
       .then((responseData) => {
         this.state.selectedModel = responseData;
@@ -57,7 +57,7 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   getTemplates() {
-    fetch('http://localhost:8080/templates')
+    fetch('http://localhost:8081/api/v1/clm/templates')
       .then(response => response.json())
       .then((responseData) => {
         this.state.templates = responseData;

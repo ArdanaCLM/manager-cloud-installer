@@ -93,8 +93,7 @@ class ValidateConfigFiles extends GenericPlaceHolder {
     }
 
     // retrieve a list of yml files
-    // TODO - replace with real backend call once implemented
-    fetch('http://localhost:8080/configFiles')
+    fetch('http://localhost:8081/api/v1/clm/model/files')
       .then(response => response.json())
       .then((responseData) => {
         console.log(responseData);
