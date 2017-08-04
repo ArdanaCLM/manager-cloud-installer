@@ -57,7 +57,7 @@ class DisplayFileList extends Component {
     var list = this.props.files.map((file, index) => {
       return (<li key={index}>
         <a href="#" onClick={() => this.props.onEditClick(file)}>{file.description}</a>
-      </li>)
+      </li>);
     });
 
     return (
@@ -89,13 +89,12 @@ class ValidateConfigFiles extends GenericPlaceHolder {
       configFiles: [],
       valid: UNKNOWN,
       editingFile: ''
-    }
+    };
 
     // retrieve a list of yml files
     fetch('http://localhost:8081/api/v1/clm/model/files')
       .then(response => response.json())
       .then((responseData) => {
-        console.log(responseData);
         this.setState({
           configFiles: responseData
         });
@@ -103,7 +102,7 @@ class ValidateConfigFiles extends GenericPlaceHolder {
   }
 
   isError() {
-    return(this.state.valid != VALID)
+    return (this.state.valid != VALID);
   }
 
   editFile(file) {
@@ -124,7 +123,6 @@ class ValidateConfigFiles extends GenericPlaceHolder {
   }
 
   validateModel() {
-    console.log('validate model');
     // TODO - replace with real backend call once implemented
     // for now switching between valid and invalid result
     if (this.state.valid !== INVALID) {
@@ -135,7 +133,6 @@ class ValidateConfigFiles extends GenericPlaceHolder {
   }
 
   renderBody() {
-    console.log('renderBody')
     if (this.state.editingFile === '') {
       return (
         <DisplayFileList
