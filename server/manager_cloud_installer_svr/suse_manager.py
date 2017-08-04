@@ -1,6 +1,7 @@
 import config.config as config
 from flask import Blueprint
 from flask import jsonify
+from flask import request
 from . import util
 import ssl
 import xmlrpclib
@@ -31,7 +32,7 @@ def connect():
 def sm_server_list():
 
     if util.USE_JSON_SERVER_ONLY:
-        return util.forward(None, '/servers')
+        return util.forward(util.build_url(None, '/servers'), request)
 
     client, key = connect()
     server_list = client.system.listActiveSystems(key)
@@ -46,7 +47,7 @@ def sm_server_list():
 def sm_server_details(id):
 
     if util.USE_JSON_SERVER_ONLY:
-        return util.forward(None, '/servers/' + id)
+        return util.forward(util.build_url(None, '/servers' + id), request)
 
     client, key = connect()
     detail_list = client.system.listActiveSystemsDetails(key, int(id))

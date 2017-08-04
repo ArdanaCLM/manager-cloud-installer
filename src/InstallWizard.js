@@ -16,7 +16,7 @@ class InstallWizard extends Component {
 
     //Load the current state information from the backend
     //TODO - replace with query to real backend once the backend is implemented
-    fetch('http://localhost:8080/installprogress')
+    fetch('http://localhost:8081/api/v1/progress')
       .then(response => response.json())
       .then((responseData) =>
       {
