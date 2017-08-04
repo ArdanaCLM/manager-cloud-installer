@@ -76,33 +76,33 @@ class PickerButton extends Component {
 
 class ActivePickerButton extends Component {
   constructor(props) {
-  super(props);
-  this.state = {
-    cardClass: 'card',
-  }
+    super(props);
+    this.state = {
+      cardClass: 'card',
+    };
 
-  this.handleMouseEnter = this.handleMouseEnter.bind(this);
-  this.handleMouseLeave = this.handleMouseLeave.bind(this);
-  this.handleClick = this.handleClick.bind(this);
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    this.handleClick = this.handleClick.bind(this);
 
   }
 
   handleMouseEnter(e) {
-    this.props.handleMouseEnter(e)
+    this.props.handleMouseEnter(e);
     this.setState({
       cardClass: 'card-active'
-    })
+    });
   }
 
   handleMouseLeave(e) {
     this.setState({
       cardClass: 'card'
-    })
+    });
   }
 
   handleClick(e) {
-    e.preventDefault()
-    this.props.handleClick(e)
+    e.preventDefault();
+    this.props.handleClick(e);
   }
 
   render () {
@@ -120,20 +120,20 @@ class ActivePickerButton extends Component {
             id={this.props.id}
             onMouseEnter={this.handleMouseEnter}
             onMouseLeave={this.handleMouseLeave}
-            onClick={this.handleClick}
-            >{this.props.value}
+            onClick={this.handleClick}>
+            {this.props.value}
           </p>
 
           <h3
             id={this.props.id}
             onMouseEnter={this.handleMouseEnter}
             onMouseLeave={this.handleMouseLeave}
-            onClick={this.handleClick}
-            >{this.props.description}
+            onClick={this.handleClick}>
+            {this.props.description}
           </h3>
         </div>
       </div>
-    )
+    );
   }
 }
 
