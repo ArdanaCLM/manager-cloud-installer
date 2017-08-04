@@ -1,0 +1,10 @@
+.venv
+.tox
+dist
+.eggs
+*egg-info/
+build
+/data
+log
+local.cfg
+*.pyc
