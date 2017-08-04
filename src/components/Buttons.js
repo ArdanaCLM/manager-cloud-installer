@@ -29,10 +29,18 @@ class NextButton extends Component {
       this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
     let buttonAction = this.props.clickAction;
+    let buttonLabel = translate('next');
+    if (this.props.displayLabel) {
+      buttonLabel = this.props.displayLabel;
+    }
+    let disabled = false;
+    if (this.props.disableCondition) {
+      disabled = this.props.disableCondition;
+    }
 
     return (
-      <button className={buttonClass} onClick={buttonAction}>
-        {translate('next')}
+      <button className={buttonClass} onClick={buttonAction} disabled={disabled}>
+        {buttonLabel}
       </button>
     );
   }

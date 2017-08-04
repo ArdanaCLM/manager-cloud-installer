@@ -4,9 +4,11 @@ import { translate } from '../localization/localize.js';
 import GenericPlaceHolder from './GenericPlaceHolder';
 import { ActionButton } from '../components/Buttons.js';
 
-const INVALID = 0
-const VALID = 1
-const UNKNOWN = -1
+const INVALID = 0;
+const VALID = 1;
+const UNKNOWN = -1;
+const VALID_ICON = require('../images/Checked-48.png');
+const INVALID_ICON = require('../images/Cancel-48.png');
 
 class EditFile extends Component {
 
@@ -27,6 +29,29 @@ class EditFile extends Component {
 }
 
 class DisplayFileList extends Component {
+  getMessage() {
+    var msg;
+    if (this.props.valid === UNKNOWN) {
+      msg = 'Click on a configuration file to view or edit its content. ' +
+        'Click the Validate button to run the configuration processor.';
+    } else if (this.props.valid === VALID) {
+      msg = 'The configuration processor completed successfully. Data model is valid.';
+    } else {
+      msg = 'The configuration processor failed.\n' +
+        'ERR: Server role \'HLM-ROLE2\' used by server deployer is not defined';
+    }
+    return (<div className='info'>{msg}</div>);
+  }
+
+  getIcon() {
+    var icon;
+    if (this.props.valid === VALID) {
+      icon = VALID_ICON;
+    } else if (this.props.valid === INVALID) {
+      icon = INVALID_ICON;
+    }
+    return (<img src={icon}/>);
+  }
 
   render() {
     var list = this.props.files.map((file, index) => {
@@ -36,18 +61,22 @@ class DisplayFileList extends Component {
     });
 
     return (
-      <div>
-        <div className='heading'>
-          {translate('validate.config.files.heading')}
-        </div>
+      <div className='validateConfigFiles'>
+        <div className='heading'>{translate('validate.config.files.heading')}</div>
         <div>{this.props.valid}</div>
-        <div className='validateConfigFiles'>
-          <ul>{list}</ul>
+        <div className='body'>
+          <div className='col-xs-6 verticalLine'>
+            <ul>{list}</ul>
+          </div>
+          <div className='col-xs-6'>
+            {this.getMessage()}
+          </div>
         </div>
         <div>
           <ActionButton
             displayLabel={translate('validate.config.files.validate')}
             clickAction={() => this.props.onValidateClick()}/>
+          {this.getIcon()}
         </div>
       </div>
     );
@@ -68,7 +97,6 @@ class ValidateConfigFiles extends GenericPlaceHolder {
     fetch('http://localhost:8080/configFiles')
       .then(response => response.json())
       .then((responseData) => {
-        // var files = responseData.map((fileObj) => {return fileObj.description});
         console.log(responseData);
         this.setState({
           configFiles: responseData
@@ -84,13 +112,28 @@ class ValidateConfigFiles extends GenericPlaceHolder {
     this.setState({editingFile: file});
   }
 
+  setNextButtonLabel() {
+    return translate('validate.config.files.deploy');
+  }
+
+  setNextButtonDisabled() {
+    return this.state.valid === VALID ? false : true;
+  }
+
   doneEditingFile() {
     this.setState({editingFile: ''});
     this.setState({valid: UNKNOWN});
   }
 
   validateModel() {
-    console.log('validate model')
+    console.log('validate model');
+    // TODO - replace with real backend call once implemented
+    // for now switching between valid and invalid result
+    if (this.state.valid !== INVALID) {
+      this.setState({valid: INVALID});
+    } else {
+      this.setState({valid: VALID});
+    }
   }
 
   renderBody() {

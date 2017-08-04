@@ -21,6 +21,7 @@
 
     "validate.config.files.heading": "Review Configuration Files",
     "validate.config.files.validate": "Validate",
+    "validate.config.files.deploy": "Deploy",
 
     "edit.config.files.heading": "Update Configuration File: {0} ({1})"
 }
