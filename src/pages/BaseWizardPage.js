@@ -43,6 +43,14 @@ class BaseWizardPage extends Component {
     this.props.next(this.isError());
   }
 
+  setNextButtonLabel() {
+    return null;
+  }
+
+  setNextButtonDisabled() {
+    return false;
+  }
+
   renderNavButtons() {
 
     let back = null;
@@ -52,7 +60,11 @@ class BaseWizardPage extends Component {
 
     let forward = null;
     if(this.props.next !== undefined) {
-      forward = <NextButton clickAction={this.goForward.bind(this)}/>;
+      forward = <NextButton
+        clickAction={this.goForward.bind(this)}
+        displayLabel={this.setNextButtonLabel()}
+        disableCondition={this.setNextButtonDisabled()}
+      />;
     }
 
     return (
