@@ -12,17 +12,33 @@ const INVALID_ICON = require('../images/Cancel-48.png');
 
 class EditFile extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      contents : ""
+    };
+  }
+  componentWillMount() {
+    fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name)
+    .then(response => response.json())
+    .then((response) => {
+        this.setState({contents: response});
+
+      })
+  }
+
   render() {
     return (
       <div className='heading'>
         {translate('edit.config.files.heading', this.props.file.description, this.props.file.name)}
-        <pre>
-          {this.props.file.name}
-          {this.props.file.description}
-        </pre>
-        <ActionButton
-          displayLabel='Done'
-          clickAction={() => this.props.onClick()}/>
+        <div>
+          <textarea value={this.state.contents}/>
+        </div>
+        <div>
+          <ActionButton
+            displayLabel={translate('done')}
+            clickAction={() => this.props.onClick()}/>
+        </div>
       </div>
     );
   }
