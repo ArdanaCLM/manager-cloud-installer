@@ -45,14 +45,24 @@ class CloudModelPicker extends BaseWizardPage {
     this.getTemplates();
   }
 
-  getModelObject(modelName) {
+  saveTemplateIntoModel(modelName) {
     //we only have midsize data
-    console.log('modelName passed in is' + modelName);
-    fetch('http://localhost:8081/api/v1/clm/templates/' + 'mid-scale-kvm-vsa')
+    fetch('http://localhost:8081/api/v1/clm/templates/' + modelName)
       .then(response => response.json())
       .then((responseData) => {
         this.state.selectedModel = responseData;
-      });
+        // Save the selected template as the model
+        fetch('http://localhost:8081/api/v1/clm/model', {
+          method: "POST",
+          headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(responseData)
+        });
+      }
+    );
+
     //TODO handle error
   }
 
@@ -69,7 +79,7 @@ class CloudModelPicker extends BaseWizardPage {
           this.setState({selectedDetails: temp.overview});
         }
 
-        this.getModelObject(mName);
+        this.saveTemplateIntoModel(mName);
       });
     //TODO handle error
   }
@@ -116,8 +126,8 @@ class CloudModelPicker extends BaseWizardPage {
     let modelName = e.target.getAttribute('name');
     this.setState({selectedModelName: modelName});
     this.setSelectedDetails(modelName);
-    this.getModelObject(modelName);
     //TODO experimental
+    this.saveTemplateIntoModel(modelName);
     this.updateParentSelectedModelName(modelName);
   }
 
