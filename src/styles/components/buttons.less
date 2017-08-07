@@ -59,10 +59,6 @@
   min-width: 150px;
 }
 
-.selected {
-  background-color: @selectedcolor;
-}
-
 .picker-card {
   display: inline-block;
   height: 180px;
@@ -75,5 +71,8 @@
   margin: 10px;
   cursor: pointer;
   text-align: center;
-  box-shadow: 5px 5px 5px @inactivecolor ;
+  box-shadow: 5px 5px 5px @inactivecolor;
+  &.selected {
+    background-color: @selectedcolor;
+  }
 }
