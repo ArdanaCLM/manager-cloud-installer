@@ -31,6 +31,8 @@
     "model.picker.help-choose-heading": "Help Me Choose A Template",
     "model.picker.help-choose": "Help Choose",
 
+    "model.summary.heading": "Cloud Model to Deploy: {0}",
+
     "validate.config.files.heading": "Review Configuration Files",
     "validate.config.files.validate": "Validate",
     "validate.config.files.deploy": "Deploy",
