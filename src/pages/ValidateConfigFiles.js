@@ -29,10 +29,12 @@ class EditFile extends Component {
 
   render() {
     return (
-      <div className='heading'>
-        {translate('edit.config.files.heading', this.props.file.description, this.props.file.name)}
+      <div>
+        <div className='heading'>
+          {translate('edit.config.files.heading', this.props.file.description, this.props.file.name)}
+        </div>
         <div>
-          <textarea value={this.state.contents}/>
+          <textarea className='config-file-editor' value={this.state.contents} />
         </div>
         <div>
           <ActionButton
