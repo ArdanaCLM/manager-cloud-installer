@@ -7,7 +7,7 @@ class InstallIntro extends BaseWizardPage {
   getSteps() {
     var lines = [];
     for (var i=1; i<7; i++) {
-      lines.push(<li>{translate('install.intro.message.step' + i)}</li>);
+      lines.push(<li key={i}>{translate('install.intro.message.step' + i)}</li>);
     }
     return (<ul>{lines}</ul>);
   }
