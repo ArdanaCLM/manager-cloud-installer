@@ -103,7 +103,6 @@ class InstallWizard extends Component {
    * //TODO - real implementation of this once backend is available
    */
   persistState() {
-    console.log('current state is:');
     var stateToPersist = {
       'currentState': {
         'step': this.state.step,
@@ -112,8 +111,6 @@ class InstallWizard extends Component {
       'steps': this.state.steps,
       'selectedModelName': this.state.selectedModelName
     };
-
-    console.log(JSON.stringify(stateToPersist));
   }
 
   /**

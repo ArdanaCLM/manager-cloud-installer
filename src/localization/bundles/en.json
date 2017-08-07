@@ -6,6 +6,8 @@
     "generic.placeholder.heading" : "This is just a placeholder page",
     "next" : "Next",
     "back" : "Back",
+    "cancel" : "Cancel",
+    "done" : "Done",
     "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
     "wizard.loading.pleasewait": "Loading... Please wait",
 
@@ -28,6 +30,8 @@
     "model.picker.select-template" : "Select Template",
     "model.picker.help-choose-heading": "Help Me Choose A Template",
     "model.picker.help-choose": "Help Choose",
+
+    "model.summary.heading": "Cloud Model to Deploy: {0}",
 
     "validate.config.files.heading": "Review Configuration Files",
     "validate.config.files.validate": "Validate",

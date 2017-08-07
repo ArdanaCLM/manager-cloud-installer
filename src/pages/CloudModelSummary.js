@@ -88,40 +88,43 @@ class CloudModelSummary extends BaseWizardPage {
   }
   render () {
     return (
-      <div className='model-picker-container'>
-        <div className='col-xs-8 verticalLine'>
-          <div className='row'>
-            <h1 className='margin-top-10 margin-left-10 text-header'>Mandatory Components</h1>
+      <div className='wizardContentPage'>
+        {this.renderHeading(translate('model.summary.heading', this.props.selectedModelName))}
+        <div className='model-picker-container'>
+          <div className='col-xs-8 verticalLine'>
+            <div className='row'>
+              <h1 className='margin-top-10 margin-left-10 text-header'>Mandatory Components</h1>
+            </div>
+            <div className='row'>
+              <ActivePickerButton id='controllers' value={this.state.controllers} description='Controller Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
+              <ActivePickerButton id='compute' value={this.state.compute} description='Compute Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
+              <ActivePickerButton id='monitoring' value={this.state.monitoring} description='Monitoring Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
+            </div>
+            <div className='row'>
+              <h1 className='margin-top-80 margin-left-10 text-header'>Additional Components</h1>
+            </div>
+            <div className='row'>
+              <ActivePickerButton id='storage' value={this.state.storage} description='Storage Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick}/>
+            </div>
           </div>
-          <div className='row'>
-            <ActivePickerButton id='controllers' value={this.state.controllers} description='Controller Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
-            <ActivePickerButton id='compute' value={this.state.compute} description='Compute Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
-            <ActivePickerButton id='monitoring' value={this.state.monitoring} description='Monitoring Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
+          <div className='col-xs-4'>
+            <h2 className='text-header'>Info Panel</h2>
+            <h4 className='text-header'>{this.state.description}</h4>
+            <p />
+            {this.state.editor
+              ? <div className='margin-top-80'>
+                  <h2 className='text-header'>Edit number of machines</h2>
+                  <form className='form-inline col-xs-12 margin-top-20'>
+                    <h4 className='text-theme'>You will update component: <span className='text-primary'>{this.state.activeItemType}</span></h4>
+                    <div className='form-group'>
+                        <input type='number' className='form-control' id='servers' value={this.state.activeItemAmount} onChange={this.handleModelServerUpdate} />
+                    </div>
+                    <button type='submit' className='btn btn-primary' onClick={this.handleModelServerUpdateSubmit}>Update</button>
+                  </form>
+                </div>
+            : <div />
+            }
           </div>
-          <div className='row'>
-            <h1 className='margin-top-80 margin-left-10 text-header'>Additional Components</h1>
-          </div>
-          <div className='row'>
-            <ActivePickerButton id='storage' value={this.state.storage} description='Storage Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick}/>
-          </div>
-        </div>
-        <div className='col-xs-4'>
-          <h2 className='text-header'>Info Panel</h2>
-          <h4 className='text-header'>{this.state.description}</h4>
-          <p />
-          {this.state.editor
-            ? <div className='margin-top-80'>
-                <h2 className='text-header'>Edit number of machines</h2>
-                <form className='form-inline col-xs-12 margin-top-20'>
-                  <h4 className='text-theme'>You will update component: <span className='text-primary'>{this.state.activeItemType}</span></h4>
-                  <div className='form-group'>
-                      <input type='number' className='form-control' id='servers' value={this.state.activeItemAmount} onChange={this.handleModelServerUpdate} />
-                  </div>
-                  <button type='submit' className='btn btn-primary' onClick={this.handleModelServerUpdateSubmit}>Update</button>
-                </form>
-              </div>
-          : <div />
-          }
         </div>
         {this.renderNavButtons()}
       </div>

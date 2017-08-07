@@ -178,34 +178,34 @@ class CloudModelPicker extends BaseWizardPage {
   render() {
     let details = this.state.selectedDetails;
     return (
-      <div className='model-picker-container'>
+      <div className='wizardContentPage'>
         {this.renderHeading(translate('model.picker.heading'))}
-        <div className='picker-container'>
-          {this.renderPickerButtons()}
-        </div>
-        <div className='details-container'>
-          {this.renderModelDetails(details)}
-        </div>
-        <div className='action-btn-container'>
-          <div className='select-template'>
-            <div className='select-template-heading'>
-              {translate('model.picker.select-template-heading')}
-              <ItemHelpButton clickAction={this.showSelectTemplateHelp}/>
-            </div>
-            <ActionButton
-              displayLabel={translate('model.picker.select-template')}
-              clickAction={this.selectTemplate}/>
+          <div className='picker-container'>
+            {this.renderPickerButtons()}
           </div>
-          <div className='help-choose'>
-            <div className='help-choose-heading'>{translate('model.picker.help-choose-heading')}
-              <ItemHelpButton clickAction={this.showHelpChooseHelp}/>
-            </div>
-            <ActionButton
-              displayLabel={translate('model.picker.help-choose')}
-              clickAction={this.helpChoose}/>
+          <div className='details-container'>
+            {this.renderModelDetails(details)}
           </div>
-        </div>
-        {this.renderNavButtons()}
+          <div className='action-btn-container'>
+            <div className='select-template'>
+              <div className='select-template-heading'>
+                {translate('model.picker.select-template-heading')}
+                <ItemHelpButton clickAction={this.showSelectTemplateHelp}/>
+              </div>
+              <ActionButton
+                displayLabel={translate('model.picker.select-template')}
+                clickAction={this.selectTemplate}/>
+            </div>
+            <div className='help-choose'>
+              <div className='help-choose-heading'>{translate('model.picker.help-choose-heading')}
+                <ItemHelpButton clickAction={this.showHelpChooseHelp}/>
+              </div>
+              <ActionButton
+                displayLabel={translate('model.picker.help-choose')}
+                clickAction={this.helpChoose}/>
+            </div>
+          </div>
+          {this.renderNavButtons()}
       </div>
     );
     //TODO need fix issue of order of next and back button
