@@ -159,7 +159,7 @@ class ValidateConfigFiles extends GenericPlaceHolder {
 
   render() {
     return (
-      <div className='generic-container'>
+      <div className='wizardContentPage'>
         {this.renderBody()}
         {this.renderNavButtons()}
       </div>

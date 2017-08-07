@@ -12,7 +12,7 @@ class GenericPlaceHolder extends BaseWizardPage {
   render() {
 
     return (
-      <div className='generic-container'>
+      <div className='wizardContentPage'>
         {this.renderHeading(translate('generic.placeholder.heading'))}
         {this.renderNavButtons()}
       </div>
