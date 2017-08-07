@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
-import GenericPlaceHolder from './GenericPlaceHolder';
 import { ActionButton } from '../components/Buttons.js';
+import BaseWizardPage from './BaseWizardPage.js';
 
 const INVALID = 0;
 const VALID = 1;
@@ -12,23 +12,67 @@ const INVALID_ICON = require('../images/Cancel-48.png');
 
 class EditFile extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      contents : ""
+    };
+  }
+
+  componentWillMount() {
+    fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name)
+    .then(response => response.json())
+    .then((response) => {
+        this.setState({contents: response});
+      })
+  }
+
+  handleDone() {
+    this.props.doneEditingFile();
+    this.props.setValid({valid: UNKNOWN});
+
+    fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(this.state.contents)
+    });
+  }
+
+  handleCancel() {
+    this.props.doneEditingFile();
+  }
+
+  handleChange(event) {
+    this.setState({contents: event.target.value})
+  }
+
   render() {
     return (
-      <div className='heading'>
-        {translate('edit.config.files.heading', this.props.file.description, this.props.file.name)}
-        <pre>
-          {this.props.file.name}
-          {this.props.file.description}
-        </pre>
-        <ActionButton
-          displayLabel='Done'
-          clickAction={() => this.props.onClick()}/>
+      <div>
+        <div className='heading'>
+          {translate('edit.config.files.heading', this.props.file.description, this.props.file.name)}
+        </div>
+        <div>
+          <textarea name='fileContents' className='config-file-editor' wrap='off'
+                    value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
+        </div>
+        <div>
+          <ActionButton
+            displayLabel={translate('cancel')}
+            clickAction={() => this.handleCancel()}/>
+          <ActionButton
+            displayLabel={translate('done')}
+            clickAction={() => this.handleDone()}/>
+        </div>
       </div>
     );
   }
 }
 
-class DisplayFileList extends Component {
+class DisplayFileList extends BaseWizardPage {
   getMessage() {
     var msg;
     if (this.props.valid === UNKNOWN) {
@@ -51,6 +95,14 @@ class DisplayFileList extends Component {
       icon = INVALID_ICON;
     }
     return (<img src={icon}/>);
+  }
+
+  setNextButtonLabel() {
+    return translate('validate.config.files.deploy');
+  }
+
+  setNextButtonDisabled() {
+    return this.props.valid !== VALID;
   }
 
   render() {
@@ -82,12 +134,13 @@ class DisplayFileList extends Component {
             clickAction={() => this.props.onValidateClick()}/>
           {this.getIcon()}
         </div>
+        {this.renderNavButtons()}
       </div>
     );
   }
 }
 
-class ValidateConfigFiles extends GenericPlaceHolder {
+class ValidateConfigFiles extends Component {
   constructor() {
     super();
     this.state = {
@@ -114,19 +167,6 @@ class ValidateConfigFiles extends GenericPlaceHolder {
     this.setState({editingFile: file});
   }
 
-  setNextButtonLabel() {
-    return translate('validate.config.files.deploy');
-  }
-
-  setNextButtonDisabled() {
-    return this.state.valid === VALID ? false : true;
-  }
-
-  doneEditingFile() {
-    this.setState({editingFile: ''});
-    this.setState({valid: UNKNOWN});
-  }
-
   validateModel() {
     // TODO - replace with real backend call once implemented
     // for now switching between valid and invalid result
@@ -142,6 +182,8 @@ class ValidateConfigFiles extends GenericPlaceHolder {
       return (
         <DisplayFileList
           files={this.state.configFiles}
+          back={this.props.back}
+          next={this.props.next}
           onValidateClick={() => this.validateModel()}
           onEditClick={(file) => this.editFile(file)}
           valid={this.state.valid}
@@ -150,7 +192,7 @@ class ValidateConfigFiles extends GenericPlaceHolder {
       return (
         <EditFile
           file={this.state.editingFile}
-          onClick={() => this.doneEditingFile()}
+          doneEditingFile={() => this.doneEditingFile()}
           setValid={(val) => this.setValid(val)}
         />
       );
@@ -161,9 +203,12 @@ class ValidateConfigFiles extends GenericPlaceHolder {
     return (
       <div className='wizardContentPage'>
         {this.renderBody()}
-        {this.renderNavButtons()}
       </div>
     );
+  }
+
+  doneEditingFile() {
+    this.setState({editingFile: ''});
   }
 
   setValid(state) {
