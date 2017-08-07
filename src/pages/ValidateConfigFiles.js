@@ -54,7 +54,12 @@ class DisplayFileList extends Component {
   }
 
   render() {
-    var list = this.props.files.map((file, index) => {
+    // make a copy of the yml file list and sort them by description
+    var fileList = this.props.files.slice();
+    fileList.sort(function(a,b) {
+      var descA = a.description.toLowerCase(), descB = b.description.toLowerCase();
+      return (descA < descB) ? -1 : (descA > descB) ? 1 : 0;});
+    var list = fileList.map((file, index) => {
       return (<li key={index}>
         <a href="#" onClick={() => this.props.onEditClick(file)}>{file.description}</a>
       </li>);
