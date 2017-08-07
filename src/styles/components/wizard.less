@@ -11,7 +11,7 @@
 
   > span{
     background: transparent;
-    padding: 10px;
+    padding: 0px;
     position: relative;
     top: -26px;
   }
@@ -19,13 +19,14 @@
   .progress {
     border-radius: 16px;
     display: inline-block;
-    height: 30px;
-    width: 30px;
-    margin: 10px;
+    height: 32px;
+    width: 32px;
+    margin: 10px 37px 10px 35px;
     border: 1px solid black;
 
     &.done{
       background-color: @productprimarycolor;
+      border-color: @productprimarycolor;
     }
 
     &.notdone{
@@ -34,10 +35,12 @@
 
     &.inprogress{
       background-color: @selectedcolor;
+      border-color: @selectedcolor;
     }
 
     &.error{
       background-color: @errorcolor;
+      border-color: @errorcolor;
     }
   }
 }
@@ -49,8 +52,8 @@
   padding-right: 20px;
   margin-bottom: 40px;
   .heading {
-    font-size: 16px;
-    height: 30px;
+    font-size: 25px;
+    height: 40px;
   }
 }
 
