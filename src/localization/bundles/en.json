@@ -51,5 +51,7 @@
     "assign.server.role.globalselect": "All Servers",
 
     "complete.heading": "Cloud Deployment Successful",
-    "complete.message.body": "Some post deploy instruction contents here..."
+    "complete.message.body": "Some post deploy instruction contents here...",
+
+    "deploy.progress.heading": "Cloud Deployment In Progress"
 }

@@ -5,6 +5,7 @@ import Complete from '../pages/Complete';
 import InstallIntro from '../pages/InstallIntro';
 import ArdanaServerList from '../sandbox/ardanaServerList';
 import ValidateConfigFiles from '../pages/ValidateConfigFiles';
+import CloudDeployProgress from '../pages/CloudDeployProgress';
 
 /**
  * The element name for each step is stored in the state object. To convert it to its proper React
@@ -18,6 +19,7 @@ export const elementMapping = {
   'ArdanaServerList': ArdanaServerList,
   'ValidateConfigFiles': ValidateConfigFiles,
   'AssignServerRoles': AssignServerRoles,
+  'CloudDeployProgress': CloudDeployProgress,
   'Complete': Complete
 };
 
@@ -48,6 +50,10 @@ export const expectedPageOrder = [{
   'jsxelement': 'ValidateConfigFiles'
 }, {
   'index': 5,
+  'state': 0,
+  'jsxelement': 'CloudDeployProgress'
+}, {
+  'index': 6,
   'state': 0,
   'jsxelement': 'Complete'
 }
