@@ -1,7 +1,7 @@
 import CloudModelPicker from '../pages/CloudModelPicker';
 import CloudModelSummary from '../pages/CloudModelSummary';
 import AssignServerRoles from '../pages/AssignServerRoles';
-import GenericPlaceHolder from '../pages/GenericPlaceHolder';
+import Complete from '../pages/Complete';
 import InstallIntro from '../pages/InstallIntro';
 import ArdanaServerList from '../sandbox/ardanaServerList';
 import ValidateConfigFiles from '../pages/ValidateConfigFiles';
@@ -15,11 +15,10 @@ export const elementMapping = {
   'InstallIntro': InstallIntro,
   'CloudModelPicker': CloudModelPicker,
   'CloudModelSummary': CloudModelSummary,
-  'GenericPlaceHolder': GenericPlaceHolder,
   'ArdanaServerList': ArdanaServerList,
   'ValidateConfigFiles': ValidateConfigFiles,
   'AssignServerRoles': AssignServerRoles,
-  'GenericPlaceHolder': GenericPlaceHolder
+  'Complete': Complete
 };
 
 /**
@@ -50,15 +49,7 @@ export const expectedPageOrder = [{
 }, {
   'index': 5,
   'state': 0,
-  'jsxelement': 'GenericPlaceHolder'
-}, {
-  'index': 6,
-  'state': 0,
-  'jsxelement': 'GenericPlaceHolder'
-}, {
-  'index': 7,
-  'state': 0,
-  'jsxelement': 'ArdanaServerList'
+  'jsxelement': 'Complete'
 }
 ];
 

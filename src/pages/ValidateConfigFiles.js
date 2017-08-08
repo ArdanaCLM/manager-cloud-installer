@@ -174,7 +174,7 @@ class ValidateConfigFiles extends Component {
     this.setState({valid: VALIDATING, invalidMsg: ''});
     // for testing purposes, set dev = true
     // to switch between valid and invalid results
-    var dev = false;
+    var dev = true;
     var bodyStr = '';
     if (dev) {
       bodyStr = (this.state.valid !== INVALID) ? {'want_fail': true} : {'want_pass': true};
