@@ -3,7 +3,6 @@ import CloudModelSummary from '../pages/CloudModelSummary';
 import AssignServerRoles from '../pages/AssignServerRoles';
 import Complete from '../pages/Complete';
 import InstallIntro from '../pages/InstallIntro';
-import ArdanaServerList from '../sandbox/ardanaServerList';
 import ValidateConfigFiles from '../pages/ValidateConfigFiles';
 import CloudDeployProgress from '../pages/CloudDeployProgress';
 
@@ -16,7 +15,6 @@ export const elementMapping = {
   'InstallIntro': InstallIntro,
   'CloudModelPicker': CloudModelPicker,
   'CloudModelSummary': CloudModelSummary,
-  'ArdanaServerList': ArdanaServerList,
   'ValidateConfigFiles': ValidateConfigFiles,
   'AssignServerRoles': AssignServerRoles,
   'CloudDeployProgress': CloudDeployProgress,
