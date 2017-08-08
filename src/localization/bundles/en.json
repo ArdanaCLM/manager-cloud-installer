@@ -48,5 +48,7 @@
     "assign.server.role.filtertext": "Server Name",
     "assign.server.role.available-server": "Available Servers:",
     "assign.server.role.target-server-role": "Target Server Roles:",
-    "assign.server.role.globalselect": "All Servers"
+    "assign.server.role.globalselect": "All Servers",
+
+    "deploy.progress.heading": "Cloud Deployment In Progress"
 }
