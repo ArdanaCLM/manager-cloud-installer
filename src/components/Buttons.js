@@ -158,11 +158,46 @@ class ItemHelpButton extends Component {
   }
 }
 
+class AssignButton extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    let assignAction = this.props.clickAction;
+    let isDisabled = this.props.isDisabled === true;
+    let cName = 'glyphicon glyphicon-arrow-right assign';
+    cName = isDisabled ? cName + ' disabled' : cName;
+    return (
+      <span className={cName}
+            onClick={assignAction}></span>
+    );
+  }
+}
+
+
+class UnAssignButton extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    let unAssignAction = this.props.clickAction;
+    let isDisabled = this.props.isDisabled === true;
+    let cName = 'glyphicon glyphicon-arrow-left unassign';
+    cName = isDisabled ? cName + ' disabled' : cName;
+    return (
+      <span className={cName}
+            onClick={unAssignAction}></span>
+    );
+  }
+}
+
 module.exports = {
   BackButton: BackButton,
   NextButton: NextButton,
   PickerButton: PickerButton,
   ActivePickerButton: ActivePickerButton,
   ActionButton: ActionButton,
-  ItemHelpButton: ItemHelpButton
+  ItemHelpButton: ItemHelpButton,
+  AssignButton: AssignButton,
+  UnAssignButton: UnAssignButton
 };

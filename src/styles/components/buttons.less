@@ -76,3 +76,13 @@
     background-color: @selectedcolor;
   }
 }
+
+.assign, .unassign {
+  font-size: 36px;
+  cursor: pointer;
+  &.disabled {
+    color: @inactivecolor;
+    cursor: default;
+  }
+}
+
