@@ -103,7 +103,7 @@ class InstallWizard extends Component {
    * //TODO - real implementation of this once backend is available
    */
   persistState() {
-    var stateToPersist = {
+    let stateToPersist = {
       'currentState': {
         'step': this.state.step,
         'state': this.state.state
@@ -111,6 +111,15 @@ class InstallWizard extends Component {
       'steps': this.state.steps,
       'selectedModelName': this.state.selectedModelName
     };
+
+    fetch('http://localhost:8081/api/v1/progress', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(stateToPersist)
+    });
   }
 
   /**
