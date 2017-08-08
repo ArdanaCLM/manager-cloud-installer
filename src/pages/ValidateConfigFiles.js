@@ -7,6 +7,7 @@ import BaseWizardPage from './BaseWizardPage.js';
 const INVALID = 0;
 const VALID = 1;
 const UNKNOWN = -1;
+const VALIDATING = 2;
 const VALID_ICON = require('../images/Checked-48.png');
 const INVALID_ICON = require('../images/Cancel-48.png');
 
@@ -29,7 +30,9 @@ class EditFile extends Component {
 
   handleDone() {
     this.props.doneEditingFile();
-    this.props.setValid({valid: UNKNOWN});
+    if (this.props.valid === VALID) {
+      this.props.setValid(UNKNOWN);
+    }
 
     fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name, {
       method: 'POST',
@@ -74,15 +77,16 @@ class EditFile extends Component {
 
 class DisplayFileList extends BaseWizardPage {
   getMessage() {
-    var msg;
     if (this.props.valid === UNKNOWN) {
-      msg = translate('validate.config.files.msg.info');
+      return (<div className='info'>{translate('validate.config.files.msg.info')}</div>);
+    } else if (this.props.valid === VALIDATING) {
+      return (<div className='info'>{translate('validate.config.files.msg.validating')}</div>);
     } else if (this.props.valid === VALID) {
-      msg = translate('validate.config.files.msg.valid');
+      return (<div className='info'>{translate('validate.config.files.msg.valid')}</div>);
     } else {
-      msg = translate('validate.config.files.msg.invalid');
+      return (<div className='info'>{translate('validate.config.files.msg.invalid')}<br/>
+        <pre className='log'>{this.props.invalidMsg}</pre></div>);
     }
-    return (<div className='info'>{msg}<br/>{this.props.invalidMsg}</div>);
   }
 
   getIcon() {
@@ -167,12 +171,15 @@ class ValidateConfigFiles extends Component {
   }
 
   validateModel() {
-    // TODO - replace with real backend call once implemented
-    // for now switching between valid and invalid result
-    var bodyStr = {'want_pass': true};
-    if (this.state.valid !== INVALID) {
-      bodyStr = {'want_fail': true};
+    this.setState({valid: VALIDATING, invalidMsg: ''});
+    // for testing purposes, set dev = true
+    // to switch between valid and invalid results
+    var dev = false;
+    var bodyStr = '';
+    if (dev) {
+      bodyStr = (this.state.valid !== INVALID) ? {'want_fail': true} : {'want_pass': true};
     }
+
     fetch('http://localhost:8081/api/v1/clm/config_processor', {
       method: 'POST',
       headers: {
@@ -183,19 +190,20 @@ class ValidateConfigFiles extends Component {
       .then(response => {
         if (response.ok) {
           this.setState({valid: VALID});
+          return JSON.stringify('');  // success call do not return any json
         } else {
           this.setState({valid: INVALID});
+          return response.json();
         }
-        return response.json();
       })
       .then(responseData => {
         if (responseData.log) {
-          // TODO - switch to real log meg once implemented
-          // this.setState({invalidMsg: responseData.log});
-          var msg = 'ERR: Server role \'HLM-ROLE2\' used by server deployer is not defined';
-          this.setState({invalidMsg: msg});
-        } else {
-          this.setState({invalidMsg: ''});
+          if (dev) {
+            var msg = 'ERR: Server role \'HLM-ROLE2\' used by server deployer is not defined';
+            this.setState({invalidMsg: msg});
+          } else {
+            this.setState({invalidMsg: responseData.log});
+          }
         }
       });
   }
@@ -217,6 +225,7 @@ class ValidateConfigFiles extends Component {
         <EditFile
           file={this.state.editingFile}
           doneEditingFile={() => this.doneEditingFile()}
+          valid={this.state.valid}
           setValid={(val) => this.setValid(val)}
         />
       );
