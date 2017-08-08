@@ -30,7 +30,6 @@ class CloudDeployProgress extends BaseWizardPage {
     // TODO get real log file from backend
     // fake the steps through progress button for now
     return STEPS.map((step, index) => {
-      console.log('currentStep: ' + this.state.currentStep);
       var status = '';
       if (this.state.currentStep >= index) {
         if (Math.floor(this.state.currentStep/2) == index) {
@@ -43,7 +42,6 @@ class CloudDeployProgress extends BaseWizardPage {
           status = 'succeed';
         }
       }
-      console.log('status: ' + status);
       return (<li key={index} className={status}>{step}</li>);
     });
   }
