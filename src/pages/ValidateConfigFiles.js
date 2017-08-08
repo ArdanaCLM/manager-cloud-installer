@@ -15,16 +15,16 @@ class EditFile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      contents : ""
+      contents : ''
     };
   }
 
   componentWillMount() {
     fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name)
-    .then(response => response.json())
-    .then((response) => {
+      .then(response => response.json())
+      .then((response) => {
         this.setState({contents: response});
-      })
+      });
   }
 
   handleDone() {
@@ -32,7 +32,7 @@ class EditFile extends Component {
     this.props.setValid({valid: UNKNOWN});
 
     fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name, {
-      method: "POST",
+      method: 'POST',
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
@@ -46,7 +46,7 @@ class EditFile extends Component {
   }
 
   handleChange(event) {
-    this.setState({contents: event.target.value})
+    this.setState({contents: event.target.value});
   }
 
   render() {
@@ -57,7 +57,7 @@ class EditFile extends Component {
         </div>
         <div>
           <textarea name='fileContents' className='config-file-editor' wrap='off'
-                    value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
+            value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
         </div>
         <div>
           <ActionButton
@@ -76,15 +76,13 @@ class DisplayFileList extends BaseWizardPage {
   getMessage() {
     var msg;
     if (this.props.valid === UNKNOWN) {
-      msg = 'Click on a configuration file to view or edit its content. ' +
-        'Click the Validate button to run the configuration processor.';
+      msg = translate('validate.config.files.msg.info');
     } else if (this.props.valid === VALID) {
-      msg = 'The configuration processor completed successfully. Data model is valid.';
+      msg = translate('validate.config.files.msg.valid');
     } else {
-      msg = 'The configuration processor failed.\n' +
-        'ERR: Server role \'HLM-ROLE2\' used by server deployer is not defined';
+      msg = translate('validate.config.files.msg.invalid');
     }
-    return (<div className='info'>{msg}</div>);
+    return (<div className='info'>{msg}<br/>{this.props.invalidMsg}</div>);
   }
 
   getIcon() {
@@ -146,7 +144,8 @@ class ValidateConfigFiles extends Component {
     this.state = {
       configFiles: [],
       valid: UNKNOWN,
-      editingFile: ''
+      editingFile: '',
+      invalidMsg: ''
     };
 
     // retrieve a list of yml files
@@ -170,11 +169,35 @@ class ValidateConfigFiles extends Component {
   validateModel() {
     // TODO - replace with real backend call once implemented
     // for now switching between valid and invalid result
+    var bodyStr = {'want_pass': true};
     if (this.state.valid !== INVALID) {
-      this.setState({valid: INVALID});
-    } else {
-      this.setState({valid: VALID});
+      bodyStr = {'want_fail': true};
     }
+    fetch('http://localhost:8081/api/v1/clm/config_processor', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bodyStr)
+    })
+      .then(response => {
+        if (response.ok) {
+          this.setState({valid: VALID});
+        } else {
+          this.setState({valid: INVALID});
+        }
+        return response.json();
+      })
+      .then(responseData => {
+        if (responseData.log) {
+          // TODO - switch to real log meg once implemented
+          // this.setState({invalidMsg: responseData.log});
+          var msg = 'ERR: Server role \'HLM-ROLE2\' used by server deployer is not defined';
+          this.setState({invalidMsg: msg});
+        } else {
+          this.setState({invalidMsg: ''});
+        }
+      });
   }
 
   renderBody() {
@@ -187,6 +210,7 @@ class ValidateConfigFiles extends Component {
           onValidateClick={() => this.validateModel()}
           onEditClick={(file) => this.editFile(file)}
           valid={this.state.valid}
+          invalidMsg={this.state.invalidMsg}
         />);
     } else {
       return (
@@ -212,7 +236,7 @@ class ValidateConfigFiles extends Component {
   }
 
   setValid(state) {
-    this.state.valid = state;
+    this.setState({valid: state});
   }
 }
 

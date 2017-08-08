@@ -36,6 +36,9 @@
     "validate.config.files.heading": "Review Configuration Files",
     "validate.config.files.validate": "Validate",
     "validate.config.files.deploy": "Deploy",
+    "validate.config.files.msg.info": "Click on a configuration file to view or edit its content. Click the Validate button to run the configuration processor.",
+    "validate.config.files.msg.valid": "The configuration processor completed successfully. Data model is valid.",
+    "validate.config.files.msg.invalid": "The configuration processor failed with the following message: ",
 
     "edit.config.files.heading": "Update Configuration File: {0} ({1})"
 }
