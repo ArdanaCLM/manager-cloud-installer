@@ -41,5 +41,12 @@
     "validate.config.files.msg.invalid": "The configuration processor failed with the following message: ",
     "validate.config.files.msg.validating": "Validating...",
 
-    "edit.config.files.heading": "Update Configuration File: {0} ({1})"
+    "edit.config.files.heading": "Update Configuration File: {0} ({1})",
+
+    "assign.server.role.heading": "Assign Servers and Server Roles: {0}",
+    "assign.server.role.discover": "Discover",
+    "assign.server.role.filtertext": "Server Name",
+    "assign.server.role.available-server": "Available Servers:",
+    "assign.server.role.target-server-role": "Target Server Roles:",
+    "assign.server.role.globalselect": "All Servers"
 }
