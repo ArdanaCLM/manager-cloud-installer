@@ -5,6 +5,7 @@ import GenericPlaceHolder from '../pages/GenericPlaceHolder';
 import InstallIntro from '../pages/InstallIntro';
 import ArdanaServerList from '../sandbox/ardanaServerList';
 import ValidateConfigFiles from '../pages/ValidateConfigFiles';
+import CloudDeployProgress from '../pages/CloudDeployProgress';
 
 /**
  * The element name for each step is stored in the state object. To convert it to its proper React
@@ -19,7 +20,8 @@ export const elementMapping = {
   'ArdanaServerList': ArdanaServerList,
   'ValidateConfigFiles': ValidateConfigFiles,
   'AssignServerRoles': AssignServerRoles,
-  'GenericPlaceHolder': GenericPlaceHolder
+  'GenericPlaceHolder': GenericPlaceHolder,
+  'CloudDeployProgress': CloudDeployProgress
 };
 
 /**
@@ -50,7 +52,7 @@ export const expectedPageOrder = [{
 }, {
   'index': 5,
   'state': 0,
-  'jsxelement': 'GenericPlaceHolder'
+  'jsxelement': 'CloudDeployProgress'
 }, {
   'index': 6,
   'state': 0,
