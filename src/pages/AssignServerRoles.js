@@ -290,12 +290,10 @@ class AssignServerRoles extends BaseWizardPage {
         return rs_role;
       });
 
-      this.setState({serverRoles: rs_roles.concat(cl_roles)})
-        .then(() => {
-          //default to set the first in the array
-          //TODO what is the default
-          this.setState({selectedServerRole: this.state.serverRoles[0].name});
-        });
+      this.setState({serverRoles: rs_roles.concat(cl_roles)});
+      //default to set the first in the array
+      //TODO what is the default
+      this.setState({selectedServerRole: this.state.serverRoles[0].name});
     }
   }
 
