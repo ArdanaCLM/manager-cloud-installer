@@ -1,48 +1,4 @@
 {
-  "installprogress": {
-    "currentState": {
-      "step": 0,
-      "state": 0
-    },
-    "steps": [
-      {
-        "index": 0,
-        "state": 0,
-        "jsxelement": "InstallIntro"
-      },
-      {
-        "index": 1,
-        "state": 0,
-        "jsxelement": "CloudModelPicker"
-      },
-      {
-        "index": 2,
-        "state": 0,
-        "jsxelement": "CloudModelSummary"
-      },
-      {
-        "index": 3,
-        "state": 0,
-        "jsxelement": "AssignServerRoles"
-      },
-      {
-        "index": 4,
-        "state": 0,
-        "jsxelement": "ValidateConfigFiles"
-      },
-      {
-        "index": 5,
-        "state": 0,
-        "jsxelement": "CloudDeployProgress"
-      },
-      {
-        "index": 6,
-        "state": 0,
-        "jsxelement": "Complete"
-      }
-    ],
-    "selectedModelName": "mid-scale-kvm-vsa"
-  },
   "models": [
     {
       "id": 1,
