@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import { ActionButton, AssignButton, UnAssignButton } from '../components/Buttons.js';
-import { LoadingMask } from '../components/LoadingMask.js';
 import BaseWizardPage from './BaseWizardPage.js';
 
 class AssignServerRoles extends BaseWizardPage {
