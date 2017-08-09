@@ -49,6 +49,8 @@ class InstallWizard extends Component {
           jsx: this.buildElement(wizardProgress.steps, currentIndex, selectedModelName),
           selectedModelName: selectedModelName
         });
+
+        this.persistState();
       });
 
     //some default values so that the render function won't error out on startup
