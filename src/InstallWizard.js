@@ -23,12 +23,14 @@ class InstallWizard extends Component {
         var wizardProgress = responseData;
         var currentIndex = wizardProgress.currentState.step;
         var currentState = wizardProgress.currentState.state;
+        var forcedReset = (window.location.search.indexOf('installreset=true') === -1) ? false : true;
 
         /**
          * if the state loaded from the backend has the pages in a different order than
          * expected by the UI, discard that state and use the default values
          */
-        if(!this.props.stepsInOrder(wizardProgress.steps, this.props.expectedPageOrder)) {
+        if(forcedReset ||
+            !this.props.stepsInOrder(wizardProgress.steps, this.props.expectedPageOrder)) {
           wizardProgress.steps = this.props.expectedPageOrder;
           currentState = stepStateValues.inprogress;
           currentIndex = 0;
@@ -47,6 +49,8 @@ class InstallWizard extends Component {
           jsx: this.buildElement(wizardProgress.steps, currentIndex, selectedModelName),
           selectedModelName: selectedModelName
         });
+
+        this.persistState();
       });
 
     //some default values so that the render function won't error out on startup
