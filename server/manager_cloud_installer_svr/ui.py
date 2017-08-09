@@ -9,7 +9,7 @@ Calls handled locally to support the UI
 """
 
 
-@bp.route("/api/v1/progress")
+@bp.route("/api/v1/progress", methods=['GET', 'POST', 'PUT', 'DELETE'])
 def progress():
 
     # For now, use only the JSON_SERVER
