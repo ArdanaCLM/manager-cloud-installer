@@ -1,66 +1,78 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 
 const STEPS = [
-  'All servers powered up',
-  'All servers successfully bootstrapped',
-  'Controller services deployed',
-  'Compute nodes deployed',
-  'Monitoring nodes deployed',
-  'Storage nodes deployed',
-  'Quick health check passed'
+  translate('deploy.progress.step1'),
+  translate('deploy.progress.step2'),
+  translate('deploy.progress.step3'),
+  translate('deploy.progress.step4'),
+  translate('deploy.progress.step5'),
+  translate('deploy.progress.step6'),
+  translate('deploy.progress.step7')
 ];
 
-class CloudDeployProgress extends BaseWizardPage {
+class Progress extends BaseWizardPage {
   constructor() {
     super();
     this.state = {
-      currentStep: -1
-    }
+      currentStep: 0,
+      currentProgress: -1,
+      errorMsg: ''
+    };
   }
 
   getError() {
-    return (<div></div>);
+    return (this.state.errorMsg) ? (
+      <div>{translate('deploy.progress.failure', STEPS[this.state.currentStep])}<br/>
+        <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
   }
 
-  getSteps() {
-    // TODO get real log file from backend
-    // fake the steps through progress button for now
+  getProgress() {
     return STEPS.map((step, index) => {
       var status = '';
-      if (this.state.currentStep >= index) {
-        if (Math.floor(this.state.currentStep/2) == index) {
-          if (this.state.currentStep%2 == 0) {
-            status = 'progressing';
-          } else {
+      if (this.state.currentProgress >= index) {
+        if (this.state.currentProgress >= 13 && index == 6) {
+          status = (this.state.currentProgress == 13) ? 'fail' : 'succeed';
+        } else {
+          if (Math.floor(this.state.currentProgress/2) == index) {
+            if (this.state.currentProgress%2 == 0) {
+              status = 'progressing';
+            } else {
+              status = 'succeed';
+            }
+          } else if (Math.floor(this.state.currentProgress/2) > index) {
             status = 'succeed';
           }
-        } else if (Math.floor(this.state.currentStep/2) > index) {
-          status = 'succeed';
         }
       }
       return (<li key={index} className={status}>{step}</li>);
     });
   }
 
-  stepUp() {
-    var now = this.state.currentStep + 1;
-    this.setState({currentStep: now});
+  progressing() {
+    // TODO get real log file from backend
+    // fake the steps through progress button for now
+    var now = this.state.currentProgress + 1;
+    this.setState({currentProgress: now, currentStep: Math.floor(this.state.currentProgress/2)});
+    if (this.state.currentProgress == 12) {
+      this.setState({errorMsg: 'something is wrong here, please do something'});
+    }
+    if (this.state.currentProgress == 13) {
+      this.setState({errorMsg: ''});
+    }
   }
 
   render() {
-    var steps = STEPS.map((step, index) => {return (<li key={index}>{step}</li>);});
-    var progress = 0;
     return (
       <div className='wizardContentPage'>
         {this.renderHeading(translate('deploy.progress.heading'))}
         <div className='deploy-progress'>
           <div className='body'>
             <div className='col-xs-6'>
-              <ul>{this.getSteps()}</ul>
+              <ul>{this.getProgress()}</ul>
             </div>
             <div className='col-xs-6'>
               {this.getError()}
@@ -70,11 +82,19 @@ class CloudDeployProgress extends BaseWizardPage {
         <div>
           <ActionButton
             displayLabel='progress'
-            clickAction={() => this.stepUp()}/>
+            clickAction={() => this.progressing()}/>
         </div>
         {this.renderNavButtons()}
       </div>
     );
+  }
+}
+
+class CloudDeployProgress extends Component {
+  render() {
+    // TODO take out the back button when dev mode implementation is ready
+    // return (<Progress next={this.props.next}/>);
+    return (<Progress back={this.props.back} next={this.props.next}/>);
   }
 }
 

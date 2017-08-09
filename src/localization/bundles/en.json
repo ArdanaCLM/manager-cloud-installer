@@ -53,5 +53,13 @@
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",
 
-    "deploy.progress.heading": "Cloud Deployment In Progress"
+    "deploy.progress.heading": "Cloud Deployment In Progress",
+    "deploy.progress.failure": "Deployment Failure : {0}",
+    "deploy.progress.step1": "All servers powered up",
+    "deploy.progress.step2": "All servers successfully bootstrapped",
+    "deploy.progress.step3": "Controller services deployed",
+    "deploy.progress.step4": "Compute nodes deployed",
+    "deploy.progress.step5": "Monitoring nodes deployed",
+    "deploy.progress.step6": "Storage nodes deployed",
+    "deploy.progress.step7": "Quick health check passed"
 }
