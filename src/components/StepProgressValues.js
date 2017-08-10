@@ -1,4 +1,4 @@
-export const stepStateValues = {
+export const stepProgressValues = {
   'notdone': 0,
   'done': 1,
   'inprogress': 2,
