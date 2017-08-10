@@ -20,7 +20,16 @@ class InstallWizard extends Component {
       .then(response => response.json())
       .then((responseData) =>
       {
-        var wizardProgress = responseData;
+        var wizardProgress = responseData || {
+          currentState: {
+            step: 0,
+            state: stepStateValues.notdone,
+          },
+          steps: [],
+          jsx: undefined,
+          selectedModelName: ''
+        };
+
         var currentIndex = wizardProgress.currentState.step;
         var currentState = wizardProgress.currentState.state;
         var forcedReset = (window.location.search.indexOf('installreset=true') === -1) ? false : true;
