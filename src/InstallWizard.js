@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './Deployer.css';
 import { translate } from './localization/localize.js';
-import { stepStateValues } from './components/StepStateValues.js';
+import { stepProgressValues } from './components/StepProgressValues.js';
 import WizardProgress from './components/WizardProgress';
 
 
@@ -21,18 +21,20 @@ class InstallWizard extends Component {
       .then((responseData) =>
       {
         var wizardProgress = responseData || {
-          currentState: {
+          installProgress: {
             step: 0,
-            state: stepStateValues.notdone,
+            stepProgress: stepProgressValues.notdone,
           },
           steps: [],
-          jsx: undefined,
+          currentlyDisplayedJSX: undefined,
           selectedModelName: ''
         };
 
-        var currentIndex = wizardProgress.currentState.step;
-        var currentState = wizardProgress.currentState.state;
         var forcedReset = (window.location.search.indexOf('installreset=true') === -1) ? false : true;
+
+        //forced reset can be used to avoid trying to load json entries that may no longer exist
+        var currentIndex = forcedReset ? 0 : wizardProgress.installProgress.step;
+        var installProgress = forcedReset ? stepProgressValues.inprogress : wizardProgress.installProgress.stepProgress;
 
         /**
          * if the state loaded from the backend has the pages in a different order than
@@ -41,21 +43,21 @@ class InstallWizard extends Component {
         if(forcedReset ||
             !this.props.stepsInOrder(wizardProgress.steps, this.props.expectedPageOrder)) {
           wizardProgress.steps = this.props.expectedPageOrder;
-          currentState = stepStateValues.inprogress;
+          installProgress = stepProgressValues.inprogress;
           currentIndex = 0;
         }
 
-        if(currentState !== stepStateValues.error && currentIndex === 0) {
-          currentState = stepStateValues.inprogress;
-          wizardProgress.steps[currentIndex].state = stepStateValues.inprogress;
+        if(installProgress !== stepProgressValues.error && currentIndex === 0) {
+          installProgress = stepProgressValues.inprogress;
+          wizardProgress.steps[currentIndex].stepProgress = stepProgressValues.inprogress;
         }
 
         var selectedModelName = wizardProgress.selectedModelName;
         this.setState({
           step: currentIndex,
-          state: currentState,
+          state: installProgress,
           steps: wizardProgress.steps,//need these to write them back to the state object later
-          jsx: this.buildElement(wizardProgress.steps, currentIndex, selectedModelName),
+          currentlyDisplayedJSX: this.buildElement(wizardProgress.steps, currentIndex, selectedModelName),
           selectedModelName: selectedModelName
         });
 
@@ -67,7 +69,7 @@ class InstallWizard extends Component {
       step: 0,
       state: 0,
       steps: [],//need these to write them back to the state object later
-      jsx: undefined,
+      currentlyDisplayedJSX: undefined,
       selectedModelName: ''
     };
   }
@@ -117,7 +119,7 @@ class InstallWizard extends Component {
    */
   persistState() {
     let stateToPersist = {
-      'currentState': {
+      'installProgress': {
         'step': this.state.step,
         'state': this.state.state
       },
@@ -143,19 +145,19 @@ class InstallWizard extends Component {
     //TODO - update state setting logic to accept error states
     var steps = this.state.steps, stateUpdates = {};
     if(isError) {
-      steps[this.state.step].state = stepStateValues.error;
+      steps[this.state.step].stepProgress = stepProgressValues.error;
     } else {
-      steps[this.state.step].state = stepStateValues.done;
+      steps[this.state.step].stepProgress = stepProgressValues.done;
 
 
       //verify that there is a next page
       if (steps[(this.state.step + 1)]) {
         //update the next step to inprogress
-        steps[(this.state.step + 1)].state = stepStateValues.inprogress;
+        steps[(this.state.step + 1)].stepProgress = stepProgressValues.inprogress;
 
         //prepared to advance to the next page
         stateUpdates.step = this.state.step + 1;
-        stateUpdates.jsx =
+        stateUpdates.currentlyDisplayedJSX =
             this.buildElement(this.state.steps, this.state.step + 1, this.state.selectedModelName);
       }
     }
@@ -173,19 +175,19 @@ class InstallWizard extends Component {
     //TODO - update state setting logic to accept error states
     var steps = this.state.steps, stateUpdates = {};
     if(isError) {
-      steps[this.state.step].state = stepStateValues.error;
+      steps[this.state.step].stepProgress = stepProgressValues.error;
     } else {
-      steps[this.state.step].state = stepStateValues.notdone;
+      steps[this.state.step].stepProgress = stepProgressValues.notdone;
     }
 
     //verify that there is a previous page
     if(steps[(this.state.step - 1)]) {
       //update previous step to inprogress
-      steps[(this.state.step - 1)].state = stepStateValues.inprogress;
+      steps[(this.state.step - 1)].stepProgress = stepProgressValues.inprogress;
 
       //prepare to go back a page
       stateUpdates.step = this.state.step - 1;
-      stateUpdates.jsx =
+      stateUpdates.currentlyDisplayedJSX =
           this.buildElement(this.state.steps, this.state.step - 1 , this.state.selectedModelName);
     }
     stateUpdates.steps = steps;
@@ -205,7 +207,7 @@ class InstallWizard extends Component {
    */
   render()
   {
-    let currentStepComponent = this.state.jsx;
+    let currentStepComponent = this.state.currentlyDisplayedJSX;
 
     if(currentStepComponent === undefined) {
       currentStepComponent = <div>{translate('wizard.loading.pleasewait')}</div>;
