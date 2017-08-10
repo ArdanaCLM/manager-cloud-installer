@@ -14,7 +14,6 @@ class CloudModelPicker extends BaseWizardPage {
     super(props);
     //TODO some states need to be coordinated with others
     this.state = {
-      isNextButtonDisabled : false,
       selectedModelName: this.props.selectedModelName,
       selectedDetails: '',
       selectedModel: undefined, //TODO how to pass this out to the next page???
@@ -22,8 +21,6 @@ class CloudModelPicker extends BaseWizardPage {
       templates: []
     };
 
-    this.goBack = this.goBack.bind(this);
-    this.goNext = this.goNext.bind(this);
     this.pickModel = this.pickModel.bind(this);
     this.selectTemplate = this.selectTemplate.bind(this);
     this.helpChoose = this.helpChoose.bind(this);
@@ -46,7 +43,6 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   saveTemplateIntoModel(modelName) {
-    //we only have midsize data
     fetch('http://localhost:8081/api/v1/clm/templates/' + modelName)
       .then(response => response.json())
       .then((responseData) => {
@@ -78,8 +74,6 @@ class CloudModelPicker extends BaseWizardPage {
         if(temp) {
           this.setState({selectedDetails: temp.overview});
         }
-
-        this.saveTemplateIntoModel(mName);
       });
     //TODO handle error
   }
@@ -101,19 +95,9 @@ class CloudModelPicker extends BaseWizardPage {
     }
   }
 
-  goBack(e) {
-    e.preventDefault();
-    var isError = false;
-    //if going back involved unsetting some parameters, do that here
-    this.props.back(isError);
-  }
-
-  goNext(e) {
-    e.preventDefault();
-    var isError = false;
-    //typical pages would do some validation here before deciding to advance
-    //however the intro page has no validation
-    this.props.next(isError);
+  // Only permit the Next button if a model has been selected
+  isError() {
+    return this.state.selectedModelName == '';
   }
 
   //TODO experimental

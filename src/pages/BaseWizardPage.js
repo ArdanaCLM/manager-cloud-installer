@@ -29,7 +29,7 @@ class BaseWizardPage extends Component {
   */
   goBack(e) {
     e.preventDefault();
-    this.props.back(this.isError());
+    this.props.back(false);
   }
 
   /**
