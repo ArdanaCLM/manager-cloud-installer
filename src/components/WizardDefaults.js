@@ -7,72 +7,30 @@ import ValidateConfigFiles from '../pages/ValidateConfigFiles';
 import CloudDeployProgress from '../pages/CloudDeployProgress';
 
 /**
- * The element name for each step is stored in the state object. To convert it to its proper React
- * Component class, there needs to be a mapping between the name and the actual class implementation.
- * The string should match the class name, and the class should be imported into this file
+ * Define the name of each step and its corresponding React Component.
+ * The class containing the React component should be imported into this file.
+ * When retrieving the stored state, the order of element will be compared with this
+ * list, and if they are different, the wizard will start over at the beginning
  */
-export const elementMapping = {
-  'InstallIntro': InstallIntro,
-  'CloudModelPicker': CloudModelPicker,
-  'CloudModelSummary': CloudModelSummary,
-  'ValidateConfigFiles': ValidateConfigFiles,
-  'AssignServerRoles': AssignServerRoles,
-  'CloudDeployProgress': CloudDeployProgress,
-  'Complete': Complete
-};
-
-/**
- * the default page order (with a placeholder state) for the pages in the wizard. If this is a mismatch
- * for the state object that comes back from the server , this list will override and the wizard
- * will start over at the begining
- */
-export const expectedPageOrder = [{
-  'index': 0,
-  'state': 0,
-  'jsxelement': 'InstallIntro'
+export const pages = [{
+  name: 'InstallIntro',
+  component: InstallIntro
 }, {
-  'index': 1,
-  'state': 0,
-  'jsxelement': 'CloudModelPicker'
+  name: 'CloudModelPicker',
+  component: CloudModelPicker
 }, {
-  'index': 2,
-  'state': 0,
-  'jsxelement': 'CloudModelSummary'
+  name: 'CloudModelSummary',
+  component: CloudModelSummary
 }, {
-  'index': 3,
-  'state': 0,
-  'jsxelement': 'AssignServerRoles'
+  name: 'AssignServerRoles',
+  component: AssignServerRoles
 }, {
-  'index': 4,
-  'state': 0,
-  'jsxelement': 'ValidateConfigFiles'
+  name: 'ValidateConfigFiles',
+  component: ValidateConfigFiles
 }, {
-  'index': 5,
-  'state': 0,
-  'jsxelement': 'CloudDeployProgress'
+  name: 'CloudDeployProgress',
+  component: CloudDeployProgress
 }, {
-  'index': 6,
-  'state': 0,
-  'jsxelement': 'Complete'
-}
-];
-
-/**
- * Checks two arrays of step objects against each other to make sure they're ordered the same
- * @param currentStateSteps
- * @param expectedOrder
- * @returns {boolean} true if the order matches, false otherwise
- */
-export function stepsInOrder(currentStateSteps, expectedOrder) {
-  var i;
-  if(currentStateSteps.length !== expectedOrder.length) {
-    return false;
-  }
-
-  for(i = 0; i < currentStateSteps.length; i++) {
-    if(currentStateSteps[i].jsxelement !== expectedOrder[i].jsxelement) {
-      return false;
-    }
-  }
-  return true;
-}
+  name: 'Complete',
+  component: Complete
+}];

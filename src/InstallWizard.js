@@ -10,123 +10,109 @@ import WizardProgress from './components/WizardProgress';
  * of state across them.
  */
 class InstallWizard extends Component {
-  constructor()
+
+  constructor(props)
   {
     super();
 
-    //Load the current state information from the backend
-    //TODO - replace with query to real backend once the backend is implemented
+    this.state = this.initialState(props);
+
+    // Load the current state information from the backend
     fetch('http://localhost:8081/api/v1/progress')
       .then(response => response.json())
       .then((responseData) =>
       {
-        var wizardProgress = responseData || {
-          installProgress: {
-            step: 0,
-            stepProgress: stepProgressValues.notdone,
-          },
-          steps: [],
-          currentlyDisplayedJSX: undefined,
-          selectedModelName: ''
-        };
-
+        var progress = responseData || this.initialState(this.props);
         var forcedReset = (window.location.search.indexOf('installreset=true') === -1) ? false : true;
-
-        //forced reset can be used to avoid trying to load json entries that may no longer exist
-        var currentIndex = forcedReset ? 0 : wizardProgress.installProgress.step;
-        var installProgress = forcedReset ? stepProgressValues.inprogress : wizardProgress.installProgress.stepProgress;
 
         /**
          * if the state loaded from the backend has the pages in a different order than
          * expected by the UI, discard that state and use the default values
          */
-        if(forcedReset ||
-            !this.props.stepsInOrder(wizardProgress.steps, this.props.expectedPageOrder)) {
-          wizardProgress.steps = this.props.expectedPageOrder;
-          installProgress = stepProgressValues.inprogress;
-          currentIndex = 0;
+        if(forcedReset || !this.areStepsInOrder(progress.steps, this.props.pages)) {
+          progress = this.initialState();
         }
 
-        if(installProgress !== stepProgressValues.error && currentIndex === 0) {
-          installProgress = stepProgressValues.inprogress;
-          wizardProgress.steps[currentIndex].stepProgress = stepProgressValues.inprogress;
-        }
-
-        var selectedModelName = wizardProgress.selectedModelName;
         this.setState({
-          step: currentIndex,
-          state: installProgress,
-          steps: wizardProgress.steps,//need these to write them back to the state object later
-          currentlyDisplayedJSX: this.buildElement(wizardProgress.steps, currentIndex, selectedModelName),
-          selectedModelName: selectedModelName
-        });
-
-        this.persistState();
+          currentStep: progress.currentStep,
+          steps: progress.steps,
+          selectedModelName: progress.selectedModelName,
+          currentlyDisplayedJSX: this.buildElement(progress.currentStep, progress.selectedModelName)
+        }, this.persistState);
       });
+  }
 
-    //some default values so that the render function won't error out on startup
-    this.state = {
-      step: 0,
-      state: 0,
-      steps: [],//need these to write them back to the state object later
-      currentlyDisplayedJSX: undefined,
-      selectedModelName: ''
-    };
+  initialState(props) {
+    let state = {
+      currentStep: 0,
+      selectedModelName: '',
+      steps: props.pages,
+      currentlyDisplayedJSX: undefined    // this field is not persisted
+    }
+
+    state.steps[0].stepProgress = stepProgressValues.inprogress;
+    return state;
   }
 
   /**
-   * creates a JSX element representing the current step in the wizard based on the overall set of steps
+   * Checks two arrays of step objects against each other to make sure they're ordered the same
+   * @param currentStateSteps
+   * @param expectedOrder
+   * @returns {boolean} true if the order matches, false otherwise
+   */
+  areStepsInOrder(currentStateSteps, expectedOrder) {
+
+    if(currentStateSteps.length !== expectedOrder.length) {
+      return false;
+    }
+
+    for(var i = 0; i < currentStateSteps.length; i++) {
+      if(currentStateSteps[i].name !== expectedOrder[i].name) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * creates a react compoennt representing the current step in the wizard based on the overall set of steps
    * and the current index
    * @param {Array} an array of objects representing the list of states, their indexes and state
    * @param {number} the current index (how far along in the wizard), a whole number matching some step index
    */
-  buildElement(steps, currentIndex, selectedModelName) {
-    var i, stepElement = undefined;
-    for(i = 0; i < steps.length; i++) {
-      if(steps[i].index === currentIndex) {
-        var props = [];
+  buildElement(currentStep, selectedModelName) {
+    var props = [];
 
-        //check if first element
-        if(i !== 0) {
-          props.back = this.stepBack.bind(this);
-
-        }
-
-        //check for additional steps
-        if(i < (steps.length - 1)) {
-          props.next = this.stepForward.bind(this);
-        }
-
-        //TODO: pass selectedModelName to all the step
-        //once we figure out how pass around model name...we know how to pass around the
-        //model object
-        props.selectedModelName = selectedModelName;
-        //idea here is use this when select model in model picker
-        //call this callback to update the selectedModelName here
-        props.updateModelName = this.updateModelName.bind(this);
-        stepElement = React.createElement(this.props.elementMapping[steps[i].jsxelement], props);
-        break;
-      }
+    //check if first element
+    if(currentStep !== 0) {
+      props.back = this.stepBack.bind(this);
     }
 
-    return stepElement;
+    //check for additional steps
+    if(currentStep < (this.props.pages.length - 1)) {
+      props.next = this.stepForward.bind(this);
+    }
+
+    props.selectedModelName = selectedModelName;
+    // pass a callback to update the selectedModelName.  Only used by the cloud model picker page
+    props.updateModelName = this.updateModelName.bind(this);
+
+    return React.createElement(this.props.pages[currentStep].component, props);
   }
 
   /**
    * Writes the current install state out to persistent storage through an api in the shim
-   * layer of the UI. This is presently a placeholder
-   * //TODO - real implementation of this once backend is available
+   * layer of the UI.
    */
   persistState() {
     let stateToPersist = {
-      'installProgress': {
-        'step': this.state.step,
-        'state': this.state.state
-      },
+      'currentStep': this.state.currentStep,
       'steps': this.state.steps,
       'selectedModelName': this.state.selectedModelName
     };
 
+    // Note that JSON.stringify silently ignores React components, so they
+    // don't get saved
     fetch('http://localhost:8081/api/v1/progress', {
       method: 'POST',
       headers: {
@@ -145,20 +131,20 @@ class InstallWizard extends Component {
     //TODO - update state setting logic to accept error states
     var steps = this.state.steps, stateUpdates = {};
     if(isError) {
-      steps[this.state.step].stepProgress = stepProgressValues.error;
+      steps[this.state.currentStep].stepProgress = stepProgressValues.error;
     } else {
-      steps[this.state.step].stepProgress = stepProgressValues.done;
+      steps[this.state.currentStep].stepProgress = stepProgressValues.done;
 
 
       //verify that there is a next page
-      if (steps[(this.state.step + 1)]) {
+      if (steps[(this.state.currentStep + 1)]) {
         //update the next step to inprogress
-        steps[(this.state.step + 1)].stepProgress = stepProgressValues.inprogress;
+        steps[(this.state.currentStep + 1)].stepProgress = stepProgressValues.inprogress;
 
         //prepared to advance to the next page
-        stateUpdates.step = this.state.step + 1;
+        stateUpdates.currentStep = this.state.currentStep + 1;
         stateUpdates.currentlyDisplayedJSX =
-            this.buildElement(this.state.steps, this.state.step + 1, this.state.selectedModelName);
+            this.buildElement(this.state.currentStep + 1, this.state.selectedModelName);
       }
     }
 
@@ -175,20 +161,20 @@ class InstallWizard extends Component {
     //TODO - update state setting logic to accept error states
     var steps = this.state.steps, stateUpdates = {};
     if(isError) {
-      steps[this.state.step].stepProgress = stepProgressValues.error;
+      steps[this.state.currentStep].stepProgress = stepProgressValues.error;
     } else {
-      steps[this.state.step].stepProgress = stepProgressValues.notdone;
+      steps[this.state.currentStep].stepProgress = stepProgressValues.notdone;
     }
 
     //verify that there is a previous page
-    if(steps[(this.state.step - 1)]) {
+    if(steps[(this.state.currentStep - 1)]) {
       //update previous step to inprogress
-      steps[(this.state.step - 1)].stepProgress = stepProgressValues.inprogress;
+      steps[(this.state.currentStep - 1)].stepProgress = stepProgressValues.inprogress;
 
       //prepare to go back a page
-      stateUpdates.step = this.state.step - 1;
+      stateUpdates.currentStep = this.state.currentStep - 1;
       stateUpdates.currentlyDisplayedJSX =
-          this.buildElement(this.state.steps, this.state.step - 1 , this.state.selectedModelName);
+          this.buildElement(this.state.currentStep - 1 , this.state.selectedModelName);
     }
     stateUpdates.steps = steps;
 
@@ -196,10 +182,8 @@ class InstallWizard extends Component {
     this.setState(stateUpdates, this.persistState);
   }
 
-  //TODO experimental
   updateModelName(modelName) {
-    //don't want to render all the UI
-    this.state.selectedModelName = modelName;
+    this.setState({selectedModelName: modelName}, this.persistState);
   }
 
   /**
@@ -219,7 +203,7 @@ class InstallWizard extends Component {
           <div className='heading'>
             {translate('openstack.cloud.deployer.title')}
           </div>
-          <WizardProgress steps={this.state.steps} currentStep={this.state.step} />
+          <WizardProgress steps={this.state.steps} />
         </div>
         <div>
           {currentStepComponent}

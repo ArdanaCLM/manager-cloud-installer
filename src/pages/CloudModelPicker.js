@@ -112,7 +112,7 @@ class CloudModelPicker extends BaseWizardPage {
     this.setSelectedDetails(modelName);
     //TODO experimental
     this.saveTemplateIntoModel(modelName);
-    this.updateParentSelectedModelName(modelName);
+    this.updateParentSelectedModelName(e.target.innerText);
   }
 
   selectTemplate(e) {
