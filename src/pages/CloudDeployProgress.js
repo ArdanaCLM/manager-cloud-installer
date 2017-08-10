@@ -18,10 +18,15 @@ class Progress extends BaseWizardPage {
   constructor() {
     super();
     this.state = {
+      deployComplete: false,
       currentStep: 0,
       currentProgress: -1,
       errorMsg: ''
     };
+  }
+
+  setNextButtonDisabled() {
+    return !this.state.deployComplete;
   }
 
   getError() {
@@ -61,7 +66,7 @@ class Progress extends BaseWizardPage {
       this.setState({errorMsg: 'something is wrong here, please do something'});
     }
     if (this.state.currentProgress == 13) {
-      this.setState({errorMsg: ''});
+      this.setState({errorMsg: '', deployComplete: true});
     }
   }
 
