@@ -13,7 +13,7 @@ class InstallWizard extends Component {
 
   constructor(props)
   {
-    super();
+    super(props);
 
     this.state = this.initialState(props);
 
@@ -22,7 +22,7 @@ class InstallWizard extends Component {
       .then(response => response.json())
       .then((responseData) =>
       {
-        var progress = responseData || this.initialState(this.props);
+        var progress = responseData || this.initialState(props);
         var forcedReset = (window.location.search.indexOf('installreset=true') === -1) ? false : true;
 
         /**
@@ -30,7 +30,7 @@ class InstallWizard extends Component {
          * expected by the UI, discard that state and use the default values
          */
         if(forcedReset || !this.areStepsInOrder(progress.steps, this.props.pages)) {
-          progress = this.initialState();
+          progress = this.initialState(props);
         }
 
         this.setState({
