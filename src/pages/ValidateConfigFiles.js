@@ -29,10 +29,8 @@ class EditFile extends Component {
   }
 
   handleDone() {
+    this.props.setChanged();
     this.props.doneEditingFile();
-    if (this.props.valid === VALID) {
-      this.props.setValid(UNKNOWN);
-    }
 
     fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name, {
       method: 'POST',
@@ -113,9 +111,12 @@ class DisplayFileList extends BaseWizardPage {
     fileList.sort(function(a,b) {
       var descA = a.description.toLowerCase(), descB = b.description.toLowerCase();
       return (descA < descB) ? -1 : (descA > descB) ? 1 : 0;});
+
     var list = fileList.map((file, index) => {
       return (<li key={index}>
-        <a href="#" onClick={() => this.props.onEditClick(file)}>{file.description}</a>
+        <a href="#" onClick={() => this.props.onEditClick(file)}>
+          {file.description + (file.changed ? ' *' : '')}
+        </a>
       </li>);
     });
 
@@ -190,6 +191,7 @@ class ValidateConfigFiles extends Component {
       .then(response => {
         if (response.ok) {
           this.setState({valid: VALID});
+          this.clearAllChangeMarkers();
           return JSON.stringify('');  // success call do not return any json
         } else {
           this.setState({valid: INVALID});
@@ -226,7 +228,7 @@ class ValidateConfigFiles extends Component {
           file={this.state.editingFile}
           doneEditingFile={() => this.doneEditingFile()}
           valid={this.state.valid}
-          setValid={(val) => this.setValid(val)}
+          setChanged={() => this.setChanged()}
         />
       );
     }
@@ -244,8 +246,26 @@ class ValidateConfigFiles extends Component {
     this.setState({editingFile: ''});
   }
 
-  setValid(state) {
-    this.setState({valid: state});
+  setChanged() {
+    if (this.state.valid === VALID) {
+      this.setState({valid: UNKNOWN});
+    }
+
+    var updatedList = this.state.configFiles.map((val) => {
+      if (val.name === this.state.editingFile.name) {
+        val.changed = true;
+      }
+      return val;
+    });
+    this.setState({configFiles: updatedList});
+  }
+
+  clearAllChangeMarkers() {
+    var updatedList = this.state.configFiles.map((val) => {
+      val.changed = false;
+      return val;
+    });
+    this.setState({configFiles: updatedList});
   }
 }
 
