@@ -191,6 +191,7 @@ class ValidateConfigFiles extends Component {
       .then(response => {
         if (response.ok) {
           this.setState({valid: VALID});
+          this.clearAllChangeMarkers();
           return JSON.stringify('');  // success call do not return any json
         } else {
           this.setState({valid: INVALID});
@@ -254,6 +255,14 @@ class ValidateConfigFiles extends Component {
       if (val.name === this.state.editingFile.name) {
         val.changed = true;
       }
+      return val;
+    });
+    this.setState({configFiles: updatedList});
+  }
+
+  clearAllChangeMarkers() {
+    var updatedList = this.state.configFiles.map((val) => {
+      val.changed = false;
       return val;
     });
     this.setState({configFiles: updatedList});
