@@ -2,9 +2,11 @@
 The cloud installer that will reside with SUSE Manager
 
 ## How to run
-Move to the root of the project and run `npm install` which will install all dependencies
+Move to the root of the project and run `npm install` which will install most dependencies
 
 Install `json-server` globally with `sudo npm install json-server -g`
+
+Install tox via pip:  `pip install tox`
 
 After that, run `npm start` which will bundle the react app and start the express server
 

@@ -41,7 +41,7 @@
     "protractor-setup": "./node_modules/protractor/bin/webdriver-manager update",
     "protractor": "./node_modules/protractor/bin/protractor protractor.conf.js",
     "less": "./node_modules/.bin/lessc ./src/styles/deployer.less ./src/Deployer.css",
-    "webdev": " webpack-dev-server --port 3000 --hot",
+    "webdev": " webpack-dev-server --port 3000 --hot --host 0.0.0.0",
     "jsonserv": "json-server --port 8080 api/api.json --watch",
     "watchless": "watch-run -p '**/*.less' npm run less",
     "shim": "tox -c server -e runserver"
