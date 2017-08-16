@@ -6,12 +6,12 @@ class InnerTable extends Component {
   render() {
     var lines = (this.props.items.map((item) => {
       // highlight selected row
-      if (this.props.selectedTable.length > 0 && this.props.selectedTable.indexOf(item.id) !== -1) {
-        return (<tr onClick={this.props.clickAction} key={item.id} className='highlight'>
-          <td>{item.id}</td></tr>);
+      if (this.props.selectedTable.length > 0 && this.props.selectedTable.indexOf(item) !== -1) {
+        return (<tr onClick={this.props.clickAction} key={item} className='highlight'>
+          <td>{item}</td></tr>);
       } else {
-        return (<tr onClick={this.props.clickAction} key={item.id}>
-          <td>{item.id}</td></tr>);
+        return (<tr onClick={this.props.clickAction} key={item}>
+          <td>{item}</td></tr>);
       }
     }));
     return (
@@ -44,7 +44,7 @@ class TransferTable extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.inputList !== nextProps.inputList) {
-      this.setState({leftTableItems: this.sortByID(nextProps.inputList)});
+      this.setState({leftTableItems: nextProps.inputList.sort()});
     }
   }
 
@@ -53,14 +53,6 @@ class TransferTable extends Component {
       // send selected items out the parent
       this.props.sendSelectedList(nextState.rightTableItems);
     }
-  }
-
-  sortByID(array) {
-    var newArray = array.slice();
-    newArray.sort(function(a,b) {
-      var itemA = a.id.toLowerCase(), itemB = b.id.toLowerCase();
-      return (itemA < itemB) ? -1 : (itemA > itemB) ? 1 : 0;});
-    return newArray;
   }
 
   selectOnTable(isLeftTable, event) {
@@ -75,7 +67,7 @@ class TransferTable extends Component {
       var range = [startIndex, currentLocation];
       range.sort();
       for (let i=range[0]; i<=range[1]; i++) {
-        let selectedItem = currentTable[i].id;
+        let selectedItem = currentTable[i];
         let newSelectIndex = newSelected.indexOf(selectedItem);
         if (newSelectIndex == -1) {
           newSelected.push(selectedItem);
@@ -88,7 +80,7 @@ class TransferTable extends Component {
       } else {
         this.setState({startingRightIndex: currentLocation});
       }
-      let selectedItem = currentTable[currentLocation].id;
+      let selectedItem = currentTable[currentLocation];
       let newSelectIndex = newSelected.indexOf(selectedItem);
       if (newSelectIndex == -1) {
         // if select for the first time, add item to the selected list to highlight it
@@ -112,21 +104,21 @@ class TransferTable extends Component {
       var leftObjects = [];
       for (let i=0; i<this.state.selectedRight.length; i++) {
         for (let j=0; j<this.state.rightTableItems.length; j++) {
-          if (this.state.rightTableItems[j].id == this.state.selectedRight[i]) {
+          if (this.state.rightTableItems[j] == this.state.selectedRight[i]) {
             leftObjects.push(this.state.rightTableItems[j]);
           }
         }
       }
       var newLeftTableItems = this.state.leftTableItems.concat(leftObjects);
-      this.setState({leftTableItems: this.sortByID(newLeftTableItems)});
+      this.setState({leftTableItems: newLeftTableItems.sort()});
 
       // remove selected items from the right table
       var newRightTableItems = this.state.rightTableItems.slice();
       for (let k=0; k<this.state.selectedRight.length; k++) {
         newRightTableItems.splice(
-          this.getObjectIndex(this.state.selectedRight[k], newRightTableItems), 1);
+          newRightTableItems.indexOf(this.state.selectedRight[k]), 1);
       }
-      this.setState({rightTableItems: this.sortByID(newRightTableItems), selectedRight: []});
+      this.setState({rightTableItems: newRightTableItems.sort(), selectedRight: []});
     }
   }
 
@@ -136,30 +128,22 @@ class TransferTable extends Component {
       var rightObjects = [];
       for (let i=0; i<this.state.selectedLeft.length; i++) {
         for (let j=0; j<this.state.leftTableItems.length; j++) {
-          if (this.state.leftTableItems[j].id == this.state.selectedLeft[i]) {
+          if (this.state.leftTableItems[j] == this.state.selectedLeft[i]) {
             rightObjects.push(this.state.leftTableItems[j]);
           }
         }
       }
       var newRightTableItems = this.state.rightTableItems.concat(rightObjects);
-      this.setState({rightTableItems: this.sortByID(newRightTableItems)});
+      this.setState({rightTableItems: newRightTableItems.sort()});
 
       // remove selected items from the left table
       var newLeftTableItems = this.state.leftTableItems.slice();
       for (let k=0; k<this.state.selectedLeft.length; k++) {
         newLeftTableItems.splice(
-          this.getObjectIndex(this.state.selectedLeft[k], newLeftTableItems), 1);
+          newLeftTableItems.indexOf(this.state.selectedLeft[k]), 1);
       }
-      this.setState({leftTableItems: this.sortByID(newLeftTableItems), selectedLeft: []});
+      this.setState({leftTableItems: newLeftTableItems.sort(), selectedLeft: []});
     }
-  }
-
-  // find index of object with the same id, return -1 if not found
-  getObjectIndex(key, array) {
-    for (let i=0; i<array.length; i++) {
-      if (array[i].id == key) {return i;}
-    }
-    return -1;
   }
 
   render() {
