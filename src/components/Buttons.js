@@ -152,8 +152,10 @@ class ItemHelpButton extends Component {
   render() {
     let helpAction = this.props.clickAction;
     return (
-      <span className='glyphicon glyphicon-question-sign helper'
-        onClick={helpAction}></span>
+      <span
+        className='glyphicon glyphicon-question-sign helper'
+        onClick={helpAction}>
+      </span>
     );
   }
 }
@@ -162,14 +164,16 @@ class AssignButton extends Component {
   constructor(props) {
     super(props);
   }
+
   render() {
     let assignAction = this.props.clickAction;
     let isDisabled = this.props.isDisabled === true;
     let cName = 'glyphicon glyphicon-arrow-right assign';
     cName = isDisabled ? cName + ' disabled' : cName;
     return (
-      <span className={cName}
-            onClick={assignAction}></span>
+      <span
+        className={cName} onClick={assignAction}>
+      </span>
     );
   }
 }
@@ -185,8 +189,9 @@ class UnAssignButton extends Component {
     let cName = 'glyphicon glyphicon-arrow-left unassign';
     cName = isDisabled ? cName + ' disabled' : cName;
     return (
-      <span className={cName}
-            onClick={unAssignAction}></span>
+      <span
+        className={cName} onClick={unAssignAction}>
+      </span>
     );
   }
 }

@@ -9,169 +9,222 @@ class AssignServerRoles extends BaseWizardPage {
   constructor(props) {
     super(props);
 
+    //variables
+    this.model = undefined;
+    this.serverRoles = [];
+    this.selectedAvailableServersRows = [];
+    this.selectedAssignedServersRows = [];
+    this.clearAvailableServerSelections = false;
+    this.clearAssignedServerSelections = false;
+
+    //states changes will rerender UI
     this.state = {
-      availableServers: [],
+      displayAvailableServers: [],
       displayAssignedServers: [],
       selectedServerRole:'',
-      serverRoles: [],
-      model: undefined,
-      selectedAvailableServersRows: [],
-      selectedAssignedServersRows: [],
-      availableServersHasSelect: false, //used to change right arrow
-      assignedServersHasSelect: false, //used to change left arrow
-      isAssignedServerMax: false, //TODO used to turn off right arrow
+      availableServersTransferOn: false, //=>  go with selections..TODO need check max reached
+      assignedServersTransferOn: false, //<=
+      selectedModelName: this.props.selectedModelName,
       searchFilterText: '',
-      serverDetails: [],
-      clearAvServerItemSelections: false,
-      clearAsServerItemSelections: false,
-      selectedModelName: this.props.selectedModelName
+      pageValid: false
     };
 
-    this.handleGetAvailableServers = this.handleGetAvailableServers.bind(this);
+    this.handleDiscovery = this.handleDiscovery.bind(this);
     this.handleAssignServer = this.handleAssignServer.bind(this);
     this.handleUnAssignServer = this.handleUnAssignServer.bind(this);
     this.handleSearchText = this.handleSearchText.bind(this);
     this.handleRoleSelect = this.handleRoleSelect.bind(this);
-    this.handleAvailableServerRowSelect = this. handleAvailableServerRowSelect.bind(this);
-    this.handleAssignedServerRowSelect = this. handleAssignedServerRowSelect.bind(this);
-    this.updateModelWithServerRoles = this.updateModelWithServerRoles.bind(this);
-    this.saveModelObjectData = this.saveModelObjectData.bind(this);
+    this.handleAvailableServerRowSelect = this.handleAvailableServerRowSelect.bind(this);
+    this.handleAssignedServerRowSelect = this.handleAssignedServerRowSelect.bind(this);
   }
 
-  refreshServers(responseData) {
-    this.setState({availableServers: responseData});
-    this.setState({displayAssignedServers: []});
-    this.setState({availableServersHasSelect: false});
-    this.setState({assignedServersHasSelect: false});
-    this.setState({isAssignedServerMax: false});
-    this.setState({selectedAvailableServersRows: []});
-    this.setState({selectedAssignedServersRows: []});
-    this.setState({searchFilterText: ''});
-    this.state.serverRoles.forEach(function(role){
+  refreshServers(rawServerData) {
+    this.setState({
+      displayAssignedServers: [],
+      displayAvailableServers: [],
+      availableServersTransferOn: false,
+      assignedServersTransferOn: false,
+      searchFilterText: ''
+    });
+
+    this.selectedAvailableServersRows = [];
+    this.selectedAssignedServersRows = [];
+    this.clearAvailableServerSelections = true;
+    this.clearAssignedServerSelections = true;
+
+    this.serverRoles.forEach((role) => {
       //clean up servers
       role.servers = [];
     });
-    this.setState({selectedServerRole: this.state.serverRoles[0].name});
 
-    //need to clean the selections after assign and unassign
-    this.setState({clearAvServerItemSelections: true});
-    this.setState({clearAsServerItemSelections: true});
-    this.getServerRoles();
+    //this will parse model and
+    //consolidate availableServers and assignedServers
+    this.getServerRoles(rawServerData);
+    this.validateServerRoleAssignment();
   }
 
-  handleGetAvailableServers() {
+  getAvailableServersData() {
     //keep the json one for now in case can not access microfocus vpn
     //fetch('http://localhost:8080/availableServers')
-    fetch('http://localhost:8081/api/v1/sm/servers')
-      .then(response => response.json())
-      .then((responseData) => {
-        this.refreshServers(responseData);
+    //TODO remove
+    console.log('start getting available servers data');
+    return (
+      fetch('http://localhost:8081/api/v1/sm/servers')
+        .then(response => response.json())
+    );
+  }
+
+  handleDiscovery() {
+    this.getAvailableServersData()
+      .then((rawServerData) => {
+        //TODO remove
+        console.log('Successfully got available servers data');
+        if (rawServerData && rawServerData.length > 0) {
+          let ids = rawServerData.map((srv) => {
+            return srv.id;
+          });
+
+          this.getAllServerDetailsData(ids)
+            .then((details) => {
+              rawServerData = this.updateServerDataWithDetails(details);
+              this.refreshServers(rawServerData);
+            })
+            .cacth((error) => {
+              //TODO remove
+              console.log('Failed to get all servers details data');
+              console.error(JSON.stringify(error));
+            });
+        }
+        else {
+          //don't have servers
+          //TODO remove
+          console.log('Empty available servers data');
+        }
       })
-      .catch(error => {
-        //TODO handle error
+      .catch((error) => {
+        //TODO remove
+        console.error('Failed to get available data');
+        console.error(JSON.stringify(error));
       });
   }
 
   //assign selected servers to server role
   handleAssignServer() {
     let selectedSvrRole = this.state.selectedServerRole;
-    let serverRole = this.state.serverRoles.find(function(role) {
-      return ( selectedSvrRole === role.name)
+    let serverRole = this.serverRoles.find((role) => {
+      return (selectedSvrRole === role.name);
     });
     if(serverRole) {
-      let selectedAvServers = this.state.selectedAvailableServersRows;
+      let selAvailableSvrs = this.selectedAvailableServersRows;
       let assignedServers = serverRole.servers;
-      //TODO need to check if it is already there
-      //when deal with save state later
-      serverRole.servers = assignedServers.concat(selectedAvServers);
+      serverRole.servers = assignedServers.concat(selAvailableSvrs);
 
-      //update the assigned servers table
-      this.setState({displayAssignedServers: serverRole.servers });
+      //experimental to reduce code
+      // let assignedIds = serverRole.servers.map((svr) => {
+      //   return svr.id;
+      // });
+      // let tempAvailableSvrs = this.state.displayAvailableServers.filter((srv) => {
+      //   //find on which is not assigned if mixed with string and number...will have problems
+      //   return (assignedIds.indexOf(srv.id) === -1);
+      // });
 
       //remove them from availableServers
-      let avServers = [];
-      Object.assign(avServers, this.state.availableServers);
-      selectedAvServers.forEach(function(server) {
+      let tempAvailableSvrs = [];
+      //don't want to change the state value directly,
+      //make a copy first, setState later and render UI
+      Object.assign(tempAvailableSvrs, this.state.displayAvailableServers);
+      //go through each selected servers to find out the exact position of the matching one
+      //in tempAvailableSvrs so we can remove correct one in tempAvailableSvrs
+      selAvailableSvrs.forEach((server) => {
         let idx = -1;
-        idx = avServers.findIndex(function(aServer) {
+        idx = tempAvailableSvrs.findIndex((aServer) => {
           return aServer.id === server.id;
         });
 
         if(idx !== -1) {
-          avServers.splice(idx, 1);
+          tempAvailableSvrs.splice(idx, 1);
         }
       });
 
       //update available servers
-      this.setState({availableServers: avServers});
+      this.setState({
+        displayAssignedServers: serverRole.servers,
+        displayAvailableServers: tempAvailableSvrs,
+        assignedServersTransferOn: false,
+        availableServersTransferOn: false,
+        searchFilterText: ''
+      });
 
-      //clean up selected rows
-      this.state.selectedAvailableServersRows = [];
-      this.state.selectedAssignedServersRows = [];
-
-      //turn off the arrows buttons
-      this.setState({assignedServersHasSelect: false});
-      this.setState({availableServersHasSelect: false});
-
-
-      //clean up checked mark both side
-      this.setState({clearAvServerItemSelections: true});
-      this.setState({clearAsServerItemSelections: true});
-      //clear search text
-      this.setState({searchFilterText: ''});
+      this.selectedAvailableServersRows = [];
+      this.selectedAssignedServersRows = [];
+      this.clearAvailableServerSelections = true;
+      this.clearAssignedServerSelections = true;
 
       //check if we meet the model object server role
       //min requirements
-      this.validateServerRoleAssignment(serverRole);
+      this.validateServerRoleAssignment();
     }
   }
 
   //unassign selected servers from server role
   handleUnAssignServer() {
     let selectedSvrRole = this.state.selectedServerRole;
-    let serverRole = this.state.serverRoles.find(function(role) {
-      return ( selectedSvrRole === role.name)
+    let serverRole = this.serverRoles.find((role) => {
+      return (selectedSvrRole === role.name);
     });
 
     if(serverRole) {
-      let selectedAsServers = this.state.selectedAssignedServersRows;
-      let avServers = this.state.availableServers;
+      let selAssignedSvrs = this.selectedAssignedServersRows;
+      let displayAvailableSvrs = this.state.displayAvailableServers;
 
-      //update available servers
-      this.setState({availableServers: avServers.concat(selectedAsServers)});
+      //update available servers)
+      this.setState({
+        displayAvailableServers: displayAvailableSvrs.concat(selAssignedSvrs)
+      });
 
       //remove from assigned servers
-      let asServers = serverRole.servers;
-      selectedAsServers.forEach(function(server) {
+
+      //experimental to reduce code
+      // let selectedIds = selAssignedSvrs.map((svr) => {
+      //   return svr.id;
+      // });
+      //
+      // let displayAssignedSvrs = serverRole.servers.filter((svr) => {
+      //   //find one which is not selected
+      //   ids could be string and number so it has some issues.
+      //   return (selectedIds.indexOf(svr.id) === -1)
+      // });
+
+      //go through each selected servers to find out exact position of the matching one in
+      //tempAssignedSvrs so we can remove it in tempAssignedSvrs
+      let tempAssignedSvrs = this.state.displayAssignedServers;
+      selAssignedSvrs.forEach((server) => {
         let idx = -1;
-        idx = asServers.findIndex(function(asServer) {
+        idx = tempAssignedSvrs.findIndex((asServer) => {
           return asServer.id === server.id;
         });
         if(idx !== -1) {
-          asServers.splice(idx, 1);
+          tempAssignedSvrs.splice(idx, 1);
         }
       });
       //update assigned servers table
-      let displayAsServers = [];
-      Object.assign(displayAsServers, asServers);
-      this.setState({displayAssignedServers: displayAsServers});
+      let displayAssignedSvrs = [];
+      Object.assign(displayAssignedSvrs, tempAssignedSvrs);
+      this.setState({
+        displayAssignedServers: displayAssignedSvrs,
+        assignedServersTransferOn: false,
+        availableServersTransferOn: false,
+        searchFilterText: ''
+      });
 
-      //clean up the selected rows
-      this.state.selectedAssignedServersRows = [];
-      this.state.selectedAssignedServersRows = [];
-      //turn off the arrows buttons
-      this.setState({assignedServersHasSelect: false});
-      this.setState({availableServersHasSelect: false});
-
-      //clean up checked mark both side
-      this.setState({clearAvServerItemSelections: true});
-      this.setState({clearAsServerItemSelections: true});
-      //clear search text
-      this.setState({searchFilterText: ''});
+      this.selectedAvailableServersRows = [];
+      this.selectedAssignedServersRows = [];
+      this.clearAvailableServerSelections = true;
+      this.clearAssignedServerSelections = true;
 
       //check if we meet the model object server role
       //min requirements
-      this.validateServerRoleAssignment(serverRole);
+      this.validateServerRoleAssignment();
     }
   }
 
@@ -180,55 +233,55 @@ class AssignServerRoles extends BaseWizardPage {
   //handle click single row on available servers
   handleAvailableServerRowSelect(isChecked, row) {
     if(isChecked) {
-      this.setState({availableServersHasSelect: true});
-      this.state.selectedAvailableServersRows.push(row);
+      this.setState({availableServersTransferOn: true});
+      this.selectedAvailableServersRows.push(row);
     }
     else {
       let idx =
-        this.state.selectedAvailableServersRows.findIndex(function(aRow) {
-        return row.id === aRow.id;
-      });
+        this.selectedAvailableServersRows.findIndex((aRow) => {
+          return row.id === aRow.id;
+        });
 
       if(idx !== -1) {
-        this.state.selectedAvailableServersRows.splice(idx, 1);
-        if(this.state.selectedAvailableServersRows.length === 0) {
-          this.setState({availableServersHasSelect: false});
+        this.selectedAvailableServersRows.splice(idx, 1);
+        if(this.selectedAvailableServersRows.length === 0) {
+          this.setState({availableServersTransferOn: false});
         }
       }
     }
     //let check to be checked
-    this.state.clearAvServerItemSelections = false;
+    this.clearAvailableServerSelections = false;
   }
 
   //handle click single row on assigned servers
   handleAssignedServerRowSelect(isChecked, row) {
     if(isChecked) {
-      this.setState({assignedServersHasSelect: true});
-      this.state.selectedAssignedServersRows.push(row);
+      this.setState({assignedServersTransferOn: true});
+      this.selectedAssignedServersRows.push(row);
     }
     else {
       let idx =
-        this.state.selectedAssignedServersRows.findIndex(function(aRow) {
+        this.selectedAssignedServersRows.findIndex((aRow) => {
           return row.id === aRow.id;
         });
 
       if(idx !== -1) {
-        this.state.selectedAssignedServersRows.splice(idx, 1);
-        if(this.state.selectedAssignedServersRows.length === 0) {
-          this.setState({assignedServersHasSelect: false});
+        this.selectedAssignedServersRows.splice(idx, 1);
+        if(this.selectedAssignedServersRows.length === 0) {
+          this.setState({assignedServersTransferOn: false});
         }
       }
     }
     //let check to be checked
-    this.state.clearAsServerItemSelections = false;
+    this.clearAssignedServerSelections = false;
   }
 
   //handle change role dropdown
   handleRoleSelect(roleName) {
     //find servers in the this.state.serverRoles
-    let roles = this.state.serverRoles;
+    let roles = this.serverRoles;
     let servers = [];
-    let findRole = roles.find(function(role) {
+    let findRole = roles.find((role) => {
       return role.name === roleName;
     });
 
@@ -243,45 +296,120 @@ class AssignServerRoles extends BaseWizardPage {
 
   //handle filter text change
   handleSearchText(filterText) {
-    this.setState({searchFilterText: filterText});
-    this.setState({clearAvServerItemSelections: true});
-    this.state.selectedAvailableServersRows = [];
-    //turn off right arrow
-    this.setState({availableServersHasSelect: false});
+    this.setState({
+      searchFilterText: filterText,
+      availableServersTransferOn: false
+    });
+    this.selectedAvailableServersRows = [];
+    this.clearAvailableServerSelections = true;
   }
 
-  //get model object before render UI
+  //get available servers and model object before render UI
   componentWillMount() {
-    this.getModelObjectData()
+    //TODO this is a prototype to get data from servers
+    //there will be other page to do the discovery based on what
+    //server integration
+    this.getAvailableServersData()
+      .then((rawServerData) => {
+        //TODO remove
+        console.log('Successfully got available servers data');
+        if (rawServerData && rawServerData.length > 0) {
+          let ids = rawServerData.map((srv) => {
+            return srv.id;
+          });
+
+          this.getAllServerDetailsData(ids)
+            .then((details) => {
+              //TODO remove
+              console.log('Successfully got all servers details data');
+              rawServerData = this.updateServerDataWithDetails(details);
+              this.getModelObjectData()
+                .then((modelData) => {
+                  //TODO remove
+                  console.log('Successfully got model object data');
+                  this.model = modelData;
+                  this.getServerRoles(rawServerData, modelData);
+                  this.validateServerRoleAssignment();
+                })
+                .catch((error) => {
+                  //TODO remove
+                  console.error('Failed to get model object data');
+                  console.error(JSON.stringify(error));
+                });
+            })
+            .cacth((error) => {
+              //TODO remove
+              console.log('Failed to get all servers details data');
+              console.error(JSON.stringify(error));
+            });
+        }
+        else {
+          //don't have servers
+          //TODO remove
+          console.log('Empty available servers data');
+        }
+      })
+      .catch((error) => {
+        //not sure why it got in here after successfully got it above
+        //TODO remove
+        console.error('Failed to get available data');
+      });
+  }
+
+  updateServerDataWithDetails(details) {
+    //details has everything
+    let retData = details.map((srvDetail) => {
+      let nkdevice = srvDetail.network_devices.find((device) => {
+        return device.interface === 'eth0'; //TODO
+      });
+      //at this point only these are useful
+      let serverData = {
+        'id': srvDetail.id,
+        'name': srvDetail.name,
+        'ip-addr': nkdevice.ip,
+        'mac-addr': nkdevice['hardware_address']
+      };
+      return serverData;
+    });
+    return retData;
   }
 
   //process model to get server roles information
-  getServerRoles() {
-    //process this.state.model and get the list of server roles
+  getServerRoles(rawAvailableServerData, modelData) {
+    //process this.model and get the list of server roles
     //from resources and clusters
     //only pick one control plane for now...
     //could have multiple control planes in the future
-    let cpData = this.state.model['inputModel']['control-planes'][0];
+    if(!modelData) {
+      modelData = this.model;
+    }
+    else {
+      this.model = modelData;
+    }
+
+    //TODO will deal with multiple control plane later
+    //for prototye...handle one for now
+    let cpData = modelData['inputModel']['control-planes'][0];
     //TODO some error handling
     //this assume a fresh start.
     //need to deal with preserved state
     if(cpData) {
       let resources = cpData.resources;
       let clusters = cpData.clusters;
-      let rs_roles = resources.map(function(res) {
+      let rs_roles = resources.map((res) => {
         let rs_role = {
           'name': res.name,
-          'memberCount': res['min-count'] ? res['min-count'] : 0,
+          'memberCount': res['min-count'] || 0,
           'servers': [], //add display server rows
           'serverRole': res['server-role'],
           'group': 'resources'
         };
         return rs_role;
       });
-      let cl_roles = clusters.map(function(res) {
+      let cl_roles = clusters.map((res) => {
         let rs_role = {
           'name': res.name,
-          'memberCount': res['member-count'] ? res['member-count'] : 0,
+          'memberCount': res['member-count'] || 0,
           'serverRole': res['server-role'],
           'servers': [], //add display server rows
           'group': 'clusters'
@@ -290,50 +418,103 @@ class AssignServerRoles extends BaseWizardPage {
         return rs_role;
       });
 
-      this.setState({serverRoles: rs_roles.concat(cl_roles)});
-      //default to set the first in the array
-      //TODO what is the default
-      this.setState({selectedServerRole: this.state.serverRoles[0].name});
+      //populate servers in roles from model's servers
+      //this is prototype and experimental
+      let modelServers = modelData['inputModel'].servers;
+      let allRoles = rs_roles.concat(cl_roles);
+      let displayAssignedSrv = [];
+      let allAssignedSrvIds = [];
+      let displayIdx = 0;
+      allRoles.forEach((role, idx) => {
+        let matchedModelSvrs = modelServers.filter((server) => {
+          return server.role === role.serverRole;
+        });
+        let servers = [];
+        if (matchedModelSvrs && matchedModelSvrs.length > 0) {
+          servers = matchedModelSvrs.map((srv) => {
+            let retValue = {
+              'id': srv.id,
+              'ip-addr': srv['ip-addr'],
+              'name': srv.name ? srv.name : srv.id,
+              'mac-address': srv['mac-addr'] || '',
+              'role': srv.role || '',
+              'server-group': srv['server-group'] || '',
+              'ilo-ip': srv['ilo-ip'] || '',
+              'ilo-user': srv['ilo-user'] || '',
+              'ilo-password': srv['ilo-password'] || '',
+              'nic-mapping': srv['nic-mapping'] || ''
+            };
+            return retValue;
+          });
+          //record the ids assume id is the same id in
+          //discovered available servers
+          let retIds = matchedModelSvrs.map((srv) => {
+            return srv.id;
+          });
+          allAssignedSrvIds = allAssignedSrvIds.concat(retIds);
+
+          role.servers = servers;
+          //TODO
+          //as refresh and reloading find first one that has assigned role
+          //selected role's assigned servers
+          if((role.servers && role.servers.length > 0) &&
+            displayAssignedSrv.length === 0) {
+            displayAssignedSrv = servers;
+            displayIdx = idx;
+          }
+        }
+      });
+
+      //only show the available servers that are not assigned
+      let displayAvailableSrv = [];
+      if(rawAvailableServerData && rawAvailableServerData.length > 0) {
+        displayAvailableSrv = rawAvailableServerData.filter((server) => {
+          return (allAssignedSrvIds.indexOf(server.id) === -1);
+        });
+      }
+
+      this.serverRoles = allRoles;
+      this.setState({
+        selectedServerRole: allRoles[displayIdx].name, //TODO what should be default
+        displayAssignedServers: displayAssignedSrv,
+        displayAvailableServers: displayAvailableSrv
+      });
     }
   }
 
-  //query SUMA for details
+  //prototype query SUMA for details
   getOneServerDetailData(url) {
-    let promise = new Promise(function(resolve, reject) {
+    let promise = new Promise((resolve, reject) => {
+      //TODO remove
+      console.log('Start getting one server details data');
+      console.log(url);
       fetch(url)
         .then(response => response.json())
         .then((responseData) => {
+          //TODO remove
+          console.log('Successfully got one server details data');
           resolve(responseData);
         })
         .catch(error => {
           //TODO handle error
           //reject(error);
+          //TODO remove
+          console.error('Failed to get one server details data');
         });
     });
     return promise;
   }
 
-  //issue queries to SUMA for all the details
-  getAllServerDetailsData() {
-    let roles = this.state.serverRoles;
-
-    let serverIds = [];
-    roles.forEach(function(role) {
-      let svrs = role.servers;
-      let ids = svrs.map(function(svr) {
-        return svr.id;
-      });
-      if(ids.length > 0) {
-        serverIds = serverIds.concat(ids);
-      }
-    });
+  //prototype issue queries to SUMA for all the details
+  getAllServerDetailsData(serverIds) {
+    //TODO remove
+    console.log('Start getting all servers details data');
 
     let promises = [];
-    let requestDetailFunc = this.getOneServerDetailData;
-    serverIds.forEach(function(id) {
+    serverIds.forEach((id) => {
       //TODO make it constant
       let url = 'http://localhost:8081/api/v1/sm/servers/' + id;
-      promises.push(requestDetailFunc(url))
+      promises.push(this.getOneServerDetailData(url));
     });
 
     return Promise.all(promises);
@@ -341,178 +522,158 @@ class AssignServerRoles extends BaseWizardPage {
 
   //update the model servers based on
   //server role assginment
-  updateModelWithServerRoles(details) {
-    let serverRoles = this.state.serverRoles;
-    let modelObject = this.state.model;
+  updateModelWithServerRoles() {
+    let serverRoles = this.serverRoles;
+    let modelObject = this.model;
 
-    serverRoles.forEach(function(role) {
-      //TODO experimental
-      let modelServers = modelObject.inputModel.servers;
+    modelObject.inputModel.servers = [];
+    serverRoles.forEach((role) => {
+      let modelServers = [];
       let servers = role.servers;
-      let roleId = role.serverRole;
 
       if (servers && servers.length > 0) {
         //TODO this just prototype we can update model
-        //far from done...need more work for missing data part
-        //NO checking existing servers
-        let matchModelServersForRole = modelServers.filter(function(modelServer) {
-          return (modelServer.role === roleId);
-        });
-        if(matchModelServersForRole && matchModelServersForRole.length > 0) {
-          //go through server in each role
-          servers.forEach(function (svr, idx) {
-            let sDetail = details.find(function (detail) {
-              return detail.id === svr.id;
-            });
-            let id = svr.id;
-            //get ip from detail TODO
-            let nkdevice = sDetail.network_devices.find(function (device) {
-              return device.interface === 'eth0';
-            });
-            //what if there is no 'eth0'??
-            let ip = nkdevice.ip;
-            //update model...not much to do here TODO mic-mapping???
-            //experimental
-            if (role.memberCount > 0) {
-              matchModelServersForRole[idx].id = id;
-              matchModelServersForRole[idx]['ip-addr'] = ip;
-            }
-            else { //no required number like compute
-              //TODO experimental, need better logic
-              if (idx > (matchModelServersForRole.length - 1)) {
-                //add new one
-                matchModelServersForRole.push({
-                  'id': id,
-                  'role': roleId,
-                  'ip-addr': ip
-                })
-              }
-              else { //updata existing one
-                matchModelServersForRole[idx].id = id;
-                matchModelServersForRole[idx]['ip-addr'] = ip;
-              }
-            }
+        //don't need to go through each of once we have a way
+        //to update each server input ilo stuffs
+        servers.forEach((svr, idx) => {
+          //update model
+          modelServers.push({
+            'id': svr.id,
+            'name': svr.name || '',
+            'role': role.serverRole,
+            'ip-addr': svr['ip-addr'],
+            'mac-addr': svr['mac-addr'],
+            //TODO need real data...will have user input later
+            'nic-mapping': svr['nic-mapping'] || 'placeholder-HP-DL360-6PORT', //fake one TODO
+            'ilo-ip': svr['ilo-ip'] || '10.10.10.10',
+            'ilo-password': svr['ilo-password'] ||'password',
+            'ilo-user': svr['ilo-user']|| 'admin',
+            'server-group': svr['server-group'] || 'RACK1'
           });
-        }
+        });
+
+        modelObject.inputModel.servers =
+          modelObject.inputModel.servers.concat(modelServers);
       }
     });
   }
 
-  saveCurrentState() {
-    //TODO
-    //if we saved state...need to deal with existing and rediscovery
-  }
-
   //query the model object from ardana
   getModelObjectData() {
-    fetch('http://localhost:8081/api/v1/clm/model')
-      .then(response => response.json())
-      .then((responseData) => {
-        this.state.model = responseData;
-        this.getServerRoles();
-      });
-    //TODO handle error
+    //TODO remove
+    console.log('Start getting model object data');
+    return (
+      fetch('http://localhost:8081/api/v1/clm/model')
+        .then(response => response.json())
+    );
   }
 
   //save the updated model object
   saveModelObjectData() {
-    let modl = this.state.model;
-    let promise = new Promise(function(resolve, reject) {
+    let modl = this.model;
+    //TODO remove
+    console.log('Start saving model object data');
+    return (
       fetch('http://localhost:8081/api/v1/clm/model', {
-        method: "POST",
+        method: 'POST',
         headers: {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(modl)
       })
-        .then(response => {
-          resolve(response);
-          //TODO log something
-        })
-        .catch(error => {
-          //TODO log error
-          reject(error);
-        });
-    });
-    return promise;
+    );
   }
 
   //check if we have enough servers roles for the model
-  validateServerRoleAssignment(currentRole) {
+  validateServerRoleAssignment() {
     let valid = true;
     let moreThanMax = false;
-    this.state.serverRoles.forEach(function(role) {
+    this.serverRoles.forEach((role) => {
       let reqSize =  role.memberCount;
-      //TODO we don't have enough servers to test...for now
-      //only check controller role
       let svrSize = role.servers.length;
-      if (svrSize !=  reqSize && reqSize !== 0) {
+      if (svrSize !== reqSize && reqSize !== 0) {
         valid = false;
         if (svrSize > reqSize) {
-          moreThanMax = true;
+          moreThanMax = true; //TODO need to turn off arrows
         }
       }
     });
     if (!valid) {
-      //TODO need to disable Next
       if (moreThanMax) {
-        //TODO message if size > reqSize
+        //TODO message
       }
+      //TODO message
+      this.setState({pageValid: false});
 
+      //TODO remove this
+      console.error('server role assignment is not valid');
     }
     else {
-      //TODO need to enable Next
-      //message
+      //TODO message
+       this.setState({pageValid: true});
+      //TODO remove this
+      console.log('server role assignment is valid');
     }
   }
 
+  setNextButtonDisabled() {
+    return !this.state.pageValid;
+  }
+
+  doSave() {
+    this.updateModelWithServerRoles();
+    //save model and move to next page
+    this.saveModelObjectData()
+      .then((response) => {
+        if(response && response.ok === false) {
+          //TODO remove
+          console.log('Failed to save model object data');
+          console.error(JSON.stringify(response));
+          this.props.next(true);
+        }
+        else {
+          //go to next page when move this to goForward
+          this.props.next(false);
+          //TODO remove
+          console.log('Sucessfully saved model object data');
+        }
+      })
+      .catch((error) => {
+        //TODO handle error
+        this.props.next(true); //set error
+        //TODO remove
+        console.log('Failed to save model object data');
+        console.error(JSON.stringify(error));
+      });
+  }
+
+  //TODO
   //save model updates before move to next page
   goForward(e) {
     e.preventDefault();
-
-    let updateModelFunc = this.updateModelWithServerRoles;
-    let nextFunc = this.props.next;
-    let saveModel = this.saveModelObjectData;
-    this.getAllServerDetailsData().then(
-      function(details) {
-        updateModelFunc(details);
-        //save model and move to next page
-        saveModel()
-          .then(responseData => {
-            //go to next page
-            nextFunc(false);
-          })
-          .catch(error => {
-            //TODO handle error
-            nextFunc(true);
-            //TODO turn off next
-          });
-      },
-      function(error) {
-        //TODO handle error
-        nextFunc(true);
-        //TODO turn off next
-      });
+    this.doSave();
   }
 
   render() {
     //server list without details
-    let availableServers = this.state.availableServers;
-    let clearAvCheckBox = this.state.clearAvServerItemSelections;
-    let clearAsCheckBox = this.state.clearAsServerItemSelections;
+    let displayAvailableServers = this.state.displayAvailableServers;
+    let clearAvailCheckBox = this.clearAvailableServerSelections;
+    let clearAssignCheckBox = this.clearAssignedServerSelections;
     let modelName = this.state.selectedModelName;
+    let selectedRoleName = this.state.selectedServerRole;
 
     //display the assigned servers based on role selection
     let displayAssignedServers = this.state.displayAssignedServers;
     //role selection
-    let roles = this.state.serverRoles;
+    let roles = this.serverRoles;
 
     //apply filter here
     let filterText = this.state.searchFilterText;
-    let filteredAvailableServers = availableServers.filter(function (server) {
-      return (server.name.indexOf(filterText) !== -1);
-    });
+    let filteredAvailableServers =
+      displayAvailableServers.filter((server) => {
+        return (server.name.indexOf(filterText) !== -1);
+      });
 
     let discoverLabel = translate('assign.server.role.discover');
     let availableServersHeading = translate('assign.server.role.available-server');
@@ -523,38 +684,45 @@ class AssignServerRoles extends BaseWizardPage {
         {this.renderHeading(translate('assign.server.role.heading', modelName))}
         <div className="server-container">
           <div className="heading">{availableServersHeading}</div>
-          <SearchBar filterText={this.state.searchFilterText}
-                     filterAction={this.handleSearchText}/>
+          <SearchBar
+            filterText={this.state.searchFilterText}
+            filterAction={this.handleSearchText}/>
           <div className="server-list-container">
-            <ServerList ref='available' data={filteredAvailableServers}
-                        clearSelections={clearAvCheckBox}
-                        onSelectRow={this.handleAvailableServerRowSelect}
-                        onSelectAll={this.handleAvailableServerSelectAll}></ServerList>
+            <ServerList
+              ref='available' data={filteredAvailableServers}
+              clearSelections={clearAvailCheckBox} onSelectRow={this.handleAvailableServerRowSelect}
+              onSelectAll={this.handleAvailableServerSelectAll}>
+            </ServerList>
           </div>
         </div>
         <div className="assign-arrows-container">
           <div>
-            <AssignButton clickAction={this.handleAssignServer}
-                          isDisabled={!this.state.availableServersHasSelect}/>
+            <AssignButton
+              clickAction={this.handleAssignServer}
+              isDisabled={!this.state.availableServersTransferOn}/>
           </div>
           <div>
-            <UnAssignButton clickAction={this.handleUnAssignServer}
-                            isDisabled={!this.state.assignedServersHasSelect}/>
+            <UnAssignButton
+              clickAction={this.handleUnAssignServer}
+              isDisabled={!this.state.assignedServersTransferOn}/>
           </div>
         </div>
         <div className="server-container">
           <div className="heading">{targetServerRoleHeading}</div>
-          <ServerRolesDropDown serverRoles={roles}
-                               selectAction={this.handleRoleSelect}></ServerRolesDropDown>
+          <ServerRolesDropDown
+            serverRoles={roles} selectedServerRole={selectedRoleName}
+            selectAction={this.handleRoleSelect}>
+          </ServerRolesDropDown>
           <div className="server-list-container">
-            <ServerList ref='assign' data={displayAssignedServers}
-                        clearSelections={clearAsCheckBox}
-                        onSelectRow={this.handleAssignedServerRowSelect}
-                        onSelectAll={this.handleAssignedServerSelectAll}></ServerList>
+            <ServerList
+              ref='assign' data={displayAssignedServers}
+              clearSelections={clearAssignCheckBox} onSelectRow={this.handleAssignedServerRowSelect}
+              onSelectAll={this.handleAssignedServerSelectAll}>
+            </ServerList>
           </div>
         </div>
         <div>
-          <ActionButton clickAction={this.handleGetAvailableServers} displayLabel={discoverLabel}/>
+          <ActionButton clickAction={this.handleDiscovery} displayLabel={discoverLabel}/>
         </div>
         {this.renderNavButtons()}
       </div>
@@ -565,22 +733,29 @@ class AssignServerRoles extends BaseWizardPage {
 class ServerRolesDropDown extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      selectedName: this.props.selectedServerRole
+    };
     this.renderOptions = this.renderOptions.bind(this);
     this.handleRoleSelect = this.handleRoleSelect.bind(this);
   }
 
   renderOptions() {
-    let options = this.props.serverRoles.map(function(role) {
+    let options = this.props.serverRoles.map((role) => {
       let optionDisplay =
         role.name + ' (' + role.serverRole + ' ' + role.servers.length + '/' + role.memberCount + ')';
-      return <option key={role.serverRole} value={role.name}>{optionDisplay}</option>
+      return <option key={role.serverRole} value={role.name}>{optionDisplay}</option>;
     });
 
     return options;
   }
 
+  componentWillReceiveProps(newProps) {
+    this.setState({selectedName : newProps.selectedServerRole});
+  }
+
   handleRoleSelect(e) {
-    e.preventDefault();
+    this.setState({selectedName: e.target.value});
     this.props.selectAction(e.target.value);
   }
 
@@ -588,11 +763,13 @@ class ServerRolesDropDown extends Component {
     //TODO have problem change select font-size
     return (
       <div className="roles-select">
-        <select type="select" onChange={this.handleRoleSelect}>
+        <select
+          value={this.state.selectedName}
+          type="select" onChange={this.handleRoleSelect}>
           {this.renderOptions()}
         </select>
       </div>
-    )
+    );
   }
 }
 
@@ -608,11 +785,13 @@ class SearchBar extends Component {
   }
 
   render() {
+    let searchPlaceholder = translate('placeholder.search.server.text');
     return (
       <div className='search-container'>
         <span className='search-bar'>
-          <input type="text" placeholder="search server..."
-                 value={this.props.filterText} onChange={this.handleFilterTextInputChange}/>
+          <input
+            type="text" placeholder={searchPlaceholder}
+            value={this.props.filterText} onChange={this.handleFilterTextInputChange}/>
         </span>
         <span className='glyphicon glyphicon-search search-icon'></span>
       </div>
@@ -623,7 +802,14 @@ class SearchBar extends Component {
 class ServerList extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      serverList: this.props.data
+    };
     this.handleSelectRow = this.handleSelectRow.bind(this);
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.setState({serverList : newProps.data});
   }
 
   handleSelectRow(e, rowData) {
@@ -635,18 +821,19 @@ class ServerList extends Component {
     let servers = [];
     let toClear = this.props.clearSelections;
     let handleRowFunc = this.handleSelectRow;
-    list.forEach(function(server, idx) {
+    list.forEach((server, idx) => {
       let item =
-        <ServerItem key={idx} serverItem={server} clearSelection={toClear}
-                    changeAction={(e) => handleRowFunc(e, server)}></ServerItem>
+        <ServerItem
+          key={idx} serverItem={server} clearSelection={toClear}
+          changeAction={(e) => handleRowFunc(e, server)}>
+        </ServerItem>;
       servers.push(item);
     });
     return servers;
   }
 
-
   render() {
-    let serverList = this.props.data;
+    let serverList = this.state.serverList;
     return (
       <div className="server-list">
         {this.renderServerList(serverList)}
@@ -661,7 +848,7 @@ class ServerItem extends Component {
     this.handleCheckBoxChange = this.handleCheckBoxChange.bind(this);
     this.state = {
       checked: false
-    }
+    };
   }
 
   componentWillReceiveProps(newProps) {
@@ -683,9 +870,10 @@ class ServerItem extends Component {
     let itemValue = data.name;
     return (
       <div className='server-check-box'>
-        <input id='serverItemId' type='checkbox' value={itemValue}
-               checked={this.state.checked}
-               onChange={(e) => this.handleCheckBoxChange(e, data)}/> {displayName}
+        <input
+          id='serverItemId' type='checkbox' value={itemValue}
+          checked={this.state.checked}
+          onChange={(e) => this.handleCheckBoxChange(e, data)}/> {displayName}
       </div>
     );
   }
