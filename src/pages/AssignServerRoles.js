@@ -89,7 +89,7 @@ class AssignServerRoles extends BaseWizardPage {
               rawServerData = this.updateServerDataWithDetails(details);
               this.refreshServers(rawServerData);
             })
-            .cacth((error) => {
+            .catch((error) => {
               //TODO remove
               console.log('Failed to get all servers details data');
               console.error(JSON.stringify(error));
@@ -210,6 +210,7 @@ class AssignServerRoles extends BaseWizardPage {
       //update assigned servers table
       let displayAssignedSvrs = [];
       Object.assign(displayAssignedSvrs, tempAssignedSvrs);
+      serverRole.servers = tempAssignedSvrs;
       this.setState({
         displayAssignedServers: displayAssignedSvrs,
         assignedServersTransferOn: false,
@@ -337,7 +338,7 @@ class AssignServerRoles extends BaseWizardPage {
                   console.error(JSON.stringify(error));
                 });
             })
-            .cacth((error) => {
+            .catch((error) => {
               //TODO remove
               console.log('Failed to get all servers details data');
               console.error(JSON.stringify(error));
