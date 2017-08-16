@@ -10,6 +10,7 @@
     "done" : "Done",
     "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
     "wizard.loading.pleasewait": "Loading... Please wait",
+    "placeholder.search.server.text": "Search Server...",
 
     "install.intro.message.body1": "You are about to install a new cloud.",
     "install.intro.message.body2": "You will need to supply information about the servers, networks and storage that will make up your cloud. The Openstack Cloud installer will then take care of deploying and configuring your new cloud for you.",
@@ -48,7 +49,6 @@
     "assign.server.role.filtertext": "Server Name",
     "assign.server.role.available-server": "Available Servers:",
     "assign.server.role.target-server-role": "Target Server Roles:",
-    "assign.server.role.globalselect": "All Servers",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",
