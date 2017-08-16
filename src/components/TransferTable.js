@@ -3,7 +3,6 @@ import '../Deployer.css';
 import { AssignButton, UnAssignButton } from '../components/Buttons.js';
 
 class InnerTable extends Component {
-
   render() {
     var lines = (this.props.items.map((item) => {
       // highlight selected row
@@ -27,53 +26,84 @@ class InnerTable extends Component {
 }
 
 class TransferTable extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
       leftTableItems: [],
       rightTableItems: [],
       selectedLeft: [],
-      selectedRight: []
+      selectedRight: [],
+      startingLeftIndex: -1,
+      startingRightIndex: -1
     };
 
-    this.selectOnLeftTable = this.selectOnLeftTable.bind(this);
-    this.selectOnRightTable = this.selectOnRightTable.bind(this);
+    this.selectOnTable = this.selectOnTable.bind(this);
     this.transferToLeft = this.transferToLeft.bind(this);
     this.transferToRight = this.transferToRight.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.inputList !== nextProps.inputList) {
-      this.setState({leftTableItems: nextProps.inputList.slice()});
+      this.setState({leftTableItems: this.sortByID(nextProps.inputList)});
     }
   }
 
-  selectOnLeftTable(event) {
-    var current = this.state.selectedLeft.slice();
-    var selectedItem = event.target.innerText;
-    var currentIndex = current.indexOf(selectedItem);
-    if (currentIndex == -1) {
-      // if select for the first time, add item to the selected list to highlight it
-      current.push(selectedItem);
-    } else {
-      // if select again, take it as 'deselection', remove item from the selected list
-      current.splice(currentIndex, 1);
+  componentWillUpdate(nextProps, nextState) {
+    if (this.state.rightTableItems !== nextState.rightTableItems) {
+      // send selected items out the parent
+      this.props.sendSelectedList(nextState.rightTableItems);
     }
-    this.setState({selectedLeft: current});
   }
 
-  selectOnRightTable(event) {
-    var current = this.state.selectedRight.slice();
-    var selectedItem = event.target.innerText;
-    var currentIndex = current.indexOf(selectedItem);
-    if (currentIndex == -1) {
-      // if select for the first time, add item to the selected list to highlight it
-      current.push(selectedItem);
+  sortByID(array) {
+    var newArray = array.slice();
+    newArray.sort(function(a,b) {
+      var itemA = a.id.toLowerCase(), itemB = b.id.toLowerCase();
+      return (itemA < itemB) ? -1 : (itemA > itemB) ? 1 : 0;});
+    return newArray;
+  }
+
+  selectOnTable(isLeftTable, event) {
+    var currentLocation = event.target.offsetTop / event.target.offsetHeight;
+    var newSelected = isLeftTable ? this.state.selectedLeft.slice() :
+      this.state.selectedRight.slice();
+    var currentTable = isLeftTable ? this.state.leftTableItems : this.state.rightTableItems;
+
+    // use shift + click to select multiple rows
+    if (event.shiftKey) {
+      var startIndex = isLeftTable ? this.state.startingLeftIndex : this.state.startingRightIndex;
+      var range = [startIndex, currentLocation];
+      range.sort();
+      for (let i=range[0]; i<=range[1]; i++) {
+        let selectedItem = currentTable[i].id;
+        let newSelectIndex = newSelected.indexOf(selectedItem);
+        if (newSelectIndex == -1) {
+          newSelected.push(selectedItem);
+        }
+      }
+
     } else {
-      // if select again, take it as 'deselection', remove item from the selected list
-      current.splice(currentIndex, 1);
+      if (isLeftTable) {
+        this.setState({startingLeftIndex: currentLocation});
+      } else {
+        this.setState({startingRightIndex: currentLocation});
+      }
+      let selectedItem = currentTable[currentLocation].id;
+      let newSelectIndex = newSelected.indexOf(selectedItem);
+      if (newSelectIndex == -1) {
+        // if select for the first time, add item to the selected list to highlight it
+        newSelected.push(selectedItem);
+      } else {
+        // if select again, take it as 'deselection', remove item from the selected list
+        newSelected.splice(newSelectIndex, 1);
+      }
     }
-    this.setState({selectedRight: current});
+
+    if (isLeftTable) {
+      this.setState({selectedLeft: newSelected});
+    } else {
+      this.setState({selectedRight: newSelected});
+    }
   }
 
   transferToLeft() {
@@ -87,8 +117,8 @@ class TransferTable extends Component {
           }
         }
       }
-      var newLeftTableItems = this.state.leftTableItems.slice().concat(leftObjects);
-      this.setState({leftTableItems: newLeftTableItems});
+      var newLeftTableItems = this.state.leftTableItems.concat(leftObjects);
+      this.setState({leftTableItems: this.sortByID(newLeftTableItems)});
 
       // remove selected items from the right table
       var newRightTableItems = this.state.rightTableItems.slice();
@@ -96,7 +126,7 @@ class TransferTable extends Component {
         newRightTableItems.splice(
           this.getObjectIndex(this.state.selectedRight[k], newRightTableItems), 1);
       }
-      this.setState({rightTableItems: newRightTableItems, selectedRight: []});
+      this.setState({rightTableItems: this.sortByID(newRightTableItems), selectedRight: []});
     }
   }
 
@@ -111,8 +141,8 @@ class TransferTable extends Component {
           }
         }
       }
-      var newRightTableItems = this.state.rightTableItems.slice().concat(rightObjects);
-      this.setState({rightTableItems: newRightTableItems});
+      var newRightTableItems = this.state.rightTableItems.concat(rightObjects);
+      this.setState({rightTableItems: this.sortByID(newRightTableItems)});
 
       // remove selected items from the left table
       var newLeftTableItems = this.state.leftTableItems.slice();
@@ -120,7 +150,7 @@ class TransferTable extends Component {
         newLeftTableItems.splice(
           this.getObjectIndex(this.state.selectedLeft[k], newLeftTableItems), 1);
       }
-      this.setState({leftTableItems: newLeftTableItems, selectedLeft: []});
+      this.setState({leftTableItems: this.sortByID(newLeftTableItems), selectedLeft: []});
     }
   }
 
@@ -137,20 +167,22 @@ class TransferTable extends Component {
       <div className='transfer-table col-xs-12'>
         <div className='col-xs-5 table-width'>
           <InnerTable items={this.state.leftTableItems}
-            clickAction={this.selectOnLeftTable} header={this.props.leftTableHeader}
+            clickAction={(event) => this.selectOnTable(true, event)}
+            header={this.props.leftTableHeader}
             selectedTable={this.state.selectedLeft}/>
         </div>
 
         <div className='col-xs-1 transfer-button-container'>
           <AssignButton clickAction={this.transferToRight}
-            isDisabled={this.state.leftTableItems.length == 0}/>
+            isDisabled={this.state.selectedLeft.length == 0}/>
           <UnAssignButton clickAction={this.transferToLeft}
-            isDisabled={this.state.rightTableItems.length == 0}/>
+            isDisabled={this.state.selectedRight.length == 0}/>
         </div>
 
         <div className='col-xs-5 table-width'>
           <InnerTable items={this.state.rightTableItems}
-            clickAction={this.selectOnRightTable} header={this.props.rightTableHeader}
+            clickAction={(event) => this.selectOnTable(false, event)}
+            header={this.props.rightTableHeader}
             selectedTable={this.state.selectedRight}/>
         </div>
         <div className='col-sx-1'></div>
