@@ -63,7 +63,8 @@
     "deploy.progress.step6": "Storage nodes deployed",
     "deploy.progress.step7": "Quick health check passed",
 
-    "provision.server.heading": "Choose servers to provision",
+    "provision.server.heading": "Choose servers on which SLES will be installed",
     "provision.server.left.table": "Available Servers",
-    "provision.server.right.table": "Selected Servers"
+    "provision.server.right.table": "Selected Servers",
+    "provision.server.install": "Install"
 }

@@ -8,8 +8,11 @@ class SelectServersToProvision extends BaseWizardPage {
   constructor() {
     super();
     this.state = {
-      availableServers: ['']
+      availableServers: [],
+      selectedServers: []
     };
+
+    this.getSelectedServers = this.getSelectedServers.bind(this);
 
     // retrieve a list of servers that have roles
     fetch('http://localhost:8081/api/v1/clm/model/entities/servers')
@@ -21,6 +24,18 @@ class SelectServersToProvision extends BaseWizardPage {
       });
   }
 
+  setNextButtonLabel() {
+    return translate('provision.server.install');
+  }
+
+  setNextButtonDisabled() {
+    return this.state.selectedServers.length == 0;
+  }
+
+  getSelectedServers(servers) {
+    this.setState({selectedServers: servers});  //save values in state for now
+  }
+
   render() {
     return (
       <div className='wizardContentPage'>
@@ -28,6 +43,7 @@ class SelectServersToProvision extends BaseWizardPage {
         <div className='server-provision'>
           <div className='body'>
             <TransferTable inputList={this.state.availableServers}
+              sendSelectedList={this.getSelectedServers}
               leftTableHeader={translate('provision.server.left.table')}
               rightTableHeader={translate('provision.server.right.table')}/>
           </div>
