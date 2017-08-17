@@ -8,10 +8,9 @@ class BackButton extends Component {
   }
   render() {
     let buttonClass = 'btn btn-primary btn-back';
-    let buttonAction = this.props.clickAction;
 
     return (
-      <button className={buttonClass} onClick={buttonAction}>
+      <button className={buttonClass} onClick={this.props.clickAction}>
         {translate('back')}
       </button>
     );
@@ -28,19 +27,14 @@ class NextButton extends Component {
     buttonClass =
       this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
-    let buttonAction = this.props.clickAction;
     let buttonLabel = translate('next');
     if (this.props.displayLabel) {
       buttonLabel = this.props.displayLabel;
     }
-    let disabled = false;
-    if (this.props.disableCondition) {
-      disabled = this.props.disableCondition;
-    }
 
     return (
-      <button className={buttonClass} onClick={buttonAction} disabled={disabled}>
-        {buttonLabel}
+      <button className={buttonClass} onClick={this.props.clickAction}
+        disabled={this.props.isDisabled}>{buttonLabel}
       </button>
     );
   }
@@ -55,12 +49,9 @@ class ActionButton extends Component {
     buttonClass =
       this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
-    let buttonAction = this.props.clickAction;
-    let buttonLabel = this.props.displayLabel;
-
     return (
-      <button className={buttonClass} onClick={buttonAction}>
-        {buttonLabel}
+      <button className={buttonClass} onClick={this.props.clickAction}
+        disabled={this.props.isDisabled}>{this.props.displayLabel}
       </button>
     );
   }

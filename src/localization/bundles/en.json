@@ -66,5 +66,6 @@
     "provision.server.heading": "Choose servers on which SLES will be installed",
     "provision.server.left.table": "Available Servers",
     "provision.server.right.table": "Selected Servers",
-    "provision.server.install": "Install"
+    "provision.server.install": "Install",
+    "provision.server.progress.heading": "Server Installation In Progress"
 }
