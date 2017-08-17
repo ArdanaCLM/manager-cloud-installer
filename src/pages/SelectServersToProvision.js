@@ -17,6 +17,7 @@ class SelectServersToProvision extends BaseWizardPage {
 
     this.getSelectedServers = this.getSelectedServers.bind(this);
     this.getServerNames = this.getServerNames.bind(this);
+    this.installServers = this.installServers.bind(this);
   }
 
   componentWillMount() {
