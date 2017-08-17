@@ -63,7 +63,7 @@ class BaseWizardPage extends Component {
       forward = <NextButton
         clickAction={this.goForward.bind(this)}
         displayLabel={this.setNextButtonLabel()}
-        disableCondition={this.setNextButtonDisabled()}
+        isDisabled={this.setNextButtonDisabled()}
       />;
     }
 
