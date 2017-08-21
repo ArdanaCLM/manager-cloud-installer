@@ -44,6 +44,7 @@ class ActionButton extends Component {
   constructor(props) {
     super(props);
   }
+
   render() {
     let buttonClass = 'btn btn-primary';
     buttonClass =
@@ -187,6 +188,23 @@ class UnAssignButton extends Component {
   }
 }
 
+class ItemMenuButton extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    let showMenuAction = this.props.clickAction;
+    let moreClass = this.props.className || '';
+    let cName = 'glyphicon glyphicon-option-vertical ' + moreClass;
+    return (
+      <span
+        name='itemMenuButton'
+        className={cName} onClick={showMenuAction}>
+      </span>
+    );
+  }
+}
+
 module.exports = {
   BackButton: BackButton,
   NextButton: NextButton,
@@ -195,5 +213,6 @@ module.exports = {
   ActionButton: ActionButton,
   ItemHelpButton: ItemHelpButton,
   AssignButton: AssignButton,
-  UnAssignButton: UnAssignButton
+  UnAssignButton: UnAssignButton,
+  ItemMenuButton: ItemMenuButton
 };

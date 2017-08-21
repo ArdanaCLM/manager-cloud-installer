@@ -10,7 +10,6 @@
     "done" : "Done",
     "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
     "wizard.loading.pleasewait": "Loading... Please wait",
-    "placeholder.search.server.text": "Search Server...",
 
     "install.intro.message.body1": "You are about to install a new cloud.",
     "install.intro.message.body2": "You will need to supply information about the servers, networks and storage that will make up your cloud. The Openstack Cloud installer will then take care of deploying and configuring your new cloud for you.",
@@ -49,6 +48,22 @@
     "assign.server.role.filtertext": "Server Name",
     "assign.server.role.available-server": "Available Servers:",
     "assign.server.role.target-server-role": "Target Server Roles:",
+    "edit.server.details.heading": "Edit Server: {0}",
+    "placeholder.search.server.text": "Search Server...",
+    "server.id.prompt": "ID:",
+    "server.name.prompt": "Name:",
+    "server.role.prompt": "Role:",
+    "server.ip.prompt": "IP Address*:",
+    "server.mac.prompt": "Mac Address*:",
+    "server.group.prompt": "Server Group:",
+    "server.nicmapping.prompt": "Nic Mapping:",
+    "server.ipmi.ip.prompt": "IPMI IP Address*:",
+    "server.ipmi.username.prompt": "IPMI Username*:",
+    "server.ipmi.password.prompt": "IPMI Password*:",
+    "server.validator.error": "Failed to execute validator",
+    "server.input.required.error": "Input is required",
+    "context.menu.item.detail": "Details",
+    "context.menu.item.edit": "Edit",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",
@@ -67,5 +82,8 @@
     "provision.server.left.table": "Available Servers",
     "provision.server.right.table": "Selected Servers",
     "provision.server.install": "Install",
-    "provision.server.progress.heading": "Server Installation In Progress"
+    "provision.server.progress.heading": "Server Installation In Progress",
+
+    "input.validator.ipv4address.error": "Please enter a valid IPV4 Address",
+    "input.validator.macaddress.error": "Please enter a valid MAC Address"
 }

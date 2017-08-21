@@ -1,0 +1,63 @@
+@import "./../palette.less";
+
+.server-details-container {
+  padding: 20px;
+  font-family: Arial;
+  .left-container {
+    display: inline-block;
+    min-height: 300px;
+    width: 50%;
+    vertical-align: top;
+    font-size: 16px;
+  }
+  .right-container {
+    display: inline-block;
+    min-height: 300px;
+    width: 50%;
+    vertical-align: top;
+    font-size: 16px;
+  }
+
+  .server-detail-input {
+    margin: 10px 0px 30px 0px;
+    .error-message {
+      color:@errorcolor;
+      font-size: 16px;
+    }
+  }
+
+  .server-detail-input input {
+    padding: 4px;
+    width: 60%;
+    font-size: 16px;
+  }
+
+  .server-detail-select {
+    margin: 10px 0px 30px 0px;
+  }
+
+  .server-detail-select select {
+    padding: 4px;
+    width: 60%;
+    font-size: 16px;
+    color: @dropdowncolor;
+    background-color: white;
+  }
+
+  .line-item {
+    &.line-heading {
+      font-size: 20px;
+      color: @subheadingcolor;
+    }
+    .line-value {
+      font-size: 16px;
+      margin-left: 20px;
+      color: @detailcolor;
+    }
+  }
+}
+
+.botton-container {
+  margin-top: 70px;
+  float: right;
+}

@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
-import { ActionButton, AssignButton, UnAssignButton } from '../components/Buttons.js';
+import {
+  ActionButton, AssignButton, UnAssignButton, ItemMenuButton
+} from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
+import EditServerDetails from './EditServerDetails.js';
+import ContextMenu from '../components/ContextMenu.js';
 
 class AssignServerRoles extends BaseWizardPage {
 
@@ -11,22 +15,30 @@ class AssignServerRoles extends BaseWizardPage {
 
     //variables
     this.model = undefined;
+    this.serverGroups = undefined;
+    this.nicMappings = undefined;
     this.serverRoles = [];
     this.selectedAvailableServersRows = [];
     this.selectedAssignedServersRows = [];
     this.clearAvailableServerSelections = false;
     this.clearAssignedServerSelections = false;
+    this.selectedModelName = this.props.selectedModelName;
 
     //states changes will rerender UI
     this.state = {
       displayAvailableServers: [],
       displayAssignedServers: [],
       selectedServerRole:'',
-      availableServersTransferOn: false, //=>  go with selections..TODO need check max reached
+      availableServersTransferOn: false, //=theTarget.getReactDOM()>  go with selections..TODO need check max reached
       assignedServersTransferOn: false, //<=
-      selectedModelName: this.props.selectedModelName,
       searchFilterText: '',
-      pageValid: false
+      pageValid: false,
+      //dealing wih context menu
+      showContextMenu: false,
+      showEditDetails: false,
+      showDetails: false,
+      activeRowData: undefined,
+      contextMenuLocation: undefined
     };
 
     this.handleDiscovery = this.handleDiscovery.bind(this);
@@ -36,6 +48,13 @@ class AssignServerRoles extends BaseWizardPage {
     this.handleRoleSelect = this.handleRoleSelect.bind(this);
     this.handleAvailableServerRowSelect = this.handleAvailableServerRowSelect.bind(this);
     this.handleAssignedServerRowSelect = this.handleAssignedServerRowSelect.bind(this);
+
+    this.handleAvailableServerShowMenu = this.handleAvailableServerShowMenu.bind(this);
+    this.handleAssignedServerShowMenu = this.handleAssignedServerShowMenu.bind(this);
+    this.handleAssignedServerShowEdit = this.handleAssignedServerShowEdit.bind(this);
+    this.handleShowDetail = this.handleShowDetail.bind(this);
+    this.handleEditDetailCancel = this.handleEditDetailCancel.bind(this);
+    this.handleEditDetailDone = this.handleEditDetailDone.bind(this);
   }
 
   refreshServers(rawServerData) {
@@ -112,38 +131,19 @@ class AssignServerRoles extends BaseWizardPage {
   handleAssignServer() {
     let selectedSvrRole = this.state.selectedServerRole;
     let serverRole = this.serverRoles.find((role) => {
-      return (selectedSvrRole === role.name);
+      return (selectedSvrRole === role.serverRole);
     });
     if(serverRole) {
       let selAvailableSvrs = this.selectedAvailableServersRows;
       let assignedServers = serverRole.servers;
       serverRole.servers = assignedServers.concat(selAvailableSvrs);
 
-      //experimental to reduce code
-      // let assignedIds = serverRole.servers.map((svr) => {
-      //   return svr.id;
-      // });
-      // let tempAvailableSvrs = this.state.displayAvailableServers.filter((srv) => {
-      //   //find on which is not assigned if mixed with string and number...will have problems
-      //   return (assignedIds.indexOf(srv.id) === -1);
-      // });
-
-      //remove them from availableServers
-      let tempAvailableSvrs = [];
-      //don't want to change the state value directly,
-      //make a copy first, setState later and render UI
-      Object.assign(tempAvailableSvrs, this.state.displayAvailableServers);
-      //go through each selected servers to find out the exact position of the matching one
-      //in tempAvailableSvrs so we can remove correct one in tempAvailableSvrs
-      selAvailableSvrs.forEach((server) => {
-        let idx = -1;
-        idx = tempAvailableSvrs.findIndex((aServer) => {
-          return aServer.id === server.id;
-        });
-
-        if(idx !== -1) {
-          tempAvailableSvrs.splice(idx, 1);
-        }
+      let assignedIds = serverRole.servers.map((svr) => {
+        return svr.id;
+      });
+      let tempAvailableSvrs = this.state.displayAvailableServers.filter((srv) => {
+        //find one which is not assigned
+        return (assignedIds.indexOf(srv.id) === -1);
       });
 
       //update available servers
@@ -170,7 +170,7 @@ class AssignServerRoles extends BaseWizardPage {
   handleUnAssignServer() {
     let selectedSvrRole = this.state.selectedServerRole;
     let serverRole = this.serverRoles.find((role) => {
-      return (selectedSvrRole === role.name);
+      return (selectedSvrRole === role.serverRole);
     });
 
     if(serverRole) {
@@ -182,35 +182,16 @@ class AssignServerRoles extends BaseWizardPage {
         displayAvailableServers: displayAvailableSvrs.concat(selAssignedSvrs)
       });
 
-      //remove from assigned servers
-
-      //experimental to reduce code
-      // let selectedIds = selAssignedSvrs.map((svr) => {
-      //   return svr.id;
-      // });
-      //
-      // let displayAssignedSvrs = serverRole.servers.filter((svr) => {
-      //   //find one which is not selected
-      //   ids could be string and number so it has some issues.
-      //   return (selectedIds.indexOf(svr.id) === -1)
-      // });
-
-      //go through each selected servers to find out exact position of the matching one in
-      //tempAssignedSvrs so we can remove it in tempAssignedSvrs
-      let tempAssignedSvrs = this.state.displayAssignedServers;
-      selAssignedSvrs.forEach((server) => {
-        let idx = -1;
-        idx = tempAssignedSvrs.findIndex((asServer) => {
-          return asServer.id === server.id;
-        });
-        if(idx !== -1) {
-          tempAssignedSvrs.splice(idx, 1);
-        }
+      let selectedIds = selAssignedSvrs.map((svr) => {
+        return svr.id;
       });
-      //update assigned servers table
-      let displayAssignedSvrs = [];
-      Object.assign(displayAssignedSvrs, tempAssignedSvrs);
-      serverRole.servers = tempAssignedSvrs;
+
+      let displayAssignedSvrs = serverRole.servers.filter((svr) => {
+        //find one which is not selected
+        return (selectedIds.indexOf(svr.id) === -1);
+      });
+
+      serverRole.servers = displayAssignedSvrs;
       this.setState({
         displayAssignedServers: displayAssignedSvrs,
         assignedServersTransferOn: false,
@@ -283,7 +264,7 @@ class AssignServerRoles extends BaseWizardPage {
     let roles = this.serverRoles;
     let servers = [];
     let findRole = roles.find((role) => {
-      return role.name === roleName;
+      return role.serverRole === roleName;
     });
 
     if(findRole) {
@@ -303,6 +284,95 @@ class AssignServerRoles extends BaseWizardPage {
     });
     this.selectedAvailableServersRows = [];
     this.clearAvailableServerSelections = true;
+  }
+
+  //handle menu clicks
+  handleAvailableServerShowMenu(e, rowData) {
+    let tempData = {};
+    Object.assign(tempData, rowData);
+    this.setState({
+      showContextMenu: true,
+      activeRowData: tempData,
+      contextMenuLocation: {x : e.pageX, y: e.pageY}
+    });
+  }
+
+  handleAssignedServerShowMenu(e, rowData) {
+    let tempData = {};
+    Object.assign(tempData, rowData);
+    tempData.role = this.state.selectedServerRole;
+    this.setState({
+      showContextMenu: true,
+      activeRowData: rowData,
+      contextMenuLocation: {x : e.pageX, y: e.pageY}
+    }
+    );
+  }
+
+  handleAssignedServerShowEdit() {
+    this.setState({
+      showEditDetails: true,
+      showContextMenu: false
+    });
+  }
+
+  //TODO doesn't do anything yet
+  handleShowDetail() {
+    this.setState({
+      showDetails: true,
+      showContextMenu: false
+    });
+  }
+
+  handleEditDetailDone(editData) {
+    let roles = this.serverRoles;
+    let findRole = roles.find((role) => {
+      return role.serverRole === editData.role;
+    });
+
+    if(findRole) {
+      let server = findRole.servers.find((srv) => {
+        return srv.id === editData.id;
+      });
+      if(server) {
+        //only change part of it
+        //TODO should allow to edit ip-addr or mac-addr?
+        server['ip-addr'] = editData['ip-addr'];
+        server['mac-addr'] = editData['mac-addr'];
+        //TODO when we unassign...should we clean the following
+        server['server-group'] = editData['server-group'];
+        server['nic-mapping'] = editData['nic-mapping'];
+        server['ilo-ip'] = editData['ilo-ip'];
+        server['ilo-user'] = editData['ilo-user'];
+        server['ilo-password'] = editData['ilo-password'];
+      }
+    }
+
+    this.setState({
+      showEditDetails: false,
+      availableServersTransferOn: false,
+      assignedServersTransferOn: false,
+      activeRowData: undefined
+    });
+    //in case there are something selected
+    this.clearAvailableServerSelections = true;
+    this.clearAssignedServerSelections = true;
+    this.selectedAvailableServersRows = [];
+    this.selectedAssignedServersRows = [];
+  }
+
+  handleEditDetailCancel(editData) {
+    this.setState({
+      showEditDetails: false,
+      activeRowData: undefined,
+      availableServersTransferOn: false,
+      assignedServersTransferOn: false
+    });
+    //in case there are something selected
+    this.clearAvailableServerSelections = true;
+    this.clearAssignedServerSelections = true;
+    this.selectedAvailableServersRows = [];
+    this.selectedAssignedServersRows = [];
   }
 
   //get available servers and model object before render UI
@@ -329,6 +399,8 @@ class AssignServerRoles extends BaseWizardPage {
                   //TODO remove
                   console.log('Successfully got model object data');
                   this.model = modelData;
+                  this.getServerGroups(modelData);
+                  this.getNicMappings(modelData);
                   this.getServerRoles(rawServerData, modelData);
                   this.validateServerRoleAssignment();
                 })
@@ -357,6 +429,30 @@ class AssignServerRoles extends BaseWizardPage {
       });
   }
 
+  getServerGroups(modelData) {
+    let modelGrps = modelData.inputModel['server-groups'];
+    let groups = [];
+    if(modelGrps) {
+      modelGrps.forEach((grp) => {
+        if(grp['server-groups']) {
+          groups = groups.concat(grp['server-groups']);
+        }
+      });
+    }
+    this.serverGroups = groups;
+  }
+
+  getNicMappings(modelData) {
+    let modelMps = modelData.inputModel['nic-mappings'];
+    let mappings = [];
+    if(modelMps) {
+      mappings = modelMps.map((map) => {
+        return map.name;
+      });
+    }
+    this.nicMappings = mappings;
+  }
+
   updateServerDataWithDetails(details) {
     //details has everything
     let retData = details.map((srvDetail) => {
@@ -365,7 +461,7 @@ class AssignServerRoles extends BaseWizardPage {
       });
       //at this point only these are useful
       let serverData = {
-        'id': srvDetail.id,
+        'id': srvDetail.id + '', //make it a string instead of number
         'name': srvDetail.name,
         'ip-addr': nkdevice.ip,
         'mac-addr': nkdevice['hardware_address']
@@ -433,11 +529,12 @@ class AssignServerRoles extends BaseWizardPage {
         let servers = [];
         if (matchedModelSvrs && matchedModelSvrs.length > 0) {
           servers = matchedModelSvrs.map((srv) => {
+            let strId = srv.id + '';  //make it string
             let retValue = {
-              'id': srv.id,
+              'id': strId,
               'ip-addr': srv['ip-addr'],
-              'name': srv.name ? srv.name : srv.id,
-              'mac-address': srv['mac-addr'] || '',
+              'name': srv.name ? srv.name : strId,
+              'mac-addr': srv['mac-addr'] || '',
               'role': srv.role || '',
               'server-group': srv['server-group'] || '',
               'ilo-ip': srv['ilo-ip'] || '',
@@ -447,10 +544,9 @@ class AssignServerRoles extends BaseWizardPage {
             };
             return retValue;
           });
-          //record the ids assume id is the same id in
-          //discovered available servers
+
           let retIds = matchedModelSvrs.map((srv) => {
-            return srv.id;
+            return srv.id + ''; //make it string
           });
           allAssignedSrvIds = allAssignedSrvIds.concat(retIds);
 
@@ -476,7 +572,7 @@ class AssignServerRoles extends BaseWizardPage {
 
       this.serverRoles = allRoles;
       this.setState({
-        selectedServerRole: allRoles[displayIdx].name, //TODO what should be default
+        selectedServerRole: allRoles[displayIdx].serverRole, //TODO what should be default
         displayAssignedServers: displayAssignedSrv,
         displayAvailableServers: displayAvailableSrv
       });
@@ -545,11 +641,11 @@ class AssignServerRoles extends BaseWizardPage {
             'ip-addr': svr['ip-addr'],
             'mac-addr': svr['mac-addr'],
             //TODO need real data...will have user input later
-            'nic-mapping': svr['nic-mapping'] || 'placeholder-HP-DL360-6PORT', //fake one TODO
-            'ilo-ip': svr['ilo-ip'] || '10.10.10.10',
-            'ilo-password': svr['ilo-password'] ||'password',
-            'ilo-user': svr['ilo-user']|| 'admin',
-            'server-group': svr['server-group'] || 'RACK1'
+            'nic-mapping': svr['nic-mapping'] || '',
+            'ilo-ip': svr['ilo-ip'] || '',
+            'ilo-password': svr['ilo-password'] ||'',
+            'ilo-user': svr['ilo-user']|| '',
+            'server-group': svr['server-group'] || ''
           });
         });
 
@@ -612,7 +708,7 @@ class AssignServerRoles extends BaseWizardPage {
     }
     else {
       //TODO message
-       this.setState({pageValid: true});
+      this.setState({pageValid: true});
       //TODO remove this
       console.log('server role assignment is valid');
     }
@@ -649,19 +745,57 @@ class AssignServerRoles extends BaseWizardPage {
       });
   }
 
-  //TODO
   //save model updates before move to next page
   goForward(e) {
     e.preventDefault();
     this.doSave();
   }
 
-  render() {
+  renderContextMenu(refType) {
+    let menuItems  =  [{
+      key: 'context.menu.item.detail',
+      callback: this.handleShowDetail,
+      show: true
+    }, {
+      key: 'context.menu.item.edit',
+      callback: this.handleAssignedServerShowEdit,
+      show: refType === 'availableMenuRef' ? false : true
+    }];
+
+    //TODO there is an issue on avaiable server side...edit
+    //should not show up...but show up...
+    return (
+      <ContextMenu
+        ref={refType}
+        show={this.state.showContextMenu} refType={refType}
+        location={this.state.contextMenuLocation}
+        data={this.state.activeRowData} items={menuItems}>
+      </ContextMenu>
+    );
+  }
+
+  renderAssignUnassignButtons() {
+    return (
+      <div className="assign-arrows-container">
+        <div>
+          <AssignButton
+            clickAction={this.handleAssignServer}
+            isDisabled={!this.state.availableServersTransferOn}/>
+        </div>
+        <div>
+          <UnAssignButton
+            clickAction={this.handleUnAssignServer}
+            isDisabled={!this.state.assignedServersTransferOn}/>
+        </div>
+      </div>
+    );
+  }
+
+  renderServerRoleContent() {
     //server list without details
     let displayAvailableServers = this.state.displayAvailableServers;
     let clearAvailCheckBox = this.clearAvailableServerSelections;
     let clearAssignCheckBox = this.clearAssignedServerSelections;
-    let modelName = this.state.selectedModelName;
     let selectedRoleName = this.state.selectedServerRole;
 
     //display the assigned servers based on role selection
@@ -679,55 +813,69 @@ class AssignServerRoles extends BaseWizardPage {
     let discoverLabel = translate('assign.server.role.discover');
     let availableServersHeading = translate('assign.server.role.available-server');
     let targetServerRoleHeading = translate('assign.server.role.target-server-role');
-
     return (
-      <div className='wizardContentPage'>
-        {this.renderHeading(translate('assign.server.role.heading', modelName))}
-        <div className="server-container">
-          <div className="heading">{availableServersHeading}</div>
-          <SearchBar
-            filterText={this.state.searchFilterText}
-            filterAction={this.handleSearchText}/>
-          <div className="server-list-container">
-            <ServerList
-              ref='available' data={filteredAvailableServers}
-              clearSelections={clearAvailCheckBox} onSelectRow={this.handleAvailableServerRowSelect}
-              onSelectAll={this.handleAvailableServerSelectAll}>
-            </ServerList>
+      <div id='AssignServerRolePageId' className='wizardContentPage'>
+        {this.renderHeading(translate('assign.server.role.heading', this.selectedModelName))}
+        <div className='assign-server-role'>
+          <div className="server-container">
+            <div className="heading">{availableServersHeading}</div>
+            <SearchBar
+              filterText={this.state.searchFilterText}
+              filterAction={this.handleSearchText}>
+            </SearchBar>
+            <div className="server-list-container">
+              <ServerList
+                ref='available' data={filteredAvailableServers}
+                clearSelections={clearAvailCheckBox} onSelectRow={this.handleAvailableServerRowSelect}
+                clickMenuAction={this.handleAvailableServerShowMenu}>
+              </ServerList>
+              {this.renderContextMenu('availableMenuRef')}
+            </div>
           </div>
-        </div>
-        <div className="assign-arrows-container">
+          {this.renderAssignUnassignButtons()}
+          <div className="server-container">
+            <div className="heading">{targetServerRoleHeading}</div>
+            <ServerRolesDropDown
+              serverRoles={roles} selectedServerRole={selectedRoleName}
+              selectAction={this.handleRoleSelect}>
+            </ServerRolesDropDown>
+            <div ref='assign' id='AssignServerRoleId' className="server-list-container">
+              <ServerList
+                data={displayAssignedServers}
+                clearSelections={clearAssignCheckBox} onSelectRow={this.handleAssignedServerRowSelect}
+                clickMenuAction={this.handleAssignedServerShowMenu}>
+              </ServerList>
+              {this.renderContextMenu('assignMenuRef')}
+            </div>
+          </div>
           <div>
-            <AssignButton
-              clickAction={this.handleAssignServer}
-              isDisabled={!this.state.availableServersTransferOn}/>
+            <ActionButton clickAction={this.handleDiscovery} displayLabel={discoverLabel}/>
           </div>
-          <div>
-            <UnAssignButton
-              clickAction={this.handleUnAssignServer}
-              isDisabled={!this.state.assignedServersTransferOn}/>
-          </div>
-        </div>
-        <div className="server-container">
-          <div className="heading">{targetServerRoleHeading}</div>
-          <ServerRolesDropDown
-            serverRoles={roles} selectedServerRole={selectedRoleName}
-            selectAction={this.handleRoleSelect}>
-          </ServerRolesDropDown>
-          <div className="server-list-container">
-            <ServerList
-              ref='assign' data={displayAssignedServers}
-              clearSelections={clearAssignCheckBox} onSelectRow={this.handleAssignedServerRowSelect}
-              onSelectAll={this.handleAssignedServerSelectAll}>
-            </ServerList>
-          </div>
-        </div>
-        <div>
-          <ActionButton clickAction={this.handleDiscovery} displayLabel={discoverLabel}/>
         </div>
         {this.renderNavButtons()}
       </div>
     );
+  }
+
+  renderEditServerDetailContent() {
+    return (
+      <EditServerDetails
+        doneAction={this.handleEditDetailDone}
+        cancelAction={this.handleEditDetailCancel}
+        serverGroups={this.serverGroups}
+        nicMappings={this.nicMappings}
+        editData={this.state.activeRowData}>
+      </EditServerDetails>
+    );
+  }
+
+  render() {
+    if(this.state.showEditDetails) {
+      return this.renderEditServerDetailContent();
+    }
+    else {
+      return this.renderServerRoleContent();
+    }
   }
 }
 
@@ -737,7 +885,6 @@ class ServerRolesDropDown extends Component {
     this.state = {
       selectedName: this.props.selectedServerRole
     };
-    this.renderOptions = this.renderOptions.bind(this);
     this.handleRoleSelect = this.handleRoleSelect.bind(this);
   }
 
@@ -745,7 +892,7 @@ class ServerRolesDropDown extends Component {
     let options = this.props.serverRoles.map((role) => {
       let optionDisplay =
         role.name + ' (' + role.serverRole + ' ' + role.servers.length + '/' + role.memberCount + ')';
-      return <option key={role.serverRole} value={role.name}>{optionDisplay}</option>;
+      return <option key={role.name} value={role.serverRole}>{optionDisplay}</option>;
     });
 
     return options;
@@ -761,7 +908,6 @@ class ServerRolesDropDown extends Component {
   }
 
   render() {
-    //TODO have problem change select font-size
     return (
       <div className="roles-select">
         <select
@@ -807,6 +953,7 @@ class ServerList extends Component {
       serverList: this.props.data
     };
     this.handleSelectRow = this.handleSelectRow.bind(this);
+    this.handleShowMenu = this.handleShowMenu.bind(this);
   }
 
   componentWillReceiveProps(newProps) {
@@ -818,14 +965,20 @@ class ServerList extends Component {
     this.props.onSelectRow(isChecked, rowData);
   }
 
+  handleShowMenu(e, rowData) {
+    this.props.clickMenuAction(e, rowData);
+  }
+
   renderServerList(list) {
     let servers = [];
     let toClear = this.props.clearSelections;
     let handleRowFunc = this.handleSelectRow;
+    let handleMenuFunc = this.handleShowMenu;
     list.forEach((server, idx) => {
       let item =
         <ServerItem
           key={idx} serverItem={server} clearSelection={toClear}
+          clickMenuAction={(e) => handleMenuFunc(e, server)}
           changeAction={(e) => handleRowFunc(e, server)}>
         </ServerItem>;
       servers.push(item);
@@ -846,10 +999,11 @@ class ServerList extends Component {
 class ServerItem extends Component {
   constructor(props) {
     super(props);
-    this.handleCheckBoxChange = this.handleCheckBoxChange.bind(this);
     this.state = {
       checked: false
     };
+    this.handleCheckBoxChange = this.handleCheckBoxChange.bind(this);
+    this.handleClickMenu = this.handleClickMenu.bind(this);
   }
 
   componentWillReceiveProps(newProps) {
@@ -863,20 +1017,28 @@ class ServerItem extends Component {
     this.setState({checked: e.target.checked});
   }
 
+  handleClickMenu(e, rowData) {
+    this.props.clickMenuAction(e, rowData);
+  }
+
   render() {
     //only have multi select now
     //TODO global select???
     let data = this.props.serverItem;
     let displayName = data.name;
     let itemValue = data.name;
+    let moreClass = 'item-menu';
     return (
       <div className='server-check-box'>
         <input
-          id='serverItemId' type='checkbox' value={itemValue}
+          type='checkbox' value={itemValue}
           checked={this.state.checked}
           onChange={(e) => this.handleCheckBoxChange(e, data)}/> {displayName}
+        <ItemMenuButton
+          className={moreClass} clickAction={(e) => this.handleClickMenu(e, data)}/>
       </div>
     );
   }
 }
+
 export default AssignServerRoles;
