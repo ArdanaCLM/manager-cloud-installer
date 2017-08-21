@@ -57,32 +57,24 @@ class CloudModelPicker extends BaseWizardPage {
             if(response && response.ok === false) {
               //TODO remove when we have a toast error message
               console.log('Failed to save model object data');
-              this.setState({
-                pageValid: false
-              });
+              this.setState({pageValid: false});
             }
             else {
               //TODO remove
               console.log('Successfully saved model object data');
-              this.setState({
-                pageValid: true
-              });
+              this.setState({pageValid: true});
             }
           })
           .catch((error) => {
             //TODO remove when we have a toast error message
             console.log('Failed to save model object data');
-            this.setState({
-              pageValid: false
-            });
+            this.setState({pageValid: false});
           });
       })
       .catch((error) => {
         //TODO remove when we have a toast error message
         console.log('Failed to get model object data');
-        this.setState({
-          pageValid: false
-        });
+        this.setState({pageValid: false});
       });
   }
 
@@ -126,11 +118,6 @@ class CloudModelPicker extends BaseWizardPage {
 
   updateParentSelectedModelName(modelName) {
     this.props.updateModelName(modelName);
-  }
-
-  isError() {
-    //have model but have other errors
-    return !this.state.pageValid && this.state.selectedModelName;
   }
 
   setNextButtonDisabled() {
