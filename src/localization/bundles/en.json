@@ -67,5 +67,6 @@
     "provision.server.left.table": "Available Servers",
     "provision.server.right.table": "Selected Servers",
     "provision.server.install": "Install",
-    "provision.server.progress.heading": "Server Installation In Progress"
+    "provision.server.progress.heading": "Server Installation In Progress",
+    "provision.server.failure": "Server Installation Failure : {0}"
 }

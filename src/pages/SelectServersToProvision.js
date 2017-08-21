@@ -107,7 +107,7 @@ class ShowInstallProgress extends BaseWizardPage {
 
   getError() {
     return (this.state.errorMsg) ? (
-      <div>{translate('deploy.progress.failure',
+      <div>{translate('provision.server.failure',
         this.props.installList[this.state.currentStep].name)}<br/>
         <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
   }
