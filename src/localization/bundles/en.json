@@ -83,6 +83,7 @@
     "provision.server.right.table": "Selected Servers",
     "provision.server.install": "Install",
     "provision.server.progress.heading": "Server Installation In Progress",
+    "provision.server.failure": "Server Installation Failure : {0}",
 
     "input.validator.ipv4address.error": "Please enter a valid IPV4 Address",
     "input.validator.macaddress.error": "Please enter a valid MAC Address"
