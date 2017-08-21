@@ -88,7 +88,9 @@ class ActivePickerButton extends Component {
   }
 
   handleMouseEnter(e) {
-    this.props.handleMouseEnter(e);
+    if (this.props.handleMouseEnter) {
+      this.props.handleMouseEnter(e);
+    }
     this.setState({
       cardClass: 'card-active'
     });

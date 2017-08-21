@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import { fromJS } from 'immutable';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import BaseWizardPage from './BaseWizardPage.js';
@@ -6,120 +7,182 @@ import { ActivePickerButton } from '../components/Buttons.js';
 
 class CloudModelSummary extends BaseWizardPage {
   constructor(props) {
-  super(props);
-  this.state = {
-    compute: undefined,
-    controllers: undefined,
-    monitoring: undefined,
-    storage: undefined,
-    activeItemType: undefined,
-    activeItemAmount: undefined,
-    customModel: false,
-    description: undefined,
-    editor: false
-  }
-  this.handleMouseEnter = this.handleMouseEnter.bind(this);
-  this.handleClick = this.handleClick.bind(this);
-  this.handleModelServerUpdate = this.handleModelServerUpdate.bind(this);
+    super(props);
+    this.state = {
+      controlPlane: undefined,  // The control plane structure from the input model.
+                                // Note: immutableJS is used so that we can keep track
+                                // of the counts directly in the model, and manage state
+                                // easily (by efficiently creating a new one whenever one
+                                // of the counts change)
 
+      activeItem: undefined     // The key path in the controlPlane structure, as a string.
+                                // to the count value; for example, "resources.1.min-count"
+    }
   }
 
+  getDisplayName(role) {
+    //TODO: Localize all of these strings
+    var displayNames = {
+      "CONTROLLER-ROLE": "Controller Nodes",
+      "COMPUTE-ROLE": "Compute Nodes",
+      "VSA-ROLE": "VSA Nodes",
+      "RGW-ROLE": "RGW Nodes",
+      "OSD-ROLE": "OSD Nodes",
+      "MTRMON-ROLE": "Monitoring Nodes",
+      "DBMQ-ROLE": "DB/MsgQ Nodes",
+      "SWOBJ-ROLE": "Swift Nodes",
+      "CORE-ROLE": "Core Nodes",
+      "SWPAC-ROLE": "SWPAC Nodes",
+      "NEUTRON-ROLE": "Neutron Nodes",
+      "IRONIC-COMPUTE-ROLE": "Ironic Compute Nodes"
+    };
+    var NOT_FOUND = "Custom component type";
 
-//allows to dynamically update the information in the info panel based on the item hovered
-  handleMouseEnter(e) {
-    var serverType = e.target.id
-    fetch('http://localhost:8080/modeldata')
-    .then(response => response.json())
-    .then(data => {
-      this.setState({
-        description: data[serverType]
-      })
-    })
+    return displayNames[role] || NOT_FOUND
   }
 
+  getDescription() {
+    if (! this.state.activeItem) {
+      return '';
+    }
 
-//on server type click will open an editor
-  handleClick(e) {
-    this.setState({
-      editor: true,
-      activeItemType: e.target.id,
-      activeItemAmount: this.state[e.target.id]
-    })
+    //TODO: Improve these descriptions
+    //TODO: Localize all of these strings
+    var descriptions = {
+      "CONTROLLER-ROLE": "Controllers are an essential component of an OpenStack Cloud. We will deploy services such as Keystone, Horizon, Glance here.",
+      "COMPUTE-ROLE": "Compute nodes is where your workload will eventually run. We will host services such as Nova on those machines. Make sure those machines have enough capacity.",
+      "VSA-ROLE": "Describe VSA Nodes",
+      "RGW-ROLE": "Describe RGW Nodes",
+      "OSD-ROLE": "Describe OSD Nodes",
+      "MTRMON-ROLE": "SUSE OpenStack Cloud is an enterprise class solution, this is why we ship monitoring capabilities with our system to allow for Day 2 operations out of the box.",
+      "DBMQ-ROLE": "Describe DB/MsgQ Nodes",
+      "SWOBJ-ROLE": "You can optionally add storage nodes to your deployment, and configure access to those nodes right from this panel.",
+      "CORE-ROLE": "Describe Core Nodes",
+      "SWPAC-ROLE": "Describe SWPAC Nodes",
+      "NEUTRON-ROLE": "Describe Neutron Nodes",
+      "IRONIC-COMPUTE-ROLE": "Describe Ironic Compute Nodes"
+    };
+    var NOT_FOUND = "Describe the fact that the customer must have created this role";
+    var role = this.state.controlPlane.getIn(this.getKey(this.state.activeItem, 1)).get('server-role')
+    return descriptions[role] || NOT_FOUND
   }
 
-//will update the state on field change
+  // convert a delimited string (normally the state.activeItem) into a list.  Optionally
+  // remove some number of trailing items from the list (to traverse higher in the structure)
+  getKey(s, stripRight) {
+    var key = s || this.state.activeItem;
+    var toRemove = stripRight || 0;
+    var list = key.split('.');
+    return list.slice(0, list.length - toRemove);
+  }
+
+  // handle click on an item
+  handleClick = (e) => {
+    this.setState({activeItem: e.target.id});
+  }
+
+  //update the state on field change
   handleModelServerUpdate = (e) => {
-    this.setState({
-      activeItemAmount: e.target.value,
-      [this.state.activeItemType]: e.target.value
-    })
+    e.preventDefault();
+    var newval = parseInt(e.target.value) || 0;
+    if (newval < 0) {
+      newval = 0;
+    }
+    this.setState((prevState, props) => {
+        var old = prevState.controlPlane;
+        return {controlPlane: old.updateIn(this.getKey(prevState.activeItem), val => newval)};
+    });
   }
 
-//will handle the update button and send the updates to a custom model in the backend
-  handleModelServerUpdateSubmit = (e) => {
-    e.preventDefault()
-    this.setState({
-      [this.state.activeItemType]: this.state.activeItemAmount,
-      customModel: true
-    })
-    fetch('http://localhost:8080/customModels/1', {
-      method: 'PATCH',
+  //will handle the update button and send the updates to a custom model in the backend
+  goForward(e) {
+    e.preventDefault();
+
+    fetch('http://localhost:8081/api/v1/clm/model/entities/control-planes', {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({[this.state.activeItemType]: this.state.activeItemAmount})
+      body: JSON.stringify([this.state.controlPlane.toJSON()])
     })
-    .then(response => response.json())
+    .then(result => { this.props.next(false); })  // go to the next page
+    .catch((error) => {
+        // TODO: Show a toast error instead of a console log
+      console.error(JSON.stringify(error));
+    });
   }
 
   componentDidMount() {
 
-//fetches initial model information depending on what ModelName was selected
-    fetch('http://localhost:8080/'+ (this.state.customModel ? 'customModels/1' : 'models?name='+ this.props.selectedModelName))
+    //fetch initial control plane information
+    fetch('http://localhost:8081/api/v1/clm/model/entities/control-planes')
       .then(response => response.json())
-        .then(data => {
-          this.setState({
-            compute: data[0].compute,
-            controllers: data[0].controllers,
-            monitoring: data[0].monitoring,
-            storage: data[0].storage
-          })
-        })
+      .then(data => {
+          // TODO: May need to support multiple control planes
+          this.setState({controlPlane: fromJS(data[0])});
+      })
   }
+
+  renderItems(section) {
+
+    // Only render items that have a count field
+    var filtered = this.state.controlPlane.get(section).filter(item => {return item.has('member-count') || item.has('min-count')});
+
+    return filtered.map((item, key) => {
+
+      var count_type = item.has('member-count') ? 'member-count' : 'min-count';
+      var value = item.get(count_type);
+
+      // Build the id, which will be used as the activeItem
+      var id = [section, key, count_type].join('.');
+
+      return (
+        <ActivePickerButton key={item.get('name')}
+                            id={id}
+                            value={value}
+                            description={this.getDisplayName(item.get('server-role'))}
+                            handleClick={this.handleClick} />
+      );
+    });
+  }
+
   render () {
+    var mandatoryItems = this.state.controlPlane ? this.renderItems("clusters") : [];
+    var additionalItems = this.state.controlPlane ? this.renderItems("resources") : [];
+    var number = this.state.activeItem ? this.state.controlPlane.getIn(this.getKey()) : 0;
+
     return (
       <div className='wizardContentPage'>
         {this.renderHeading(translate('model.summary.heading', this.props.selectedModelName))}
         <div className='model-picker-container'>
           <div className='col-xs-8 verticalLine'>
             <div className='row'>
-              <h1 className='margin-top-10 margin-left-10 text-header'>Mandatory Components</h1>
+              <h1 className='margin-top-80 margin-left-10 text-header'>Mandatory Components</h1>
             </div>
             <div className='row'>
-              <ActivePickerButton id='controllers' value={this.state.controllers} description='Controller Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
-              <ActivePickerButton id='compute' value={this.state.compute} description='Compute Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
-              <ActivePickerButton id='monitoring' value={this.state.monitoring} description='Monitoring Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick} />
+              {mandatoryItems}
             </div>
+            {(additionalItems.size > 0)
+              ? <div className='row'>
+                  <h1 className='margin-top-80 margin-left-10 text-header'>Additional Components</h1>
+                </div>
+              : <div />
+            }
             <div className='row'>
-              <h1 className='margin-top-80 margin-left-10 text-header'>Additional Components</h1>
-            </div>
-            <div className='row'>
-              <ActivePickerButton id='storage' value={this.state.storage} description='Storage Nodes' handleMouseEnter={this.handleMouseEnter} handleClick={this.handleClick}/>
+              {additionalItems}
             </div>
           </div>
           <div className='col-xs-4'>
             <h2 className='text-header'>Info Panel</h2>
-            <h4 className='text-header'>{this.state.description}</h4>
+            <h4 className='text-header'>{this.getDescription()}</h4>
             <p />
-            {this.state.editor
+            {this.state.activeItem
               ? <div className='margin-top-80'>
                   <h2 className='text-header'>Edit number of machines</h2>
                   <form className='form-inline col-xs-12 margin-top-20'>
-                    <h4 className='text-theme'>You will update component: <span className='text-primary'>{this.state.activeItemType}</span></h4>
                     <div className='form-group'>
-                        <input type='number' className='form-control' id='servers' value={this.state.activeItemAmount} onChange={this.handleModelServerUpdate} />
+                        <input type='number' className='form-control' id='servers' value={number} onChange={this.handleModelServerUpdate} />
                     </div>
-                    <button type='submit' className='btn btn-primary' onClick={this.handleModelServerUpdateSubmit}>Update</button>
                   </form>
                 </div>
             : <div />
