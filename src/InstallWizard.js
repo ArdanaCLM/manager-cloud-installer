@@ -23,7 +23,7 @@ class InstallWizard extends Component {
       .then((responseData) =>
       {
         var progress = responseData || this.initialState(props);
-        var forcedReset = (window.location.search.indexOf('installreset=true') === -1) ? false : true;
+        var forcedReset = (window.location.search.indexOf('reset=true') === -1) ? false : true;
 
         /**
          * if the state loaded from the backend has the pages in a different order than
