@@ -12,33 +12,31 @@ import {
 class CloudModelPicker extends BaseWizardPage {
   constructor(props) {
     super(props);
-    //TODO some states need to be coordinated with others
+
+    this.templates = [];
+
     this.state = {
       selectedModelName: this.props.selectedModelName,
       selectedDetails: '',
-      selectedModel: undefined, //TODO how to pass this out to the next page???
-      simpleModels: [],
-      templates: []
+      simpleModels: [ //add more items when user select it from complete templates
+        'entry-scale-esx-kvm-vsa',
+        'entry-scale-ironic-flat-network',
+        'entry-scale-kvm-ceph',
+        'entry-scale-swift',
+        'mid-scale-kvm-vsa'
+      ],
+      pageValid: this.props.selectedModelName ? true : false
     };
 
-    this.pickModel = this.pickModel.bind(this);
-    this.selectTemplate = this.selectTemplate.bind(this);
-    this.helpChoose = this.helpChoose.bind(this);
-    this.showSelectTemplateHelp = this.showSelectTemplateHelp.bind(this);
-    this.showHelpChooseHelp = this.showHelpChooseHelp.bind(this);
-    //TODO experimental
+    this.handlePickModel = this.handlePickModel.bind(this);
+    this.handleSelectTemplate = this.handleSelectTemplate.bind(this);
+    this.handleHelpChoose = this.handleHelpChoose.bind(this);
+    this.handleShowSelectTemplateHelp = this.handleShowSelectTemplateHelp.bind(this);
+    this.handleShowHelpChooseHelp = this.handleShowHelpChooseHelp.bind(this);
     this.updateParentSelectedModelName = this.updateParentSelectedModelName.bind(this);
   }
 
   componentWillMount() {
-    //TODO might need to be passed in
-    this.state.simpleModels = [
-      'entry-scale-esx-kvm-vsa',
-      'entry-scale-ironic-flat-network',
-      'entry-scale-kvm-ceph',
-      'entry-scale-swift',
-      'mid-scale-kvm-vsa'
-    ];
     this.getTemplates();
   }
 
@@ -46,40 +44,62 @@ class CloudModelPicker extends BaseWizardPage {
     fetch('http://localhost:8081/api/v1/clm/templates/' + modelName)
       .then(response => response.json())
       .then((responseData) => {
-        this.state.selectedModel = responseData;
         // Save the selected template as the model
         fetch('http://localhost:8081/api/v1/clm/model', {
-          method: "POST",
+          method: 'POST',
           headers: {
             'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(responseData)
-        });
-      }
-    );
-
-    //TODO handle error
+        })
+          .then((response) => {
+            if(response && response.ok === false) {
+              //TODO remove when we have a toast error message
+              console.log('Failed to save model object data');
+              this.setState({pageValid: false});
+            }
+            else {
+              //TODO remove
+              console.log('Successfully saved model object data');
+              this.setState({pageValid: true});
+            }
+          })
+          .catch((error) => {
+            //TODO remove when we have a toast error message
+            console.log('Failed to save model object data');
+            this.setState({pageValid: false});
+          });
+      })
+      .catch((error) => {
+        //TODO remove when we have a toast error message
+        console.log('Failed to get model object data');
+        this.setState({pageValid: false});
+      });
   }
 
   getTemplates() {
     fetch('http://localhost:8081/api/v1/clm/templates')
       .then(response => response.json())
       .then((responseData) => {
-        this.state.templates = responseData;
+        this.templates = responseData;
 
-        //set default template selection
-        let mName = this.state.selectedModelName;
-        let temp = this.findTemplate(mName);
-        if(temp) {
-          this.setState({selectedDetails: temp.overview});
+        //set default template selection if we have any
+        if(this.state.selectedModelName) {
+          let temp = this.findTemplate(this.state.selectedModelName);
+          if (temp) {
+            this.setState({selectedDetails: temp.overview});
+          }
         }
+      })
+      .catch((error) => {
+        //TODO remove
+        console.log('Failed to get templates data');
       });
-    //TODO handle error
   }
 
   findTemplate(modelName) {
-    let tplt = this.state.templates.find(function(template) {
+    let tplt = this.templates.find(function(template) {
       return template.name === modelName;
     });
     return tplt;
@@ -91,46 +111,44 @@ class CloudModelPicker extends BaseWizardPage {
       this.setState({selectedDetails: temp.overview});
     }
     else {
-      //TODO error
+      //TODO remove
+      console.log('Failed to find template for ' + modelName);
     }
   }
 
-  // Only permit the Next button if a model has been selected
-  isError() {
-    return this.state.selectedModelName == '';
-  }
-
-  //TODO experimental
   updateParentSelectedModelName(modelName) {
     this.props.updateModelName(modelName);
   }
 
-  pickModel(e) {
+  setNextButtonDisabled() {
+    return !this.state.pageValid;
+  }
+
+  handlePickModel(e) {
     e.preventDefault();
     let modelName = e.target.getAttribute('name');
     this.setState({selectedModelName: modelName});
     this.setSelectedDetails(modelName);
-    //TODO experimental
     this.saveTemplateIntoModel(modelName);
     this.updateParentSelectedModelName(modelName);
   }
 
-  selectTemplate(e) {
+  handleSelectTemplate(e) {
     e.preventDefault();
     //TODO
   }
 
-  helpChoose(e) {
+  handleHelpChoose(e) {
     e.preventDefault();
     //TODO
   }
 
-  showSelectTemplateHelp(e) {
+  handleShowSelectTemplateHelp(e) {
     e.preventDefault();
     //TODO
   }
 
-  showHelpChooseHelp(e) {
+  handleShowHelpChooseHelp(e) {
     e.preventDefault();
     //TODO
   }
@@ -142,12 +160,17 @@ class CloudModelPicker extends BaseWizardPage {
       //TODO need better name to display
       let displayLabel = translate('model.picker.' + name);
       if(name === this.state.selectedModelName) {
-        btns.push(<PickerButton key={i} keyName={name} isSelected
-          displayLabel={displayLabel} clickAction={this.pickModel}/>);
+        btns.push(
+          <PickerButton
+            key={i} keyName={name} isSelected
+            displayLabel={displayLabel} clickAction={this.handlePickModel}/>
+        );
       }
       else {
-        btns.push(<PickerButton key={i} keyName={name}
-          displayLabel={displayLabel} clickAction={this.pickModel}/>);
+        btns.push(
+          <PickerButton
+            key={i} keyName={name}
+            displayLabel={displayLabel} clickAction={this.handlePickModel}/>);
       }
     }
     return btns;
@@ -164,32 +187,32 @@ class CloudModelPicker extends BaseWizardPage {
     return (
       <div className='wizardContentPage'>
         {this.renderHeading(translate('model.picker.heading'))}
-          <div className='picker-container'>
-            {this.renderPickerButtons()}
-          </div>
-          <div className='details-container'>
-            {this.renderModelDetails(details)}
-          </div>
-          <div className='action-btn-container'>
-            <div className='select-template'>
-              <div className='select-template-heading'>
-                {translate('model.picker.select-template-heading')}
-                <ItemHelpButton clickAction={this.showSelectTemplateHelp}/>
-              </div>
-              <ActionButton
-                displayLabel={translate('model.picker.select-template')}
-                clickAction={this.selectTemplate}/>
+        <div className='picker-container'>
+          {this.renderPickerButtons()}
+        </div>
+        <div className='details-container'>
+          {this.renderModelDetails(details)}
+        </div>
+        <div className='action-btn-container'>
+          <div className='select-template'>
+            <div className='select-template-heading'>
+              {translate('model.picker.select-template-heading')}
+              <ItemHelpButton clickAction={this.handleShowSelectTemplateHelp}/>
             </div>
-            <div className='help-choose'>
-              <div className='help-choose-heading'>{translate('model.picker.help-choose-heading')}
-                <ItemHelpButton clickAction={this.showHelpChooseHelp}/>
-              </div>
-              <ActionButton
-                displayLabel={translate('model.picker.help-choose')}
-                clickAction={this.helpChoose}/>
-            </div>
+            <ActionButton
+              displayLabel={translate('model.picker.select-template')}
+              clickAction={this.handleSelectTemplate}/>
           </div>
-          {this.renderNavButtons()}
+          <div className='help-choose'>
+            <div className='help-choose-heading'>{translate('model.picker.help-choose-heading')}
+              <ItemHelpButton clickAction={this.handleShowHelpChooseHelp}/>
+            </div>
+            <ActionButton
+              displayLabel={translate('model.picker.help-choose')}
+              clickAction={this.handleHelpChoose}/>
+          </div>
+        </div>
+        {this.renderNavButtons()}
       </div>
     );
     //TODO need fix issue of order of next and back button
@@ -197,3 +220,4 @@ class CloudModelPicker extends BaseWizardPage {
 }
 
 export default CloudModelPicker;
+
