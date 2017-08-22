@@ -35,6 +35,12 @@ class EditServerDetails extends BaseWizardPage {
     this.updateFormValidity = this.updateFormValidity.bind(this);
   }
 
+  componentWillReceiveProps(newProps) {
+    this.setState({
+      data : newProps.editData,
+    });
+  }
+
   updateFormValidity(name, isValid) {
     this.allInputsValidState[name] = isValid ? 1 : 0;
     let values = Object.values(this.allInputsValidState);

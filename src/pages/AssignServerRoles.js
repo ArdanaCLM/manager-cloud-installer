@@ -23,6 +23,13 @@ class AssignServerRoles extends BaseWizardPage {
     this.clearAvailableServerSelections = false;
     this.clearAssignedServerSelections = false;
     this.selectedModelName = this.props.selectedModelName;
+    this.checkInputKeys = [
+      'ilo-ip',
+      'ilo-user',
+      'ilo-password',
+      'nic-mapping',
+      'server-group'
+    ];
 
     //states changes will rerender UI
     this.state = {
@@ -34,7 +41,8 @@ class AssignServerRoles extends BaseWizardPage {
       searchFilterText: '',
       pageValid: false,
       //dealing wih context menu
-      showContextMenu: false,
+      showAvailableContextMenu: false,
+      showAssignedContextMenu: false,
       showEditDetails: false,
       showDetails: false,
       activeRowData: undefined,
@@ -291,7 +299,7 @@ class AssignServerRoles extends BaseWizardPage {
     let tempData = {};
     Object.assign(tempData, rowData);
     this.setState({
-      showContextMenu: true,
+      showAvailableContextMenu: true,
       activeRowData: tempData,
       contextMenuLocation: {x : e.pageX, y: e.pageY}
     });
@@ -302,8 +310,8 @@ class AssignServerRoles extends BaseWizardPage {
     Object.assign(tempData, rowData);
     tempData.role = this.state.selectedServerRole;
     this.setState({
-      showContextMenu: true,
-      activeRowData: rowData,
+      showAssignedContextMenu: true,
+      activeRowData: tempData,
       contextMenuLocation: {x : e.pageX, y: e.pageY}
     }
     );
@@ -312,7 +320,7 @@ class AssignServerRoles extends BaseWizardPage {
   handleAssignedServerShowEdit() {
     this.setState({
       showEditDetails: true,
-      showContextMenu: false
+      showAssignedContextMenu: false
     });
   }
 
@@ -320,7 +328,8 @@ class AssignServerRoles extends BaseWizardPage {
   handleShowDetail() {
     this.setState({
       showDetails: true,
-      showContextMenu: false
+      showAssignedContextMenu: false,
+      showAvailableContextMenu: false
     });
   }
 
@@ -359,6 +368,8 @@ class AssignServerRoles extends BaseWizardPage {
     this.clearAssignedServerSelections = true;
     this.selectedAvailableServersRows = [];
     this.selectedAssignedServersRows = [];
+
+    this.validateServerRoleAssignment();
   }
 
   handleEditDetailCancel(editData) {
@@ -373,6 +384,8 @@ class AssignServerRoles extends BaseWizardPage {
     this.clearAssignedServerSelections = true;
     this.selectedAvailableServersRows = [];
     this.selectedAssignedServersRows = [];
+
+    this.validateServerRoleAssignment();
   }
 
   //get available servers and model object before render UI
@@ -695,6 +708,19 @@ class AssignServerRoles extends BaseWizardPage {
           moreThanMax = true; //TODO need to turn off arrows
         }
       }
+      //continue check if all server has enough inputs
+      if(valid) {
+        for (let idx in role.servers) {
+          let server = role.servers[idx];
+          let badInputs = this.checkInputKeys.find((key) => {
+            return (server[key] === undefined || server[key] === '');
+          });
+          if(badInputs) {
+            valid = false;
+            break;
+          }
+        }
+      }
     });
     if (!valid) {
       if (moreThanMax) {
@@ -762,16 +788,26 @@ class AssignServerRoles extends BaseWizardPage {
       show: refType === 'availableMenuRef' ? false : true
     }];
 
-    //TODO there is an issue on avaiable server side...edit
-    //should not show up...but show up...
-    return (
-      <ContextMenu
-        ref={refType}
-        show={this.state.showContextMenu} refType={refType}
-        location={this.state.contextMenuLocation}
-        data={this.state.activeRowData} items={menuItems}>
-      </ContextMenu>
-    );
+    let context = <div></div>;
+    if(refType === 'availableMenuRef') {
+      context =
+        <ContextMenu
+          refType={refType}
+          show={this.state.showAvailableContextMenu}
+          location={this.state.contextMenuLocation}
+          data={this.state.activeRowData} items={menuItems}>
+        </ContextMenu>
+    }
+    else {
+      context =
+        <ContextMenu
+          refType={refType}
+          show={this.state.showAssignedContextMenu}
+          location={this.state.contextMenuLocation}
+          data={this.state.activeRowData} items={menuItems}>
+        </ContextMenu>
+    }
+    return context;
   }
 
   renderAssignUnassignButtons() {
@@ -813,6 +849,8 @@ class AssignServerRoles extends BaseWizardPage {
     let discoverLabel = translate('assign.server.role.discover');
     let availableServersHeading = translate('assign.server.role.available-server');
     let targetServerRoleHeading = translate('assign.server.role.target-server-role');
+
+
     return (
       <div id='AssignServerRolePageId' className='wizardContentPage'>
         {this.renderHeading(translate('assign.server.role.heading', this.selectedModelName))}
@@ -841,7 +879,7 @@ class AssignServerRoles extends BaseWizardPage {
             </ServerRolesDropDown>
             <div ref='assign' id='AssignServerRoleId' className="server-list-container">
               <ServerList
-                data={displayAssignedServers}
+                data={displayAssignedServers} checkKeys={this.checkInputKeys}
                 clearSelections={clearAssignCheckBox} onSelectRow={this.handleAssignedServerRowSelect}
                 clickMenuAction={this.handleAssignedServerShowMenu}>
               </ServerList>
@@ -972,15 +1010,35 @@ class ServerList extends Component {
   renderServerList(list) {
     let servers = [];
     let toClear = this.props.clearSelections;
+    let checkKeys = this.props.checkKeys;
     let handleRowFunc = this.handleSelectRow;
     let handleMenuFunc = this.handleShowMenu;
     list.forEach((server, idx) => {
-      let item =
-        <ServerItem
-          key={idx} serverItem={server} clearSelection={toClear}
-          clickMenuAction={(e) => handleMenuFunc(e, server)}
-          changeAction={(e) => handleRowFunc(e, server)}>
-        </ServerItem>;
+      let item = undefined;
+      if(checkKeys) {
+        let requiredUpdate = false;
+        let input = checkKeys.find((key) => {
+          return (server[key] === undefined || server[key] === '');
+        });
+        if(input) {
+          requiredUpdate = true;
+        }
+        item =
+          <ServerItem
+            key={idx} requiredUpdate={requiredUpdate}
+            serverItem={server} clearSelection={toClear}
+            clickMenuAction={(e) => handleMenuFunc(e, server)}
+            changeAction={(e) => handleRowFunc(e, server)}>
+          </ServerItem>;
+      }
+      else {
+        item =
+          <ServerItem
+            key={idx} serverItem={server} clearSelection={toClear}
+            clickMenuAction={(e) => handleMenuFunc(e, server)}
+            changeAction={(e) => handleRowFunc(e, server)}>
+          </ServerItem>;
+      }
       servers.push(item);
     });
     return servers;
@@ -1000,7 +1058,8 @@ class ServerItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      checked: false
+      checked: false,
+      requiredUpdate: false
     };
     this.handleCheckBoxChange = this.handleCheckBoxChange.bind(this);
     this.handleClickMenu = this.handleClickMenu.bind(this);
@@ -1008,8 +1067,10 @@ class ServerItem extends Component {
 
   componentWillReceiveProps(newProps) {
     if(newProps.clearSelection === true) {
-      this.setState({checked : false});
+      this.setState({
+        checked : false});
     }
+    this.setState({requiredUpdate: newProps.requiredUpdate});
   }
 
   handleCheckBoxChange(e, rowData) {
@@ -1023,13 +1084,14 @@ class ServerItem extends Component {
 
   render() {
     //only have multi select now
-    //TODO global select???
     let data = this.props.serverItem;
     let displayName = data.name;
     let itemValue = data.name;
     let moreClass = 'item-menu';
+    let cName = 'server-check-box ';
+    cName = cName + (this.props.requiredUpdate ? 'required-update' : '');
     return (
-      <div className='server-check-box'>
+      <div className={cName}>
         <input
           type='checkbox' value={itemValue}
           checked={this.state.checked}
