@@ -1,0 +1,35 @@
+@import "./../palette.less";
+
+.context-menu-container {
+  position: absolute;
+  z-index: 999;
+  background: white;
+  width: 120px;
+  height: 80px;
+  box-shadow: 0 5px 10px @defaultshadow;
+  border: 1px solid @listbodycolor;
+  border-radius: 3px;
+  margin-left: -5px;
+  margin-top: 5px;
+  padding: 10px 0px 10px 5px;
+
+  &.hide {
+    display: none;
+  }
+
+  .menu-item-list {
+    font-size: 16px;
+    color: @detailcolor;
+  }
+
+  .menu-item {
+    width: 100px;
+    cursor: default;
+    font-size: 16px;
+    &:hover {
+      background: @defaultshadow;
+      width: 100%
+    }
+  }
+}
+
