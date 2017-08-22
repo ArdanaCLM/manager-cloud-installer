@@ -30,6 +30,7 @@ class AssignServerRoles extends BaseWizardPage {
       'nic-mapping',
       'server-group'
     ];
+    this.rawServerData = undefined;
 
     //states changes will rerender UI
     this.state = {
@@ -86,7 +87,7 @@ class AssignServerRoles extends BaseWizardPage {
 
     //this will parse model and
     //consolidate availableServers and assignedServers
-    this.getServerRoles(rawServerData);
+    this.getServerRoles(this.model, rawServerData);
     this.validateServerRoleAssignment();
   }
 
@@ -388,57 +389,22 @@ class AssignServerRoles extends BaseWizardPage {
     this.validateServerRoleAssignment();
   }
 
-  //get available servers and model object before render UI
+  //get model object before render UI
   componentWillMount() {
-    //TODO this is a prototype to get data from servers
-    //there will be other page to do the discovery based on what
-    //server integration
-    this.getAvailableServersData()
-      .then((rawServerData) => {
+    this.getModelObjectData()
+      .then((modelData) => {
         //TODO remove
-        console.log('Successfully got available servers data');
-        if (rawServerData && rawServerData.length > 0) {
-          let ids = rawServerData.map((srv) => {
-            return srv.id;
-          });
-
-          this.getAllServerDetailsData(ids)
-            .then((details) => {
-              //TODO remove
-              console.log('Successfully got all servers details data');
-              rawServerData = this.updateServerDataWithDetails(details);
-              this.getModelObjectData()
-                .then((modelData) => {
-                  //TODO remove
-                  console.log('Successfully got model object data');
-                  this.model = modelData;
-                  this.getServerGroups(modelData);
-                  this.getNicMappings(modelData);
-                  this.getServerRoles(rawServerData, modelData);
-                  this.validateServerRoleAssignment();
-                })
-                .catch((error) => {
-                  //TODO remove
-                  console.error('Failed to get model object data');
-                  console.error(JSON.stringify(error));
-                });
-            })
-            .catch((error) => {
-              //TODO remove
-              console.log('Failed to get all servers details data');
-              console.error(JSON.stringify(error));
-            });
-        }
-        else {
-          //don't have servers
-          //TODO remove
-          console.log('Empty available servers data');
-        }
+        console.log('Successfully got model object data');
+        this.model = modelData;
+        this.getServerGroups(modelData);
+        this.getNicMappings(modelData);
+        this.getServerRoles(modelData);
+        this.validateServerRoleAssignment();
       })
       .catch((error) => {
-        //not sure why it got in here after successfully got it above
         //TODO remove
-        console.error('Failed to get available data');
+        console.error('Failed to get model object data');
+        console.error(JSON.stringify(error));
       });
   }
 
@@ -485,17 +451,11 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   //process model to get server roles information
-  getServerRoles(rawAvailableServerData, modelData) {
+  getServerRoles(modelData, rawServerData) {
     //process this.model and get the list of server roles
     //from resources and clusters
     //only pick one control plane for now...
     //could have multiple control planes in the future
-    if(!modelData) {
-      modelData = this.model;
-    }
-    else {
-      this.model = modelData;
-    }
 
     //TODO will deal with multiple control plane later
     //for prototye...handle one for now
@@ -577,8 +537,8 @@ class AssignServerRoles extends BaseWizardPage {
 
       //only show the available servers that are not assigned
       let displayAvailableSrv = [];
-      if(rawAvailableServerData && rawAvailableServerData.length > 0) {
-        displayAvailableSrv = rawAvailableServerData.filter((server) => {
+      if(rawServerData && rawServerData.length > 0) {
+        displayAvailableSrv = rawServerData.filter((server) => {
           return (allAssignedSrvIds.indexOf(server.id) === -1);
         });
       }
