@@ -30,14 +30,13 @@ class AssignServerRoles extends BaseWizardPage {
       'nic-mapping',
       'server-group'
     ];
-    this.rawServerData = undefined;
 
     //states changes will rerender UI
     this.state = {
       displayAvailableServers: [],
       displayAssignedServers: [],
       selectedServerRole:'',
-      availableServersTransferOn: false, //=theTarget.getReactDOM()>  go with selections..TODO need check max reached
+      availableServersTransferOn: false, //=> go with selections..TODO need check max reached
       assignedServersTransferOn: false, //<=
       searchFilterText: '',
       pageValid: false,
@@ -469,7 +468,7 @@ class AssignServerRoles extends BaseWizardPage {
       let rs_roles = resources.map((res) => {
         let rs_role = {
           'name': res.name,
-          'memberCount': res['min-count'] || 0,
+          'minCount': res['min-count'] || 0,
           'servers': [], //add display server rows
           'serverRole': res['server-role'],
           'group': 'resources'
@@ -658,14 +657,16 @@ class AssignServerRoles extends BaseWizardPage {
   //check if we have enough servers roles for the model
   validateServerRoleAssignment() {
     let valid = true;
-    let moreThanMax = false;
     this.serverRoles.forEach((role) => {
-      let reqSize =  role.memberCount;
+      let minCount =  role.minCount;
+      let memberCount = role.memberCount;
       let svrSize = role.servers.length;
-      if (svrSize !== reqSize && reqSize !== 0) {
+      if (memberCount && svrSize !== memberCount && memberCount !== 0) {
         valid = false;
-        if (svrSize > reqSize) {
-          moreThanMax = true; //TODO need to turn off arrows
+      }
+      if(valid) {
+        if (minCount && svrSize < minCount && minCount !== 0 ) {
+          valid = false;
         }
       }
       //continue check if all server has enough inputs
@@ -683,9 +684,6 @@ class AssignServerRoles extends BaseWizardPage {
       }
     });
     if (!valid) {
-      if (moreThanMax) {
-        //TODO message
-      }
       //TODO message
       this.setState({pageValid: false});
 
@@ -888,8 +886,9 @@ class ServerRolesDropDown extends Component {
 
   renderOptions() {
     let options = this.props.serverRoles.map((role) => {
+      let modelCount = role.minCount ? role.minCount : role.memberCount;
       let optionDisplay =
-        role.name + ' (' + role.serverRole + ' ' + role.servers.length + '/' + role.memberCount + ')';
+        role.name + ' (' + role.serverRole + ' ' + role.servers.length + '/' + modelCount + ')';
       return <option key={role.name} value={role.serverRole}>{optionDisplay}</option>;
     });
 
