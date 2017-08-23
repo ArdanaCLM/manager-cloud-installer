@@ -1,42 +1,4 @@
 {
-  "models": [
-    {
-      "id": 1,
-      "name": "entry-scale-kvm-ceph",
-      "description": "Entry level setup suitable for exploratory installations",
-      "controllers": 3,
-      "compute": 10,
-      "monitoring": 1,
-      "storage": 4
-    },
-    {
-      "id": 2,
-      "name": "mid-scale-kvm-vsa",
-      "description": "Mid level setup suitable for exploratory installations",
-      "controllers": 3,
-      "compute": 20,
-      "monitoring": 2,
-      "storage": 8
-    }
-  ],
-  "customModels": [
-    {
-      "id": 1,
-      "tyoe": "custom",
-      "name": "mid-scale-kvm-vsa",
-      "description": "Entry level setup suitable for exploratory installations",
-      "controllers": "2",
-      "compute": "21",
-      "monitoring": "5",
-      "storage": 4
-    }
-  ],
-  "modeldata": {
-    "controllers": "Controllers are an essential component of an OpenStack Cloud. We will deploy services such as Keystone, Horizon, Glance here.",
-    "compute": "Compute nodes is where your workload will eventually run. We will host services such as Nova on those machines. Make sure those machines have enough capacity.",
-    "monitoring": "SUSE OpenStack Cloud is an enterprise class solution, this is why we ship monitoring capabilities with our system to allow for Day 2 operations out of the box.",
-    "storage": "You can optionally add storage nodes to your deployment, and configure access to those nodes right from this panel."
-  },
   "availableServers": [
     {
       "id": 1000010015,
