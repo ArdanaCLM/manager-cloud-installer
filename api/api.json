@@ -1,28 +1,2 @@
 {
-  "availableServers": [
-    {
-      "id": 1000010015,
-      "last_checkin": "<DateTime '20170728T18:23:19' at 7f5f4fcd8f38>",
-      "name": "192.168.122.68",
-      "outdated_pkg_count": 0
-    },
-    {
-      "id": 1000010007,
-      "last_checkin": "<DateTime '20170728T15:06:44' at 7f5f4fcd8fc8>",
-      "name": "suma-refhead-min-centos7.mgr.suse.de",
-      "outdated_pkg_count": 0
-    },
-    {
-      "id": 1000010009,
-      "last_checkin": "<DateTime '20170728T21:44:18' at 7f5f4fceb050>",
-      "name": "suma-refhead-min-sles12sp2.mgr.suse.de",
-      "outdated_pkg_count": 0
-    },
-    {
-      "id": 1000010004,
-      "last_checkin": "<DateTime '20170728T14:56:07' at 7f5f4fceb098>",
-      "name": "suma-refhead-minssh-sles12sp2.mgr.suse.de",
-      "outdated_pkg_count": 0
-    }
-  ]
 }

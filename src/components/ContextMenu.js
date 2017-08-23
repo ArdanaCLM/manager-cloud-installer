@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 
-
 class ContextMenuItems extends Component {
   constructor(props) {
     super(props);
