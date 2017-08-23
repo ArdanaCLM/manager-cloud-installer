@@ -886,7 +886,7 @@ class ServerRolesDropDown extends Component {
 
   renderOptions() {
     let options = this.props.serverRoles.map((role) => {
-      let modelCount = role.minCount ? role.minCount : role.memberCount;
+      let modelCount = role.minCount !== undefined ? role.minCount : role.memberCount;
       let optionDisplay =
         role.name + ' (' + role.serverRole + ' ' + role.servers.length + '/' + modelCount + ')';
       return <option key={role.name} value={role.serverRole}>{optionDisplay}</option>;
