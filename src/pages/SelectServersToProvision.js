@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
 import { ActionButton } from '../components/Buttons.js';
+import { YesNoModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import TransferTable from '../components/TransferTable.js';
 
@@ -54,7 +55,6 @@ class SelectServers extends BaseWizardPage {
     this.props.sendSelectedList(selectedObjects);
   }
 
-
   render() {
     return (
       <div>
@@ -73,6 +73,11 @@ class SelectServers extends BaseWizardPage {
             isDisabled={this.state.selectedServers.length == 0}/>
         </div>
         {this.renderNavButtons()}
+        <YesNoModal show={this.props.showModal}
+          title={translate('provision.server.confirm.heading')}
+          body={translate('provision.server.confirm.body', this.state.selectedServers.length)}
+          yesAction={this.props.proceedAction} noAction={this.props.cancelAction}
+        />
       </div>
     );
   }
@@ -109,7 +114,7 @@ class ShowInstallProgress extends BaseWizardPage {
     return (this.state.errorMsg) ? (
       <div>{translate('provision.server.failure',
         this.props.installList[this.state.currentStep].name)}<br/>
-        <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
+      <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
   }
 
   getProgress() {
@@ -171,20 +176,31 @@ class SelectServersToProvision extends Component {
     super();
     this.state = {
       installing: false,
-      selectedServers: []
+      selectedServers: [],
+      showModal: false
     };
 
     this.getSelectedServers = this.getSelectedServers.bind(this);
+    this.proceedToInstall = this.proceedToInstall.bind(this);
+    this.cancelInstall = this.cancelInstall.bind(this);
   }
 
   getSelectedServers(servers) {
-    this.setState({selectedServers: servers, installing: true});
+    this.setState({selectedServers: servers, showModal: true});
   }
 
   getServerNames(servers) {
     return servers.map((server) => {
       return (server.name) ? server.name : server.id.toString();
     });
+  }
+
+  proceedToInstall() {
+    this.setState({installing: true, showModal: false});
+  }
+
+  cancelInstall() {
+    this.setState({showModal: false});
   }
 
   renderBody() {
@@ -195,6 +211,9 @@ class SelectServersToProvision extends Component {
           next={this.props.next}
           sendSelectedList={this.getSelectedServers}
           filterName={this.getServerNames}
+          showModal={this.state.showModal}
+          proceedAction={this.proceedToInstall}
+          cancelAction={this.cancelInstall}
         />);
     } else {
       return (
