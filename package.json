@@ -21,6 +21,7 @@
     "react-dom": "^15.6.1",
     "react-localization": "^0.1.1",
     "react-router-dom": "^4.1.1",
+    "socket.io-client": "^2.0.3",
     "style-loader": "^0.18.2",
     "webpack": "^3.2.0"
   },
