@@ -55,25 +55,23 @@ class CloudModelPicker extends BaseWizardPage {
         })
           .then((response) => {
             if(response && response.ok === false) {
-              //TODO remove when we have a toast error message
-              console.log('Failed to save model object data');
+              //TODO remove
+              console.error('Failed to save model object data');
               this.setState({pageValid: false});
             }
             else {
-              //TODO remove
-              console.log('Successfully saved model object data');
               this.setState({pageValid: true});
             }
           })
           .catch((error) => {
-            //TODO remove when we have a toast error message
-            console.log('Failed to save model object data');
+            //TODO remove
+            console.error('Failed to save model object data');
             this.setState({pageValid: false});
           });
       })
       .catch((error) => {
-        //TODO remove when we have a toast error message
-        console.log('Failed to get model object data');
+        //TODO remove
+        console.error('Failed to get model object data');
         this.setState({pageValid: false});
       });
   }
@@ -94,7 +92,7 @@ class CloudModelPicker extends BaseWizardPage {
       })
       .catch((error) => {
         //TODO remove
-        console.log('Failed to get templates data');
+        console.error('Failed to get templates data');
       });
   }
 
@@ -109,10 +107,6 @@ class CloudModelPicker extends BaseWizardPage {
     let temp = this.findTemplate(modelName);
     if(temp) {
       this.setState({selectedDetails: temp.overview});
-    }
-    else {
-      //TODO remove
-      console.log('Failed to find template for ' + modelName);
     }
   }
 
