@@ -11,7 +11,7 @@ const VALIDATING = 2;
 const VALID_ICON = require('../images/Checked-48.png');
 const INVALID_ICON = require('../images/Cancel-48.png');
 
-class EditFile extends Component {
+class EditFile extends BaseWizardPage {
 
   constructor(props) {
     super(props);
