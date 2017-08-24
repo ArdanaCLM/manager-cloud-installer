@@ -16,7 +16,7 @@ class WizardProgress extends Component {
         );
       } else if(item.stepProgress === stepProgressValues.inprogress) {
         return (
-          <span key={index} className="progress inprogress"/>
+          <span key={index} className="progress in-progress"/>
         );
       } else if(item.stepProgress === stepProgressValues.error) {
         return (
@@ -24,18 +24,16 @@ class WizardProgress extends Component {
         );
       } else {
         return (
-          <span key={index} className="progress notdone"/>
+          <span key={index} className="progress not-done"/>
         );
       }
     });
 
     return(
-      <div className="stateOuterWrapper">
-        <div className="stateLineWrapper">
-          <span>
-            {stateBubbles}
-          </span>
-        </div>
+      <div className="wizard-progress-container">
+        <span>
+          {stateBubbles}
+        </span>
       </div>
     );
   }

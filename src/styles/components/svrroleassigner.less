@@ -1,21 +1,15 @@
 @import "./../palette.less";
 
 .assign-server-role {
-  .server-container {
-    display: inline-block;
-    min-height: 300px;
-    width: 45%;
-    vertical-align: top;
-    font-size: 16px;
+  .body-container {
+    margin: 2em;
   }
 
-  .server-container > .heading {
-    font-size: 18px;
-    height: 24px;
-    font-weight: 300;
-    margin: 20px 0px 20px 0px;
-    color: @subheadingcolor;
-    position: relative;
+  .server-container{
+    display: inline-block;
+    min-height: 300px;
+    width: 47%;
+    vertical-align: top;
   }
 
   .assign-arrows-container {
@@ -23,41 +17,45 @@
     margin-top: 200px;
     vertical-align: top;
     text-align: center;
-    width: 10%;
+    width: 6%;
+    color: @transfer-button-color;
   }
 
   .search-container {
-    font-size: 16px;
-    margin-bottom: 20px;
-    position: relative;
+    margin-bottom: 1em;
+    position:relative;
   }
 
   .search-bar input {
     width: 100%;
+    font-size: 13px;
+    padding: 0.5em;
   }
 
   .search-icon {
     position: absolute;
-    top: 6px;
-    right: 2px;
+    top: 0.7em;
+    right: 0.5em;
   }
 
   .roles-select {
-    margin: 20px 0px 20px 0px;
+    margin-bottom: 1em;
+    height: 35px;
   }
 
   .roles-select select {
-    padding: 4px;
+    padding: 0.5em;
     width: 100%;
-    font-size: 16px;
+    font-size: 13px;
     color: @dropdowncolor;
     background-color: white;
   }
 
   .server-list-container {
     width: 100%;
-    height: 400px;
-    background: @listbodycolor;
+    min-height: 30em;
+    height: 30em;
+    background: white;
     padding: 10px;
     margin-bottom: 20px;
     overflow: auto;

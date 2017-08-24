@@ -1,13 +1,9 @@
 @import "./../palette.less";
 
-.stateOuterWrapper {
-  margin-top: 20px;
-}
-
-.stateLineWrapper {
+.wizard-progress-container {
   background: #000;
   height: 1px;
-  margin-top: 10px;
+  margin-top: 3em;
 
   > span{
     background: transparent;
@@ -19,9 +15,9 @@
   .progress {
     border-radius: 16px;
     display: inline-block;
-    height: 32px;
-    width: 32px;
-    margin: 10px 37px 10px 35px;
+    height: 24px;
+    width: 24px;
+    margin: 15px 37px 10px 35px;
     border: 1px solid black;
 
     &.done{
@@ -29,11 +25,11 @@
       border-color: @productprimarycolor;
     }
 
-    &.notdone{
+    &.not-done{
       background-color: @inactivecolor;
     }
 
-    &.inprogress{
+    &.in-progress{
       background-color: @selectedcolor;
       border-color: @selectedcolor;
     }
@@ -45,24 +41,15 @@
   }
 }
 
+.wizard-header {
+  margin: 2em 0 4em;
+  padding: 0 2em;
+}
 
-.wizardHeader {
-  margin-top: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
-  margin-bottom: 40px;
+.wizard-content {
+  margin: 3em;
   .heading {
-    font-size: 25px;
-    height: 40px;
+    margin: 0 0 1.5em;
   }
 }
 
-.wizardContentPage {
-  margin: 24px;
-}
-
-.wizardContentPage .heading {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 24px;
-}

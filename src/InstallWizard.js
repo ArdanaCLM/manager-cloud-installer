@@ -48,7 +48,7 @@ class InstallWizard extends Component {
       selectedModelName: '',
       steps: props.pages,
       currentlyDisplayedJSX: undefined    // this field is not persisted
-    }
+    };
 
     state.steps[0].stepProgress = stepProgressValues.inprogress;
     return state;
@@ -199,10 +199,8 @@ class InstallWizard extends Component {
 
     return(
       <div>
-        <div className='wizardHeader'>
-          <div className='heading'>
-            {translate('openstack.cloud.deployer.title')}
-          </div>
+        <div className='wizard-header'>
+          <h1>{translate('openstack.cloud.deployer.title')}</h1>
           <WizardProgress steps={this.state.steps} />
         </div>
         <div>

@@ -185,7 +185,7 @@ class CloudModelPicker extends BaseWizardPage {
   render() {
     let details = this.state.selectedDetails;
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderHeading(translate('model.picker.heading'))}
         <div className='picker-container'>
           {this.renderPickerButtons()}
@@ -194,17 +194,17 @@ class CloudModelPicker extends BaseWizardPage {
           {this.renderModelDetails(details)}
         </div>
         <div className='action-btn-container'>
-          <div className='select-template'>
-            <div className='select-template-heading'>
+          <div className='action-btn-with-info'>
+            <div className='info-heading'>
               {translate('model.picker.select-template-heading')}
-              <ItemHelpButton clickAction={this.handleShowSelectTemplateHelp}/>
+              <ItemHelpButton clickAction={this.showSelectTemplateHelp}/>
             </div>
             <ActionButton
               displayLabel={translate('model.picker.select-template')}
               clickAction={this.handleSelectTemplate}/>
           </div>
-          <div className='help-choose'>
-            <div className='help-choose-heading'>{translate('model.picker.help-choose-heading')}
+          <div className='action-btn-with-info'>
+            <div className='info-heading'>{translate('model.picker.help-choose-heading')}
               <ItemHelpButton clickAction={this.handleShowHelpChooseHelp}/>
             </div>
             <ActionButton

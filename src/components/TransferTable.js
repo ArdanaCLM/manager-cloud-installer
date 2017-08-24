@@ -16,8 +16,8 @@ class InnerTable extends Component {
     }));
     return (
       <div>
-        <div className='header'>{this.props.header}</div>
-        <div className='table-container'>
+        <h4>{this.props.header}</h4>
+        <div className='table-container rounded-box'>
           <table><tbody>{lines}</tbody></table>
         </div>
       </div>
@@ -148,28 +148,29 @@ class TransferTable extends Component {
 
   render() {
     return (
-      <div className='transfer-table col-xs-12'>
-        <div className='col-xs-5 table-width'>
+      <div className='transfer-table'>
+        <div className='table-width'>
           <InnerTable items={this.state.leftTableItems}
             clickAction={(event) => this.selectOnTable(true, event)}
             header={this.props.leftTableHeader}
             selectedTable={this.state.selectedLeft}/>
         </div>
 
-        <div className='col-xs-1 transfer-button-container'>
-          <AssignButton clickAction={this.transferToRight}
-            isDisabled={this.state.selectedLeft.length == 0}/>
-          <UnAssignButton clickAction={this.transferToLeft}
-            isDisabled={this.state.selectedRight.length == 0}/>
+        <div className='transfer-button-container'>
+          <div className='inner-button-container'>
+            <AssignButton clickAction={this.transferToRight}
+              isDisabled={this.state.selectedLeft.length == 0}/>
+            <UnAssignButton clickAction={this.transferToLeft}
+              isDisabled={this.state.selectedRight.length == 0}/>
+            </div>
         </div>
 
-        <div className='col-xs-5 table-width'>
+        <div className='table-width'>
           <InnerTable items={this.state.rightTableItems}
             clickAction={(event) => this.selectOnTable(false, event)}
             header={this.props.rightTableHeader}
             selectedTable={this.state.selectedRight}/>
         </div>
-        <div className='col-sx-1'></div>
       </div>
     );
   }

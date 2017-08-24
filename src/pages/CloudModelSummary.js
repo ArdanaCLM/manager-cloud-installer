@@ -123,10 +123,11 @@ class CloudModelSummary extends BaseWizardPage {
       })
   }
 
-  renderItems(section) {
+  renderItems = (section) => {
 
     // Only render items that have a count field
-    var filtered = this.state.controlPlane.get(section).filter(item => {return item.has('member-count') || item.has('min-count')});
+    var filtered = this.state.controlPlane.get(section).filter(item => {
+      return item.has('member-count') || item.has('min-count')});
 
     return filtered.map((item, key) => {
 
@@ -135,13 +136,15 @@ class CloudModelSummary extends BaseWizardPage {
 
       // Build the id, which will be used as the activeItem
       var id = [section, key, count_type].join('.');
+      var selected = (id === this.state.activeItem);
 
       return (
         <ActivePickerButton key={item.get('name')}
                             id={id}
                             value={value}
                             description={this.getDisplayName(item.get('server-role'))}
-                            handleClick={this.handleClick} />
+                            handleClick={this.handleClick}
+                            isSelected={selected}/>
       );
     });
   }
@@ -150,36 +153,29 @@ class CloudModelSummary extends BaseWizardPage {
     var mandatoryItems = this.state.controlPlane ? this.renderItems("clusters") : [];
     var additionalItems = this.state.controlPlane ? this.renderItems("resources") : [];
     var number = this.state.activeItem ? this.state.controlPlane.getIn(this.getKey()) : 0;
+    var additionalLabel = (additionalItems.size > 0) ?
+      <div><h4>{translate('model.summary.additional')}</h4></div> : <div/>
 
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderHeading(translate('model.summary.heading', this.props.selectedModelName))}
-        <div className='model-picker-container'>
-          <div className='col-xs-8 verticalLine'>
-            <div className='row'>
-              <h1 className='margin-top-80 margin-left-10 text-header'>Mandatory Components</h1>
-            </div>
-            <div className='row'>
-              {mandatoryItems}
-            </div>
-            {(additionalItems.size > 0)
-              ? <div className='row'>
-                  <h1 className='margin-top-80 margin-left-10 text-header'>Additional Components</h1>
-                </div>
-              : <div />
-            }
-            <div className='row'>
-              {additionalItems}
-            </div>
+          <div className='picker-container'>
+              <h4>{translate('model.summary.mandatory')}</h4>
+              <div className='section'>
+                {mandatoryItems}
+              </div>
+              {additionalLabel}
+              <div className='section'>
+                {additionalItems}
+              </div>
           </div>
-          <div className='col-xs-4'>
-            <h2 className='text-header'>Info Panel</h2>
-            <h4 className='text-header'>{this.getDescription()}</h4>
+          <div className='details-container'>
+            {this.getDescription()}
             <p />
             {this.state.activeItem
               ? <div className='margin-top-80'>
-                  <h2 className='text-header'>Edit number of machines</h2>
-                  <form className='form-inline col-xs-12 margin-top-20'>
+                  <h4>{translate('model.summary.edit.machines')}</h4>
+                  <form className='form-inline'>
                     <div className='form-group'>
                         <input type='number' className='form-control' id='servers' value={number} onChange={this.handleModelServerUpdate} />
                     </div>
@@ -188,7 +184,6 @@ class CloudModelSummary extends BaseWizardPage {
             : <div />
             }
           </div>
-        </div>
         {this.renderNavButtons()}
       </div>
     )

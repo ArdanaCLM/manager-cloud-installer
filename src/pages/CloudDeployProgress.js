@@ -72,7 +72,7 @@ class Progress extends BaseWizardPage {
 
   render() {
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderHeading(translate('deploy.progress.heading'))}
         <div className='deploy-progress'>
           <div className='body'>

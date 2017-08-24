@@ -1,28 +1,24 @@
 @import "./../palette.less";
 
-.model-picker-container {
-  width: ~"calc(100% - 100px)";
-  height: ~"calc(100% - 100px)";
-  display: inline-block;
-  vertical-align: top;
-  margin: 0px 20px 20px 20px;
-}
-
 .picker-container {
   display: inline-block;
   width: 50%;
-  padding: 20px;
   border-right: 1px solid @inactivecolor;
   vertical-align: top;
-  position:relative;
+  min-height: 40em;
+  .section {
+    margin-bottom: 2em;
+    width: 100%;
+    display: inline-block;
+  }
 }
 
 .details-container {
   display: inline-block;
   width: 50%;
-  padding: 20px;
-  min-height:600px;
-  max-height: 600px;
+  padding: 0 2em 0 3em;
+  min-height: 40em;
+  max-height: 40em;
   overflow: auto;
   vertical-align: top;
 }
@@ -59,23 +55,13 @@
 }
 
 .action-btn-container {
-  display: inline-block;
-  margin: 0px 20px 0px 20px;
-}
-.select-template {
-  display: inline-block;
-}
-.select-template-heading {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0px 50px 0px 15px;
+  .action-btn-with-info {
+    display: inline-block;
+    margin: 0 3em 0 1em;
+    .info-heading {
+      margin: 0px 30px 5px 0px;
+      color: @info-link-color;
+    }
+  }
 }
 
-.help-choose {
-  display: inline-block;
-}
-.help-choose-heading {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0px 30px 0px 15px;
-}

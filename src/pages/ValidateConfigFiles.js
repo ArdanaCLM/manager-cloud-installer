@@ -11,7 +11,7 @@ const VALIDATING = 2;
 const VALID_ICON = require('../images/Checked-48.png');
 const INVALID_ICON = require('../images/Cancel-48.png');
 
-class EditFile extends Component {
+class EditFile extends BaseWizardPage {
 
   constructor(props) {
     super(props);
@@ -53,9 +53,8 @@ class EditFile extends Component {
   render() {
     return (
       <div>
-        <div className='heading'>
-          {translate('edit.config.files.heading', this.props.file.description, this.props.file.name)}
-        </div>
+        {this.renderHeading(translate('edit.config.files.heading', this.props.file.description,
+          this.props.file.name))}
         <div>
           <textarea name='fileContents' className='config-file-editor' wrap='off'
             value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
@@ -122,7 +121,7 @@ class DisplayFileList extends BaseWizardPage {
 
     return (
       <div className='validateConfigFiles'>
-        <div className='heading'>{translate('validate.config.files.heading')}</div>
+        {this.renderHeading(translate('validate.config.files.heading'))}
         <div className='body'>
           <div className='col-xs-6 verticalLine'>
             <ul>{list}</ul>
@@ -236,7 +235,7 @@ class ValidateConfigFiles extends Component {
 
   render() {
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderBody()}
       </div>
     );
