@@ -7,7 +7,7 @@ class BackButton extends Component {
     super(props);
   }
   render() {
-    let buttonClass = 'btn btn-primary btn-back';
+    let buttonClass = 'btn btn-primary btn-has-next';
 
     return (
       <button className={buttonClass} onClick={this.props.clickAction}>
@@ -23,7 +23,7 @@ class NextButton extends Component {
   }
 
   render() {
-    let buttonClass = 'btn btn-primary btn-next';
+    let buttonClass = 'btn btn-primary';
     buttonClass =
       this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
@@ -63,13 +63,10 @@ class PickerButton extends Component {
     super(props);
   }
   render() {
-    let buttonAction = this.props.clickAction;
-    let buttonLabel = this.props.displayLabel;
     let classN = 'picker-card ' + (this.props.isSelected ? 'selected' : '');
-    let kName = this.props.keyName;
     return (
-      <div className={classN} name={kName}
-        onClick={buttonAction}>{buttonLabel}</div>
+      <div className={classN} name={this.props.keyName}
+        onClick={this.props.clickAction}>{this.props.displayLabel}</div>
     );
   }
 }
@@ -81,25 +78,8 @@ class ActivePickerButton extends Component {
       cardClass: 'card',
     };
 
-    this.handleMouseEnter = this.handleMouseEnter.bind(this);
-    this.handleMouseLeave = this.handleMouseLeave.bind(this);
     this.handleClick = this.handleClick.bind(this);
 
-  }
-
-  handleMouseEnter(e) {
-    if (this.props.handleMouseEnter) {
-      this.props.handleMouseEnter(e);
-    }
-    this.setState({
-      cardClass: 'card-active'
-    });
-  }
-
-  handleMouseLeave(e) {
-    this.setState({
-      cardClass: 'card'
-    });
   }
 
   handleClick(e) {
@@ -107,32 +87,22 @@ class ActivePickerButton extends Component {
     this.props.handleClick(e);
   }
 
-  render () {
+  render() {
+    let buttonClass = 'model-elements' + (this.props.isSelected ? ' model-element-selected' : '');
     return (
-      <div className='col-xs-3 text-center model-elements margin-top-10'>
+      <div className={buttonClass}>
         <div
           id={this.props.id}
           className={this.state.cardClass}
-          onMouseEnter={this.handleMouseEnter}
-          onMouseLeave={this.handleMouseLeave}
           onClick={this.handleClick}
           value={this.props.value} >
           <p className='glyphicon glyphicon-pencil edit-icon pull-right'></p>
-          <p className='card-text-unit'
-            id={this.props.id}
-            onMouseEnter={this.handleMouseEnter}
-            onMouseLeave={this.handleMouseLeave}
-            onClick={this.handleClick}>
+          <p className='card-text-unit' id={this.props.id}>
             {this.props.value}
           </p>
-
-          <h3
-            id={this.props.id}
-            onMouseEnter={this.handleMouseEnter}
-            onMouseLeave={this.handleMouseLeave}
-            onClick={this.handleClick}>
+          <h4 id={this.props.id}>
             {this.props.description}
-          </h3>
+          </h4>
         </div>
       </div>
     );
@@ -147,7 +117,7 @@ class ItemHelpButton extends Component {
     let helpAction = this.props.clickAction;
     return (
       <span
-        className='glyphicon glyphicon-question-sign helper'
+        className='glyphicon glyphicon-info-sign helper'
         onClick={helpAction}>
       </span>
     );

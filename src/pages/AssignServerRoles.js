@@ -805,21 +805,19 @@ class AssignServerRoles extends BaseWizardPage {
       });
 
     let discoverLabel = translate('assign.server.role.discover');
-    let availableServersHeading = translate('assign.server.role.available-server');
-    let targetServerRoleHeading = translate('assign.server.role.target-server-role');
 
 
     return (
-      <div id='AssignServerRolePageId' className='wizardContentPage'>
+      <div id='AssignServerRolePageId' className='wizard-content'>
         {this.renderHeading(translate('assign.server.role.heading', this.selectedModelName))}
-        <div className='assign-server-role'>
+        <div className='assign-server-role body-container'>
           <div className="server-container">
-            <div className="heading">{availableServersHeading}</div>
+            <h4>{translate('assign.server.role.available-server')}</h4>
             <SearchBar
               filterText={this.state.searchFilterText}
               filterAction={this.handleSearchText}>
             </SearchBar>
-            <div className="server-list-container">
+            <div className="server-list-container rounded-box">
               <ServerList
                 ref='available' data={filteredAvailableServers}
                 clearSelections={clearAvailCheckBox} onSelectRow={this.handleAvailableServerRowSelect}
@@ -830,12 +828,12 @@ class AssignServerRoles extends BaseWizardPage {
           </div>
           {this.renderAssignUnassignButtons()}
           <div className="server-container">
-            <div className="heading">{targetServerRoleHeading}</div>
+            <h4>{translate('assign.server.role.target-server-role')}</h4>
             <ServerRolesDropDown
               serverRoles={roles} selectedServerRole={selectedRoleName}
               selectAction={this.handleRoleSelect}>
             </ServerRolesDropDown>
-            <div ref='assign' id='AssignServerRoleId' className="server-list-container">
+            <div ref='assign' id='AssignServerRoleId' className="server-list-container rounded-box">
               <ServerList
                 data={displayAssignedServers} checkKeys={this.checkInputKeys}
                 clearSelections={clearAssignCheckBox} onSelectRow={this.handleAssignedServerRowSelect}
@@ -907,7 +905,7 @@ class ServerRolesDropDown extends Component {
   render() {
     return (
       <div className="roles-select">
-        <select
+        <select className='rounded-box'
           value={this.state.selectedName}
           type="select" onChange={this.handleRoleSelect}>
           {this.renderOptions()}
@@ -933,7 +931,7 @@ class SearchBar extends Component {
     return (
       <div className='search-container'>
         <span className='search-bar'>
-          <input
+          <input className='rounded-box'
             type="text" placeholder={searchPlaceholder}
             value={this.props.filterText} onChange={this.handleFilterTextInputChange}/>
         </span>

@@ -35,6 +35,9 @@
     "model.picker.help-choose": "Help Choose",
 
     "model.summary.heading": "Cloud Model to Deploy: {0}",
+    "model.summary.mandatory": "Mandatory Components",
+    "model.summary.additional": "Additional Components",
+    "model.summary.edit.machines": "Edit number of machines",
 
     "validate.config.files.heading": "Review Configuration Files",
     "validate.config.files.validate": "Validate",

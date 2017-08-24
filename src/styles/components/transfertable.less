@@ -1,17 +1,12 @@
 .transfer-table {
-  display: inline-block;
-  .header {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 12px;
-  }
+  display: flex;
+  width: 100%;
   .table-container {
-    background-color: @listbodycolor;
-    min-width: 100px;
-    min-height: 450px;
-    height: 450px;
+    min-width: 5em;
+    min-height: 33em;
+    height: 33em;
     overflow: auto;
-    line-height: 34px;
+    line-height: 2.5em;
     table {
       width: 100%;
       cursor: default;
@@ -21,12 +16,19 @@
     }
   }
   .transfer-button-container {
-    margin-top: 100px;
-    width: 4%;
-    min-width: 40px;
+    width: 6%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .inner-button-container {
+      color: @transfer-button-color;
+      max-width: 3em;
+      margin: 0;
+    }
   }
   .table-width {
-    width: 48%;
+    width: 47%;
   }
   .highlight {
     background-color: @preferredcolor;

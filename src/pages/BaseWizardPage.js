@@ -77,7 +77,7 @@ class BaseWizardPage extends Component {
 
   renderHeading(text) {
     return (
-      <div className='heading'>{text}</div>
+      <h3 className='heading'>{text}</h3>
     );
   }
 

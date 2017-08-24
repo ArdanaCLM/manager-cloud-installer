@@ -57,17 +57,15 @@ class SelectServers extends BaseWizardPage {
 
   render() {
     return (
-      <div>
-        <div className='heading'>{translate('provision.server.heading')}</div>
-        <div className='server-provision'>
-          <div className='body'>
-            <TransferTable inputList={this.state.availableServers}
-              sendSelectedList={this.getSelectedServers}
-              leftTableHeader={translate('provision.server.left.table')}
-              rightTableHeader={translate('provision.server.right.table')}/>
-          </div>
+      <div className='server-provision'>
+        {this.renderHeading(translate('provision.server.heading'))}
+        <div className='body-container'>
+          <TransferTable inputList={this.state.availableServers}
+            sendSelectedList={this.getSelectedServers}
+            leftTableHeader={translate('provision.server.left.table')}
+            rightTableHeader={translate('provision.server.right.table')}/>
         </div>
-        <div>
+        <div className='button-container'>
           <ActionButton
             displayLabel={translate('provision.server.install')} clickAction={this.installServers}
             isDisabled={this.state.selectedServers.length == 0}/>
@@ -148,7 +146,7 @@ class ShowInstallProgress extends BaseWizardPage {
   render() {
     return (
       <div>
-        <div className='heading'>{translate('provision.server.progress.heading')}</div>
+        {this.renderHeading(translate('provision.server.progress.heading'))}
         <div className='deploy-progress'>
           <div className='body'>
             <div className='col-xs-6'>
@@ -227,7 +225,7 @@ class SelectServersToProvision extends Component {
 
   render() {
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderBody()}
       </div>
     );

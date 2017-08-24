@@ -14,7 +14,7 @@ class InstallIntro extends BaseWizardPage {
 
   render() {
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderHeading(translate('welcome.cloud.install'))}
         <div className='installIntro'>
           <div className='col-xs-7'>
@@ -23,7 +23,7 @@ class InstallIntro extends BaseWizardPage {
           </div>
           <div className='col-xs-1'></div>
           <div className='col-xs-4'>
-            <div className='colHeading'>{translate('install.intro.message.steps.heading')}</div>
+            <h5>{translate('install.intro.message.steps.heading')}</h5>
             {this.getSteps()}
           </div>
         </div>
