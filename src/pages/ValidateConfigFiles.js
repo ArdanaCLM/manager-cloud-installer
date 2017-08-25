@@ -56,11 +56,12 @@ class EditFile extends BaseWizardPage {
         {this.renderHeading(translate('edit.config.files.heading', this.props.file.description,
           this.props.file.name))}
         <div>
-          <textarea name='fileContents' className='config-file-editor' wrap='off'
+          <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
             value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
         </div>
         <div>
           <ActionButton
+            hasNext
             displayLabel={translate('cancel')}
             clickAction={() => this.handleCancel()}/>
           <ActionButton
@@ -120,23 +121,25 @@ class DisplayFileList extends BaseWizardPage {
     });
 
     return (
-      <div className='validateConfigFiles'>
+      <div>
         {this.renderHeading(translate('validate.config.files.heading'))}
-        <div className='body'>
-          <div className='col-xs-6 verticalLine'>
-            <ul>{list}</ul>
+        <div className='validateConfigFiles'>
+          <div className='body'>
+            <div className='col-xs-6 verticalLine'>
+              <ul>{list}</ul>
+            </div>
+            <div className='col-xs-6'>
+              {this.getMessage()}
+            </div>
           </div>
-          <div className='col-xs-6'>
-            {this.getMessage()}
+          <div>
+            <ActionButton
+              displayLabel={translate('validate.config.files.validate')}
+              clickAction={() => this.props.onValidateClick()}/>
+            {this.getIcon()}
           </div>
+          {this.renderNavButtons()}
         </div>
-        <div>
-          <ActionButton
-            displayLabel={translate('validate.config.files.validate')}
-            clickAction={() => this.props.onValidateClick()}/>
-          {this.getIcon()}
-        </div>
-        {this.renderNavButtons()}
       </div>
     );
   }

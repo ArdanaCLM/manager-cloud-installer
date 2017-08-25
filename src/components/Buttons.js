@@ -46,7 +46,7 @@ class ActionButton extends Component {
   }
 
   render() {
-    let buttonClass = 'btn btn-primary';
+    let buttonClass = (this.props.hasNext) ? 'btn btn-primary btn-has-next' : 'btn btn-primary';
     buttonClass =
       this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
 
@@ -63,7 +63,8 @@ class PickerButton extends Component {
     super(props);
   }
   render() {
-    let classN = 'picker-card ' + (this.props.isSelected ? 'selected' : '');
+    let classN = 'picker-card rounded-corner shadowed-border' +
+      (this.props.isSelected ? ' selected' : '');
     return (
       <div className={classN} name={this.props.keyName}
         onClick={this.props.clickAction}>{this.props.displayLabel}</div>
@@ -72,14 +73,10 @@ class PickerButton extends Component {
 }
 
 class ActivePickerButton extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      cardClass: 'card',
-    };
+  constructor() {
+    super();
 
     this.handleClick = this.handleClick.bind(this);
-
   }
 
   handleClick(e) {
@@ -93,7 +90,7 @@ class ActivePickerButton extends Component {
       <div className={buttonClass}>
         <div
           id={this.props.id}
-          className={this.state.cardClass}
+          className='card rounded-corner shadowed-border'
           onClick={this.handleClick}
           value={this.props.value} >
           <p className='glyphicon glyphicon-pencil edit-icon pull-right'></p>

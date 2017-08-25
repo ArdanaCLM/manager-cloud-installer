@@ -17,7 +17,7 @@ class InnerTable extends Component {
     return (
       <div>
         <h4>{this.props.header}</h4>
-        <div className='table-container rounded-box'>
+        <div className='table-container rounded-corner'>
           <table><tbody>{lines}</tbody></table>
         </div>
       </div>
@@ -162,7 +162,7 @@ class TransferTable extends Component {
               isDisabled={this.state.selectedLeft.length == 0}/>
             <UnAssignButton clickAction={this.transferToLeft}
               isDisabled={this.state.selectedRight.length == 0}/>
-            </div>
+          </div>
         </div>
 
         <div className='table-width'>

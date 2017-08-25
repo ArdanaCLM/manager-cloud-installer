@@ -1,10 +1,12 @@
 .deploy-progress {
-  font-size: 16px;
-  color: gray;
   ul {
     list-style-type: none;
-    line-height: 35px;
-    min-height: 400px;
+    line-height: 2.5em;
+    min-height: 25em;
+    height: 30em;
+    overflow: auto;
+    color: gray;
+    font-size: 1.2em;
     .progressing {
       color: black;
     }
@@ -15,11 +17,18 @@
       color: @errorcolor;
     }
   }
-  .body {
+  .progress-body {
     display: inline-block;
     width: 100%;
   }
   .log {
-    min-height: 380px;
+    margin-top: 1em;
+    min-height: 30em;
+    height: 30em;
+    overflow: auto;
+    background-color: white;
+  }
+  .error-heading {
+    font-size: 1.1em;
   }
 }

@@ -122,46 +122,68 @@ class EditServerDetails extends BaseWizardPage {
       this.state.data['nic-mapping'] = this.nicMappings[0];
     }
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderHeading(translate('edit.server.details.heading', this.state.data.name))}
         <div className='server-details-container'>
-          <div className='left-container'>
-            <div className='line-item line-heading'>{translate('server.id.prompt')}
-              <span className='line-value'>{this.state.data.id}</span>
-            </div>
-            <div className='line-item line-heading'>{translate('server.name.prompt')}
-              <span className='line-value'>{this.state.data.name}</span>
-            </div>
-            <div className='line-item line-heading'>{translate('server.role.prompt')}
-              <span className='line-value'>{this.state.data.role}</span>
-            </div>
-            <br/>
-            <div className='line-item line-heading'>{translate('server.ip.prompt')}
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.id.prompt')}</div>
+            <div className='info-body'>{this.state.data.id}</div>
+          </div>
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.name.prompt')}</div>
+            <div className='info-body'>{this.state.data.name}</div>
+          </div>
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.role.prompt')}</div>
+            <div className='info-body'>{this.state.data.role}</div>
+          </div>
+
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.ip.prompt')}</div>
+            <div className='input-body'>
               {this.renderTextInput('ip-addr', 'text', IpV4AddressValidator)}
             </div>
-            <div className='line-item line-heading'>{translate('server.mac.prompt')}
+          </div>
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.mac.prompt')}</div>
+            <div className='input-body'>
               {this.renderTextInput('mac-addr', 'text', MacAddressValidator)}
             </div>
-            <div className='line-item line-heading'>{translate('server.group.prompt')}
+          </div>
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.group.prompt')}</div>
+            <div className='input-body'>
               {this.renderDropDown('server-group', this.serverGroups, this.handleSelectGroup)}
             </div>
           </div>
-          <div className='right-container'>
-            <div className='line-item line-heading'>{translate('server.nicmapping.prompt')}
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.nicmapping.prompt')}</div>
+            <div className='input-body'>
               {this.renderDropDown('nic-mapping', this.nicMappings, this.handleSelectNicMapping)}
             </div>
-            <div className='line-item line-heading'>{translate('server.ipmi.ip.prompt')}
+          </div>
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.ipmi.ip.prompt')}</div>
+            <div className='input-body'>
               {this.renderTextInput('ilo-ip', 'text', IpV4AddressValidator)}
             </div>
-            <div className='line-item line-heading'>{translate('server.ipmi.username.prompt')}
+          </div>
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.ipmi.username.prompt')}</div>
+            <div className='input-body'>
               {this.renderTextInput('ilo-user', 'text')}
             </div>
-            <div className='line-item line-heading'>{translate('server.ipmi.password.prompt')}
+          </div>
+          <div className='detail-line'>
+            <div className='detail-heading'>{translate('server.ipmi.password.prompt')}</div>
+            <div className='input-body'>
               {this.renderTextInput('ilo-password', 'password')}
             </div>
           </div>
+
           <div className='button-container'>
             <ActionButton
+              hasNext
               displayLabel={translate('cancel')}
               clickAction={this.handleCancel}/>
             <ActionButton
@@ -250,6 +272,7 @@ class ServerTextInput extends Component {
     return (
       <div className='server-detail-input'>
         <input
+          className='rounded-corner'
           required={this.props.isRequired}
           type={inputType} name={this.inputName}
           value={this.state.inputValue}
@@ -291,6 +314,7 @@ class ServerDetailDropDown extends Component {
     return (
       <div className="server-detail-select">
         <select
+          className='rounded-corner'
           value={this.state.selectedName}
           type="select" onChange={this.handleSelect}>
           {this.renderOptions()}

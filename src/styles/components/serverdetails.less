@@ -1,63 +1,49 @@
 @import "./../palette.less";
 
 .server-details-container {
-  padding: 20px;
-  font-family: Arial;
-  .left-container {
+  .detail-line {
+    width: 100%;
+    margin-bottom: 0.7em;
     display: inline-block;
-    min-height: 300px;
-    width: 50%;
-    vertical-align: top;
-    font-size: 16px;
-  }
-  .right-container {
-    display: inline-block;
-    min-height: 300px;
-    width: 50%;
-    vertical-align: top;
-    font-size: 16px;
+    .detail-heading {
+      width: 20%;
+      min-width: 10em;
+      display: inline-block;
+      text-align: right;
+      padding-right: 2em;
+    }
+    .info-body {
+      width: 80%;
+      min-width: 30em;
+      display: inline-block;
+    }
+    .input-body {
+      width: 80%;
+      min-width: 30em;
+      display: inline-block;
+    }
   }
 
   .server-detail-input {
-    margin: 10px 0px 30px 0px;
     .error-message {
       color:@errorcolor;
-      font-size: 16px;
+      display: inline-block;
+      margin-left: 1em;
     }
   }
 
   .server-detail-input input {
     padding: 4px;
-    width: 60%;
-    font-size: 16px;
-  }
-
-  .server-detail-select {
-    margin: 10px 0px 30px 0px;
+    width: 40%;
   }
 
   .server-detail-select select {
     padding: 4px;
-    width: 60%;
-    font-size: 16px;
-    color: @dropdowncolor;
-    background-color: white;
+    width: 40%;
   }
 
-  .line-item {
-    &.line-heading {
-      font-size: 20px;
-      color: @subheadingcolor;
-    }
-    .line-value {
-      font-size: 16px;
-      margin-left: 20px;
-      color: @detailcolor;
-    }
+  .button-container {
+    margin-top: 6em;
+    float: right;
   }
-}
-
-.botton-container {
-  margin-top: 70px;
-  float: right;
 }

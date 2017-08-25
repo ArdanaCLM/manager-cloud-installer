@@ -110,9 +110,10 @@ class ShowInstallProgress extends BaseWizardPage {
 
   getError() {
     return (this.state.errorMsg) ? (
-      <div>{translate('provision.server.failure',
-        this.props.installList[this.state.currentStep].name)}<br/>
-      <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
+      <div>
+        <div className='error-heading'>{translate('provision.server.failure',
+          this.props.installList[this.state.currentStep].name)}</div>
+        <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
   }
 
   getProgress() {
@@ -148,7 +149,7 @@ class ShowInstallProgress extends BaseWizardPage {
       <div>
         {this.renderHeading(translate('provision.server.progress.heading'))}
         <div className='deploy-progress'>
-          <div className='body'>
+          <div className='progress-body'>
             <div className='col-xs-6'>
               <ul>{this.getProgress()}</ul>
             </div>
