@@ -1,5 +1,6 @@
 import CloudModelPicker from '../pages/CloudModelPicker';
 import CloudModelSummary from '../pages/CloudModelSummary';
+import DiscoverServers from '../pages/DiscoverServers';
 import AssignServerRoles from '../pages/AssignServerRoles';
 import Complete from '../pages/Complete';
 import InstallIntro from '../pages/InstallIntro';
@@ -22,6 +23,9 @@ export const pages = [{
 }, {
   name: 'CloudModelSummary',
   component: CloudModelSummary
+}, {
+  name: 'DiscoverServers',
+  component: DiscoverServers
 }, {
   name: 'AssignServerRoles',
   component: AssignServerRoles

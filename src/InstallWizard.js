@@ -37,7 +37,9 @@ class InstallWizard extends Component {
           currentStep: progress.currentStep,
           steps: progress.steps,
           selectedModelName: progress.selectedModelName,
-          currentlyDisplayedJSX: this.buildElement(progress.currentStep, progress.selectedModelName)
+          discoveredServers: progress.discoveredServers,
+          currentlyDisplayedJSX: this.buildElement(
+            progress.currentStep, progress.selectedModelName, progress.discoveredServers),
         }, this.persistState);
       });
   }
@@ -47,7 +49,8 @@ class InstallWizard extends Component {
       currentStep: 0,
       selectedModelName: '',
       steps: props.pages,
-      currentlyDisplayedJSX: undefined    // this field is not persisted
+      currentlyDisplayedJSX: undefined,   // this field is not persisted
+      discoveredServers: []
     };
 
     state.steps[0].stepProgress = stepProgressValues.inprogress;
@@ -80,7 +83,7 @@ class InstallWizard extends Component {
    * @param {Array} an array of objects representing the list of states, their indexes and state
    * @param {number} the current index (how far along in the wizard), a whole number matching some step index
    */
-  buildElement(currentStep, selectedModelName) {
+  buildElement(currentStep, selectedModelName, discoveredServers) {
     var props = [];
 
     //check if first element
@@ -97,6 +100,10 @@ class InstallWizard extends Component {
     // pass a callback to update the selectedModelName.  Only used by the cloud model picker page
     props.updateModelName = this.updateModelName.bind(this);
 
+    props.discoveredServers = discoveredServers;
+    //callback to update server list Only used by DiscoverServers page
+    props.updateDiscoveredServers = this.updateDiscoveredServers.bind(this);
+
     return React.createElement(this.props.pages[currentStep].component, props);
   }
 
@@ -108,7 +115,8 @@ class InstallWizard extends Component {
     let stateToPersist = {
       'currentStep': this.state.currentStep,
       'steps': this.state.steps,
-      'selectedModelName': this.state.selectedModelName
+      'selectedModelName': this.state.selectedModelName,
+      'discoveredServers': this.state.discoveredServers
     };
 
     // Note that JSON.stringify silently ignores React components, so they
@@ -144,7 +152,9 @@ class InstallWizard extends Component {
         //prepared to advance to the next page
         stateUpdates.currentStep = this.state.currentStep + 1;
         stateUpdates.currentlyDisplayedJSX =
-            this.buildElement(this.state.currentStep + 1, this.state.selectedModelName);
+            this.buildElement(
+              this.state.currentStep + 1, this.state.selectedModelName, this.state.discoveredServers
+            );
       }
     }
 
@@ -174,7 +184,9 @@ class InstallWizard extends Component {
       //prepare to go back a page
       stateUpdates.currentStep = this.state.currentStep - 1;
       stateUpdates.currentlyDisplayedJSX =
-          this.buildElement(this.state.currentStep - 1 , this.state.selectedModelName);
+          this.buildElement(
+            this.state.currentStep - 1 , this.state.selectedModelName, this.state.discoveredServers
+          );
     }
     stateUpdates.steps = steps;
 
@@ -184,6 +196,10 @@ class InstallWizard extends Component {
 
   updateModelName(modelName) {
     this.setState({selectedModelName: modelName}, this.persistState);
+  }
+
+  updateDiscoveredServers(servers) {
+    this.setState({discoveredServers: servers}, this.persistState)
   }
 
   /**
