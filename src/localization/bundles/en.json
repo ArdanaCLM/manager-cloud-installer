@@ -50,7 +50,6 @@
     "edit.config.files.heading": "Update Configuration File: {0} ({1})",
 
     "assign.server.role.heading": "Assign Servers and Server Roles: {0}",
-    "assign.server.role.discover": "Discover",
     "assign.server.role.filtertext": "Server Name",
     "assign.server.role.available-server": "Available Servers:",
     "assign.server.role.target-server-role": "Target Server Roles:",
@@ -70,6 +69,8 @@
     "server.input.required.error": "Input is required",
     "context.menu.item.detail": "Details",
     "context.menu.item.edit": "Edit",
+    "discover.server.heading": "Auto Discover Servers",
+    "discover.server.discover": "Discover",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",

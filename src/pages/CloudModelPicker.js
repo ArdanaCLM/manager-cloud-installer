@@ -191,7 +191,7 @@ class CloudModelPicker extends BaseWizardPage {
           <div className='action-btn-with-info'>
             <div className='info-heading'>
               {translate('model.picker.select-template-heading')}
-              <ItemHelpButton clickAction={this.showSelectTemplateHelp}/>
+              <ItemHelpButton clickAction={this.handleShowSelectTemplateHelp}/>
             </div>
             <ActionButton
               displayLabel={translate('model.picker.select-template')}
@@ -209,7 +209,6 @@ class CloudModelPicker extends BaseWizardPage {
         {this.renderNavButtons()}
       </div>
     );
-    //TODO need fix issue of order of next and back button
   }
 }
 
