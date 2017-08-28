@@ -94,7 +94,7 @@ class DisplayFileList extends BaseWizardPage {
     } else if (this.props.valid === INVALID) {
       icon = INVALID_ICON;
     }
-    return (<img src={icon}/>);
+    return (<img className='validate-result-icon' src={icon}/>);
   }
 
   setNextButtonLabel() {
@@ -123,7 +123,7 @@ class DisplayFileList extends BaseWizardPage {
     return (
       <div>
         {this.renderHeading(translate('validate.config.files.heading'))}
-        <div className='validateConfigFiles'>
+        <div className='validate-config-files'>
           <div className='body'>
             <div className='col-xs-6 verticalLine'>
               <ul>{list}</ul>
@@ -134,6 +134,7 @@ class DisplayFileList extends BaseWizardPage {
           </div>
           <div>
             <ActionButton
+              className='button-with-icon'
               displayLabel={translate('validate.config.files.validate')}
               clickAction={() => this.props.onValidateClick()}/>
             {this.getIcon()}
@@ -177,7 +178,7 @@ class ValidateConfigFiles extends Component {
     this.setState({valid: VALIDATING, invalidMsg: ''});
     // for testing purposes, set dev = true
     // to switch between valid and invalid results
-    var dev = false;
+    var dev = true;
     var bodyStr = '';
     if (dev) {
       bodyStr = (this.state.valid !== INVALID) ? {'want_fail': true} : {'want_pass': true};

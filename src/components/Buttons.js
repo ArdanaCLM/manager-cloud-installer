@@ -49,6 +49,8 @@ class ActionButton extends Component {
     let buttonClass = (this.props.hasNext) ? 'btn btn-primary btn-has-next' : 'btn btn-primary';
     buttonClass =
       this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
+    buttonClass =
+      this.props.className ? buttonClass + ' ' + this.props.className : buttonClass;
 
     return (
       <button className={buttonClass} onClick={this.props.clickAction}
