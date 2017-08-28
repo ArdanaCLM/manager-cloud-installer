@@ -75,7 +75,7 @@ class Progress extends BaseWizardPage {
       <div className='wizard-content'>
         {this.renderHeading(translate('deploy.progress.heading'))}
         <div className='deploy-progress'>
-          <div className='body'>
+          <div className='progress-body'>
             <div className='col-xs-6'>
               <ul>{this.getProgress()}</ul>
             </div>

@@ -764,7 +764,7 @@ class AssignServerRoles extends BaseWizardPage {
               filterText={this.state.searchFilterText}
               filterAction={this.handleSearchText}>
             </SearchBar>
-            <div className="server-list-container rounded-box">
+            <div className="server-list-container rounded-corner">
               <ServerList
                 ref='available' data={filteredAvailableServers}
                 unSelectAll={unSelectAvailableSrvRowsAll} onSelectRow={this.handleAvailableServerRowSelect}
@@ -780,7 +780,7 @@ class AssignServerRoles extends BaseWizardPage {
               serverRoles={roles} selectedServerRole={selectedRoleName}
               selectAction={this.handleRoleSelect}>
             </ServerRolesDropDown>
-            <div ref='assign' id='AssignServerRoleId' className="server-list-container rounded-box">
+            <div ref='assign' id='AssignServerRoleId' className="server-list-container rounded-corner">
               <ServerList
                 data={displayAssignedServers} checkKeys={this.checkInputKeys}
                 unSelectAll={unSelectAssignedSrvRowsAll} onSelectRow={this.handleAssignedServerRowSelect}
@@ -852,7 +852,7 @@ class ServerRolesDropDown extends Component {
   render() {
     return (
       <div className="roles-select">
-        <select className='rounded-box'
+        <select className='rounded-corner'
           value={this.state.selectedName}
           type="select" onChange={this.handleRoleSelect}>
           {this.renderOptions()}
@@ -878,7 +878,7 @@ class SearchBar extends Component {
     return (
       <div className='search-container'>
         <span className='search-bar'>
-          <input className='rounded-box'
+          <input className='rounded-corner'
             type="text" placeholder={searchPlaceholder}
             value={this.props.filterText} onChange={this.handleFilterTextInputChange}/>
         </span>

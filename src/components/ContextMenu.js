@@ -75,8 +75,8 @@ class ContextMenu extends Component {
   }
 
   render() {
-    let cName = 'context-menu-container ';
-    cName = this.state.show ? cName : cName + 'hide';
+    let cName = 'context-menu-container rounded-corner shadowed-border';
+    cName = this.state.show ? cName : cName + ' hide';
 
     let locStyle = {
       left: this.state.location ? (this.state.location.x -100) : 0,
