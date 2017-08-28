@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
 import { ActionButton } from '../components/Buttons.js';
+import LogViewer from '../components/LogViewer.js';
 import BaseWizardPage from './BaseWizardPage.js';
 
 const STEPS = [
@@ -21,8 +22,12 @@ class Progress extends BaseWizardPage {
       deployComplete: false,
       currentStep: 0,
       currentProgress: -1,
-      errorMsg: ''
+      errorMsg: '',
+      showLog: false,
+      playId: ''
     };
+
+    this.startPlaybook()
   }
 
   setNextButtonDisabled() {
@@ -70,6 +75,36 @@ class Progress extends BaseWizardPage {
     }
   }
 
+  startPlaybook() {
+   fetch('http://localhost:8081/api/v1/clm/playbooks/site', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify('')
+    })
+    .then(response => {
+      if (! response.ok) {
+        throw (response.statusText);
+      } else {
+        return response.json();
+      }})
+    .then(response => {
+      this.setState({playId: response['id']})
+    });
+  }
+
+  renderLogButton() {
+    const logButtonLabel = this.state.showLog ? 'Hide Log' : 'Show Log';
+
+    if (this.state.playId) {
+      return (
+          <ActionButton
+            displayLabel={logButtonLabel}
+            clickAction={() => this.setState((prev) => { return {"showLog": !prev.showLog} }) } />
+      );
+    }
+  }
+
+
   render() {
     return (
       <div className='wizard-content'>
@@ -80,14 +115,16 @@ class Progress extends BaseWizardPage {
               <ul>{this.getProgress()}</ul>
             </div>
             <div className='col-xs-6'>
-              {this.getError()}
+              {this.state.showLog ? <LogViewer playId={this.state.playId} /> : ''}
             </div>
           </div>
         </div>
         <div>
           <ActionButton
-            displayLabel='progress'
+            displayLabel='Progress'
+            hasNext
             clickAction={() => this.progressing()}/>
+          {this.renderLogButton()}
         </div>
         {this.renderNavButtons()}
       </div>
