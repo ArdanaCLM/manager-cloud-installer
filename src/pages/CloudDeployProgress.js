@@ -42,13 +42,15 @@ class Progress extends BaseWizardPage {
       showLog: false,
       playId: '',
       playbooksStarted: [],
-      playbooksComplete: []
+      playbooksComplete: [],
+      playbooksError: []
     };
 
     let connectionId = (Math.round(Math.random() * (100000))) + ''; //random number between 0-100000 as a string
     this.socket = io('http://localhost:8081');
     this.socket.on('playbook-start', this.playbookStarted.bind(this));
     this.socket.on('playbook-stop', this.playbookStopped.bind(this));
+    this.socket.on('playbook-error', this.playbookError.bind(this));
     this.socket.on('connect', function() {
       this.socket.emit('ardanasocketproxy', connectionId, 'listener', 'deployprogress');
     }.bind(this));
@@ -57,7 +59,8 @@ class Progress extends BaseWizardPage {
   }
 
   setNextButtonDisabled() {
-    return (this.state.playbooksComplete.indexOf('site.yml') === -1);
+    return ((this.state.playbooksComplete.indexOf('site.yml') === -1) ||
+            (this.state.playbooksError.length !== 0));
   }
 
   //TODO - evaluate if we can get error messages from the playbooks and propagate them here
@@ -74,12 +77,18 @@ class Progress extends BaseWizardPage {
       //for each step, check if all needed playbooks are done
       //if any are not done, check if at least 1 has started
       for(i = 0; i < step.playbooks.length; i++) {
+        if(this.state.playbooksError.indexOf(step.playbooks[i]) !== -1) {
+          status = 'fail';
+          break;//theres at least 1 ERROR playbook
+        }
+
         if(this.state.playbooksComplete.indexOf(step.playbooks[i]) === -1) {
           break;//theres at least 1 incomplete playbook
         }
 
         if(i === (step.playbooks.length - 1)) {
           status = 'succeed';
+          break;
         }
       }
 
@@ -211,6 +220,19 @@ class Progress extends BaseWizardPage {
     let playbooksComplete = this.state.playbooksComplete;
     playbooksComplete.push(playbook);
     this.setState({'playbooksComplete' : playbooksComplete});
+  }
+
+  /**
+   * callback for when a playbook finishes, the UI component will track which
+   * playbooks out of the needed set have started/finished to show status
+   * to the user
+   * @param {String} the playbook filename
+   */
+  playbookError(playbook) {
+    console.log('playbook error:!' + playbook);
+    let playbooksError = this.state.playbooksError;
+    playbooksError.push(playbook);
+    this.setState({'playbooksError' : playbooksError});
   }
 }
 
