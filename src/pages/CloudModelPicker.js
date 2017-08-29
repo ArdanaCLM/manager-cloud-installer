@@ -55,25 +55,23 @@ class CloudModelPicker extends BaseWizardPage {
         })
           .then((response) => {
             if(response && response.ok === false) {
-              //TODO remove when we have a toast error message
-              console.log('Failed to save model object data');
+              //TODO remove
+              console.error('Failed to save model object data');
               this.setState({pageValid: false});
             }
             else {
-              //TODO remove
-              console.log('Successfully saved model object data');
               this.setState({pageValid: true});
             }
           })
           .catch((error) => {
-            //TODO remove when we have a toast error message
-            console.log('Failed to save model object data');
+            //TODO remove
+            console.error('Failed to save model object data');
             this.setState({pageValid: false});
           });
       })
       .catch((error) => {
-        //TODO remove when we have a toast error message
-        console.log('Failed to get model object data');
+        //TODO remove
+        console.error('Failed to get model object data');
         this.setState({pageValid: false});
       });
   }
@@ -94,7 +92,7 @@ class CloudModelPicker extends BaseWizardPage {
       })
       .catch((error) => {
         //TODO remove
-        console.log('Failed to get templates data');
+        console.error('Failed to get templates data');
       });
   }
 
@@ -109,10 +107,6 @@ class CloudModelPicker extends BaseWizardPage {
     let temp = this.findTemplate(modelName);
     if(temp) {
       this.setState({selectedDetails: temp.overview});
-    }
-    else {
-      //TODO remove
-      console.log('Failed to find template for ' + modelName);
     }
   }
 
@@ -185,7 +179,7 @@ class CloudModelPicker extends BaseWizardPage {
   render() {
     let details = this.state.selectedDetails;
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderHeading(translate('model.picker.heading'))}
         <div className='picker-container'>
           {this.renderPickerButtons()}
@@ -194,17 +188,17 @@ class CloudModelPicker extends BaseWizardPage {
           {this.renderModelDetails(details)}
         </div>
         <div className='action-btn-container'>
-          <div className='select-template'>
-            <div className='select-template-heading'>
+          <div className='action-btn-with-info'>
+            <div className='info-heading'>
               {translate('model.picker.select-template-heading')}
-              <ItemHelpButton clickAction={this.handleShowSelectTemplateHelp}/>
+              <ItemHelpButton clickAction={this.showSelectTemplateHelp}/>
             </div>
             <ActionButton
               displayLabel={translate('model.picker.select-template')}
               clickAction={this.handleSelectTemplate}/>
           </div>
-          <div className='help-choose'>
-            <div className='help-choose-heading'>{translate('model.picker.help-choose-heading')}
+          <div className='action-btn-with-info'>
+            <div className='info-heading'>{translate('model.picker.help-choose-heading')}
               <ItemHelpButton clickAction={this.handleShowHelpChooseHelp}/>
             </div>
             <ActionButton

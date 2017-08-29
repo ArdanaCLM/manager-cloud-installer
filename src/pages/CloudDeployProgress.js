@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
 import { ActionButton } from '../components/Buttons.js';
+import LogViewer from '../components/LogViewer.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import io from 'socket.io-client';
 
@@ -38,6 +39,8 @@ class Progress extends BaseWizardPage {
     this.state = {
       deployComplete: false,
       errorMsg: '',
+      showLog: false,
+      playId: '',
       playbooksStarted: [],
       playbooksComplete: []
     };
@@ -49,6 +52,8 @@ class Progress extends BaseWizardPage {
     this.socket.on('connect', function() {
       this.socket.emit('ardanasocketproxy', connectionId, 'listener', 'deployprogress');
     }.bind(this));
+    
+    this.startPlaybook()
   }
 
   setNextButtonDisabled() {
@@ -128,24 +133,56 @@ class Progress extends BaseWizardPage {
     }, 1000);
   }
 
+  startPlaybook() {
+   fetch('http://localhost:8081/api/v1/clm/playbooks/site', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify('')
+    })
+    .then(response => {
+      if (! response.ok) {
+        throw (response.statusText);
+      } else {
+        return response.json();
+      }})
+    .then(response => {
+      this.setState({playId: response['id']})
+    });
+  }
+
+  renderLogButton() {
+    const logButtonLabel = this.state.showLog ? 'Hide Log' : 'Show Log';
+
+    if (this.state.playId) {
+      return (
+          <ActionButton
+            displayLabel={logButtonLabel}
+            clickAction={() => this.setState((prev) => { return {"showLog": !prev.showLog} }) } />
+      );
+    }
+  }
+
+
   render() {
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderHeading(translate('deploy.progress.heading'))}
         <div className='deploy-progress'>
-          <div className='body'>
+          <div className='progress-body'>
             <div className='col-xs-6'>
               <ul>{this.getProgress()}</ul>
             </div>
             <div className='col-xs-6'>
-              {this.getError()}
+              {this.state.showLog ? <LogViewer playId={this.state.playId} /> : ''}
             </div>
           </div>
         </div>
         <div>
           <ActionButton
-            displayLabel='progress'
+            displayLabel='Progress'
+            hasNext
             clickAction={() => this.progressing()}/>
+          {this.renderLogButton()}
         </div>
         {this.renderNavButtons()}
       </div>

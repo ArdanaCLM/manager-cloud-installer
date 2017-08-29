@@ -11,7 +11,7 @@ const VALIDATING = 2;
 const VALID_ICON = require('../images/Checked-48.png');
 const INVALID_ICON = require('../images/Cancel-48.png');
 
-class EditFile extends Component {
+class EditFile extends BaseWizardPage {
 
   constructor(props) {
     super(props);
@@ -53,15 +53,15 @@ class EditFile extends Component {
   render() {
     return (
       <div>
-        <div className='heading'>
-          {translate('edit.config.files.heading', this.props.file.description, this.props.file.name)}
-        </div>
+        {this.renderHeading(translate('edit.config.files.heading', this.props.file.description,
+          this.props.file.name))}
         <div>
-          <textarea name='fileContents' className='config-file-editor' wrap='off'
+          <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
             value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
         </div>
         <div>
           <ActionButton
+            hasNext
             displayLabel={translate('cancel')}
             clickAction={() => this.handleCancel()}/>
           <ActionButton
@@ -94,7 +94,7 @@ class DisplayFileList extends BaseWizardPage {
     } else if (this.props.valid === INVALID) {
       icon = INVALID_ICON;
     }
-    return (<img src={icon}/>);
+    return (<img className='validate-result-icon' src={icon}/>);
   }
 
   setNextButtonLabel() {
@@ -121,23 +121,26 @@ class DisplayFileList extends BaseWizardPage {
     });
 
     return (
-      <div className='validateConfigFiles'>
-        <div className='heading'>{translate('validate.config.files.heading')}</div>
-        <div className='body'>
-          <div className='col-xs-6 verticalLine'>
-            <ul>{list}</ul>
+      <div>
+        {this.renderHeading(translate('validate.config.files.heading'))}
+        <div className='validate-config-files'>
+          <div className='body'>
+            <div className='col-xs-6 verticalLine'>
+              <ul>{list}</ul>
+            </div>
+            <div className='col-xs-6'>
+              {this.getMessage()}
+            </div>
           </div>
-          <div className='col-xs-6'>
-            {this.getMessage()}
+          <div>
+            <ActionButton
+              className='button-with-icon'
+              displayLabel={translate('validate.config.files.validate')}
+              clickAction={() => this.props.onValidateClick()}/>
+            {this.getIcon()}
           </div>
+          {this.renderNavButtons()}
         </div>
-        <div>
-          <ActionButton
-            displayLabel={translate('validate.config.files.validate')}
-            clickAction={() => this.props.onValidateClick()}/>
-          {this.getIcon()}
-        </div>
-        {this.renderNavButtons()}
       </div>
     );
   }
@@ -236,7 +239,7 @@ class ValidateConfigFiles extends Component {
 
   render() {
     return (
-      <div className='wizardContentPage'>
+      <div className='wizard-content'>
         {this.renderBody()}
       </div>
     );
