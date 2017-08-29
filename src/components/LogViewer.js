@@ -1,17 +1,27 @@
 import React, { Component } from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
+import { List } from 'immutable';
 import io from 'socket.io-client';
+import debounce from 'lodash/debounce';
 
 class LogViewer extends Component {
+
   constructor(props) {
     super(props);
+
+    // List for capturing messages as they are received.  The state
+    // variable will be updated regularly with the contents of this
+    // list.
+    var received = List();
+
     this.state = {
-      contents: ''
+      contents: List(),
+      autoScroll: true
     };
 
     fetch('http://localhost:8081/api/v1/clm/plays/' + props.playId, {
-      // Note: Avoid using cached values to get an up-to-date response
+      // Note: Use no-cache in order to get an up-to-date response
       headers: {
         'pragma': 'no-cache',
         'cache-control': 'no-cache'
@@ -27,9 +37,13 @@ class LogViewer extends Component {
       if ('endTime' in response) {
         fetch('http://localhost:8081/api/v1/clm/plays/' + props.playId + "/log")
         .then(response => response.text())
-        .then(response => this.setState({contents: response}))
-
+        .then(response => {
+          const message = response.trimRight('\n')
+          received = List(message)
+          this.setState({contents: received});
+        })
       } else {
+        // TODO(gary): Go through the shim layer when that API is available
         this.socket = io('http://localhost:9085');
 
         this.socket.on('connect', data => {
@@ -37,9 +51,10 @@ class LogViewer extends Component {
         });
 
         this.socket.on('log', data => {
-          this.setState((prevState, props) => {
-            return ({contents: prevState['contents']+data });
-          });
+          if (data.length>1000) {
+          }
+          received = received.push(data);
+          this.updateState(received);
         });
 
         this.socket.on('end', data => {
@@ -48,25 +63,54 @@ class LogViewer extends Component {
       }
     })
     .catch((error) => {
-      this.setState({contents: error});
+      list = error.trimRight('\n').split('\n');
+      this.setState({contents: List(list)});
     });
   }
 
-  componentDidUpdate() {
+  // Update the state.  Uses lodash.debounce to avoid getting inunadated by fast logs,
+  // by avoiding repeated calls within a short amount of time
+  updateState = debounce((data) => {
+    this.setState({contents: data});
+  }, 100)
+
+  componentDidUpdate(prevProps, prevState) {
     // Scroll to the bottom whenever the component updates
-    this.textArea.scrollTop = this.textArea.scrollHeight - this.textArea.clientHeight
+    if (prevState.autoScroll) {
+      this.viewer.scrollTop = this.viewer.scrollHeight - this.viewer.clientHeight;
+    }
   }
 
+  handleChange = (e) => {
+    this.setState({autoScroll: e.target.checked});
+  }
+ 
   render() {
     return (
       <div>
-        <textarea 
-          ref={(comp) => {this.textArea = comp; }}
-          className="log-viewer rounded-corner"
-          wrap='off'
-          value={this.state.contents} /> 
+        <div className="log-viewer" ref={(comp) => {this.viewer = comp; }}>
+          <pre className="rounded-corner">
+            {this.state.contents.join('')}
+          </pre>
+        </div>
+        <label>
+          <input type="checkbox"
+                 checked={this.state.autoScroll}
+                 onChange={this.handleChange} /> {translate('logviewer.autoscroll')}
+        </label>
       </div>
     );
+  }
+
+  componentWillUnmount() {
+    // Disconnect from the socket to avoid receiving any further log messages
+    if (this.socket) {
+      this.socket.disconnect();
+    }
+
+    // Cancel any pending setState, which otherwise may generate reactjs errors about
+    // calling setState on an unmounted component
+    this.updateState.cancel();
   }
 }
 
