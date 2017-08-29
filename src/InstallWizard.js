@@ -48,7 +48,7 @@ class InstallWizard extends Component {
       selectedModelName: '',
       steps: props.pages,
       currentlyDisplayedJSX: undefined    // this field is not persisted
-    }
+    };
 
     state.steps[0].stepProgress = stepProgressValues.inprogress;
     return state;

@@ -3,15 +3,33 @@ import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
+import io from 'socket.io-client';
 
 const STEPS = [
-  translate('deploy.progress.step1'),
-  translate('deploy.progress.step2'),
-  translate('deploy.progress.step3'),
-  translate('deploy.progress.step4'),
-  translate('deploy.progress.step5'),
-  translate('deploy.progress.step6'),
-  translate('deploy.progress.step7')
+  {
+    label: translate('deploy.progress.step1'),
+    playbooks: ['network_interface-deploy.yml']
+  },
+  {
+    label: translate('deploy.progress.step2'),
+    playbooks: ['nova-deploy.yml', 'ironic-deploy.yml', 'magnum-deploy.yml']
+  },
+  {
+    label: translate('deploy.progress.step3'),
+    playbooks: ['monasca-agent-deploy.yml', 'monasca-deploy.yml', 'monasca-transform-deploy.yml']
+  },
+  {
+    label: translate('deploy.progress.step4'),
+    playbooks: ['ceph-deploy.yml', 'cinder-deploy.yml', 'swift-deploy.yml']
+  },
+  {
+    label: translate('deploy.progress.step5'),
+    playbooks: ['hlm-status.yml']
+  },
+  {
+    label: translate('deploy.progress.step6'),
+    playbooks: ['site.yml']
+  }
 ];
 
 class Progress extends BaseWizardPage {
@@ -19,55 +37,95 @@ class Progress extends BaseWizardPage {
     super();
     this.state = {
       deployComplete: false,
-      currentStep: 0,
-      currentProgress: -1,
-      errorMsg: ''
+      errorMsg: '',
+      playbooksStarted: [],
+      playbooksComplete: []
     };
+
+    let connectionId = (Math.round(Math.random() * (100000))) + ''; //random number between 0-100000 as a string
+    this.socket = io('http://localhost:8081');
+    this.socket.on('playbook-start', this.playbookStarted.bind(this));
+    this.socket.on('playbook-stop', this.playbookStopped.bind(this));
+    this.socket.on('connect', function() {
+      this.socket.emit('ardanasocketproxy', connectionId, 'listener', 'deployprogress');
+    }.bind(this));
   }
 
   setNextButtonDisabled() {
-    return !this.state.deployComplete;
+    return (this.state.playbooksComplete.indexOf('site.yml') === -1);
   }
 
+  //TODO - evaluate if we can get error messages from the playbooks and propagate them here
   getError() {
     return (this.state.errorMsg) ? (
-      <div>{translate('deploy.progress.failure', STEPS[this.state.currentStep])}<br/>
+      <div>{translate('deploy.progress.failure')}<br/>
         <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
   }
 
   getProgress() {
     return STEPS.map((step, index) => {
-      var status = '';
-      if (this.state.currentProgress >= index) {
-        if (this.state.currentProgress >= 13 && index == 6) {
-          status = (this.state.currentProgress == 13) ? 'fail' : 'succeed';
-        } else {
-          if (Math.floor(this.state.currentProgress/2) == index) {
-            if (this.state.currentProgress%2 == 0) {
-              status = 'progressing';
-            } else {
-              status = 'succeed';
-            }
-          } else if (Math.floor(this.state.currentProgress/2) > index) {
-            status = 'succeed';
+      var status = '', i = 0;
+
+      //for each step, check if all needed playbooks are done
+      //if any are not done, check if at least 1 has started
+      for(i = 0; i < step.playbooks.length; i++) {
+        if(this.state.playbooksComplete.indexOf(step.playbooks[i]) === -1) {
+          break;//theres at least 1 incomplete playbook
+        }
+
+        if(i === (step.playbooks.length - 1)) {
+          status = 'succeed';
+        }
+      }
+
+      //status was not set in the "completed" loop
+      if(status === '') {
+        for(i = 0; i < step.playbooks.length; i++) {
+          if (this.state.playbooksStarted.indexOf(step.playbooks[i]) !== -1) {
+            status = 'progressing';//theres at least 1 started playbook
           }
         }
       }
-      return (<li key={index} className={status}>{step}</li>);
+
+      return (<li key={index} className={status}>{step.label}</li>);
     });
   }
 
+  /**
+   * this function and its follow-on exist just to test out the progress functionality
+   */
   progressing() {
-    // TODO get real log file from backend
     // fake the steps through progress button for now
-    var now = this.state.currentProgress + 1;
-    this.setState({currentProgress: now, currentStep: Math.floor(this.state.currentProgress/2)});
-    if (this.state.currentProgress == 12) {
-      this.setState({errorMsg: 'something is wrong here, please do something'});
+    let allPlaybooks = [
+      'network_interface-deploy.yml',
+      'nova-deploy.yml', 'ironic-deploy.yml', 'magnum-deploy.yml',
+      'monasca-agent-deploy.yml', 'monasca-deploy.yml', 'monasca-transform-deploy.yml',
+      'ceph-deploy.yml', 'cinder-deploy.yml', 'swift-deploy.yml',
+      'hlm-status.yml',
+      'site.yml'
+    ];
+
+    this.progressNext.bind(this)(allPlaybooks, 0);
+
+  }
+
+  /**
+   * recursively called function to fake playbook progress for dev/test purposes
+   */
+  progressNext(allPlaybooks, index) {
+    var limit = (allPlaybooks.length * 2);
+    if(index === limit) {
+      return;
+    } else if(index === 0 || index % 2 === 0) {
+      this.playbookStarted(allPlaybooks[(index / 2)]);
+    } else {
+      this.playbookStopped(allPlaybooks[Math.floor(index / 2)]);
     }
-    if (this.state.currentProgress == 13) {
-      this.setState({errorMsg: '', deployComplete: true});
-    }
+
+    var callNext = this.progressNext.bind(this);
+    setTimeout(function() {
+      callNext(allPlaybooks, index + 1);
+    }, 1000);
   }
 
   render() {
@@ -92,6 +150,30 @@ class Progress extends BaseWizardPage {
         {this.renderNavButtons()}
       </div>
     );
+  }
+
+  /**
+   * callback for when a playbook starts, the UI component will track which
+   * playbooks out of the needed set have started/finished to show status
+   * to the user
+   * @param {String} the playbook filename
+   */
+  playbookStarted(playbook) {
+    let playbooksStarted = this.state.playbooksStarted;
+    playbooksStarted.push(playbook);
+    this.setState({'playbooksStarted' : playbooksStarted});
+  }
+
+  /**
+   * callback for when a playbook finishes, the UI component will track which
+   * playbooks out of the needed set have started/finished to show status
+   * to the user
+   * @param {String} the playbook filename
+   */
+  playbookStopped(playbook) {
+    let playbooksComplete = this.state.playbooksComplete;
+    playbooksComplete.push(playbook);
+    this.setState({'playbooksComplete' : playbooksComplete});
   }
 }
 

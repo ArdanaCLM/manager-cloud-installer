@@ -7,6 +7,7 @@ from manager_cloud_installer_svr import ui
 from manager_cloud_installer_svr import oneview
 from manager_cloud_installer_svr import suse_manager
 from manager_cloud_installer_svr import socketio
+from manager_cloud_installer_svr import socket_proxy
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -16,6 +17,7 @@ app.register_blueprint(ardana.bp)
 app.register_blueprint(ui.bp)
 app.register_blueprint(oneview.bp)
 app.register_blueprint(suse_manager.bp)
+app.register_blueprint(socket_proxy.bp)
 CORS(app)
 
 if __name__ == "__main__":
