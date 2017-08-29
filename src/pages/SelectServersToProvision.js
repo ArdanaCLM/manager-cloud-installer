@@ -59,12 +59,10 @@ class SelectServers extends BaseWizardPage {
     return (
       <div className='server-provision'>
         {this.renderHeading(translate('provision.server.heading'))}
-        <div className='body-container'>
-          <TransferTable inputList={this.state.availableServers}
-            sendSelectedList={this.getSelectedServers}
-            leftTableHeader={translate('provision.server.left.table')}
-            rightTableHeader={translate('provision.server.right.table')}/>
-        </div>
+        <TransferTable inputList={this.state.availableServers}
+          sendSelectedList={this.getSelectedServers}
+          leftTableHeader={translate('provision.server.left.table')}
+          rightTableHeader={translate('provision.server.right.table')}/>
         <div className='button-container'>
           <ActionButton
             displayLabel={translate('provision.server.install')} clickAction={this.installServers}
