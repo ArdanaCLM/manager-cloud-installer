@@ -62,7 +62,7 @@ class LogViewer extends Component {
       <div>
         <textarea 
           ref={(comp) => {this.textArea = comp; }}
-          className="log-viewer"
+          className="log-viewer rounded-corner"
           wrap='off'
           value={this.state.contents} /> 
       </div>
