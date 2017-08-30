@@ -66,7 +66,7 @@ class ServerRolesAccordion extends Component {
             translate(
               'add.server.role.min.count.display',
               role.name, role.serverRole, role.servers.length, role.minCount
-            );
+            )
         }
         else {
           optionDisplay =
@@ -79,7 +79,7 @@ class ServerRolesAccordion extends Component {
       return (
         <Collapsible
           open={idx === this.state.accordionPosition}
-          trigger={optionDisplay} key={role.name}
+          trigger={optionDisplay.join(' ')} key={role.name}
           handleTriggerClick={() => this.handleTriggerClick(idx, role)}
           value={role.serverRole}>
           {this.renderServerTable(role.servers)}
