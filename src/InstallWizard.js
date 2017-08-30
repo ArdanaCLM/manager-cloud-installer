@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './Deployer.css';
 import { translate } from './localization/localize.js';
+import { getAppConfig } from './components/ConfigHelper.js';
 import { stepProgressValues } from './components/StepProgressValues.js';
 import WizardProgress from './components/WizardProgress';
 
@@ -18,7 +19,7 @@ class InstallWizard extends Component {
     this.state = this.initialState(props);
 
     // Load the current state information from the backend
-    fetch('http://localhost:8081/api/v1/progress')
+    fetch(getAppConfig('shimurl') + '/api/v1/progress')
       .then(response => response.json())
       .then((responseData) =>
       {
@@ -113,7 +114,7 @@ class InstallWizard extends Component {
 
     // Note that JSON.stringify silently ignores React components, so they
     // don't get saved
-    fetch('http://localhost:8081/api/v1/progress', {
+    fetch(getAppConfig('shimurl') + '/api/v1/progress', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

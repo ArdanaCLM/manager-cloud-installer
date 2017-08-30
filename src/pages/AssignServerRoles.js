@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
+import { getAppConfig } from '../components/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { SearchBar, ServerRolesAccordion } from '../components/ServerUtils.js';
@@ -102,7 +103,7 @@ class AssignServerRoles extends BaseWizardPage {
 
   getAvailableServersData() {
     return (
-      fetch('http://localhost:8081/api/v1/sm/servers')
+      fetch(getAppConfig('shimurl') + '/api/v1/sm/servers')
         .then(response => response.json())
     );
   }
@@ -551,7 +552,7 @@ class AssignServerRoles extends BaseWizardPage {
     let promises = [];
     serverIds.forEach((id) => {
       //TODO make it constant
-      let url = 'http://localhost:8081/api/v1/sm/servers/' + id;
+      let url = getAppConfig('shimurl') + '/api/v1/sm/servers/' + id;
       promises.push(this.getOneServerDetailData(url));
     });
 
@@ -599,7 +600,7 @@ class AssignServerRoles extends BaseWizardPage {
   //query the model object from ardana
   getModelObjectData() {
     return (
-      fetch('http://localhost:8081/api/v1/clm/model')
+      fetch(getAppConfig('shimurl') + '/api/v1/clm/model')
         .then(response => response.json())
     );
   }
@@ -608,7 +609,7 @@ class AssignServerRoles extends BaseWizardPage {
   saveModelObjectData() {
     let modl = this.model;
     return (
-      fetch('http://localhost:8081/api/v1/clm/model', {
+      fetch(getAppConfig('shimurl') + '/api/v1/clm/model', {
         method: 'POST',
         headers: {
           'Accept': 'application/json, text/plain, */*',

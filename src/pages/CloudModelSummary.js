@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react'
 import { fromJS } from 'immutable';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
+import { getAppConfig } from '../components/ConfigHelper.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ActivePickerButton } from '../components/Buttons.js';
 
@@ -98,7 +99,7 @@ class CloudModelSummary extends BaseWizardPage {
   goForward(e) {
     e.preventDefault();
 
-    fetch('http://localhost:8081/api/v1/clm/model/entities/control-planes', {
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/entities/control-planes', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -115,7 +116,7 @@ class CloudModelSummary extends BaseWizardPage {
   componentDidMount() {
 
     //fetch initial control plane information
-    fetch('http://localhost:8081/api/v1/clm/model/entities/control-planes')
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/entities/control-planes')
       .then(response => response.json())
       .then(data => {
           // TODO: May need to support multiple control planes

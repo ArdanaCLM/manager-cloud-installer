@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
+import { getAppConfig } from '../components/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import LogViewer from '../components/LogViewer.js';
 import BaseWizardPage from './BaseWizardPage.js';
@@ -47,13 +48,12 @@ class Progress extends BaseWizardPage {
       playbooksError: []
     };
 
-    let connectionId = (Math.round(Math.random() * (100000))) + ''; //random number between 0-100000 as a string
-    this.socket = io('http://localhost:8081');
+    this.socket = io(getAppConfig('shimurl'));
     this.socket.on('playbook-start', this.playbookStarted.bind(this));
     this.socket.on('playbook-stop', this.playbookStopped.bind(this));
     this.socket.on('playbook-error', this.playbookError.bind(this));
     this.socket.on('connect', function() {
-      this.socket.emit('socketproxyinit', connectionId, 'listener', 'deployprogress');
+      this.socket.emit('socketproxyinit', 'listener', 'deployprogress');
     }.bind(this));
 
     this.startPlaybook();
@@ -153,7 +153,7 @@ class Progress extends BaseWizardPage {
   }
 
   startPlaybook() {
-    fetch('http://localhost:8081/api/v1/clm/playbooks/site', {
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/playbooks/site', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify('')

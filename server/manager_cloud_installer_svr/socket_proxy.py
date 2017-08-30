@@ -17,9 +17,9 @@ bp = Blueprint('socket_proxy', __name__)
 ARDANA_URL = config.get("ardana", "url")
 
 @socketio.on('playbookstatus')
-def on_message(message, name):
+def on_message(message, name, room):
     # propagate the message back to other listeners
-    socketio.emit(message, name)
+    socketio.emit(message, name, room=room)
 
 @socketio.on('socketjoin')
 def on_socketjoin(room):
@@ -37,7 +37,7 @@ def on_socketjoin(room):
     join_room(room)
 
 @socketio.on('socketproxyinit')
-def on_socketproxyinit(connection_id, service, room):
+def on_socketproxyinit(service, room):
     """Initializes a shared socket connection
 
     For remote components to share a socket connection through the shim
@@ -81,7 +81,6 @@ def on_socketproxyinit(connection_id, service, room):
     #ask the ardana service to join the same connection
     parsed_url = urlparse(request.url_root)
     url = util.build_url(ARDANA_URL + "/api/v2/" + service + "/addconnection/" +
-                         connection_id + "/" + \
                          room + "/" + \
                          parsed_url.hostname + "/" + \
                          str(parsed_url.port), "")

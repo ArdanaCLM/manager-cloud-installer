@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
+import { getAppConfig } from '../components/ConfigHelper.js';
 import io from 'socket.io-client';
 
 class LogViewer extends Component {
@@ -10,7 +11,7 @@ class LogViewer extends Component {
       contents: ''
     };
 
-    fetch('http://localhost:8081/api/v1/clm/plays/' + props.playId, {
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/plays/' + props.playId, {
       // Note: Avoid using cached values to get an up-to-date response
       headers: {
         'pragma': 'no-cache',
@@ -25,12 +26,12 @@ class LogViewer extends Component {
       }})
     .then(response => {
       if ('endTime' in response) {
-        fetch('http://localhost:8081/api/v1/clm/plays/' + props.playId + "/log")
+        fetch(getAppConfig('shimurl') + '/api/v1/clm/plays/' + props.playId + "/log")
         .then(response => response.text())
         .then(response => this.setState({contents: response}))
 
       } else {
-        this.socket = io('http://localhost:9085');
+        this.socket = io(getAppConfig('deployserviceurl'));
 
         this.socket.on('connect', data => {
           this.socket.emit('join', response['id']);
