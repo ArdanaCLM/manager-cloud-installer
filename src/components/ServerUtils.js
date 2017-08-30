@@ -58,7 +58,10 @@ class ServerRolesAccordion extends Component {
       let optionDisplay = '';
       if(role.minCount === 0) {
         optionDisplay =
-          translate('add.server.role.no.min.display', role.name, role.serverRole, role.servers.length);
+          translate(
+            'add.server.role.no.min.display',
+            role.name, role.serverRole, role.servers.length
+          );
       }
       else {
         if(role.minCount !== undefined) {
@@ -66,7 +69,7 @@ class ServerRolesAccordion extends Component {
             translate(
               'add.server.role.min.count.display',
               role.name, role.serverRole, role.servers.length, role.minCount
-            )
+            );
         }
         else {
           optionDisplay =
