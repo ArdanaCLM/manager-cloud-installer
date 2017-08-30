@@ -10,15 +10,7 @@
     min-height: 300px;
     width: 47%;
     vertical-align: top;
-  }
-
-  .assign-arrows-container {
-    display: inline-block;
-    margin-top: 200px;
-    vertical-align: top;
-    text-align: center;
-    width: 6%;
-    color: @transfer-button-color;
+    margin-right: 2em;
   }
 
   .search-container {
@@ -38,38 +30,24 @@
     right: 0.5em;
   }
 
-  .roles-select {
-    margin-bottom: 1em;
-    height: 35px;
-  }
-
-  .roles-select select {
-    padding: 0.5em;
-    width: 100%;
-    font-size: 13px;
-    background-color: white;
-  }
-
-  .server-list-container {
+  .server-table-container {
+    position: relative;
     width: 100%;
     min-height: 30em;
-    height: 30em;
+    height: 35em;
     background: white;
-    padding: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 1em;
     overflow: auto;
   }
 
-  .server-check-box {
-    position: relative;
-    &.required-update {
-      color: @errorcolor;
-    }
+  .centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
-  .item-menu {
-    cursor: pointer;
-    position: absolute;
-    right: 2px;
+  .role-accordion-container {
+    height: 38.5em;
   }
 }

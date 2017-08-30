@@ -1,12 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { Tabs, Tab } from 'react-bootstrap';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
-import {
-  ActionButton, AssignButton, UnAssignButton, ItemMenuButton
-} from '../components/Buttons.js';
+import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
-import EditServerDetails from './EditServerDetails.js';
-import ContextMenu from '../components/ContextMenu.js';
+import { SearchBar, ServerRolesAccordion } from '../components/ServerUtils.js';
+import { ConnectionInputModal } from '../components/Modals.js';
+
+const AUTODISCOVER_TAB = 1;
+const MANUALADD_TAB = 2;
 
 class AssignServerRoles extends BaseWizardPage {
 
@@ -27,7 +29,6 @@ class AssignServerRoles extends BaseWizardPage {
       'server-group'
     ];
     this.activeRowData = undefined;
-    this.contextMenuLocation = undefined;
 
     //states changes will rerender UI
     this.state = {
@@ -49,21 +50,16 @@ class AssignServerRoles extends BaseWizardPage {
       searchFilterText: '',
       //turn on/off next
       pageValid: false,
-      //show the popup menu for available servers
-      showAvailableContextMenu: false,
-      //show popup menu for assigned servers
-      showAssignedContextMenu: false,
-      //show edit page when click edit on the popup menu
-      showEditDetails: false,
-      //show detail page when click details on the popup menu
-      showDetails: false
+      //what tab key selected
+      selectedAddServerTabKey: AUTODISCOVER_TAB,
+      showCredsModal: false,
+      credsInputValid: false
     };
 
     this.handleDiscovery = this.handleDiscovery.bind(this);
     this.handleAssignServer = this.handleAssignServer.bind(this);
     this.handleUnAssignServer = this.handleUnAssignServer.bind(this);
     this.handleSearchText = this.handleSearchText.bind(this);
-    this.handleRoleSelect = this.handleRoleSelect.bind(this);
     this.handleAvailableServerRowSelect = this.handleAvailableServerRowSelect.bind(this);
     this.handleAssignedServerRowSelect = this.handleAssignedServerRowSelect.bind(this);
 
@@ -73,6 +69,15 @@ class AssignServerRoles extends BaseWizardPage {
     this.handleShowDetail = this.handleShowDetail.bind(this);
     this.handleEditDetailCancel = this.handleEditDetailCancel.bind(this);
     this.handleEditDetailDone = this.handleEditDetailDone.bind(this);
+
+    this.handleSelectAddServerTab = this.handleSelectAddServerTab.bind(this);
+    this.handleClickRoleAccordion = this.handleClickRoleAccordion.bind(this);
+    this.handleManualAddServer = this.handleManualAddServer.bind(this);
+    this.handleAddServerFromCSV = this.handleAddServerFromCSV.bind(this);
+    this.handleInitDiscovery = this.handleInitDiscovery.bind(this);
+    this.handleDoneCredsInput = this.handleDoneCredsInput.bind(this);
+    this.handleCancelCredsInput = this.handleCancelCredsInput.bind(this);
+    this.handlTestCredsInput = this.handleTestCredsInput.bind(this);
   }
 
   refreshServers(rawServerData) {
@@ -241,24 +246,6 @@ class AssignServerRoles extends BaseWizardPage {
     });
   }
 
-  //handle change role dropdown
-  handleRoleSelect(roleName) {
-    //find servers in the this.state.serverRoles
-    let roles = this.serverRoles;
-    let servers = [];
-    let findRole = roles.find((role) => {
-      return role.serverRole === roleName;
-    });
-
-    if(findRole) {
-      servers = findRole.servers;
-      if(servers) {
-        this.setState({displayAssignedServers: servers});
-      }
-    }
-    this.setState({selectedServerRole: roleName});
-  }
-
   //handle filter text change
   handleSearchText(filterText) {
     this.setState({
@@ -294,6 +281,38 @@ class AssignServerRoles extends BaseWizardPage {
       showEditDetails: true,
       showAssignedContextMenu: false
     });
+  }
+
+  handleSelectAddServerTab(tabKey) {
+    this.setState({selectedAddServerTabKey: tabKey});
+  }
+
+  handleClickRoleAccordion(role) {
+    //TODO
+  }
+
+  handleManualAddServer() {
+    //TODO
+  }
+
+  handleAddServerFromCSV() {
+    //TODO
+  }
+
+  handleInitDiscovery() {
+    this.setState({showCredsModal: true});
+  }
+  handleCancelCredsInput() {
+    this.setState({showCredsModal: false});
+  }
+
+  //TODO
+  handleDoneCredsInput() {
+    this.setState({showCredsModal: false});
+  }
+
+  handleTestCredsInput() {
+    //TODO
   }
 
   //TODO doesn't do anything yet
@@ -670,339 +689,114 @@ class AssignServerRoles extends BaseWizardPage {
     this.doSave();
   }
 
-  renderContextMenu(refType) {
-    let menuItems  =  [{
-      key: 'context.menu.item.detail',
-      callback: this.handleShowDetail,
-      show: true
-    }, {
-      key: 'context.menu.item.edit',
-      callback: this.handleAssignedServerShowEdit,
-      show: refType === 'availableMenuRef' ? false : true
-    }];
+  renderAvailServersTable() {
+    return <div>TODO</div>;
+  }
 
-    let context = <div></div>;
-    if(refType === 'availableMenuRef') {
-      context = (
-        <ContextMenu
-          refType={refType}
-          show={this.state.showAvailableContextMenu}
-          location={this.contextMenuLocation}
-          data={this.activeRowData} items={menuItems}>
-        </ContextMenu>
+  renderAutoDiscoverContent() {
+    if(!this.state.displayAvailableServers ||
+      this.state.displayAvailableServers.length === 0) {
+      return (
+        <div className='centered'>
+          <ActionButton
+            clickAction={this.handleInitDiscovery}
+            displayLabel={translate('add.server.discover')}/>
+        </div>
       );
     }
     else {
-      context = (
-        <ContextMenu
-          refType={refType}
-          show={this.state.showAssignedContextMenu}
-          location={this.contextMenuLocation}
-          data={this.activeRowData} items={menuItems}>
-        </ContextMenu>
+      return (
+        <div>
+          {this.renderAvailServersTable()}
+        </div>
       );
     }
-    return context;
   }
 
-  isAssignButtonDisabled() {
-    let isDisabled = this.state.selectedAvailableServersRows.length === 0 ;
-    return isDisabled;
-  }
-
-  isUnAssignButtonDisabled() {
-    let isDisabled = this.state.selectedAssignedServersRows.length === 0;
-    return isDisabled;
-  }
-
-  renderAssignUnassignButtons() {
+  renderManualAddServerContent() {
     return (
-      <div className="assign-arrows-container">
-        <div>
-          <AssignButton
-            clickAction={this.handleAssignServer}
-            isDisabled={this.isAssignButtonDisabled()}/>
-        </div>
-        <div>
-          <UnAssignButton
-            clickAction={this.handleUnAssignServer}
-            isDisabled={this.isUnAssignButtonDisabled()}/>
-        </div>
+      <div className='centered'>
+        <ActionButton
+          hasNext
+          clickAction={this.handleManualAddServer}
+          displayLabel={translate('add.server.add')}/>
+        <ActionButton
+          clickAction={this.handleAddServerFromCSV}
+          displayLabel={translate('add.server.add.csv')}/>
       </div>
+    );
+  }
+
+  renderAvailableServersTabs() {
+    return (
+      <Tabs
+        activeKey={this.state.tabKey}
+        onSelect={this.handleSelectAddServerTab} id='AvailableServerTabsId'>
+        <Tab
+          eventKey={AUTODISCOVER_TAB} title={translate('add.server.auto.discover')}>
+          {this.renderAutoDiscoverContent()}
+        </Tab>
+        <Tab
+          eventKey={MANUALADD_TAB} title={translate('add.server.manual.add')}>
+          {this.renderManualAddServerContent()}
+        </Tab>
+      </Tabs>
+    );
+  }
+
+  renderServerRolesAccordion(roles) {
+    return (
+      <ServerRolesAccordion
+        serverRoles={this.serverRoles} clickAction={this.handleClickRoleAccordion}>
+      </ServerRolesAccordion>
     );
   }
 
   renderServerRoleContent() {
-    //server list without details
-    let displayAvailableServers = this.state.displayAvailableServers;
-    let unSelectAvailableSrvRowsAll = this.state.selectedAvailableServersRows.length === 0;
-    let unSelectAssignedSrvRowsAll = this.state.selectedAssignedServersRows.length === 0;
-    let selectedRoleName = this.state.selectedServerRole;
-
-    //display the assigned servers based on role selection
-    let displayAssignedServers = this.state.displayAssignedServers;
-    //role selection
-    let roles = this.serverRoles;
-
-    //apply filter here
-    let filterText = this.state.searchFilterText;
-    let filteredAvailableServers =
-      displayAvailableServers.filter((server) => {
-        return (server.name.indexOf(filterText) !== -1);
-      });
-
-    let discoverLabel = translate('assign.server.role.discover');
-
-
     return (
-      <div id='AssignServerRolePageId' className='wizard-content'>
-        {this.renderHeading(translate('assign.server.role.heading', this.selectedModelName))}
-        <div className='assign-server-role body-container'>
-          <div className="server-container">
-            <h4>{translate('assign.server.role.available-server')}</h4>
-            <SearchBar
-              filterText={this.state.searchFilterText}
-              filterAction={this.handleSearchText}>
-            </SearchBar>
-            <div className="server-list-container rounded-corner">
-              <ServerList
-                ref='available' data={filteredAvailableServers}
-                unSelectAll={unSelectAvailableSrvRowsAll} onSelectRow={this.handleAvailableServerRowSelect}
-                clickMenuAction={this.handleAvailableServerShowMenu}>
-              </ServerList>
-              {this.renderContextMenu('availableMenuRef')}
-            </div>
-          </div>
-          {this.renderAssignUnassignButtons()}
-          <div className="server-container">
-            <h4>{translate('assign.server.role.target-server-role')}</h4>
-            <ServerRolesDropDown
-              serverRoles={roles} selectedServerRole={selectedRoleName}
-              selectAction={this.handleRoleSelect}>
-            </ServerRolesDropDown>
-            <div ref='assign' id='AssignServerRoleId' className="server-list-container rounded-corner">
-              <ServerList
-                data={displayAssignedServers} checkKeys={this.checkInputKeys}
-                unSelectAll={unSelectAssignedSrvRowsAll} onSelectRow={this.handleAssignedServerRowSelect}
-                clickMenuAction={this.handleAssignedServerShowMenu}>
-              </ServerList>
-              {this.renderContextMenu('assignMenuRef')}
-            </div>
-          </div>
-          <div>
-            <ActionButton clickAction={this.handleDiscovery} displayLabel={discoverLabel}/>
+      <div className='assign-server-role body-container'>
+        <div className="server-container">
+          <SearchBar
+            filterText={this.state.searchFilterText}
+            filterAction={this.handleSearchText}>
+          </SearchBar>
+          <div className="server-table-container rounded-box">
+            {this.renderAvailableServersTabs()}
           </div>
         </div>
+        <div className="server-container">
+          <div className="server-table-container role-accordion-container rounded-box">
+            {this.renderServerRolesAccordion()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  //TODO
+  renderCredsInputContent() {
+    return (<div>TODO</div>);
+  }
+
+  renderCredsInputModal() {
+    return (
+      <ConnectionInputModal
+        cancelAction={this.handleCancelCredsInput} testAction={this.handleTestCredsInput}
+        doneAction={this.handleDoneCredsInput} isDoneDisabled={!this.state.credsInputValid}
+        show={this.state.showCredsModal}
+        body={this.renderCredsInputContent()} title={translate('add.server.connection.creds')}
+      >
+      </ConnectionInputModal>
+    );
+  }
+
+  render() {
+    return (
+      <div id='AddServersId' className='wizard-content'>
+        {this.renderHeading(translate('add.server.heading', this.selectedModelName))}
+        {this.renderServerRoleContent()}
         {this.renderNavButtons()}
-      </div>
-    );
-  }
-
-  renderEditServerDetailContent() {
-    return (
-      <EditServerDetails
-        doneAction={this.handleEditDetailDone}
-        cancelAction={this.handleEditDetailCancel}
-        serverGroups={this.serverGroups}
-        nicMappings={this.nicMappings}
-        editData={this.activeRowData}>
-      </EditServerDetails>
-    );
-  }
-
-  render() {
-    if(this.state.showEditDetails) {
-      return this.renderEditServerDetailContent();
-    }
-    else {
-      return this.renderServerRoleContent();
-    }
-  }
-}
-
-class ServerRolesDropDown extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedName: this.props.selectedServerRole
-    };
-    this.handleRoleSelect = this.handleRoleSelect.bind(this);
-  }
-
-  renderOptions() {
-    let options = this.props.serverRoles.map((role) => {
-      let modelCount = role.minCount !== undefined ? role.minCount : role.memberCount;
-      let optionDisplay =
-        role.name + ' (' + role.serverRole + ' ' + role.servers.length + '/' + modelCount + ')';
-      return <option key={role.name} value={role.serverRole}>{optionDisplay}</option>;
-    });
-
-    return options;
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.setState({selectedName : newProps.selectedServerRole});
-  }
-
-  handleRoleSelect(e) {
-    this.setState({selectedName: e.target.value});
-    this.props.selectAction(e.target.value);
-  }
-
-  render() {
-    return (
-      <div className="roles-select">
-        <select className='rounded-corner'
-          value={this.state.selectedName}
-          type="select" onChange={this.handleRoleSelect}>
-          {this.renderOptions()}
-        </select>
-      </div>
-    );
-  }
-}
-
-class SearchBar extends Component {
-  constructor(props) {
-    super(props);
-    this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
-  }
-
-  handleFilterTextInputChange(e) {
-    e.preventDefault();
-    this.props.filterAction(e.target.value);
-  }
-
-  render() {
-    let searchPlaceholder = translate('placeholder.search.server.text');
-    return (
-      <div className='search-container'>
-        <span className='search-bar'>
-          <input className='rounded-corner'
-            type="text" placeholder={searchPlaceholder}
-            value={this.props.filterText} onChange={this.handleFilterTextInputChange}/>
-        </span>
-        <span className='glyphicon glyphicon-search search-icon'></span>
-      </div>
-    );
-  }
-}
-
-class ServerList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      serverList: this.props.data
-    };
-    this.handleSelectRow = this.handleSelectRow.bind(this);
-    this.handleShowMenu = this.handleShowMenu.bind(this);
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.setState({serverList : newProps.data});
-  }
-
-  handleSelectRow(e, rowData) {
-    let isChecked = e.target.checked;
-    this.props.onSelectRow(isChecked, rowData);
-  }
-
-  handleShowMenu(e, rowData) {
-    this.props.clickMenuAction(e, rowData);
-  }
-
-  renderServerList(list) {
-    let servers = [];
-    let checkKeys = this.props.checkKeys;
-    let unSelect = this.props.unSelectAll;
-    let handleRowFunc = this.handleSelectRow;
-    let handleMenuFunc = this.handleShowMenu;
-    list.forEach((server, idx) => {
-      let item = undefined;
-      if(checkKeys) {
-        let requiredUpdate = false;
-        let input = checkKeys.find((key) => {
-          return (server[key] === undefined || server[key] === '');
-        });
-        if(input) {
-          requiredUpdate = true;
-        }
-        item =
-          <ServerItem
-            key={idx} requiredUpdate={requiredUpdate}
-            serverItem={server} unSelect={unSelect}
-            clickMenuAction={(e) => handleMenuFunc(e, server)}
-            changeAction={(e) => handleRowFunc(e, server)}>
-          </ServerItem>;
-      }
-      else {
-        item =
-          <ServerItem
-            key={idx} serverItem={server} unSelect={unSelect}
-            clickMenuAction={(e) => handleMenuFunc(e, server)}
-            changeAction={(e) => handleRowFunc(e, server)}>
-          </ServerItem>;
-      }
-      servers.push(item);
-    });
-    return servers;
-  }
-
-  render() {
-    let serverList = this.state.serverList;
-    return (
-      <div className="server-list">
-        {this.renderServerList(serverList)}
-      </div>
-    );
-  }
-}
-
-class ServerItem extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      checked: false,
-      requiredUpdate: false
-    };
-    this.handleCheckBoxChange = this.handleCheckBoxChange.bind(this);
-    this.handleClickMenu = this.handleClickMenu.bind(this);
-  }
-
-  componentWillReceiveProps(newProps) {
-    if(newProps.unSelect === true) {
-      this.setState({
-        checked : false,
-        requiredUpdate: newProps.requiredUpdate
-      });
-    }
-  }
-
-  handleCheckBoxChange(e, rowData) {
-    this.props.changeAction(e, rowData);
-    this.setState({checked: e.target.checked});
-  }
-
-  handleClickMenu(e, rowData) {
-    this.props.clickMenuAction(e, rowData);
-  }
-
-  render() {
-    //only have multi select now
-    let data = this.props.serverItem;
-    let displayName = data.name;
-    let itemValue = data.name;
-    let moreClass = 'item-menu';
-    let cName = 'server-check-box ';
-    cName = cName + (this.props.requiredUpdate ? 'required-update' : '');
-    return (
-      <div className={cName}>
-        <input
-          type='checkbox' value={itemValue}
-          checked={this.state.checked}
-          onChange={(e) => this.handleCheckBoxChange(e, data)}/> {displayName}
-        <ItemMenuButton
-          className={moreClass} clickAction={(e) => this.handleClickMenu(e, data)}/>
+        {this.renderCredsInputModal()}
       </div>
     );
   }

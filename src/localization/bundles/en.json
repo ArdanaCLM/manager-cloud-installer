@@ -11,6 +11,7 @@
     "yes": "Yes",
     "no": "No",
     "ok": "OK",
+    "test": "Test",
     "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
     "wizard.loading.pleasewait": "Loading... Please wait",
 
@@ -49,8 +50,16 @@
 
     "edit.config.files.heading": "Update Configuration File: {0} ({1})",
 
-    "assign.server.role.heading": "Assign Servers and Server Roles: {0}",
-    "assign.server.role.discover": "Discover",
+    "add.server.heading": "Add Servers and Assign Server Roles: {0}",
+    "add.server.auto.discover": "Auto Discover",
+    "add.server.manual.add": "Add Manually",
+    "add.server.add": "Add Server",
+    "add.server.add.csv": "Add From CSV",
+    "add.server.discover": "Discover",
+    "add.server.role.min.count.display": "{0} ({1} Total: {2} / Min Size: {3})",
+    "add.server.role.member.count.display": "{0} ({1} Total: {2} / Required Size: {3})",
+    "add.server.role.no.min.display": "{0} ({1} Total: {2})",
+    "add.server.connection.creds": "Discovery Connection Credentials",
     "assign.server.role.filtertext": "Server Name",
     "assign.server.role.available-server": "Available Servers",
     "assign.server.role.target-server-role": "Target Server Roles",
