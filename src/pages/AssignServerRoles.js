@@ -777,11 +777,12 @@ class AssignServerRoles extends BaseWizardPage {
   renderCredsInputContent() {
     return (<div>TODO</div>);
   }
+
   renderCredsInputModal() {
     return (
       <ConnectionInputModal
         cancelAction={this.handleCancelCredsInput} testAction={this.handleTestCredsInput}
-        doneAction={this.handleDoneCredsInput} isDoneDisabled={this.state.credsInputValid}
+        doneAction={this.handleDoneCredsInput} isDoneDisabled={!this.state.credsInputValid}
         show={this.state.showCredsModal}
         body={this.renderCredsInputContent()} title={translate('add.server.connection.creds')}
       >

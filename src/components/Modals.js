@@ -126,8 +126,7 @@ class ConnectionInputModal extends BaseInputModal {
           hasNext
           clickAction={this.props.testAction} displayLabel={translate('test')}/>
         <ActionButton
-          is
-          Disabled={this.props.isDoneDisabled}
+          isDisabled={this.state.isDoneDisabled}
           clickAction={this.props.doneAction} displayLabel={translate('done')}/>
       </div>
     );

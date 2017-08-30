@@ -55,9 +55,27 @@ class ServerRolesAccordion extends Component {
 
   renderSections() {
     let sections = this.props.serverRoles.map((role, idx) => {
-      let modelCount = role.minCount !== undefined ? role.minCount : role.memberCount;
-      let optionDisplay =
-        role.name + ' (' + role.serverRole + ' ' + role.servers.length + '/' + modelCount + ')';
+      let optionDisplay = '';
+      if(role.minCount === 0) {
+        optionDisplay =
+          translate('add.server.role.no.min.display', role.name, role.serverRole, role.servers.length);
+      }
+      else {
+        if(role.minCount !== undefined) {
+          optionDisplay =
+            translate(
+              'add.server.role.min.count.display',
+              role.name, role.serverRole, role.servers.length, role.minCount
+            );
+        }
+        else {
+          optionDisplay =
+            translate(
+              'add.server.role.member.count.display',
+              role.name, role.serverRole, role.servers.length, role.memberCount
+            );
+        }
+      }
       return (
         <Collapsible
           open={idx === this.state.accordionPosition}
