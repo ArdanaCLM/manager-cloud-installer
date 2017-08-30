@@ -55,8 +55,8 @@ class Progress extends BaseWizardPage {
     this.socket.on('connect', function() {
       this.socket.emit('socketproxyinit', connectionId, 'listener', 'deployprogress');
     }.bind(this));
-    
-    this.startPlaybook()
+
+    this.startPlaybook();
   }
 
   setNextButtonDisabled() {
@@ -73,7 +73,7 @@ class Progress extends BaseWizardPage {
 
   getProgress() {
     return STEPS.map((step, index) => {
-      var status = '', i = 0;
+      var status = 'notstarted', i = 0;
 
       //for each step, check if any playbooks failed
       for(i = 0; i < step.playbooks.length; i++) {
@@ -82,27 +82,31 @@ class Progress extends BaseWizardPage {
         }
       }
 
-      if(status === '') {
-        //for each step, check if all needed playbooks are done
-        //if any are not done, check if at least 1 has started
+      //check if all playbooks have finished
+      if(status === 'notstarted') {
+        let complete = true;
         for (i = 0; i < step.playbooks.length; i++) {
-          if (this.state.playbooksComplete.indexOf(step.playbooks[i]) === -1) {
-            break;//theres at least 1 incomplete playbook
+          if(this.state.playbooksComplete.indexOf(step.playbooks[i]) === -1) {
+            //at least one playbook is *not* complete
+            complete = false;
           }
+        }
 
-          //may want to clean this up so its more obvious...
-          if (status === '' && i === (step.playbooks.length - 1)) {
-            status = 'succeed';
-            break;
-          }
+        //if all playbooks were complete, set the status to succeed
+        if(complete) {
+          status = 'succeed';
         }
       }
 
-      //status was not set in the "error" or "completed" loops
-      if(status === '') {
-        for(i = 0; i < step.playbooks.length; i++) {
+      //if the status has not previoulsy been set to fail or complete,
+      // check if any of the playbooks have started
+      if(status === 'notstarted') {
+        //for each step, check if all needed playbooks are done
+        //if any are not done, check if at least 1 has started
+        for (i = 0; i < step.playbooks.length; i++) {
           if (this.state.playbooksStarted.indexOf(step.playbooks[i]) !== -1) {
-            status = 'progressing';//theres at least 1 started playbook
+            status = 'progressing';
+            break;//theres at least 1 started playbook
           }
         }
       }
@@ -149,20 +153,20 @@ class Progress extends BaseWizardPage {
   }
 
   startPlaybook() {
-   fetch('http://localhost:8081/api/v1/clm/playbooks/site', {
+    fetch('http://localhost:8081/api/v1/clm/playbooks/site', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify('')
     })
-    .then(response => {
-      if (! response.ok) {
-        throw (response.statusText);
-      } else {
-        return response.json();
-      }})
-    .then(response => {
-      this.setState({playId: response['id']})
-    });
+      .then(response => {
+        if (! response.ok) {
+          throw (response.statusText);
+        } else {
+          return response.json();
+        }})
+      .then(response => {
+        this.setState({playId: response['id']});
+      });
   }
 
   renderLogButton() {
@@ -170,9 +174,9 @@ class Progress extends BaseWizardPage {
 
     if (this.state.playId) {
       return (
-          <ActionButton
-            displayLabel={logButtonLabel}
-            clickAction={() => this.setState((prev) => { return {"showLog": !prev.showLog} }) } />
+        <ActionButton
+          displayLabel={logButtonLabel}
+          clickAction={() => this.setState((prev) => { return {'showLog': !prev.showLog}; }) } />
       );
     }
   }
@@ -212,7 +216,7 @@ class Progress extends BaseWizardPage {
    */
   playbookStarted(playbook) {
     this.setState((prevState) => {
-      return {'playbooksStarted': prevState.playbooksStarted.concat(playbook)}
+      return {'playbooksStarted': prevState.playbooksStarted.concat(playbook)};
     });
   }
 
@@ -224,7 +228,7 @@ class Progress extends BaseWizardPage {
    */
   playbookStopped(playbook) {
     this.setState((prevState) => {
-      return {'playbooksComplete': prevState.playbooksComplete.concat(playbook)}
+      return {'playbooksComplete': prevState.playbooksComplete.concat(playbook)};
     });
   }
 
@@ -236,7 +240,7 @@ class Progress extends BaseWizardPage {
    */
   playbookError(playbook) {
     this.setState((prevState) => {
-      return {'playbooksError': prevState.playbooksError.concat(playbook)}
+      return {'playbooksError': prevState.playbooksError.concat(playbook)};
     });
   }
 }
