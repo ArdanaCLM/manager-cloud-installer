@@ -88,8 +88,8 @@ class LogViewer extends Component {
   render() {
     return (
       <div>
-        <div className="log-viewer" ref={(comp) => {this.viewer = comp; }}>
-          <pre className="rounded-corner">
+        <div className="log-viewer">
+          <pre className="rounded-corner" ref={(comp) => {this.viewer = comp; }}>
             {this.state.contents.join('')}
           </pre>
         </div>
