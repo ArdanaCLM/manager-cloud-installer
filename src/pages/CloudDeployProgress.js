@@ -188,20 +188,20 @@ class Progress extends BaseWizardPage {
         {this.renderHeading(translate('deploy.progress.heading'))}
         <div className='deploy-progress'>
           <div className='progress-body'>
-            <div className='col-xs-6'>
+            <div className='col-xs-4'>
               <ul>{this.getProgress()}</ul>
+              <div>
+                <ActionButton
+                  displayLabel='Progress'
+                  hasNext
+                  clickAction={() => this.progressing()}/>
+                {this.renderLogButton()}
+              </div>
             </div>
-            <div className='col-xs-6'>
+            <div className='col-xs-8'>
               {this.state.showLog ? <LogViewer playId={this.state.playId} /> : ''}
             </div>
           </div>
-        </div>
-        <div>
-          <ActionButton
-            displayLabel='Progress'
-            hasNext
-            clickAction={() => this.progressing()}/>
-          {this.renderLogButton()}
         </div>
         {this.renderNavButtons()}
       </div>
