@@ -3,9 +3,11 @@ import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../components/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
-import LogViewer from '../components/LogViewer.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import io from 'socket.io-client';
+import { List } from 'immutable';
+import debounce from 'lodash/debounce';
+
 
 const STEPS = [
   {
@@ -35,9 +37,55 @@ const STEPS = [
   }
 ];
 
+class MyLogViewer extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      autoScroll: true
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Scroll to the bottom whenever the component updates
+    if (prevState.autoScroll) {
+      this.viewer.scrollTop = this.viewer.scrollHeight - this.viewer.clientHeight;
+    }
+  }
+
+  handleChange = (e) => {
+    this.setState({autoScroll: e.target.checked});
+  }
+
+  render() {
+    return (
+      <div>
+        <div className="log-viewer">
+          <pre className="rounded-corner" ref={(comp) => {this.viewer = comp; }}>
+            {this.props.contents.join('')}
+          </pre>
+        </div>
+        <label>
+          <input type="checkbox"
+                 checked={this.state.autoScroll}
+                 onChange={this.handleChange} /> {translate('logviewer.autoscroll')}
+        </label>
+      </div>
+    );
+  }
+}
+
+
 class Progress extends BaseWizardPage {
   constructor() {
     super();
+
+    // List for capturing messages as they are received.  The state
+    // variable will be updated regularly with the contents of this
+    // list.
+    this.logsReceived = List();
+
     this.state = {
       deployComplete: false,
       errorMsg: '',
@@ -45,16 +93,10 @@ class Progress extends BaseWizardPage {
       playId: '',
       playbooksStarted: [],
       playbooksComplete: [],
-      playbooksError: []
-    };
+      playbooksError: [],
 
-    this.socket = io(getAppConfig('shimurl'));
-    this.socket.on('playbook-start', this.playbookStarted.bind(this));
-    this.socket.on('playbook-stop', this.playbookStopped.bind(this));
-    this.socket.on('playbook-error', this.playbookError.bind(this));
-    this.socket.on('connect', function() {
-      this.socket.emit('socketproxyinit', 'listener', 'deployprogress');
-    }.bind(this));
+      displayedLogs: List()
+    };
 
     this.startPlaybook();
   }
@@ -153,11 +195,20 @@ class Progress extends BaseWizardPage {
   }
 
   startPlaybook() {
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/playbooks/site', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify('')
-    })
+    /* TODO: Avoid starting a new playbook if one is already running. Should obtain playId from progress */
+    var playId;
+
+    var listenLive = true;
+
+    if (playId) {
+
+      fetch('http://localhost:8081/api/v1/clm/plays/' + playId, {
+        // Note: Use no-cache in order to get an up-to-date response
+        headers: {
+          'pragma': 'no-cache',
+          'cache-control': 'no-cache'
+        }
+      })
       .then(response => {
         if (! response.ok) {
           throw (response.statusText);
@@ -165,8 +216,49 @@ class Progress extends BaseWizardPage {
           return response.json();
         }})
       .then(response => {
-        this.setState({playId: response['id']});
+        if ('endTime' in response) {
+          listenLive = false;
+          fetch('http://localhost:8081/api/v1/clm/plays/' + playId + "/log")
+          .then(response => response.text())
+          .then(response => {
+            const message = response.trimRight('\n')
+            this.logsReceived = List(message)
+            this.setState({contents: this.logsReceived});
+          })
+        }
+      })
+      .catch((error) => {
+        list = error.trimRight('\n').split('\n');
+        this.setState({contents: List(list)});
       });
+    }
+
+    if (listenLive) {
+      fetch(getAppConfig('shimurl') + '/api/v1/clm/playbooks/site', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify('')
+      })
+      .then(response => {
+        if (! response.ok) {
+          throw (response.statusText);
+        } else {
+          return response.json();
+        }})
+      .then(response => {
+        playId = response['id'];
+        this.setState({playId: playId});
+
+        // this.socket = io(getAppConfig('shimurl'));
+        this.socket = io('http://localhost:9085');
+        this.socket.on('playbook-start', this.playbookStarted);
+        this.socket.on('playbook-stop', this.playbookStopped);
+        this.socket.on('playbook-error', this.playbookError);
+        this.socket.on('log', this.logMessage);
+        this.socket.on('end', () => { this.socket.disconnect(); });
+        this.socket.emit('join', playId);
+      });
+    }
   }
 
   renderLogButton() {
@@ -199,7 +291,7 @@ class Progress extends BaseWizardPage {
               </div>
             </div>
             <div className='col-xs-8'>
-              {this.state.showLog ? <LogViewer playId={this.state.playId} /> : ''}
+              {this.state.showLog ? <MyLogViewer contents={this.state.displayedLogs} /> : ''}
             </div>
           </div>
         </div>
@@ -208,13 +300,24 @@ class Progress extends BaseWizardPage {
     );
   }
 
+  componentWillUnmount() {
+    // Disconnect from the socket to avoid receiving any further log messages
+    if (this.socket) {
+      this.socket.disconnect();
+    }
+
+    // Cancel any pending setState, which otherwise may generate reactjs errors about
+    // calling setState on an unmounted component
+    this.updateState.cancel();
+  }
+
   /**
    * callback for when a playbook starts, the UI component will track which
    * playbooks out of the needed set have started/finished to show status
    * to the user
    * @param {String} the playbook filename
    */
-  playbookStarted(playbook) {
+  playbookStarted = (playbook) => {
     this.setState((prevState) => {
       return {'playbooksStarted': prevState.playbooksStarted.concat(playbook)};
     });
@@ -226,7 +329,7 @@ class Progress extends BaseWizardPage {
    * to the user
    * @param {String} the playbook filename
    */
-  playbookStopped(playbook) {
+  playbookStopped = (playbook) => {
     this.setState((prevState) => {
       return {'playbooksComplete': prevState.playbooksComplete.concat(playbook)};
     });
@@ -238,11 +341,24 @@ class Progress extends BaseWizardPage {
    * to the user
    * @param {String} the playbook filename
    */
-  playbookError(playbook) {
+  playbookError = (playbook) => {
     this.setState((prevState) => {
       return {'playbooksError': prevState.playbooksError.concat(playbook)};
     });
   }
+
+  logMessage = (message) => {
+    console.log("received log");
+    this.logsReceived = this.logsReceived.push(message);
+    this.updateState(this.logsReceived);
+  }
+
+  // Update the state.  Uses lodash.debounce to avoid getting inunadated by fast logs,
+  // by avoiding repeated calls within a short amount of time
+  updateState = debounce((data) => {
+    console.log("updating log on screen");
+    this.setState({displayedLogs: data});
+  }, 100)
 }
 
 class CloudDeployProgress extends Component {
