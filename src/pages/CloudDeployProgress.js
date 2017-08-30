@@ -26,6 +26,7 @@ const STEPS = [
   {
     label: translate('deploy.progress.step5'),
     playbooks: ['hlm-status.yml']
+    //playbooks: ['ops-console-status.yml']//swap these to test-run using a short running playbook
   },
   {
     label: translate('deploy.progress.step6'),
@@ -52,7 +53,7 @@ class Progress extends BaseWizardPage {
     this.socket.on('playbook-stop', this.playbookStopped.bind(this));
     this.socket.on('playbook-error', this.playbookError.bind(this));
     this.socket.on('connect', function() {
-      this.socket.emit('ardanasocketproxy', connectionId, 'listener', 'deployprogress');
+      this.socket.emit('socketproxyinit', connectionId, 'listener', 'deployprogress');
     }.bind(this));
     
     this.startPlaybook()
@@ -74,25 +75,30 @@ class Progress extends BaseWizardPage {
     return STEPS.map((step, index) => {
       var status = '', i = 0;
 
-      //for each step, check if all needed playbooks are done
-      //if any are not done, check if at least 1 has started
+      //for each step, check if any playbooks failed
       for(i = 0; i < step.playbooks.length; i++) {
-        if(this.state.playbooksError.indexOf(step.playbooks[i]) !== -1) {
-          status = 'fail';
-          break;//theres at least 1 ERROR playbook
-        }
-
-        if(this.state.playbooksComplete.indexOf(step.playbooks[i]) === -1) {
-          break;//theres at least 1 incomplete playbook
-        }
-
-        if(i === (step.playbooks.length - 1)) {
-          status = 'succeed';
-          break;
+        if (this.state.playbooksError.indexOf(step.playbooks[i]) !== -1) {
+          status = 'fail';//theres at least 1 ERROR playbook
         }
       }
 
-      //status was not set in the "completed" loop
+      if(status === '') {
+        //for each step, check if all needed playbooks are done
+        //if any are not done, check if at least 1 has started
+        for (i = 0; i < step.playbooks.length; i++) {
+          if (this.state.playbooksComplete.indexOf(step.playbooks[i]) === -1) {
+            break;//theres at least 1 incomplete playbook
+          }
+
+          //may want to clean this up so its more obvious...
+          if (status === '' && i === (step.playbooks.length - 1)) {
+            status = 'succeed';
+            break;
+          }
+        }
+      }
+
+      //status was not set in the "error" or "completed" loops
       if(status === '') {
         for(i = 0; i < step.playbooks.length; i++) {
           if (this.state.playbooksStarted.indexOf(step.playbooks[i]) !== -1) {
@@ -205,9 +211,9 @@ class Progress extends BaseWizardPage {
    * @param {String} the playbook filename
    */
   playbookStarted(playbook) {
-    let playbooksStarted = this.state.playbooksStarted;
-    playbooksStarted.push(playbook);
-    this.setState({'playbooksStarted' : playbooksStarted});
+    this.setState((prevState) => {
+      return {'playbooksStarted': prevState.playbooksStarted.concat(playbook)}
+    });
   }
 
   /**
@@ -217,9 +223,9 @@ class Progress extends BaseWizardPage {
    * @param {String} the playbook filename
    */
   playbookStopped(playbook) {
-    let playbooksComplete = this.state.playbooksComplete;
-    playbooksComplete.push(playbook);
-    this.setState({'playbooksComplete' : playbooksComplete});
+    this.setState((prevState) => {
+      return {'playbooksComplete': prevState.playbooksComplete.concat(playbook)}
+    });
   }
 
   /**
@@ -229,10 +235,9 @@ class Progress extends BaseWizardPage {
    * @param {String} the playbook filename
    */
   playbookError(playbook) {
-    console.log('playbook error:!' + playbook);
-    let playbooksError = this.state.playbooksError;
-    playbooksError.push(playbook);
-    this.setState({'playbooksError' : playbooksError});
+    this.setState((prevState) => {
+      return {'playbooksError': prevState.playbooksError.concat(playbook)}
+    });
   }
 }
 
