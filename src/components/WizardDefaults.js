@@ -6,6 +6,7 @@ import InstallIntro from '../pages/InstallIntro';
 import ValidateConfigFiles from '../pages/ValidateConfigFiles';
 import CloudDeployProgress from '../pages/CloudDeployProgress';
 import SelectServersToProvision from '../pages/SelectServersToProvision';
+import ServerRoleSummary from '../pages/ServerRoleSummary';
 
 /**
  * Define the name of each step and its corresponding React Component.
@@ -25,6 +26,9 @@ export const pages = [{
 }, {
   name: 'AssignServerRoles',
   component: AssignServerRoles
+}, {
+  name: 'ServerRoleSummary',
+  component: ServerRoleSummary
 }, {
   name: 'SelectServersToProvision',
   component: SelectServersToProvision
