@@ -36,7 +36,7 @@ class CollapsibleTable extends Component {
 
   toggleShowHide(event, clickedGroup) {
     let index = this.state.expandedGroup.indexOf(clickedGroup);
-    if (index == -1) {
+    if (index === -1) {
       this.addExpandedGroup(clickedGroup);
     } else {
       this.removeExpandedGroup(clickedGroup);
@@ -60,7 +60,7 @@ class CollapsibleTable extends Component {
 
   isGroupExpanded(groupName) {
     let index = this.state.expandedGroup.indexOf(groupName);
-    return (index == -1) ? false : true;
+    return (index === -1) ? false : true;
   }
 
   renderGroup(group) {
@@ -72,7 +72,7 @@ class CollapsibleTable extends Component {
     let fillerTds = [];
     for (let i=0; i<Object.keys(group.members[0]).length-2; i++) {
       fillerTds.push(<td key={i}></td>);
-    };
+    }
 
     let groupRows = [<tr className='group-row' key={group.groupName}
       onClick={(event) => this.toggleShowHide(event, group.groupName)}>
