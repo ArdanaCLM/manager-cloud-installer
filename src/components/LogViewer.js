@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
+import { getAppConfig } from '../components/ConfigHelper.js';
 import { List } from 'immutable';
 import io from 'socket.io-client';
 import debounce from 'lodash/debounce';
@@ -20,7 +21,7 @@ class LogViewer extends Component {
       autoScroll: true
     };
 
-    fetch('http://localhost:8081/api/v1/clm/plays/' + props.playId, {
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/plays/' + props.playId, {
       // Note: Use no-cache in order to get an up-to-date response
       headers: {
         'pragma': 'no-cache',
@@ -35,7 +36,7 @@ class LogViewer extends Component {
       }})
     .then(response => {
       if ('endTime' in response) {
-        fetch('http://localhost:8081/api/v1/clm/plays/' + props.playId + "/log")
+        fetch(getAppConfig('shimurl') + '/api/v1/clm/plays/' + props.playId + "/log")
         .then(response => response.text())
         .then(response => {
           const message = response.trimRight('\n')
@@ -43,8 +44,7 @@ class LogViewer extends Component {
           this.setState({contents: received});
         })
       } else {
-        // TODO(gary): Go through the shim layer when that API is available
-        this.socket = io('http://localhost:9085');
+        this.socket = io(getAppConfig('deployserviceurl'));
 
         this.socket.on('connect', data => {
           this.socket.emit('join', response['id']);

@@ -1,6 +1,7 @@
 import React from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
+import { getAppConfig } from '../components/ConfigHelper.js';
 import BaseWizardPage from './BaseWizardPage.js';
 
 import {
@@ -41,11 +42,11 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   saveTemplateIntoModel(modelName) {
-    fetch('http://localhost:8081/api/v1/clm/templates/' + modelName)
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/templates/' + modelName)
       .then(response => response.json())
       .then((responseData) => {
         // Save the selected template as the model
-        fetch('http://localhost:8081/api/v1/clm/model', {
+        fetch(getAppConfig('shimurl') + '/api/v1/clm/model', {
           method: 'POST',
           headers: {
             'Accept': 'application/json, text/plain, */*',
@@ -77,7 +78,7 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   getTemplates() {
-    fetch('http://localhost:8081/api/v1/clm/templates')
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/templates')
       .then(response => response.json())
       .then((responseData) => {
         this.templates = responseData;

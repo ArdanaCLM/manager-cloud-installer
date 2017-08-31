@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
+import { getAppConfig } from '../components/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import { YesNoModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
@@ -21,7 +22,7 @@ class SelectServers extends BaseWizardPage {
 
   componentWillMount() {
     // retrieve a list of servers that have roles
-    fetch('http://localhost:8081/api/v1/clm/model/entities/servers')
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/entities/servers')
       .then(response => response.json())
       .then((responseData) => {
         this.setState({

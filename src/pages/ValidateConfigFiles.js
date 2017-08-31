@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
+import { getAppConfig } from '../components/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 
@@ -21,7 +22,7 @@ class EditFile extends BaseWizardPage {
   }
 
   componentWillMount() {
-    fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name)
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/files/' + this.props.file.name)
       .then(response => response.json())
       .then((response) => {
         this.setState({contents: response});
@@ -32,7 +33,7 @@ class EditFile extends BaseWizardPage {
     this.props.setChanged();
     this.props.doneEditingFile();
 
-    fetch('http://localhost:8081/api/v1/clm/model/files/' + this.props.file.name, {
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/files/' + this.props.file.name, {
       method: 'POST',
       headers: {
         'Accept': 'application/json, text/plain, */*',
@@ -157,7 +158,7 @@ class ValidateConfigFiles extends Component {
     };
 
     // retrieve a list of yml files
-    fetch('http://localhost:8081/api/v1/clm/model/files')
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/files')
       .then(response => response.json())
       .then((responseData) => {
         this.setState({
@@ -184,7 +185,7 @@ class ValidateConfigFiles extends Component {
       bodyStr = (this.state.valid !== INVALID) ? {'want_fail': true} : {'want_pass': true};
     }
 
-    fetch('http://localhost:8081/api/v1/clm/config_processor', {
+    fetch(getAppConfig('shimurl') + '/api/v1/clm/config_processor', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
