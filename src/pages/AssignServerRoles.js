@@ -6,7 +6,8 @@ import { getAppConfig } from '../components/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { SearchBar, ServerRolesAccordion } from '../components/ServerUtils.js';
-import { ConnectionInputModal } from '../components/Modals.js';
+import { BaseInputModal } from '../components/Modals.js';
+import ConnectionCredsInfo from '../components/ConnectionCredsInfo';
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
@@ -31,6 +32,29 @@ class AssignServerRoles extends BaseWizardPage {
     ];
     this.activeRowData = undefined;
 
+    //TODO save as step state later
+    //at this point just keep in the session
+    let apiToken =  undefined;//TODO where to find apiToken just call it will have exception
+    this.credentials = {
+      suma: {
+        token:  apiToken || undefined,
+        creds: {
+          username: '',
+          password: '',
+          host: '',
+          port: 0,
+        },
+      },
+      oneview: {
+        creds: {
+          username: '',
+          password: '',
+          host: '',
+          port: 0,
+        },
+      }
+    };
+
     //states changes will rerender UI
     this.state = {
       //server list on the available servers side
@@ -53,8 +77,8 @@ class AssignServerRoles extends BaseWizardPage {
       pageValid: false,
       //what tab key selected
       selectedAddServerTabKey: AUTODISCOVER_TAB,
-      showCredsModal: false,
-      credsInputValid: false
+      //show or not credentials modal
+      showCredsModal: false
     };
 
     this.handleDiscovery = this.handleDiscovery.bind(this);
@@ -78,7 +102,6 @@ class AssignServerRoles extends BaseWizardPage {
     this.handleInitDiscovery = this.handleInitDiscovery.bind(this);
     this.handleDoneCredsInput = this.handleDoneCredsInput.bind(this);
     this.handleCancelCredsInput = this.handleCancelCredsInput.bind(this);
-    this.handlTestCredsInput = this.handleTestCredsInput.bind(this);
   }
 
   refreshServers(rawServerData) {
@@ -303,17 +326,23 @@ class AssignServerRoles extends BaseWizardPage {
   handleInitDiscovery() {
     this.setState({showCredsModal: true});
   }
+
   handleCancelCredsInput() {
     this.setState({showCredsModal: false});
   }
 
   //TODO
-  handleDoneCredsInput() {
-    this.setState({showCredsModal: false});
-  }
-
-  handleTestCredsInput() {
-    //TODO
+  handleDoneCredsInput(credsData) {
+    this.setState({
+      showCredsModal: false,
+    });
+    if(credsData.suma) {
+      this.credentials.suma = credsData.suma;
+    }
+    if(credsData.oneview) {
+      this.credentials.oneview = credsData.oneview;
+    }
+    //TODO if don't have available server...run discovery with creds info
   }
 
   //TODO doesn't do anything yet
@@ -774,26 +803,28 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
-  //TODO
   renderCredsInputContent() {
-    return (<div>TODO</div>);
+    return (
+      <ConnectionCredsInfo
+        cancelAction={this.handleCancelCredsInput} doneAction={this.handleDoneCredsInput}
+        data={this.credentials}>
+      </ConnectionCredsInfo>
+    );
   }
 
   renderCredsInputModal() {
     return (
-      <ConnectionInputModal
-        cancelAction={this.handleCancelCredsInput} testAction={this.handleTestCredsInput}
-        doneAction={this.handleDoneCredsInput} isDoneDisabled={!this.state.credsInputValid}
+      <BaseInputModal
         show={this.state.showCredsModal}
-        body={this.renderCredsInputContent()} title={translate('add.server.connection.creds')}
-      >
-      </ConnectionInputModal>
+        dialogClass='creds-dialog'
+        body={this.renderCredsInputContent()} title={translate('add.server.connection.creds')}>
+      </BaseInputModal>
     );
   }
 
   render() {
     return (
-      <div id='AddServersId' className='wizard-content'>
+      <div id='AssignServerRoleId' className='wizard-content'>
         {this.renderHeading(translate('add.server.heading', this.selectedModelName))}
         {this.renderServerRoleContent()}
         {this.renderNavButtons()}

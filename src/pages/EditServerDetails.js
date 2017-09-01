@@ -14,7 +14,7 @@ class EditServerDetails extends BaseWizardPage {
 
     this.nicMappings = this.props.nicMappings;
     this.serverGroups = this.props.serverGroups;
-    this.allInputsValidState = {
+    this.allInputsStatus = {
       'ip-addr': 0,
       'ilo-user': 0,
       'ilo-password': 0,
@@ -42,8 +42,8 @@ class EditServerDetails extends BaseWizardPage {
   }
 
   updateFormValidity(name, isValid) {
-    this.allInputsValidState[name] = isValid ? 1 : 0;
-    let values = Object.values(this.allInputsValidState);
+    this.allInputsStatus[name] = isValid ? 1 : 0;
+    let values = Object.values(this.allInputsStatus);
     let val = values.find((val) => {
       return val === 0;
     });
