@@ -14,7 +14,6 @@ class CollapsibleTable extends Component {
       // Keywords are "groupName" and "members", where group is the name of the collapsible category
       // and members are the category's members which will be displayed under the category
       expandedGroup: [],
-      firstRender: true
     };
 
     this.addExpandedGroup = this.addExpandedGroup.bind(this);
@@ -26,11 +25,8 @@ class CollapsibleTable extends Component {
       this.setState({data: nextProps.data});
 
       // expand only the first group at first
-      if (this.state.firstRender) {
-        let firstGroup = nextProps.data[0];
-        this.addExpandedGroup(firstGroup.groupName);
-        this.setState({firstRender: false});
-      }
+      let firstGroup = nextProps.data[0];
+      this.addExpandedGroup(firstGroup.groupName);
     }
   }
 
@@ -44,18 +40,18 @@ class CollapsibleTable extends Component {
   }
 
   addExpandedGroup(groupName) {
-    let newExpandedGroup = this.state.expandedGroup.slice();
-    newExpandedGroup.push(groupName);
-    this.setState({expandedGroup: newExpandedGroup});
+    this.setState((prevState) => {
+      return {'expandedGroup': prevState.expandedGroup.concat(groupName)};});
   }
 
   removeExpandedGroup(groupName) {
-    let index = this.state.expandedGroup.indexOf(groupName);
-    if (index != -1) {
-      let newExpandedGroup = this.state.expandedGroup.slice();
-      newExpandedGroup.splice(index, 1);
-      this.setState({expandedGroup: newExpandedGroup});
-    }
+    this.setState((prevState) => {
+      let index = prevState.expandedGroup.indexOf(groupName);
+      if (index !== -1) {
+        prevState.expandedGroup.splice(index, 1);
+      }
+      return {'expandedGroup': prevState.expandedGroup};
+    });
   }
 
   isGroupExpanded(groupName) {
