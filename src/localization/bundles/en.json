@@ -12,6 +12,7 @@
     "no": "No",
     "ok": "OK",
     "test": "Test",
+    "expand.all": "Expand All",
     "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
     "wizard.loading.pleasewait": "Loading... Please wait",
     "logviewer.autoscroll": "Automatically scroll to the bottom",
@@ -102,6 +103,8 @@
     "provision.server.failure": "Server Installation Failure : {0}",
     "provision.server.confirm.heading": "WARNING",
     "provision.server.confirm.body": "You've selected to have SLES installed on {0} server(s).\n All existing data on the servers will be overwritten, including any OSes that are already installed.\n\n Are you sure you want to proceed?",
+
+    "server.role.summary.heading": "Server and Server Role Summary",
 
     "input.validator.ipv4address.error": "Please enter a valid IPV4 Address",
     "input.validator.macaddress.error": "Please enter a valid MAC Address"

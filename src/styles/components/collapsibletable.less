@@ -1,0 +1,41 @@
+.collapsible-table {
+  table {
+    width: 100%;
+  }
+  .group-row {
+    background-color: @table-header-color;
+    line-height: 3.2em;
+    font-size: 1.1em;
+    border-bottom: 1px solid @box-border-color;
+    .group-count-col {
+      float: right;
+      padding-right: 1em;
+      width: 100%;
+      text-align: end;
+    }
+    .expand-collapse-icon {
+      padding-left: 1em;
+      font-size: 0.8em;
+      color: @box-border-color;
+    }
+  }
+  .group-row:not(:first-child) {
+    border-top: 1px solid @box-border-color;
+  }
+  .member-row {
+    line-height: 3.5em;
+    .show-row {
+      display: table-row;
+    }
+  }
+  .first-cell {
+    padding-left: 1em;
+  }
+  .expand-all-btn-container {
+    width: 100%;
+    display: inline-block;
+    .expand-all-btn {
+      float: right;
+    }
+  }
+}
