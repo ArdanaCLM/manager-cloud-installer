@@ -3,7 +3,7 @@ import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../components/ConfigHelper.js';
 import BaseWizardPage from './BaseWizardPage.js';
-
+import { ErrorMessage } from '../components/Messages.js';
 import {
   PickerButton,
   ActionButton,
@@ -26,7 +26,9 @@ class CloudModelPicker extends BaseWizardPage {
         'entry-scale-swift',
         'mid-scale-kvm-vsa'
       ],
-      pageValid: this.props.selectedModelName ? true : false
+      pageValid: this.props.selectedModelName ? true : false,
+      showError: false,
+      errorContent: undefined
     };
 
     this.handlePickModel = this.handlePickModel.bind(this);
@@ -35,6 +37,7 @@ class CloudModelPicker extends BaseWizardPage {
     this.handleShowSelectTemplateHelp = this.handleShowSelectTemplateHelp.bind(this);
     this.handleShowHelpChooseHelp = this.handleShowHelpChooseHelp.bind(this);
     this.updateParentSelectedModelName = this.updateParentSelectedModelName.bind(this);
+    this.handleCloseErrorMessage = this.handleCloseErrorMessage.bind(this);
   }
 
   componentWillMount() {
@@ -43,7 +46,8 @@ class CloudModelPicker extends BaseWizardPage {
 
   saveTemplateIntoModel(modelName) {
     fetch(getAppConfig('shimurl') + '/api/v1/clm/templates/' + modelName)
-      .then(response => response.json())
+      .then((response) => this.checkResponse(response))
+      .then((response) => response.json())
       .then((responseData) => {
         // Save the selected template as the model
         fetch(getAppConfig('shimurl') + '/api/v1/clm/model', {
@@ -54,31 +58,45 @@ class CloudModelPicker extends BaseWizardPage {
           },
           body: JSON.stringify(responseData)
         })
-          .then((response) => {
-            if(response && response.ok === false) {
-              //TODO remove
-              console.error('Failed to save model object data');
-              this.setState({pageValid: false});
-            }
-            else {
-              this.setState({pageValid: true});
-            }
-          })
+          .then((response) => this.checkResponse(response))
+          .then((response) => this.setState({pageValid: true}))
           .catch((error) => {
-            //TODO remove
-            console.error('Failed to save model object data');
-            this.setState({pageValid: false});
+            let msg = translate('model.picker.save.model.error', modelName);
+            let msgContent = {
+              title: translate('model.picker.save.model.error.title'),
+              messages: [msg, error.toString()]
+            };
+            this.setState({
+              pageValid: false,
+              showError: true,
+              errorContent: msgContent
+            });
           });
       })
       .catch((error) => {
-        //TODO remove
-        console.error('Failed to get model object data');
-        this.setState({pageValid: false});
+        let msg = translate('model.picker.get.model.error', modelName, error);
+        let msgContent = {
+          title: translate('model.picker.get.model.error.title'),
+          messages: [msg, error.toString()]
+        };
+        this.setState({
+          pageValid: false,
+          showError: true,
+          errorContent: msgContent
+        });
       });
+  }
+
+  checkResponse(response) {
+    if (!response.ok) {
+      throw Error(response.url + ':' + response.statusText);
+    }
+    return response;
   }
 
   getTemplates() {
     fetch(getAppConfig('shimurl') + '/api/v1/clm/templates')
+      .then(response => this.checkResponse(response))
       .then(response => response.json())
       .then((responseData) => {
         this.templates = responseData;
@@ -92,8 +110,15 @@ class CloudModelPicker extends BaseWizardPage {
         }
       })
       .catch((error) => {
-        //TODO remove
-        console.error('Failed to get templates data');
+        let msg = translate('model.picker.get.template.error');
+        let msgContent = {
+          title: translate('model.picker.get.template.error.title'),
+          messages: [msg, error.toString()]
+        };
+        this.setState({
+          showError: true,
+          errorContent: msgContent
+        });
       });
   }
 
@@ -148,6 +173,13 @@ class CloudModelPicker extends BaseWizardPage {
     //TODO
   }
 
+  handleCloseErrorMessage() {
+    this.setState({
+      showError: false,
+      errorContent: undefined
+    });
+  }
+
   renderPickerButtons() {
     let btns = [];
     for (let i = 0; i < this.state.simpleModels.length; i++) {
@@ -174,6 +206,15 @@ class CloudModelPicker extends BaseWizardPage {
   renderModelDetails(details) {
     return (
       <div className='model-details' dangerouslySetInnerHTML={{__html: details}}/>
+    );
+  }
+
+  renderErrorMessage() {
+    return (
+      <ErrorMessage
+        closeAction={this.handleCloseErrorMessage}
+        show={this.state.showError} content={this.state.errorContent}>
+      </ErrorMessage>
     );
   }
 
@@ -208,6 +249,7 @@ class CloudModelPicker extends BaseWizardPage {
           </div>
         </div>
         {this.renderNavButtons()}
+        {this.renderErrorMessage()}
       </div>
     );
     //TODO need fix issue of order of next and back button
