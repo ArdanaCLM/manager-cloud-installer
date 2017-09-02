@@ -4,10 +4,9 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../components/ConfigHelper.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ErrorMessage } from '../components/Messages.js';
+import { LoadingMask } from '../components/LoadingMask.js';
 import {
-  PickerButton,
-  ActionButton,
-  ItemHelpButton
+  PickerButton, ActionButton, ItemHelpButton
 } from '../components/Buttons.js';
 
 class CloudModelPicker extends BaseWizardPage {
@@ -28,7 +27,8 @@ class CloudModelPicker extends BaseWizardPage {
       ],
       pageValid: this.props.selectedModelName ? true : false,
       showError: false,
-      errorContent: undefined
+      errorContent: undefined,
+      loading: false
     };
 
     this.handlePickModel = this.handlePickModel.bind(this);
@@ -45,6 +45,7 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   saveTemplateIntoModel(modelName) {
+    this.setState({loading: true});
     fetch(getAppConfig('shimurl') + '/api/v1/clm/templates/' + modelName)
       .then((response) => this.checkResponse(response))
       .then((response) => response.json())
@@ -59,7 +60,7 @@ class CloudModelPicker extends BaseWizardPage {
           body: JSON.stringify(responseData)
         })
           .then((response) => this.checkResponse(response))
-          .then((response) => this.setState({pageValid: true}))
+          .then((response) => this.setState({pageValid: true, loading: false}))
           .catch((error) => {
             let msg = translate('model.picker.save.model.error', modelName);
             let msgContent = {
@@ -69,7 +70,8 @@ class CloudModelPicker extends BaseWizardPage {
             this.setState({
               pageValid: false,
               showError: true,
-              errorContent: msgContent
+              errorContent: msgContent,
+              loading: false
             });
           });
       })
@@ -82,7 +84,8 @@ class CloudModelPicker extends BaseWizardPage {
         this.setState({
           pageValid: false,
           showError: true,
-          errorContent: msgContent
+          errorContent: msgContent,
+          loading: false
         });
       });
   }
@@ -95,12 +98,13 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   getTemplates() {
+    this.setState({loading: true});
     fetch(getAppConfig('shimurl') + '/api/v1/clm/templates')
       .then(response => this.checkResponse(response))
       .then(response => response.json())
       .then((responseData) => {
         this.templates = responseData;
-
+        this.setState({loading: false});
         //set default template selection if we have any
         if(this.state.selectedModelName) {
           let temp = this.findTemplate(this.state.selectedModelName);
@@ -117,7 +121,8 @@ class CloudModelPicker extends BaseWizardPage {
         };
         this.setState({
           showError: true,
-          errorContent: msgContent
+          errorContent: msgContent,
+          loading: false
         });
       });
   }
@@ -180,6 +185,12 @@ class CloudModelPicker extends BaseWizardPage {
     });
   }
 
+  renderLoadingMask() {
+    return (
+      <LoadingMask show={this.state.loading}></LoadingMask>
+    );
+  }
+
   renderPickerButtons() {
     let btns = [];
     for (let i = 0; i < this.state.simpleModels.length; i++) {
@@ -223,6 +234,7 @@ class CloudModelPicker extends BaseWizardPage {
     return (
       <div className='wizard-content'>
         {this.renderHeading(translate('model.picker.heading'))}
+        {this.renderLoadingMask()}
         <div className='picker-container'>
           {this.renderPickerButtons()}
         </div>
