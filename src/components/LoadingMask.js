@@ -3,21 +3,10 @@ import { ThreeBounce } from 'better-react-spinkit';
 import '../Deployer.css';
 
 class LoadingMask extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      show: this.props.show
-    };
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.setState({show: newProps.show});
-  }
-
   renderMask() {
     let retValue = <div></div>;
     let spinSize = this.props.size ? this.props.size : 25;
-    if(this.state.show) {
+    if(this.props.show) {
       retValue = (
         <div className='spinners-container'>
           <ThreeBounce className='spinners' size={spinSize} color='#00C081'/>
@@ -29,9 +18,7 @@ class LoadingMask extends Component {
 
   render() {
     return (
-      <div>
-        {this.renderMask()}
-      </div>
+      <div>{this.renderMask()}</div>
     );
   }
 }

@@ -37,7 +37,6 @@ class CloudModelPicker extends BaseWizardPage {
     this.handleShowSelectTemplateHelp = this.handleShowSelectTemplateHelp.bind(this);
     this.handleShowHelpChooseHelp = this.handleShowHelpChooseHelp.bind(this);
     this.updateParentSelectedModelName = this.updateParentSelectedModelName.bind(this);
-    this.handleCloseErrorMessage = this.handleCloseErrorMessage.bind(this);
   }
 
   componentWillMount() {
@@ -178,13 +177,6 @@ class CloudModelPicker extends BaseWizardPage {
     //TODO
   }
 
-  handleCloseErrorMessage() {
-    this.setState({
-      showError: false,
-      errorContent: undefined
-    });
-  }
-
   renderLoadingMask() {
     return (
       <LoadingMask show={this.state.loading}></LoadingMask>
@@ -223,7 +215,6 @@ class CloudModelPicker extends BaseWizardPage {
   renderErrorMessage() {
     return (
       <ErrorMessage
-        closeAction={this.handleCloseErrorMessage}
         show={this.state.showError} content={this.state.errorContent}>
       </ErrorMessage>
     );
