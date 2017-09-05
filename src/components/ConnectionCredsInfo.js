@@ -117,13 +117,15 @@ class ConnectionCredsInfo extends Component {
     return isAllValid;
   }
 
-  updateFormValidity(props, isValid) {
+  updateFormValidity(props, isValid, clearTest) {
     this.allInputsStatus[props.category][props.inputName] = isValid ? VALID : INVALID;
-    if(props.category === 'suma') {
-      this.setState({sumaTestStatus: UNKNOWN});
-    }
-    else {
-      this.setState({oneviewTestStatus: UNKNOWN});
+    if (clearTest) {
+      if (props.category === 'suma') {
+        this.setState({sumaTestStatus: UNKNOWN});
+      }
+      else {
+        this.setState({oneviewTestStatus: UNKNOWN});
+      }
     }
   }
 
@@ -149,7 +151,7 @@ class ConnectionCredsInfo extends Component {
 
   handleInputChange(e, isValid, props) {
     let value = e.target.value;
-    this.updateFormValidity(props, isValid);
+    this.updateFormValidity(props, isValid, true);
     if (isValid) {
       this.data[props.category]['creds'][props.inputName] = value;
     }
