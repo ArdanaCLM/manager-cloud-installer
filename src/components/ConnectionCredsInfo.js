@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import { translate } from '../localization/localize.js';
 import { ServerInput } from '../components/ServerUtils.js';
 import { ActionButton } from '../components/Buttons.js';
@@ -33,15 +32,10 @@ class ConnectionCredsInfo extends Component {
       }
     };
 
-    //check if test pass or not
-    this.testStatus = {
-      'suma': UNKNOWN,
-      'oneview': UNKNOWN
-    };
-
     this.state = {
-      isFormValid: false,
-      isOneViewChecked: false
+      isOneViewChecked: false,
+      sumaTestStatus: UNKNOWN,
+      oneviewTestStatus: UNKNOWN
     };
 
     this.updateFormValidity = this.updateFormValidity.bind(this);
@@ -54,10 +48,35 @@ class ConnectionCredsInfo extends Component {
   }
 
   componentWillMount() {
+    this.data =this.makeDeepCopy(this.props.data);
+    this.initData();
     this.setState({
       isSumaChecked: this.initSumaCheck()
     });
-    this.data =this.makeDeepCopy(this.props.data);
+  }
+
+  initData() {
+    //init so we don't need to check too many levels of data defined or undefined
+    if(!this.data.suma) {
+      this.data.suma = {
+        creds: {
+          'host': '',
+          'username': '',
+          'password': '',
+          'port': 0
+        }
+      };
+    }
+    if(!this.data.oneview) {
+      this.data.oneview = {
+        creds: {
+          'host': '',
+          'username': '',
+          'password': '',
+          'port': 0
+        }
+      };
+    }
   }
 
   makeDeepCopy(srcData) {
@@ -65,12 +84,7 @@ class ConnectionCredsInfo extends Component {
   }
 
   initSumaCheck() {
-    if(this.props.data &&
-      this.props.data.suma &&
-      this.props.data.suma.token) {
-      return true;
-    }
-    return false;
+    return (this.data.suma.token !== undefined);
   }
 
   checkFormValues (values) {
@@ -86,10 +100,10 @@ class ConnectionCredsInfo extends Component {
     return isValid;
   }
 
-  setFormValidity() {
+  isFormValid() {
     let isAllValid = true;
     if(this.state.isSumaChecked && this.data.suma.token === undefined) {
-      let values = Object.values(this.allInputsStatus['suma']);
+      let values = Object.values(this.allInputsStatus.suma);
       isAllValid = this.checkFormValues(values);
     }
 
@@ -100,36 +114,37 @@ class ConnectionCredsInfo extends Component {
         isAllValid = this.checkFormValues(values);
       }
     }
-    //use this to enable and disable done button
-    this.setState({isFormValid: isAllValid});
+    return isAllValid;
   }
 
   updateFormValidity(props, isValid) {
     this.allInputsStatus[props.category][props.inputName] = isValid ? VALID : INVALID;
-    this.testStatus[props.category] = UNKNOWN;
-    this.setFormValidity();
+    if(props.category === 'suma') {
+      this.setState({sumaTestStatus: UNKNOWN});
+    }
+    else {
+      this.setState({oneviewTestStatus: UNKNOWN});
+    }
   }
 
   isDoneDisabled() {
-    if(!this.state.isFormValid ||
+    return (
+      !this.isFormValid() ||
       (this.state.isSumaChecked &&
        this.data.suma.token === undefined &&
-       this.testStatus.suma <= 0) ||
+       this.state.sumaTestStatus <= 0) ||
       (this.state.isOneViewChecked &&
-      this.testStatus.oneview <=0)) {
-      return true;
-    }
-    return false;
+      this.state.oneviewTestStatus <= 0) ||
+      (!this.state.isSumaChecked && !this.state.isOneViewChecked)
+    );
   }
 
   isTestDisabled() {
-    if(!this.state.isFormValid ||
+    return (
+      !this.isFormValid() ||
       (!this.state.isOneViewChecked && !this.state.isSumaChecked) ||
-      (!this.state.isOneViewChecked && this.data.suma.token !== undefined)) {
-      return true;
-    }
-
-    return false;
+      (!this.state.isOneViewChecked && this.data.suma.token !== undefined)
+    );
   }
 
   handleInputChange(e, isValid, props) {
@@ -147,14 +162,12 @@ class ConnectionCredsInfo extends Component {
       //TODO need implemnt backend to do actual test
       //TODO need implement loading mask
       //error toast message
-      this.testStatus.suma = VALID;
+      this.setState({sumaTestStatus: VALID});
     }
 
     if(this.state.isOneViewChecked) {
-      this.testStatus.oneview = VALID;
+      this.setState({oneviewTestStatus: VALID});
     }
-
-    this.setFormValidity();
   }
 
   handleCancel() {
@@ -179,29 +192,11 @@ class ConnectionCredsInfo extends Component {
   }
 
   handleSumaCheckBoxChange(e, data) {
-    if(!this.state.isSumaChecked) {
-      this.data.suma.creds.password = '';
-    }
-
     this.setState({isSumaChecked: !this.state.isSumaChecked});
-    //clear up the validation
-    let keys = Object.keys(this.allInputsStatus.suma);
-    keys.forEach((key) => {
-      this.allInputsStatus.suma[key] = UNKNOWN;
-    });
-    //reset test status
-    this.testStatus.suma = UNKNOWN;
   }
 
   handleOneviewCheckBoxChange(e, data) {
     this.setState({isOneViewChecked: !this.state.isOneViewChecked});
-    //clear up the validation
-    let keys = Object.keys(this.allInputsStatus.oneview);
-    keys.forEach((key) => {
-      this.allInputsStatus.oneview[key] = UNKNOWN;
-    });
-    //reset test status
-    this.testStatus.oneview = UNKNOWN;
   }
 
   renderInput(name, type, category, validate) {
