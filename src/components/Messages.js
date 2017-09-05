@@ -5,21 +5,6 @@ import '../Deployer.css';
 class NotificationMessage extends Component {
   constructor(props) {
     super(props);
-    this.state = {show: this.props.show};
-    this.handleDismiss = this.handleDismiss.bind(this);
-  }
-
-  handleDismiss() {
-    this.setState({show: false});
-    if(this.props.closeAction) {
-      this.props.closeAction();
-    }
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.setState({
-      show: newProps.show
-    });
   }
 
   renderMessageContent() {
@@ -43,10 +28,10 @@ class NotificationMessage extends Component {
   }
 
   render() {
-    if (this.state.show) {
+    if (this.props.show) {
       return (
         <div className='notification-message'>
-          <Alert bsStyle={this.props.type} onDismiss={this.handleDismiss}>
+          <Alert bsStyle={this.props.type} onDismiss={this.props.closeAction}>
             {this.renderMessageContent()}
           </Alert>
         </div>
