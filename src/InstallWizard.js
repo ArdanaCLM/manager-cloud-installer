@@ -4,6 +4,7 @@ import { translate } from './localization/localize.js';
 import { getAppConfig } from './components/ConfigHelper.js';
 import { stepProgressValues } from './components/StepProgressValues.js';
 import WizardProgress from './components/WizardProgress';
+import { LoadingMask } from './components/LoadingMask.js';
 
 
 /**
@@ -16,43 +17,60 @@ class InstallWizard extends Component {
   {
     super(props);
 
-    this.state = this.initialState(props);
+    this.state = {
+      // The current step in the wizard
+      currentStep: undefined,
+
+      // The status of each step in the wizard.  If a user has an error in a step
+      // and then returns to the previous step, this array will track the fact that the
+      // later step had an error even though it is no longer the current step.
+      steps: props.pages,
+
+      // The remaining values capture the state of the user's progress through the wizard.  The primary
+      // purpose of these values is so that if a user were to close the browser and then re-open it,
+      // then the session should look nearly identical, including:
+      // - the user should be on the same step in the wizard
+      // - values entered by the user that are not stored anywhere else should be retained.  This
+      //   includes values like what model was selected, credentials for remote systems, and so on.
+      //   Information that is already stored in the model should not be included, since it is
+      //   already being persisted in the model (e.g. which servers are assigned which roles).
+      //
+      selectedModelName: ''
+    };
 
     // Load the current state information from the backend
+
+    // To simulate a delay in startup and to be able to see the initial loading mask,
+    //    uncomment the following line and the line with the closing parenthesis two lines later
+    // new Promise(resolve => setTimeout(resolve, 1000)).then(() =>
     fetch(getAppConfig('shimurl') + '/api/v1/progress')
+    //  )
       .then(response => response.json())
       .then((responseData) =>
       {
-        var progress = responseData || this.initialState(props);
-        var forcedReset = (window.location.search.indexOf('reset=true') === -1) ? false : true;
+        // Note: if no progress data can be found, responseData is an empty string
+        const forcedReset = window.location.search.indexOf('reset=true') !== -1;
 
-        /**
-         * if the state loaded from the backend has the pages in a different order than
-         * expected by the UI, discard that state and use the default values
-         */
-        if(forcedReset || !this.areStepsInOrder(progress.steps, this.props.pages)) {
-          progress = this.initialState(props);
-        }
+        if (! forcedReset && responseData.steps && this.areStepsInOrder(responseData.steps, this.props.pages)) {
+          this.setState(responseData);
+        } else {
+          // No data was loaded, so set the currentStep to 0 and update its stepProgress to inprogress
+          this.setState((prevState) => {
+            var newSteps = prevState.steps.slice();
+            newSteps.splice(0, 1, {
+              name: prevState.steps[0].name,
+              stepProgress: stepProgressValues.inprogress
+            });
 
-        this.setState({
-          currentStep: progress.currentStep,
-          steps: progress.steps,
-          selectedModelName: progress.selectedModelName,
-          currentlyDisplayedJSX: this.buildElement(progress.currentStep, progress.selectedModelName)
-        }, this.persistState);
-      });
-  }
-
-  initialState(props) {
-    let state = {
-      currentStep: 0,
-      selectedModelName: '',
-      steps: props.pages,
-      currentlyDisplayedJSX: undefined    // this field is not persisted
-    };
-
-    state.steps[0].stepProgress = stepProgressValues.inprogress;
-    return state;
+            return {
+              currentStep: 0,
+              steps: newSteps
+            };
+        });
+      }})
+    .catch((error) => {
+        this.setState({currentStep: 0}, this.persistState);
+    });
   }
 
   /**
@@ -76,29 +94,31 @@ class InstallWizard extends Component {
   }
 
   /**
-   * creates a react compoennt representing the current step in the wizard based on the overall set of steps
+   * creates a react component representing the current step in the wizard based on the overall set of steps
    * and the current index
-   * @param {Array} an array of objects representing the list of states, their indexes and state
-   * @param {number} the current index (how far along in the wizard), a whole number matching some step index
    */
-  buildElement(currentStep, selectedModelName) {
-    var props = [];
+  buildElement() {
+    if (this.state.currentStep === undefined) {
+      return (<div className="loading-message">{translate('wizard.loading.pleasewait')}</div>);
+    }
+
+    let props = [];
 
     //check if first element
-    if(currentStep !== 0) {
+    if(this.state.currentStep !== 0) {
       props.back = this.stepBack.bind(this);
     }
 
     //check for additional steps
-    if(currentStep < (this.props.pages.length - 1)) {
+    if(this.state.currentStep < (this.props.pages.length - 1)) {
       props.next = this.stepForward.bind(this);
     }
 
-    props.selectedModelName = selectedModelName;
+    props.selectedModelName = this.state.selectedModelName;
     // pass a callback to update the selectedModelName.  Only used by the cloud model picker page
-    props.updateModelName = this.updateModelName.bind(this);
+    props.updateModelName = this.updateModelName;
 
-    return React.createElement(this.props.pages[currentStep].component, props);
+    return React.createElement(this.props.pages[this.state.currentStep].component, props);
   }
 
   /**
@@ -144,8 +164,6 @@ class InstallWizard extends Component {
 
         //prepared to advance to the next page
         stateUpdates.currentStep = this.state.currentStep + 1;
-        stateUpdates.currentlyDisplayedJSX =
-            this.buildElement(this.state.currentStep + 1, this.state.selectedModelName);
       }
     }
 
@@ -174,8 +192,6 @@ class InstallWizard extends Component {
 
       //prepare to go back a page
       stateUpdates.currentStep = this.state.currentStep - 1;
-      stateUpdates.currentlyDisplayedJSX =
-          this.buildElement(this.state.currentStep - 1 , this.state.selectedModelName);
     }
     stateUpdates.steps = steps;
 
@@ -183,29 +199,23 @@ class InstallWizard extends Component {
     this.setState(stateUpdates, this.persistState);
   }
 
-  updateModelName(modelName) {
+  updateModelName = (modelName) => {
     this.setState({selectedModelName: modelName}, this.persistState);
   }
 
   /**
    * boilerplate ReactJS render function
    */
-  render()
-  {
-    let currentStepComponent = this.state.currentlyDisplayedJSX;
-
-    if(currentStepComponent === undefined) {
-      currentStepComponent = <div>{translate('wizard.loading.pleasewait')}</div>;
-    }
-
-    return(
+  render() {
+    return (
       <div>
         <div className='wizard-header'>
           <h1>{translate('openstack.cloud.deployer.title')}</h1>
           <WizardProgress steps={this.state.steps} />
         </div>
         <div>
-          {currentStepComponent}
+          <LoadingMask show={this.state.currentStep === undefined}></LoadingMask>
+          {this.buildElement()}
         </div>
       </div>
     );
