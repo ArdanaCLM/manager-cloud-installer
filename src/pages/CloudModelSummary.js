@@ -99,18 +99,26 @@ class CloudModelSummary extends BaseWizardPage {
   goForward(e) {
     e.preventDefault();
 
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/entities/control-planes', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify([this.state.controlPlane.toJSON()])
-    })
-    .then(result => { this.props.next(false); })  // go to the next page
-    .catch((error) => {
-        // TODO: Show a toast error instead of a console log
-      console.error(JSON.stringify(error));
-    });
+    // controlPlane is populated into the state when the form is loaded by doing a fetch
+    // of the model.  If the user is so quick that they pressed the forward button before
+    // the model finished loading, then they were certainly unable to make any changes to
+    // that model. In that case, just move to the next screen without trying to save
+    // anything
+    if (this.state.controlPlane) {
+
+      fetch(getAppConfig('shimurl') + '/api/v1/clm/model/entities/control-planes', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([this.state.controlPlane.toJSON()])
+      })
+      .then(result => { this.props.next(false); })  // go to the next page
+      .catch((error) => {
+          // TODO: Show a toast error instead of a console log
+        console.error(JSON.stringify(error));
+      });
+    }
   }
 
   componentDidMount() {
