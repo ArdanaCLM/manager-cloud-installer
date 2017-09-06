@@ -24,11 +24,17 @@
   }
   .member-row {
     line-height: 3.5em;
-    .show-row {
-      display: table-row;
-    }
   }
-  .first-cell {
+  .show-row td.paded-cell div {
+    max-height: 40em;
+    transition: max-height 1.4s;
+  }
+  .hide-row td.paded-cell div {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.6s;
+  }
+  .paded-cell {
     padding-left: 1em;
   }
   .expand-all-btn-container {
