@@ -1,3 +1,5 @@
+@import "./../palette.less";
+
 .roles-accordion {
   height: 100%;
 
@@ -38,4 +40,17 @@
       }
     }
   }
+}
+
+.server-input {
+  .error-message {
+    color:@errorcolor;
+    display: inline-block;
+    margin-left: 1em;
+  }
+}
+
+.server-input input {
+  padding: 4px;
+  width: 40%;
 }

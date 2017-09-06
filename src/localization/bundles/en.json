@@ -84,6 +84,12 @@
     "server.ipmi.ip.prompt": "IPMI IP Address*",
     "server.ipmi.username.prompt": "IPMI Username*",
     "server.ipmi.password.prompt": "IPMI Password*",
+    "server.host.prompt": "Host*",
+    "server.port.prompt": "Port",
+    "server.username.prompt": "Username*",
+    "server.password.prompt": "Password*",
+    "server.suma": "SUMA Manager",
+    "server.oneview": "HPE OneView",
     "server.validator.error": "Failed to execute validator",
     "server.input.required.error": "Input is required",
     "context.menu.item.detail": "Details",
@@ -114,5 +120,7 @@
     "server.role.summary.heading": "Server and Server Role Summary",
 
     "input.validator.ipv4address.error": "Please enter a valid IPV4 Address",
-    "input.validator.macaddress.error": "Please enter a valid MAC Address"
+    "input.validator.macaddress.error": "Please enter a valid MAC Address",
+    "input.validator.port.error": "Please enter a valid port between 0 and 65535",
+    "input.validator.ipv4addresshost.error": "Please enter a valid IPV4 Address or Host"
 }

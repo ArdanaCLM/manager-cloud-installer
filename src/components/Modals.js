@@ -63,82 +63,37 @@ class BaseInputModal extends Modal {
   constructor(props) {
     super(props);
     this.state = {
-      showModal: false,
-      isDoneDisabled: this.props.isDoneDisabled
+      showModal: false
     };
+    this.handleClose = this.handleClose.bind(this);
   }
 
   componentWillReceiveProps(newProps) {
     this.setState({
-      showModal: newProps.show,
-      isDoneDisabled: newProps.isDoneDisabled
+      showModal: newProps.show
     });
   }
 
-  renderFooter() {
-    if(this.props.footer) {
-      return this.props.footer;
-    }
-    else {
-      return (
-        <div>
-          <ActionButton
-            hasNext
-            clickAction={this.props.cancelAction} displayLabel={translate('cancel')}/>
-          <ActionButton
-            isDisabled={this.state.isDoneDisabled}
-            clickAction={this.props.doneAction} displayLabel={translate('done')}/>
-        </div>
-      );
-    }
+  handleClose() {
+    this.setState({ showModal: false });
   }
+
+  //won't render footer, but implement footers in the body
+  //to have control over the input contents changes.
   render() {
     return (
       <Modal
         className='modals' show={this.state.showModal}
-        onHide={this.props.cancelAction} backdrop={'static'}>
-        <Modal.Header>
+        dialogClassName={this.props.dialogClass}
+        onHide={this.handleClose}
+        backdrop={'static'}>
+        <Modal.Header closeButton>
           <Modal.Title className='title'>{this.props.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {this.props.body}
         </Modal.Body>
-        <Modal.Footer>
-          {this.renderFooter()}
-        </Modal.Footer>
       </Modal>
-    );
-  }
-}
-
-class ConnectionInputModal extends BaseInputModal {
-  constructor(props) {
-    super(props);
-  }
-
-  renderFooter() {
-    return (
-      <div>
-        <ActionButton
-          hasNext
-          clickAction={this.props.cancelAction} displayLabel={translate('cancel')}/>
-        <ActionButton
-          hasNext
-          clickAction={this.props.testAction} displayLabel={translate('test')}/>
-        <ActionButton
-          isDisabled={this.state.isDoneDisabled}
-          clickAction={this.props.doneAction} displayLabel={translate('done')}/>
-      </div>
-    );
-  }
-
-  render() {
-    return (
-      <BaseInputModal
-        cancelAction={this.props.cancelAction} testAction={this.props.testAction}
-        doneAction={this.props.doneAction}
-        show={this.state.showModal} title={this.props.title}
-        body={this.props.body} footer={this.renderFooter()}/>
     );
   }
 }
@@ -146,6 +101,5 @@ class ConnectionInputModal extends BaseInputModal {
 module.exports = {
   ConfirmModal: ConfirmModal,
   YesNoModal: YesNoModal,
-  BaseInputModal: BaseInputModal,
-  ConnectionInputModal: ConnectionInputModal
+  BaseInputModal: BaseInputModal
 };
