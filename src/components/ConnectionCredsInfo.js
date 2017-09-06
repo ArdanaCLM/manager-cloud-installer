@@ -181,13 +181,11 @@ class ConnectionCredsInfo extends Component {
     if(this.state.isSumaChecked) {
       if(!this.data.suma.token) {
         retData.suma = this.data.suma;
-        retData.suma.creds.password = '';
       }
     }
 
     if(this.state.isOneViewChecked) {
       retData.oneview = this.data.oneview;
-      retData.oneview.creds.password = '';
     }
 
     this.props.doneAction(retData);
@@ -267,7 +265,7 @@ class ConnectionCredsInfo extends Component {
 
   renderSumaCreds() {
     //have suma token don't need creds inputs
-    if(this.data.suma && this.data.suma.token) {
+    if(this.data.suma.token) {
       return (
         <div className='creds-category'>
           <input
@@ -280,54 +278,29 @@ class ConnectionCredsInfo extends Component {
       );
     }
     else { //don't have suma token
-      if(this.state.isSumaChecked) {
-        return (
-          <div className='creds-category'>
-            <input
-              type='checkbox' value='suma'
-              checked={this.state.isSumaChecked}
-              onChange={(e) => this.handleSumaCheckBoxChange(e, 'suma')}/>
-            {translate('server.suma')}
-            {this.renderCredsContent('suma')}
-          </div>
-        );
-      }
-      else { //if not checked don't show the creds inputs
-        return (
-          <div className='creds-category'>
-            <input
-              type='checkbox' value='suma'
-              checked={this.state.isSumaChecked}
-              onChange={(e) => this.handleSumaCheckBoxChange(e, 'suma')}/>
-            {translate('server.suma')}
-          </div>
-        );
-      }
+      return (
+        <div className='creds-category'>
+          <input
+            type='checkbox' value='suma'
+            checked={this.state.isSumaChecked}
+            onChange={(e) => this.handleSumaCheckBoxChange(e, 'suma')}/>
+          {translate('server.suma')}
+          {this.state.isSumaChecked && this.renderCredsContent('suma')}
+        </div>
+      );
     }
   }
 
   renderOneviewCreds() {
-    if(this.state.isOneViewChecked) {
-      return (
-        <div className='creds-category'>
-          <input
-            type='checkbox' value='oneview' checked={this.state.isOneViewChecked}
-            onChange={(e) => this.handleOneviewCheckBoxChange(e, 'oneview')}/>
-          {translate('server.oneview')}
-          {this.renderCredsContent('oneview')}
-        </div>
-      );
-    }
-    else { //if not checked don't show the creds inputs
-      return (
-        <div className='creds-category'>
-          <input
-            type='checkbox' value='oneview' checked={this.state.isOneViewChecked}
-            onChange={(e) => this.handleOneviewCheckBoxChange(e, 'oneview')}/>
-          {translate('server.oneview')}
-        </div>
-      );
-    }
+    return (
+      <div className='creds-category'>
+        <input
+          type='checkbox' value='oneview' checked={this.state.isOneViewChecked}
+          onChange={(e) => this.handleOneviewCheckBoxChange(e, 'oneview')}/>
+        {translate('server.oneview')}
+        {this.state.isOneViewChecked && this.renderCredsContent('oneview')}
+      </div>
+    );
   }
 
   renderFooter() {

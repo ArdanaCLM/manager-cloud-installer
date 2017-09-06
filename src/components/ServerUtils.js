@@ -105,7 +105,6 @@ class ServerRolesAccordion extends Component {
 class ServerInput extends Component {
   constructor(props) {
     super(props);
-    this.isValid = false;
     this.state = {
       errorMsg: '',
       inputValue: this.props.inputValue
@@ -115,10 +114,10 @@ class ServerInput extends Component {
 
   componentDidMount() {
     if(this.props.updateFormValidity) {
-      this.validateInput(this.state.inputValue);
+      let isValid = this.validateInput(this.state.inputValue);
       //callback function from parent to initially check
       //all inputs
-      this.props.updateFormValidity(this.props, this.isValid);
+      this.props.updateFormValidity(this.props, isValid);
     }
   }
 
@@ -127,7 +126,6 @@ class ServerInput extends Component {
 
     if(this.props.isRequired) {
       if(val === undefined || val.length === 0) {
-        this.isValid = false;
         this.setState({errorMsg: translate('server.input.required.error')});
         return retValid;
       }
@@ -138,25 +136,21 @@ class ServerInput extends Component {
       if (validateObject) {
         if(validateObject.isValid) {
           this.setState({errorMsg: ''});
-          this.isValid = true;
           retValid = true;
         }
         else {
           this.setState({
             errorMsg: validateObject.errorMsg
           });
-          this.isValid = false;
         }
       }
       else {
         this.setState({errorMsg: translate('server.validator.error')});
-        this.isValid = false;
       }
     }
     else {  //don't have validator
       retValid = true;
       this.setState({ errorMsg: ''});
-      this.isValid = true;
     }
 
     return retValid;
@@ -180,35 +174,25 @@ class ServerInput extends Component {
     if(this.props.inputType) {
       inputType = this.props.inputType;
     }
-    if(inputType === 'number') {
-      return (
-        <div className='server-input'>
-          <input
-            className='rounded-corner'
-            required={this.props.isRequired}
-            type={inputType} name={this.props.inputName}
-            value={this.state.inputValue}
-            min={this.props.min} max={this.props.max}
-            onChange={(e) => this.handleInputChange(e, this.props)}>
-          </input>
-          <div className='error-message'>{this.state.errorMsg}</div>
-        </div>
-      );
+    let props = {};
+    if (inputType === 'number') {
+      props.min = this.props.min;
+      props.max = this.props.max;
     }
-    else {
-      return (
-        <div className='server-input'>
-          <input
-            className='rounded-corner'
-            required={this.props.isRequired}
-            type={inputType} name={this.props.inputName}
-            value={this.state.inputValue}
-            onChange={(e) => this.handleInputChange(e, this.props)}>
-          </input>
-          <div className='error-message'>{this.state.errorMsg}</div>
-        </div>
-      );
-    }
+
+    return (
+      <div className='server-input'>
+        <input
+          className='rounded-corner'
+          required={this.props.isRequired}
+          type={inputType} name={this.props.inputName}
+          value={this.state.inputValue}
+          onChange={(e) => this.handleInputChange(e, this.props)}
+          {...props}>
+        </input>
+        <div className='error-message'>{this.state.errorMsg}</div>
+      </div>
+    );
   }
 }
 

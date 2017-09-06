@@ -32,12 +32,10 @@ class AssignServerRoles extends BaseWizardPage {
     ];
     this.activeRowData = undefined;
 
-    //TODO save as step state later
-    //at this point just keep in the session
-    let apiToken =  undefined;//TODO where to find apiToken just call it will have exception
+    //save it in session for now
     this.credentials = {
       suma: {
-        token:  apiToken || undefined,
+        token:  undefined,
         creds: {
           username: '',
           password: '',
@@ -401,6 +399,10 @@ class AssignServerRoles extends BaseWizardPage {
 
   //get model object before render UI
   componentWillMount() {
+    try {
+      this.credentials.suma.token = apiToken; //global suma token TODO
+    } catch (ReferenceError) {}
+
     this.getModelObjectData()
       .then((modelData) => {
         this.model = modelData;
