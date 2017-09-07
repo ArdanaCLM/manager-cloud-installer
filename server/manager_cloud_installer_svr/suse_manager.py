@@ -1,4 +1,5 @@
 import config.config as config
+from flask import abort
 from flask import Blueprint
 from flask import jsonify
 from flask import request
@@ -26,6 +27,29 @@ def connect():
     client = xmlrpclib.Server(SUSE_MANAGER_URL, verbose=0, context=context)
     key = client.auth.login(SUSE_MANAGER_USERNAME, SUSE_MANAGER_PASSWORD)
     return (client, key)
+
+
+@bp.route("/api/v1/sm/connection_test", methods=['POST'])
+def connection_test():
+    context = None
+    if INSECURE:
+        context = ssl._create_unverified_context()
+    creds = request.get_json() or {}
+    try:
+        port = "8443"
+        if creds['port'] != 0:
+            port = creds['port']
+        suma_url = "https://" + creds['host'] + ":" + port + "/rpc/api"
+        suma_username = creds['username']
+        suma_password = creds['password']
+        client = xmlrpclib.Server(suma_url, verbose=0, context=context)
+        key = client.auth.login(suma_username, suma_password)
+        return jsonify(key)
+    except Exception as e:
+        print str(e)
+        if 'Fault 2950' in str(e):
+            abort(403)
+        abort(400)
 
 
 @bp.route("/api/v1/sm/servers")

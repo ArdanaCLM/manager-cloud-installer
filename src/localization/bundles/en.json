@@ -94,6 +94,8 @@
     "server.input.required.error": "Input is required",
     "context.menu.item.detail": "Details",
     "context.menu.item.edit": "Edit",
+    "server.test.suma.error": "Failed to test connection for SUMA host: {0} user: {1}.",
+    "server.test.oneview.error": "Failed to test connection for Oneview host: {0} user: {1}.",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",
