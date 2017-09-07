@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Alert } from 'react-bootstrap';
 import '../Deployer.css';
+import { translate } from '../localization/localize.js';
 
 class NotificationMessage extends Component {
   constructor(props) {
@@ -21,7 +22,8 @@ class NotificationMessage extends Component {
 
     return (
       <div>
-        <h4>{this.props.content.title}</h4>
+        <h4>
+          {this.props.content.title ? this.props.content.title : translate('default.error')}</h4>
         {msgs}
       </div>
     );
