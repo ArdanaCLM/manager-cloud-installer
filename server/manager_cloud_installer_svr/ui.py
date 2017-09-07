@@ -1,11 +1,11 @@
+import config.config as config
 from flask import abort
 from flask import Blueprint
 from flask import jsonify
 from flask import request
-from tinydb import TinyDB, Query
 import json
-import os
-import config.config as config
+from tinydb import Query
+from tinydb import TinyDB
 
 bp = Blueprint('ui', __name__)
 JSON_SERVER = config.get("general", "json_server")
@@ -18,6 +18,7 @@ progress_file = config.get("general", "progress_file")
 db_file = config.get("general", "db_file")
 db = TinyDB(db_file)
 server_table = db.table('servers')
+
 
 @bp.route("/api/v1/progress", methods=['GET'])
 def get_progress():
@@ -97,6 +98,3 @@ def delete_server(name):
         return "Success", 200
     except Exception:
         abort(400)
-
-
-

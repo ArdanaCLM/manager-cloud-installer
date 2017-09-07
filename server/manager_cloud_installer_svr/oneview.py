@@ -1,7 +1,7 @@
 # import config.config as config
 from flask import Blueprint
 from flask import request
-from . import util
+import util
 
 bp = Blueprint('oneview', __name__)
 

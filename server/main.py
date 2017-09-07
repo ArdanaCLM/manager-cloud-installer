@@ -3,11 +3,11 @@ from flask import Flask
 from flask_cors import CORS
 import logging
 from manager_cloud_installer_svr import ardana
-from manager_cloud_installer_svr import ui
 from manager_cloud_installer_svr import oneview
-from manager_cloud_installer_svr import suse_manager
-from manager_cloud_installer_svr import socketio
 from manager_cloud_installer_svr import socket_proxy
+from manager_cloud_installer_svr import socketio
+from manager_cloud_installer_svr import suse_manager
+from manager_cloud_installer_svr import ui
 
 logging.basicConfig(level=logging.DEBUG)
 
