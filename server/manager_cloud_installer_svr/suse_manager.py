@@ -46,7 +46,6 @@ def connection_test():
         key = client.auth.login(suma_username, suma_password)
         return jsonify(key)
     except Exception as e:
-        print str(e)
         if 'Fault 2950' in str(e):
             abort(403)
         abort(400)
