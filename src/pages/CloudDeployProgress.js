@@ -9,6 +9,23 @@ import { List } from 'immutable';
 import debounce from 'lodash/debounce';
 
 
+// Rules to enforce:
+// - while the playbook is running (or unknown), Back and Next should be disallowed
+// - if the playbook ended successfully, only Next should be allowed
+// - if the playbook failed, only Back should be allowed
+
+// How to determine these for a new session?  For an existing session
+
+// For a new session, query the ardana for the play, and look in
+//  the results to see which of the three situations we are in
+
+// For a running session, can listen for end and fail (which are??)
+// and adjust the status as necessary
+const DEPLOY_UNKNOWN = 0;       // initial state when entering the page while doing initial queries
+const DEPLOY_IN_PROGRESS = 1;
+const DEPLOY_COMPLETE = 2;
+const DEPLOY_FAILED = 3;
+
 const STEPS = [
   {
     label: translate('deploy.progress.step1'),
@@ -77,9 +94,9 @@ class MyLogViewer extends Component {
 }
 
 
-class Progress extends BaseWizardPage {
-  constructor() {
-    super();
+class CloudDeployProgress extends BaseWizardPage {
+  constructor(props) {
+    super(props);
 
     // List for capturing messages as they are received.  The state
     // variable will be updated regularly with the contents of this
@@ -87,26 +104,31 @@ class Progress extends BaseWizardPage {
     this.logsReceived = List();
 
     this.state = {
-      deployComplete: false,
-      errorMsg: '',
-      showLog: false,
-      playId: '',
-      playbooksStarted: [],
-      playbooksComplete: [],
-      playbooksError: [],
+      errorMsg: '',                 // error message to display
+      showLog: false,               // controls visibility of log viewer
+      playbooksStarted: [],         // list of playbooks that have started
+      playbooksComplete: [],        // list of playbooks that have completed
+      playbooksError: [],           // list of playbooks that have errored
 
-      displayedLogs: List()
+      // TODO: After ardana-service gets an API to replay events from past
+      //   playbook runs, status can be derived entirely from the three
+      //   arrays above and the following overall status can be removed
+      deployStatus: DEPLOY_UNKNOWN, // overall status of entire deployment
+
+      displayedLogs: List()         // log messages to display in the log viewer
     };
 
     this.startPlaybook();
   }
 
   setNextButtonDisabled() {
-    return ((this.state.playbooksComplete.indexOf('site.yml') === -1) ||
-            (this.state.playbooksError.length !== 0));
+    return this.state.deployStatus != DEPLOY_COMPLETE;
   }
 
-  //TODO - evaluate if we can get error messages from the playbooks and propagate them here
+  setBackButtonDisabled() {
+    return this.state.deployStatus != DEPLOY_FAILED;
+  }
+
   getError() {
     return (this.state.errorMsg) ? (
       <div>{translate('deploy.progress.failure')}<br/>
@@ -140,7 +162,7 @@ class Progress extends BaseWizardPage {
         }
       }
 
-      //if the status has not previoulsy been set to fail or complete,
+      //if the status has not previously been set to fail or complete,
       // check if any of the playbooks have started
       if(status === 'notstarted') {
         //for each step, check if all needed playbooks are done
@@ -194,15 +216,42 @@ class Progress extends BaseWizardPage {
     }, 1000);
   }
 
-  startPlaybook() {
-    /* TODO: Avoid starting a new playbook if one is already running. Should obtain playId from progress */
-    var playId;
 
-    var listenLive = true;
+  /**
+   * Perform a fetch, check for errors, and return a json promise upon success
+   */
+  fetchJson = (input, init) => {
+    return fetch(input, init)
+    .then(res => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            return Promise.reject(new Error(res.statusText))
+          }
+        });
+  }
 
-    if (playId) {
+  monitorSocket = (playId) => {
+    // TODO: Proxy socketio through shim when it is ready
+    this.socket = io(getAppConfig('deployserviceurl')); // should be: 'shimurl'
+    this.socket.on('playbook-start', this.playbookStarted);
+    this.socket.on('playbook-stop', this.playbookStopped);
+    this.socket.on('playbook-error', this.playbookError);
+    this.socket.on('log', this.logMessage);
+    this.socket.on('end', () => { this.socket.disconnect(); });
+    this.socket.emit('join', playId);
+  }
 
-      fetch('http://localhost:8081/api/v1/clm/plays/' + playId, {
+  startPlaybook = () => {
+    // Start the playbook if it has not already been done.  deployStatus will be set
+    // initially here.  If the playbook is launched, further updates to the status will
+    // be performed as playbook events arrive from the ardana service (which originate
+    // in the ansible playbooks)
+
+    if (this.props.sitePlayId) {
+      // Get the output of the play that has already been launched
+
+      this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId, {
         // Note: Use no-cache in order to get an up-to-date response
         headers: {
           'pragma': 'no-cache',
@@ -210,53 +259,44 @@ class Progress extends BaseWizardPage {
         }
       })
       .then(response => {
-        if (! response.ok) {
-          throw (response.statusText);
-        } else {
-          return response.json();
-        }})
-      .then(response => {
         if ('endTime' in response) {
-          listenLive = false;
-          fetch('http://localhost:8081/api/v1/clm/plays/' + playId + "/log")
+          // The play has already ended, and is either complete or failed
+          this.setState({deployStatus: (response['code'] == 0 ? DEPLOY_COMPLETE : DEPLOY_FAILED)});
+
+          fetch('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId + "/log")
           .then(response => response.text())
           .then(response => {
-            const message = response.trimRight('\n')
-            this.logsReceived = List(message)
-            this.setState({contents: this.logsReceived});
+            const message = response.trimRight('\n');
+            this.logsReceived = List(message);
+            this.setState({displayedLogs: this.logsReceived});
           })
+        } else {
+          // The play is still in progress
+          this.setState({deployStatus: DEPLOY_IN_PROGRESS});
+          this.monitorSocket(this.props.sitePlayId);
         }
       })
       .catch((error) => {
-        list = error.trimRight('\n').split('\n');
-        this.setState({contents: List(list)});
+        this.setState({errorMsg: error.message});
       });
-    }
 
-    if (listenLive) {
-      fetch(getAppConfig('shimurl') + '/api/v1/clm/playbooks/site', {
+    } else {
+
+      // Launch the playbook
+      this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/playbooks/site', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify('')
       })
       .then(response => {
-        if (! response.ok) {
-          throw (response.statusText);
-        } else {
-          return response.json();
-        }})
-      .then(response => {
-        playId = response['id'];
-        this.setState({playId: playId});
-
-        // this.socket = io(getAppConfig('shimurl'));
-        this.socket = io('http://localhost:9085');
-        this.socket.on('playbook-start', this.playbookStarted);
-        this.socket.on('playbook-stop', this.playbookStopped);
-        this.socket.on('playbook-error', this.playbookError);
-        this.socket.on('log', this.logMessage);
-        this.socket.on('end', () => { this.socket.disconnect(); });
-        this.socket.emit('join', playId);
+        const playId = response['id'];
+        this.monitorSocket(playId);
+        this.setState({deployStatus: DEPLOY_IN_PROGRESS});
+        this.props.updateGlobalState('sitePlayId', playId);
+      })
+      .catch((error) => {
+        this.setState({deployStatus: DEPLOY_FAILED,
+                       errorMsg: List(error.message)});
       });
     }
   }
@@ -264,7 +304,7 @@ class Progress extends BaseWizardPage {
   renderLogButton() {
     const logButtonLabel = this.state.showLog ? 'Hide Log' : 'Show Log';
 
-    if (this.state.playId) {
+    if (this.props.sitePlayId || this.state.contents) {
       return (
         <ActionButton
           displayLabel={logButtonLabel}
@@ -272,7 +312,6 @@ class Progress extends BaseWizardPage {
       );
     }
   }
-
 
   render() {
     return (
@@ -282,6 +321,7 @@ class Progress extends BaseWizardPage {
           <div className='progress-body'>
             <div className='col-xs-4'>
               <ul>{this.getProgress()}</ul>
+              {this.getError()}
               <div>
                 <ActionButton
                   displayLabel='Progress'
@@ -291,7 +331,7 @@ class Progress extends BaseWizardPage {
               </div>
             </div>
             <div className='col-xs-8'>
-              {this.state.showLog ? <MyLogViewer contents={this.state.displayedLogs} /> : ''}
+              {this.state.showLog && <MyLogViewer contents={this.state.displayedLogs} />}
             </div>
           </div>
         </div>
@@ -331,7 +371,12 @@ class Progress extends BaseWizardPage {
    */
   playbookStopped = (playbook) => {
     this.setState((prevState) => {
-      return {'playbooksComplete': prevState.playbooksComplete.concat(playbook)};
+      const completedPlaybooks = prevState.playbooksComplete.concat(playbook);
+      var newState = {'playbooksComplete': completedPlaybooks};
+      if (completedPlaybooks.includes('site.yml')) {
+        newState.deployStatus = DEPLOY_COMPLETE
+      }
+      return newState;
     });
   }
 
@@ -343,12 +388,16 @@ class Progress extends BaseWizardPage {
    */
   playbookError = (playbook) => {
     this.setState((prevState) => {
-      return {'playbooksError': prevState.playbooksError.concat(playbook)};
+      const errorPlaybooks = prevState.playbooksError.concat(playbook);
+      var newState = {'playbooksError': errorPlaybooks};
+      if (errorPlaybooks.includes('site.yml')) {
+        newState.deployStatus = DEPLOY_FAILED
+      }
+      return newState;
     });
   }
 
   logMessage = (message) => {
-    console.log("received log");
     this.logsReceived = this.logsReceived.push(message);
     this.updateState(this.logsReceived);
   }
@@ -356,17 +405,8 @@ class Progress extends BaseWizardPage {
   // Update the state.  Uses lodash.debounce to avoid getting inunadated by fast logs,
   // by avoiding repeated calls within a short amount of time
   updateState = debounce((data) => {
-    console.log("updating log on screen");
     this.setState({displayedLogs: data});
   }, 100)
-}
-
-class CloudDeployProgress extends Component {
-  render() {
-    // TODO take out the back button when dev mode implementation is ready
-    // return (<Progress next={this.props.next}/>);
-    return (<Progress back={this.props.back} next={this.props.next}/>);
-  }
 }
 
 export default CloudDeployProgress;

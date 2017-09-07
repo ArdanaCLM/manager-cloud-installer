@@ -36,7 +36,6 @@ class CloudModelPicker extends BaseWizardPage {
     this.handleHelpChoose = this.handleHelpChoose.bind(this);
     this.handleShowSelectTemplateHelp = this.handleShowSelectTemplateHelp.bind(this);
     this.handleShowHelpChooseHelp = this.handleShowHelpChooseHelp.bind(this);
-    this.updateParentSelectedModelName = this.updateParentSelectedModelName.bind(this);
     this.handleCloseMessageAction = this.handleCloseMessageAction.bind(this);
   }
 
@@ -141,8 +140,8 @@ class CloudModelPicker extends BaseWizardPage {
     }
   }
 
-  updateParentSelectedModelName(modelName) {
-    this.props.updateModelName(modelName);
+  updateParentSelectedModelName = (modelName) => {
+    this.props.updateGlobalState('selectedModelName', modelName);
   }
 
   setNextButtonDisabled() {
@@ -178,7 +177,7 @@ class CloudModelPicker extends BaseWizardPage {
     //TODO
   }
 
-  handleCloseMessageAction ()  {
+  handleCloseMessageAction () {
     this.setState({showError: false});
   }
 
