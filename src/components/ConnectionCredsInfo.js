@@ -33,13 +33,13 @@ class ConnectionCredsInfo extends Component {
         'port': UNKNOWN
       }
     };
+    this.errorContent = undefined;
 
     this.state = {
       isOneViewChecked: false,
       sumaTestStatus: UNKNOWN,
       oneviewTestStatus: UNKNOWN,
       showError: false,
-      errorContent: undefined,
       loading: false
     };
   }
@@ -154,7 +154,7 @@ class ConnectionCredsInfo extends Component {
   }
 
   testSuma = () => {
-    let promise = new Promise((resovle, reject) => {
+    let promise = new Promise((resolve, reject) => {
       fetch(getAppConfig('shimurl') + '/api/v1/sm/connection_test', {
         method: 'POST',
         headers: {
@@ -166,7 +166,7 @@ class ConnectionCredsInfo extends Component {
         .then((response) => this.checkResponse(response))
         .then((response) => response.json())
         .then((tokenKey) => {
-          resovle(tokenKey);
+          resolve(tokenKey);
           this.setState({sumaTestStatus: VALID});
         })
         .catch((error) => {
@@ -177,10 +177,11 @@ class ConnectionCredsInfo extends Component {
             messages: [msg, error.toString()]
           };
 
-          if (this.state.errorContent !== undefined) {
-            msgContent.messages = msgContent.messages.concat(this.state.errorContent.messages);
+          if (this.errorContent !== undefined) {
+            msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
           }
-          this.setState({sumaTestStatus: INVALID, errorContent: msgContent});
+          this.errorContent = msgContent;
+          this.setState({sumaTestStatus: INVALID});
           reject(error);
         })
     });
@@ -188,7 +189,8 @@ class ConnectionCredsInfo extends Component {
   }
 
   handleTest = () => {
-    this.setState({showError: false, errorContent: undefined});
+    this.setState({showError: false});
+    this.errorContent = undefined;
     let promises = [];
     if(this.state.isSumaChecked && this.data.suma.token === undefined) {
       this.setState({loading: true});
@@ -249,14 +251,15 @@ class ConnectionCredsInfo extends Component {
   }
 
   handleCloseMessageAction = () => {
-    this.setState({showError: false, errorContent: undefined});
+    this.setState({showError: false});
+    this.errorContent = undefined;
   }
 
   renderErrorMessage() {
     return (
       <ErrorMessage
         closeAction={this.handleCloseMessageAction}
-        show={this.state.showError} content={this.state.errorContent}>
+        show={this.state.showError} content={this.errorContent}>
       </ErrorMessage>
     );
   }

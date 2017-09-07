@@ -6,6 +6,7 @@ from flask import request
 from . import util
 import ssl
 import xmlrpclib
+import socket
 
 bp = Blueprint('suse-manager', __name__)
 
@@ -13,6 +14,7 @@ SUSE_MANAGER_URL = config.get("suse-manager", "url")
 SUSE_MANAGER_USERNAME = config.get("suse-manager", "username")
 SUSE_MANAGER_PASSWORD = config.get("suse-manager", "password")
 INSECURE = config.get("suse-manager", "insecure", False)
+TIMEOUT = 2
 
 """
 Calls to SUSE Manager
@@ -35,10 +37,18 @@ def connection_test():
     if INSECURE:
         context = ssl._create_unverified_context()
     creds = request.get_json() or {}
+    port = "8443"
+    if creds['port'] != 0:
+        port = creds['port']
+    # check the host and port first before loging
     try:
-        port = "8443"
-        if creds['port'] != 0:
-            port = creds['port']
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(TIMEOUT)
+        s.connect((creds['host'], int(port)))
+    except Exception as e:
+        abort(400)
+    # login
+    try:
         suma_url = "https://" + creds['host'] + ":" + port + "/rpc/api"
         suma_username = creds['username']
         suma_password = creds['password']
@@ -46,14 +56,12 @@ def connection_test():
         key = client.auth.login(suma_username, suma_password)
         return jsonify(key)
     except Exception as e:
-        if 'Fault 2950' in str(e):
-            abort(403)
-        abort(400)
+        abort(403)
 
 
 @bp.route("/api/v1/sm/servers")
 def sm_server_list():
-
+    # TODO will fix to use tokenkey passed in
     if util.USE_JSON_SERVER_ONLY:
         return util.forward(util.build_url(None, '/servers'), request)
 
@@ -69,6 +77,7 @@ def sm_server_list():
 @bp.route("/api/v1/sm/servers/<id>")
 def sm_server_details(id):
 
+    # TODO will fix to use tokenkey passed in
     if util.USE_JSON_SERVER_ONLY:
         return util.forward(util.build_url(None, '/servers' + id), request)
 
