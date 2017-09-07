@@ -17,7 +17,7 @@ def build_url(base, url):
 # Forward the url to the given destination
 def forward(url, request):
 
-    req = requests.Request(method=request.method, url=url,
+    req = requests.Request(method=request.method, url=url, params=request.args,
                            headers=request.headers, data=request.data)
 
     resp = requests.Session().send(req.prepare())
