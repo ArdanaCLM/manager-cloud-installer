@@ -180,44 +180,6 @@ class CloudDeployProgress extends BaseWizardPage {
   }
 
   /**
-   * this function and its follow-on exist just to test out the progress functionality
-   */
-  progressing() {
-    // fake the steps through progress button for now
-    let allPlaybooks = [
-      'network_interface-deploy.yml',
-      'nova-deploy.yml', 'ironic-deploy.yml', 'magnum-deploy.yml',
-      'monasca-agent-deploy.yml', 'monasca-deploy.yml', 'monasca-transform-deploy.yml',
-      'ceph-deploy.yml', 'cinder-deploy.yml', 'swift-deploy.yml',
-      'hlm-status.yml',
-      'site.yml'
-    ];
-
-    this.progressNext.bind(this)(allPlaybooks, 0);
-
-  }
-
-  /**
-   * recursively called function to fake playbook progress for dev/test purposes
-   */
-  progressNext(allPlaybooks, index) {
-    var limit = (allPlaybooks.length * 2);
-    if(index === limit) {
-      return;
-    } else if(index === 0 || index % 2 === 0) {
-      this.playbookStarted(allPlaybooks[(index / 2)]);
-    } else {
-      this.playbookStopped(allPlaybooks[Math.floor(index / 2)]);
-    }
-
-    var callNext = this.progressNext.bind(this);
-    setTimeout(function() {
-      callNext(allPlaybooks, index + 1);
-    }, 1000);
-  }
-
-
-  /**
    * Perform a fetch, check for errors, and return a json promise upon success
    */
   fetchJson = (input, init) => {
@@ -323,10 +285,6 @@ class CloudDeployProgress extends BaseWizardPage {
               <ul>{this.getProgress()}</ul>
               {this.getError()}
               <div>
-                <ActionButton
-                  displayLabel='Progress'
-                  hasNext
-                  clickAction={() => this.progressing()}/>
                 {this.renderLogButton()}
               </div>
             </div>
