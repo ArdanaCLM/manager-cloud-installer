@@ -95,6 +95,12 @@ class CloudModelSummary extends BaseWizardPage {
     });
   }
 
+  setNextButtonDisabled() {
+    // The control plane will be loaded in a promise when the component is mounted and
+    // may not be available immediately.  Prevent the user from proceeding until it loads
+    return !this.state.controlPlane;
+  }
+
   //will handle the update button and send the updates to a custom model in the backend
   goForward(e) {
     e.preventDefault();
