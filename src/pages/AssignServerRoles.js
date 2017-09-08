@@ -747,9 +747,8 @@ class AssignServerRoles extends BaseWizardPage {
 
   renderManualAddServerContent() {
     return (
-      <div className='centered'>
+      <div className='btn-row centered'>
         <ActionButton
-          hasNext
           clickAction={this.handleManualAddServer}
           displayLabel={translate('add.server.add')}/>
         <ActionButton

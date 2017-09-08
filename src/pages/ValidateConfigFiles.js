@@ -60,9 +60,8 @@ class EditFile extends BaseWizardPage {
           <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
             value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
         </div>
-        <div>
+        <div className="btn-row">
           <ActionButton
-            hasNext
             displayLabel={translate('cancel')}
             clickAction={() => this.handleCancel()}/>
           <ActionButton

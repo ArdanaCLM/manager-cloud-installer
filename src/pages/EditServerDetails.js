@@ -181,9 +181,8 @@ class EditServerDetails extends BaseWizardPage {
             </div>
           </div>
 
-          <div className='button-container'>
+          <div className='btn-row button-container'>
             <ActionButton
-              hasNext
               displayLabel={translate('cancel')}
               clickAction={this.handleCancel}/>
             <ActionButton
