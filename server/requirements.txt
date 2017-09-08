@@ -3,3 +3,4 @@ eventlet          # MIT
 flask-socketio    # MIT
 flask-cors        # MIT
 PyYAML>=3.10.0    # MIT
+tinydb>=3.5.0     # MIT

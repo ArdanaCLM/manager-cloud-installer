@@ -1,7 +1,7 @@
+from . import util
 import config.config as config
 from flask import Blueprint
 from flask import request
-from . import util
 
 bp = Blueprint('ardana', __name__)
 

@@ -1,3 +1,5 @@
+from . import socketio
+import config.config as config
 from flask import Blueprint
 from flask import request
 from flask_socketio import emit
@@ -5,10 +7,6 @@ import logging
 from socketIO_client import BaseNamespace
 from socketIO_client import SocketIO
 from urlparse import urlparse
-
-import config.config as config
-
-from . import socketio
 
 LOG = logging.getLogger(__name__)
 # TODO(gary): Remove these and provide for more general logging control

@@ -26,7 +26,10 @@ supported:
 
   ``/api/v1/progress`` (``GET`` or ``POST``)
        Data to track the progress of the installer.
-       
+
+  ``/api/v1/server`` (``GET``,``POST``,``PUT``,``DELETE``)
+       Scratch space for general server details
+
   ``/api/v1/sm/servers`` (``GET``)
        Retrieves a list of servers from SUSE Manager
 
