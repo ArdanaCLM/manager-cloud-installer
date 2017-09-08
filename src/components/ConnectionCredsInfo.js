@@ -372,12 +372,11 @@ class ConnectionCredsInfo extends Component {
 
   renderFooter() {
     return (
-      <div className='input-button-container'>
+      <div className='btn-row input-button-container'>
         <ActionButton
-          hasNext
           clickAction={this.handleCancel} displayLabel={translate('cancel')}/>
         <ActionButton
-          hasNext isDisabled={this.isTestDisabled()}
+          isDisabled={this.isTestDisabled()}
           clickAction={this.handleTest} displayLabel={translate('test')}/>
         <ActionButton
           isDisabled={this.isDoneDisabled()}

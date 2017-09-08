@@ -46,8 +46,8 @@ class ConfirmModal extends Modal {
 class YesNoModal extends ConfirmModal {
   render() {
     let footer = (
-      <div>
-        <ActionButton clickAction={this.props.yesAction} displayLabel={translate('yes')} hasNext/>
+      <div className="btn-row">
+        <ActionButton clickAction={this.props.yesAction} displayLabel={translate('yes')}/>
         <ActionButton clickAction={this.props.noAction} displayLabel={translate('no')}/>
       </div>
     );

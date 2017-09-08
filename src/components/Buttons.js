@@ -2,50 +2,24 @@ import React, { Component } from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 
-// TODO(gary): Refactor BackButton and NextButton to inherit a common ancestor
-class BackButton extends Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    let buttonClass = 'btn btn-primary btn-has-next';
-    buttonClass =
-      this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
-
-    let buttonLabel = translate('back');
-    if (this.props.displayLabel) {
-      buttonLabel = this.props.displayLabel;
-    }
-
-    return (
-      <button className={buttonClass} onClick={this.props.clickAction}
-        disabled={this.props.isDisabled}>{buttonLabel}
-      </button>
-    );
-  }
+function BackButton(props) {
+  return (
+    <ActionButton
+      clickAction={props.clickAction}
+      displayLabel={props.displayLabel || translate('back')}
+      isDisabled={props.isDisabled}
+      />
+  );
 }
 
-class NextButton extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    let buttonClass = 'btn btn-primary';
-    buttonClass =
-      this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
-
-    let buttonLabel = translate('next');
-    if (this.props.displayLabel) {
-      buttonLabel = this.props.displayLabel;
-    }
-
-    return (
-      <button className={buttonClass} onClick={this.props.clickAction}
-        disabled={this.props.isDisabled}>{buttonLabel}
-      </button>
-    );
-  }
+function NextButton(props) {
+  return (
+    <ActionButton
+      clickAction={props.clickAction}
+      displayLabel={props.displayLabel || translate('next')}
+      isDisabled={props.isDisabled}
+    />
+  );
 }
 
 class ActionButton extends Component {
@@ -54,14 +28,14 @@ class ActionButton extends Component {
   }
 
   render() {
-    let buttonClass = (this.props.hasNext) ? 'btn btn-primary btn-has-next' : 'btn btn-primary';
-    buttonClass =
-      this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
-    buttonClass =
-      this.props.className ? buttonClass + ' ' + this.props.className : buttonClass;
+    let buttonClass = 'btn btn-primary' +
+      (this.props.isDisabled ? ' disabled' : '') +
+      (this.props.className ? ' ' + this.props.className : '');
 
     return (
-      <button className={buttonClass} onClick={this.props.clickAction}
+      <button
+        className={buttonClass}
+        onClick={this.props.clickAction}
         disabled={this.props.isDisabled}>{this.props.displayLabel}
       </button>
     );

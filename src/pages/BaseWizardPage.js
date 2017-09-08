@@ -80,7 +80,7 @@ class BaseWizardPage extends Component {
     }
 
     return (
-      <div className='footer-container'>
+      <div className='btn-row footer-container'>
         {back}
         {forward}
       </div>
