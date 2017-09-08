@@ -8,8 +8,8 @@ import { LoadingMask } from './components/LoadingMask.js';
 
 
 /**
- * The InstallWizard component is a container for ordering the install pages and tracking some amount
- * of state across them.
+ * The InstallWizard component is a container for ordering the install pages and tracking
+ * state across them.
  */
 class InstallWizard extends Component {
 
@@ -21,22 +21,28 @@ class InstallWizard extends Component {
       // The current step in the wizard
       currentStep: undefined,
 
-      // The status of each step in the wizard.  If a user has an error in a step
+      // The status and name of each step in the wizard.  If a user has an error in a step
       // and then returns to the previous step, this array will track the fact that the
       // later step had an error even though it is no longer the current step.
       steps: props.pages,
 
-      // The remaining values capture the state of the user's progress through the wizard.  The primary
-      // purpose of these values is so that if a user were to close the browser and then re-open it,
+      // The remaining values capture the state of the user's progress through the wizard.  A primary
+      // function of these values is so that if the user were to close the browser and then re-open it,
       // then the session should look nearly identical, including:
       // - the user should be on the same step in the wizard
-      // - values entered by the user that are not stored anywhere else should be retained.  This
-      //   includes values like what model was selected, credentials for remote systems, and so on.
-      //   Information that is already stored in the model should not be included, since it is
+      // - values entered by the user that are not stored anywhere else.  This includes values
+      //   like what model was selected, credentials for remote systems, and so on.
+      //   Information that is already stored in the model should not be duplicated here since it is
       //   already being persisted in the model (e.g. which servers are assigned which roles).
-      //
-      selectedModelName: ''
+      selectedModelName: '',  // name of the model selected
+      sitePlayId: undefined   // play id of the deployment playbook
     };
+
+    // Indicate which of the above state variables are passed to wizard pages and can be set by them
+    this.globalStateVars = ['selectedModelName', 'sitePlayId'];
+
+    // Indicate which of the state variables will be persisted to, and loaded from, the progress API
+    this.persistedStateVars = ['currentStep', 'steps', 'selectedModelName', 'sitePlayId']
 
     // Load the current state information from the backend
 
@@ -54,7 +60,7 @@ class InstallWizard extends Component {
         if (! forcedReset && responseData.steps && this.areStepsInOrder(responseData.steps, this.props.pages)) {
           this.setState(responseData);
         } else {
-          // No data was loaded, so set the currentStep to 0 and update its stepProgress to inprogress
+          // Set the currentStep to 0 and update its stepProgress to inprogress
           this.setState((prevState) => {
             var newSteps = prevState.steps.slice();
             newSteps.splice(0, 1, {
@@ -66,7 +72,7 @@ class InstallWizard extends Component {
               currentStep: 0,
               steps: newSteps
             };
-        });
+        }, this.persistState);
       }})
     .catch((error) => {
         this.setState({currentStep: 0}, this.persistState);
@@ -102,7 +108,7 @@ class InstallWizard extends Component {
       return (<div className="loading-message">{translate('wizard.loading.pleasewait')}</div>);
     }
 
-    let props = [];
+    let props = {};
 
     //check if first element
     if(this.state.currentStep !== 0) {
@@ -114,9 +120,12 @@ class InstallWizard extends Component {
       props.next = this.stepForward.bind(this);
     }
 
-    props.selectedModelName = this.state.selectedModelName;
-    // pass a callback to update the selectedModelName.  Only used by the cloud model picker page
-    props.updateModelName = this.updateModelName;
+    //Pass all global state vars as properties
+    for (let v of this.globalStateVars) {
+      props[v] = this.state[v];
+    }
+    //Pass the update function as a property
+    props.updateGlobalState = this.updateGlobalState;
 
     return React.createElement(this.props.pages[this.state.currentStep].component, props);
   }
@@ -125,12 +134,11 @@ class InstallWizard extends Component {
    * Writes the current install state out to persistent storage through an api in the shim
    * layer of the UI.
    */
-  persistState() {
-    let stateToPersist = {
-      'currentStep': this.state.currentStep,
-      'steps': this.state.steps,
-      'selectedModelName': this.state.selectedModelName
-    };
+  persistState = () => {
+    let toPersist = {};
+    for (let v of this.persistedStateVars) {
+      toPersist[v] = this.state[v];
+    }
 
     // Note that JSON.stringify silently ignores React components, so they
     // don't get saved
@@ -140,7 +148,7 @@ class InstallWizard extends Component {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(stateToPersist)
+      body: JSON.stringify(toPersist)
     });
   }
 
@@ -199,8 +207,15 @@ class InstallWizard extends Component {
     this.setState(stateUpdates, this.persistState);
   }
 
-  updateModelName = (modelName) => {
-    this.setState({selectedModelName: modelName}, this.persistState);
+  // Setter functions for all state variables that need to be modified within pages.
+  // If this list gets long, consider replacing it with a more generic function
+  // that provides access to any
+  updateGlobalState = (key, value) => {
+    if (this.globalStateVars.includes(key)) {
+      var updatedState = {}
+      updatedState[key] = value;
+      this.setState(updatedState, this.persistState);
+    }
   }
 
   /**

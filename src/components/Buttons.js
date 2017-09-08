@@ -2,16 +2,24 @@ import React, { Component } from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 
+// TODO(gary): Refactor BackButton and NextButton to inherit a common ancestor
 class BackButton extends Component {
   constructor(props) {
     super(props);
   }
   render() {
     let buttonClass = 'btn btn-primary btn-has-next';
+    buttonClass =
+      this.props.isDisabled ? buttonClass + ' ' + 'disabled' : buttonClass;
+
+    let buttonLabel = translate('back');
+    if (this.props.displayLabel) {
+      buttonLabel = this.props.displayLabel;
+    }
 
     return (
-      <button className={buttonClass} onClick={this.props.clickAction}>
-        {translate('back')}
+      <button className={buttonClass} onClick={this.props.clickAction}
+        disabled={this.props.isDisabled}>{buttonLabel}
       </button>
     );
   }

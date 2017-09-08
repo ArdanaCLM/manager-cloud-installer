@@ -51,11 +51,23 @@ class BaseWizardPage extends Component {
     return false;
   }
 
+  setBackButtonLabel() {
+    return null;
+  }
+
+  setBackButtonDisabled() {
+    return false;
+  }
+
   renderNavButtons() {
 
     let back = null;
     if(this.props.back !== undefined) {
-      back= <BackButton clickAction={this.goBack.bind(this)}/>;
+      back= <BackButton
+        clickAction={this.goBack.bind(this)}
+        displayLabel={this.setBackButtonLabel()}
+        isDisabled={this.setBackButtonDisabled()}
+      />;
     }
 
     let forward = null;
