@@ -7,8 +7,10 @@ class LoadingMask extends Component {
     let retValue = <div></div>;
     let spinSize = this.props.size ? this.props.size : 25;
     if(this.props.show) {
+      let cName = 'spinners-container ';
+      cName = this.props.className ? cName + this.props.className : cName;
       retValue = (
-        <div className='spinners-container'>
+        <div className={cName}>
           <ThreeBounce className='spinners' size={spinSize} color='#00C081'/>
         </div>
       );

@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
 import { ServerInput } from '../components/ServerUtils.js';
 import { ActionButton } from '../components/Buttons.js';
-
+import { getAppConfig } from '../components/ConfigHelper.js';
 import {
   IpV4AddressHostValidator, PortValidator
 } from '../components/InputValidators.js';
+import { ErrorMessage } from '../components/Messages.js';
+import { LoadingMask } from '../components/LoadingMask.js';
 
 const UNKNOWN = -1;
 const VALID = 1;
@@ -31,20 +33,15 @@ class ConnectionCredsInfo extends Component {
         'port': UNKNOWN
       }
     };
+    this.errorContent = undefined;
 
     this.state = {
       isOneViewChecked: false,
       sumaTestStatus: UNKNOWN,
-      oneviewTestStatus: UNKNOWN
+      oneviewTestStatus: UNKNOWN,
+      showError: false,
+      loading: false
     };
-
-    this.updateFormValidity = this.updateFormValidity.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleSumaCheckBoxChange = this.handleSumaCheckBoxChange.bind(this);
-    this.handleOneviewCheckBoxChange = this.handleOneviewCheckBoxChange.bind(this);
-    this.handleDone = this.handleDone.bind(this);
-    this.handleTest = this.handleTest.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
   }
 
   componentWillMount() {
@@ -87,6 +84,13 @@ class ConnectionCredsInfo extends Component {
     return (this.data.suma.token !== undefined);
   }
 
+  checkResponse(response) {
+    if (!response.ok) {
+      throw Error(response.url + ':' + response.statusText);
+    }
+    return response;
+  }
+
   checkFormValues (values) {
     let isValid = true;
     let val = values.find((val) => {
@@ -100,7 +104,7 @@ class ConnectionCredsInfo extends Component {
     return isValid;
   }
 
-  isFormValid() {
+  isFormValid () {
     let isAllValid = true;
     if(this.state.isSumaChecked && this.data.suma.token === undefined) {
       let values = Object.values(this.allInputsStatus.suma);
@@ -117,7 +121,7 @@ class ConnectionCredsInfo extends Component {
     return isAllValid;
   }
 
-  updateFormValidity(props, isValid, clearTest) {
+  updateFormValidity = (props, isValid, clearTest) => {
     this.allInputsStatus[props.category][props.inputName] = isValid ? VALID : INVALID;
     if (clearTest) {
       if (props.category === 'suma') {
@@ -149,7 +153,69 @@ class ConnectionCredsInfo extends Component {
     );
   }
 
-  handleInputChange(e, isValid, props) {
+  testSuma = () => {
+    let promise = new Promise((resolve, reject) => {
+      fetch(getAppConfig('shimurl') + '/api/v1/sm/connection_test', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.data.suma.creds)
+      })
+        .then((response) => this.checkResponse(response))
+        .then((response) => response.json())
+        .then((tokenKey) => {
+          resolve(tokenKey);
+          this.setState({sumaTestStatus: VALID});
+        })
+        .catch((error) => {
+          let msg =
+            translate(
+              'server.test.suma.error', this.data.suma.creds.host, this.data.suma.creds.username);
+          let msgContent = {
+            messages: [msg, error.toString()]
+          };
+
+          if (this.errorContent !== undefined) {
+            msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
+          }
+          this.errorContent = msgContent;
+          this.setState({sumaTestStatus: INVALID});
+          reject(error);
+        })
+    });
+    return promise;
+  }
+
+  handleTest = () => {
+    this.setState({showError: false});
+    this.errorContent = undefined;
+    let promises = [];
+    if(this.state.isSumaChecked && this.data.suma.token === undefined) {
+      this.setState({loading: true});
+      promises.push(this.testSuma())
+    }
+
+    //TODO implement
+    if(this.state.isOneViewChecked) {
+      this.setState({oneviewTestStatus: VALID});
+    }
+
+    this.doAllTest(promises)
+      .then((tokenKeys) => {
+        this.setState({loading: false});
+      })
+      .catch((error) => {
+        this.setState({loading: false, showError: true});
+      })
+  }
+
+  doAllTest(promises) {
+    return Promise.all(promises);
+  }
+
+  handleInputChange = (e, isValid, props) => {
     let value = e.target.value;
     this.updateFormValidity(props, isValid, true);
     if (isValid) {
@@ -157,26 +223,11 @@ class ConnectionCredsInfo extends Component {
     }
   }
 
-  handleTest() {
-    //TODO
-    if(this.state.isSumaChecked && this.data.suma.token === undefined) {
-      //call backend once it comes back
-      //TODO need implemnt backend to do actual test
-      //TODO need implement loading mask
-      //error toast message
-      this.setState({sumaTestStatus: VALID});
-    }
-
-    if(this.state.isOneViewChecked) {
-      this.setState({oneviewTestStatus: VALID});
-    }
-  }
-
-  handleCancel() {
+  handleCancel = () => {
     this.props.cancelAction();
   }
 
-  handleDone() {
+  handleDone = () => {
     let retData = {};
     if(this.state.isSumaChecked) {
       if(!this.data.suma.token) {
@@ -191,12 +242,32 @@ class ConnectionCredsInfo extends Component {
     this.props.doneAction(retData);
   }
 
-  handleSumaCheckBoxChange(e, data) {
+  handleSumaCheckBoxChange = (e, data) => {
     this.setState({isSumaChecked: !this.state.isSumaChecked});
   }
 
-  handleOneviewCheckBoxChange(e, data) {
+  handleOneviewCheckBoxChange = (e, data) => {
     this.setState({isOneViewChecked: !this.state.isOneViewChecked});
+  }
+
+  handleCloseMessageAction = () => {
+    this.setState({showError: false});
+    this.errorContent = undefined;
+  }
+
+  renderErrorMessage() {
+    return (
+      <ErrorMessage
+        closeAction={this.handleCloseMessageAction}
+        show={this.state.showError} content={this.errorContent}>
+      </ErrorMessage>
+    );
+  }
+
+  renderLoadingMask() {
+    return (
+      <LoadingMask className='input-modal-mask' show={this.state.loading}></LoadingMask>
+    );
   }
 
   renderInput(name, type, category, validate) {
@@ -211,24 +282,20 @@ class ConnectionCredsInfo extends Component {
       );
     }
     else {
+      let props = {};
+      let required = true;
       if(name === 'port') {
-        return (
-          <ServerInput
-            isRequired={false} inputName={name} inputType={type} min={0} max={65535}
-            category={category} inputValue={this.data[category]['creds'][name]}
-            inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
-          </ServerInput>
-        );
+        props.min = 0;
+        props.max = 65535;
+        required = false;
       }
-      else {
-        return (
-          <ServerInput
-            isRequired={true} inputName={name} inputType={type}
-            category={category} inputValue={this.data[category]['creds'][name]}
-            inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
-          </ServerInput>
-        );
-      }
+      return (
+        <ServerInput
+          isRequired={required} inputName={name} inputType={type} {...props}
+          category={category} inputValue={this.data[category]['creds'][name]}
+          inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
+        </ServerInput>
+      );
     }
   }
 
@@ -325,6 +392,8 @@ class ConnectionCredsInfo extends Component {
         {this.renderSumaCreds()}
         {this.renderOneviewCreds()}
         {this.renderFooter()}
+        {this.renderLoadingMask()}
+        {this.renderErrorMessage()}
       </div>
     );
   }
