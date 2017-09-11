@@ -58,6 +58,7 @@ def insert_servers():
             # Check for dupes and missing name keys
             existing_hosts = []
             has_missing_name_key = False
+            error_msg = ''
             for entry in data:
                 if 'name' not in entry:
                     has_missing_name_key = True
@@ -66,10 +67,9 @@ def insert_servers():
                 server_entry = server_table.get(server.name == name)
                 if server_entry:
                     existing_hosts.append(name)
-                error_msg = ''
                 if has_missing_name_key:
-                    error_msg = 'Data set contains entries with missing name ' \
-                                'keys.  '
+                    error_msg += 'Data set contains entries with missing ' \
+                                 'name keys.  '
                 if existing_hosts:
                     error_msg += "The following servers already exist: "
                     error_msg += ', '.join(existing_hosts)
