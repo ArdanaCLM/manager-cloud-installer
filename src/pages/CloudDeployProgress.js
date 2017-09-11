@@ -232,6 +232,18 @@ class CloudDeployProgress extends BaseWizardPage {
             this.logsReceived = List(message);
             this.setState({displayedLogs: this.logsReceived});
           })
+
+          this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId + "/events")
+          .then(response => {
+            for (let evt of response) {
+              if (evt.event === 'playbook-stop')
+                this.playbookStopped(evt.playbook);
+              else if (evt.event === 'playbook-start')
+                this.playbookStarted(evt.playbook);
+              else if (evt.event === 'playbook-error')
+                this.playbookError(evt.playbook);
+            }
+          })
         } else {
           // The play is still in progress
           this.setState({deployStatus: DEPLOY_IN_PROGRESS});
