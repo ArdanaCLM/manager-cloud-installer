@@ -1,6 +1,8 @@
 from . import socketio
 import config.config as config
+import eventlet
 from flask import Blueprint
+from flask import copy_current_request_context
 from flask import request
 from flask_socketio import emit
 import logging
@@ -59,5 +61,10 @@ class SocketProxy(object):
 @socketio.on('join')
 def on_join(id):
     LOG.debug("Received request by %s to join %s", request.sid, id)
-    proxy = SocketProxy(id, ARDANA_SVC_HOST, ARDANA_SVC_PORT)
-    proxy.wait()
+
+    @copy_current_request_context
+    def wait_for_messages(id):
+        proxy = SocketProxy(id, ARDANA_SVC_HOST, ARDANA_SVC_PORT)
+        proxy.wait()
+
+    eventlet.spawn(wait_for_messages, id)
