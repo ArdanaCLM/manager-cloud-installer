@@ -28,7 +28,8 @@ class ConfirmModal extends Modal {
       (<ActionButton clickAction={action} displayLabel={translate('ok')}/>);
 
     return (
-      <Modal className='modals' show={this.state.showModal} onHide={action} backdrop={'static'}>
+      <Modal className='modals' show={this.state.showModal} onHide={action} backdrop={'static'}
+        dialogClassName={this.props.className}>
         <Modal.Header>
           <Modal.Title className='title'>{this.props.title}</Modal.Title>
         </Modal.Header>
