@@ -13,6 +13,18 @@
     margin-right: 2em;
   }
 
+  .action-line {
+    display: table;
+    .action-item-left {
+      display: table-cell;
+      width: 100%;
+    }
+    .action-item-right {
+      display: inline-flex;
+      margin-left: 0.5em;
+    }
+  }
+
   .search-container {
     margin-bottom: 1em;
     position:relative;
@@ -38,6 +50,9 @@
     background: white;
     margin-bottom: 1em;
     overflow: auto;
+    .tab-pane {
+      margin-top: 0.5em;
+    }
   }
 
   .centered {
@@ -49,5 +64,22 @@
 
   .role-accordion-container {
     height: 38.5em;
+  }
+}
+
+.manual-discover-modal {
+  width: 65em;
+}
+
+.add-server-manually-table {
+  width: 100%;
+  th {
+    padding-left: 1em;
+    line-height: 3em;
+    background-color: @table-header-color;
+  }
+  td {
+    padding-left: 1em;
+    line-height: 2.5em;
   }
 }

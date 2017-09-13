@@ -1,12 +1,14 @@
 import React from 'react';
-import { Tabs, Tab } from 'react-bootstrap';
 import '../Deployer.css';
+import { Tabs, Tab } from 'react-bootstrap';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../components/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
+import { IpV4AddressValidator } from '../components/InputValidators.js';
+import { SearchBar, ServerRolesAccordion, ServerInput, ServerDropdown }
+  from '../components/ServerUtils.js';
+import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
-import { SearchBar, ServerRolesAccordion } from '../components/ServerUtils.js';
-import { BaseInputModal } from '../components/Modals.js';
 import ConnectionCredsInfo from '../components/ConnectionCredsInfo';
 
 const AUTODISCOVER_TAB = 1;
@@ -31,6 +33,7 @@ class AssignServerRoles extends BaseWizardPage {
       'server-group'
     ];
     this.activeRowData = undefined;
+    this.newServer = Array(5).fill(null);
 
     //save it in session for now
     this.credentials = {
@@ -76,7 +79,15 @@ class AssignServerRoles extends BaseWizardPage {
       //what tab key selected
       selectedAddServerTabKey: AUTODISCOVER_TAB,
       //show or not credentials modal
-      showCredsModal: false
+      showCredsModal: false,
+
+      // Add Server Manually modal
+      showAddServerManuallyModal: false,
+      validAddServerManuallyForm: false,
+      serversAddedManually: [],
+
+      // show Add Server From CSV modal
+      showAddFromCSVModal: false,
     };
 
     this.handleDiscovery = this.handleDiscovery.bind(this);
@@ -95,7 +106,7 @@ class AssignServerRoles extends BaseWizardPage {
 
     this.handleSelectAddServerTab = this.handleSelectAddServerTab.bind(this);
     this.handleClickRoleAccordion = this.handleClickRoleAccordion.bind(this);
-    this.handleManualAddServer = this.handleManualAddServer.bind(this);
+    //this.handleManualAddServer = this.handleManualAddServer.bind(this);
     this.handleAddServerFromCSV = this.handleAddServerFromCSV.bind(this);
     this.handleInitDiscovery = this.handleInitDiscovery.bind(this);
     this.handleDoneCredsInput = this.handleDoneCredsInput.bind(this);
@@ -313,8 +324,191 @@ class AssignServerRoles extends BaseWizardPage {
     //TODO
   }
 
-  handleManualAddServer() {
-    //TODO
+  handleAddServerManually = () => {
+    this.setState({showAddServerManuallyModal: true});
+  }
+
+  renderInputLine(title, name, type, validator) {
+    return (
+      <div className='detail-line'>
+        <div className='detail-heading'>{translate(title) + '*'}</div>
+        <div className='input-body'>
+          <ServerInput isRequired={true} inputName={name} inputType={type} inputValidate={validator}
+            inputAction={this.handleInputLine}/>
+        </div>
+      </div>
+    );
+  }
+
+  handleInputLine = (e, valid, props) => {
+    let value = e.target.value;
+    if (valid) {
+      if (props.inputName === 'id') {
+        this.newServer[0] = value;
+        console.log('newServer.id: ' + value);
+      } else {
+        this.newServer[1] = value;
+        console.log('newServer.ip: ' + value);
+      }
+      if (this.newServer[0] && this.newServer[1]) {
+        this.setState({validAddServerManuallyForm: true})
+      }
+    } else {
+      console.log('invalid value: ' + value);
+      this.setState({validAddServerManuallyForm: false});
+    }
+  }
+
+  renderDropdownLine(title, name, value, list, handler) {
+    return (
+      <div className='detail-line'>
+        <div className='detail-heading'>{translate(title) + '*'}</div>
+        <div className='input-body'>
+          <ServerDropdown name={name} value={value} optionList={list} selectAction={handler}/>
+        </div>
+      </div>
+    );
+  }
+
+  handleSelectRole = (role) => {
+    this.newServer[2] = role;
+  }
+
+  handleSelectGroup = (group) => {
+    this.newServer[3] = group;
+  }
+
+  handleSelectNicMapping = (nicmapping) => {
+    this.newServer[4] = nicmapping;
+  }
+
+  closeAddServerManuallyModal = () => {
+    console.log('close modal');
+    this.setState({showAddServerManuallyModal: false});
+  }
+
+  convertListToObj(server) {
+//    return servers.map((server) => {
+      return {
+        name: server[0],
+        ip: server[1],
+        serverRole: server[2],
+        serverGroup: server[3],
+        nicMapping: server[4]
+      };
+//    });
+  }
+
+  convertDictionaryToList(dict) {
+    let servers = [];
+    dict.map((item) => {
+      let server = [];
+      for (let key in item) {
+        if (key === 'name') {
+          server[0] = item[key];
+        } else if (key == 'ip') {
+          server[1] = item[key];
+        } else if (key == 'serverRole') {
+          server[2] = item[key];
+        } else if (key == 'serverGroup') {
+          server[3] = item[key];
+        } else if (key == 'nicMapping') {
+          server[4] = item[key];
+        }
+      }
+      servers.push(server);
+    });
+    return servers;
+  }
+
+  saveServerAddedManually = () => {
+    let newServerObj = this.convertListToObj(this.newServer);
+//    let newServers = this.state.serversAddedManually.concat([newServerObj]);
+    this.setState((prevState) => {
+      return {serversAddedManually: prevState.serversAddedManually.concat([newServerObj])};
+    });
+    console.log('save server');
+//    let serverDict = this.convertListToObj(newServers);
+    fetch(getAppConfig('shimurl') + '/api/v1/server', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+//      body: JSON.stringify(serverDict)
+      body: JSON.stringify(newServerObj)
+      })
+
+    this.closeAddServerManuallyModal();
+  }
+
+  addMoreServer() {
+    console.log('add more server');
+  }
+
+  renderAddServerManuallyModal = () => {
+    let body = '';
+    if (this.serverRoles && this.serverGroups && this.nicMappings) {
+      let roles = this.serverRoles.map((server) => {return server.serverRole});
+      // initialize data column, ordered by what will show in table
+      if (this.newServer[2] === null) {
+        this.newServer[2] = roles[0];
+      }
+      if (this.newServer[3] === null) {
+        this.newServer[3] = this.serverGroups[0];
+      }
+      if (this.newServer[4] === null) {
+        this.newServer[4] = this.nicMappings[0];
+      }
+      body = (
+        <div className='server-details-container'>
+          {this.renderInputLine('server.id.name.prompt', 'id', 'text')}
+          {this.renderInputLine('server.ip.address.prompt', 'ip', 'text', IpV4AddressValidator)}
+          {this.renderDropdownLine('server.role.prompt', 'role', roles[0], roles,
+            this.handleSelectRole)}
+          {this.renderDropdownLine('server.group.prompt', 'group', this.serverGroups[0],
+            this.serverGroups, this.handleSelectGroup)}
+          {this.renderDropdownLine('server.nicmapping.prompt', 'nicmapping', this.nicMappings[0],
+            this.nicMappings, this.handleSelectNicMapping)}
+        </div>
+      );
+    }
+    let footer = (
+      <div className='btn-row'>
+        <ActionButton clickAction={this.closeAddServerManuallyModal}
+          displayLabel={translate('cancel')}/>
+        <ActionButton clickAction={this.saveServerAddedManually} displayLabel={translate('save')}
+          isDisabled={!this.state.validAddServerManuallyForm}/>
+        <ActionButton clickAction={this.addMoreServer} displayLabel={translate('add.more')}/>
+      </div>
+    );
+    return (
+      <ConfirmModal show={this.state.showAddServerManuallyModal} title={translate('add.server.add')}
+        className={'manual-discover-modal'} body={body} footer={footer}/>
+    );
+  }
+
+  renderServersAddedManuallyTable = () => {
+    let rows = [];
+
+    // create table header
+    let headerRow = [];
+    let colHeaders = ['id.name', 'ip.address', 'role', 'group', 'nicmapping'];
+    let headers = colHeaders.map(header => translate('server.' + header + '.prompt').toString());
+    headers.map((header, index) => {headerRow.push(<th key={index}>{header}</th>);});
+    rows.push(<tr key='headerRow'>{headerRow}</tr>);
+
+    // create data rows
+    let servers = this.convertDictionaryToList(this.state.serversAddedManually);
+    for (let i=0; i<servers.length; i++) {
+      let dataRow = [];
+      servers[i].map((col, index) => {
+        dataRow.push(<td key={i+index}>{col}</td>);
+      });
+      rows.push(<tr key={i}>{dataRow}</tr>);
+    }
+
+    return (rows);
   }
 
   handleAddServerFromCSV() {
@@ -415,6 +609,15 @@ class AssignServerRoles extends BaseWizardPage {
         //TODO remove
         console.error('Failed to get model object data');
         console.error(JSON.stringify(error));
+      });
+
+    fetch(getAppConfig('shimurl') + '/api/v1/server')
+      .then(response => response.json())
+      .then((responseData) => {
+        if (responseData.length > 0) {
+          console.log('got some servers');
+          this.setState({serversAddedManually: responseData});
+        }
       });
   }
 
@@ -745,17 +948,29 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  renderManualAddServerContent() {
-    return (
-      <div className='btn-row centered'>
-        <ActionButton
-          clickAction={this.handleManualAddServer}
-          displayLabel={translate('add.server.add')}/>
-        <ActionButton
-          clickAction={this.handleAddServerFromCSV}
-          displayLabel={translate('add.server.add.csv')}/>
-      </div>
-    );
+  renderManualDiscoverContent = () => {
+    // TODO add relocation of buttons next to the search bar when there're data in the table
+    if (this.state.serversAddedManually.length > 0) {
+      console.log('servers added manually count: ' + this.state.serversAddedManually.length);
+      return (
+        <div className='rounded-corner'>
+          <table className='add-server-manually-table'>
+            <tbody>{this.renderServersAddedManuallyTable()}</tbody>
+          </table>
+        </div>
+      );
+    } else {
+      return (
+        <div className='btn-row centered'>
+          <ActionButton
+            clickAction={this.handleAddServerManually}
+            displayLabel={translate('add.server.add')}/>
+          <ActionButton
+            clickAction={this.handleAddServerFromCSV}
+            displayLabel={translate('add.server.add.csv')}/>
+        </div>
+      );
+    }
   }
 
   renderAvailableServersTabs() {
@@ -769,10 +984,44 @@ class AssignServerRoles extends BaseWizardPage {
         </Tab>
         <Tab
           eventKey={MANUALADD_TAB} title={translate('add.server.manual.add')}>
-          {this.renderManualAddServerContent()}
+          {this.renderManualDiscoverContent()}
         </Tab>
       </Tabs>
     );
+  }
+
+  renderSearchBar() {
+    if (this.state.selectedAddServerTabKey === MANUALADD_TAB &&
+      this.state.serversAddedManually.length > 0) {
+      console.log('in Add Manually tab, have server');
+      return (
+        <div className='action-line'>
+          <div className='action-item-left'>
+            <SearchBar
+              filterText={this.state.searchFilterText}
+              filterAction={this.handleSearchText}>
+            </SearchBar>
+          </div>
+          <div>
+            <div className='btn-row action-item-right'>
+              <ActionButton
+                clickAction={this.handleAddServerManually}
+                displayLabel={translate('add.server.add')}/>
+              <ActionButton
+                clickAction={this.handleAddServerFromCSV}
+                displayLabel={translate('add.server.add.csv')}/>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <SearchBar
+          filterText={this.state.searchFilterText}
+          filterAction={this.handleSearchText}>
+        </SearchBar>
+      );
+    }
   }
 
   renderServerRolesAccordion(roles) {
@@ -787,10 +1036,7 @@ class AssignServerRoles extends BaseWizardPage {
     return (
       <div className='assign-server-role body-container'>
         <div className="server-container">
-          <SearchBar
-            filterText={this.state.searchFilterText}
-            filterAction={this.handleSearchText}>
-          </SearchBar>
+          {this.renderSearchBar()}
           <div className="server-table-container rounded-box">
             {this.renderAvailableServersTabs()}
           </div>
@@ -830,6 +1076,7 @@ class AssignServerRoles extends BaseWizardPage {
         {this.renderServerRoleContent()}
         {this.renderNavButtons()}
         {this.renderCredsInputModal()}
+        {this.renderAddServerManuallyModal()}
       </div>
     );
   }
