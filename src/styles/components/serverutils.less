@@ -10,7 +10,6 @@
   }
 
   .Collapsible__contentInner {
-    padding: 10px;
     border-top: 0;
     background: white;
     height: 9em;
@@ -42,6 +41,38 @@
   }
 }
 
+.search-config-container {
+  display: inline-block;
+  width: 100%;
+}
+
+.search-container {
+  display: inline-block;
+  margin-bottom: 1em;
+  position:relative;
+  width: 100%;
+  &.shorter {
+    width: 70%;
+  }
+}
+
+.config-buttons-container {
+  width: 30%;
+  display: inline-block;
+}
+
+.search-bar input {
+  width: 100%;
+  font-size: 13px;
+  padding: 0.5em;
+}
+
+.search-icon {
+  position: absolute;
+  top: 0.7em;
+  right: 0.5em;
+}
+
 .server-input {
   .error-message {
     color:@errorcolor;
@@ -53,4 +84,18 @@
 .server-input input {
   padding: 4px;
   width: 40%;
+}
+
+.suma-badge:before {
+  content: ' \25CF';
+  font-size: 1em;
+  margin-right: 0.5em;
+  color: @preferredcolor;
+}
+
+.oneview-badge:before {
+  content: ' \25CF';
+  font-size: 1em;
+  margin-right: 0.5em;
+  color: @preferredcolor-hpe;
 }

@@ -14,7 +14,6 @@ const VALID = 1;
 const INVALID = 0;
 
 class ConnectionCredsInfo extends Component {
-
   constructor(props) {
     super(props);
 
@@ -45,7 +44,7 @@ class ConnectionCredsInfo extends Component {
   }
 
   componentWillMount() {
-    this.data =this.makeDeepCopy(this.props.data);
+    this.data = this.makeDeepCopy(this.props.data);
     this.initData();
     this.setState({
       isSumaChecked: this.initSumaCheck()
@@ -154,6 +153,7 @@ class ConnectionCredsInfo extends Component {
   }
 
   testSuma = () => {
+    this.data.suma.sessionKey = undefined;
     let promise = new Promise((resolve, reject) => {
       fetch(getAppConfig('shimurl') + '/api/v1/sm/connection_test', {
         method: 'POST',
@@ -167,6 +167,7 @@ class ConnectionCredsInfo extends Component {
         .then((response) => response.json())
         .then((tokenKey) => {
           resolve(tokenKey);
+          this.data.suma.sessionKey = tokenKey;
           this.setState({sumaTestStatus: VALID});
         })
         .catch((error) => {
