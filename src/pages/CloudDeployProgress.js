@@ -194,8 +194,7 @@ class CloudDeployProgress extends BaseWizardPage {
   }
 
   monitorSocket = (playId) => {
-    // TODO: Proxy socketio through shim when it is ready
-    this.socket = io(getAppConfig('deployserviceurl')); // should be: 'shimurl'
+    this.socket = io(getAppConfig('shimurl'));
     this.socket.on('playbook-start', this.playbookStarted);
     this.socket.on('playbook-stop', this.playbookStopped);
     this.socket.on('playbook-error', this.playbookError);
