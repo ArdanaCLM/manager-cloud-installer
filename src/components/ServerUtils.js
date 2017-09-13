@@ -19,7 +19,7 @@ class SearchBar extends Component {
     return (
       <div className='search-container'>
         <span className='search-bar'>
-          <input className='rounded-box'
+          <input className='rounded-corner'
             type="text" placeholder={searchPlaceholder}
             value={this.props.filterText} onChange={this.handleFilterTextInputChange}/>
         </span>
@@ -196,8 +196,47 @@ class ServerInput extends Component {
   }
 }
 
+class ServerDropdown extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      value: this.props.value
+    };
+  }
+
+  handleSelect = (e) => {
+    this.setState({value: e.target.value});
+    this.props.selectAction(e.target.value);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (this.props.value !== newProps.value) {
+      this.setState({value : newProps.value});
+    }
+  }
+
+  renderOptions() {
+    let options = this.props.optionList.map((opt) => {
+      return <option key={opt} value={opt}>{opt}</option>;
+    });
+
+    return options;
+  }
+
+  render() {
+    return (
+      <div className="server-detail-select">
+        <select className='rounded-corner' value={this.state.value} name={this.props.name}
+          onChange={this.handleSelect}>{this.renderOptions()}</select>
+      </div>
+    );
+  }
+}
+
 module.exports = {
   SearchBar: SearchBar,
   ServerRolesAccordion: ServerRolesAccordion,
-  ServerInput: ServerInput
+  ServerInput: ServerInput,
+  ServerDropdown: ServerDropdown
 };
