@@ -20,6 +20,12 @@ TIMEOUT = 2
 Calls to SUSE Manager
 """
 
+def get_client(url):
+    context = None
+    if INSECURE:
+        context = ssl._create_unverified_context()
+    client = xmlrpclib.Server(url, verbose=0, context=context)
+    return client
 
 def connect():
     context = None
@@ -40,7 +46,7 @@ def connection_test():
     port = "8443"
     if creds['port'] != 0:
         port = creds['port']
-    # check the host and port first before loging
+    # check the host and port first before login
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(TIMEOUT)
@@ -49,7 +55,7 @@ def connection_test():
         abort(400)
     # login
     try:
-        suma_url = "https://" + creds['host'] + ":" + port + "/rpc/api"
+        suma_url = "https://" + creds['host'] + ":" + str(port) + "/rpc/api"
         suma_username = creds['username']
         suma_password = creds['password']
         client = xmlrpclib.Server(suma_url, verbose=0, context=context)
@@ -61,12 +67,15 @@ def connection_test():
 
 @bp.route("/api/v1/sm/servers")
 def sm_server_list():
-    # TODO will fix to use tokenkey passed in
     if util.USE_JSON_SERVER_ONLY:
         return util.forward(util.build_url(None, '/servers'), request)
 
-    client, key = connect()
+    key = request.headers.get('Authtoken')
+    url = request.headers.get('Sumaurl')
+
+    client = get_client(url)
     server_list = client.system.listActiveSystems(key)
+
     for server in server_list:
         # last_checkin is an object, which is not json-serializable
         server['last_checkin'] = str(server['last_checkin'])
@@ -77,11 +86,13 @@ def sm_server_list():
 @bp.route("/api/v1/sm/servers/<id>")
 def sm_server_details(id):
 
-    # TODO will fix to use tokenkey passed in
     if util.USE_JSON_SERVER_ONLY:
         return util.forward(util.build_url(None, '/servers' + id), request)
 
-    client, key = connect()
+    key = request.headers.get('Authtoken')
+    url = request.headers.get('Sumaurl')
+
+    client = get_client(url)
     detail_list = client.system.listActiveSystemsDetails(key, int(id))
 
     detail = detail_list[0]

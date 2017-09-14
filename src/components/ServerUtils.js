@@ -2,25 +2,26 @@ import React, { Component } from 'react';
 import Collapsible from 'react-collapsible';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
+import ServerTable from './ServerTable.js';
 
 class SearchBar extends Component {
   constructor(props) {
     super(props);
-    this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
   }
 
-  handleFilterTextInputChange(e) {
+  handleFilterTextInputChange = (e) => {
     e.preventDefault();
     this.props.filterAction(e.target.value);
   }
 
   render() {
-    let searchPlaceholder = translate('placeholder.search.server.text');
+    let cName = 'search-container ';
+    cName = this.props.className ? cName + this.props.className : cName;
     return (
-      <div className='search-container'>
+      <div className={cName}>
         <span className='search-bar'>
           <input className='rounded-corner'
-            type="text" placeholder={searchPlaceholder}
+            type="text" placeholder={translate('placeholder.search.server.text')}
             value={this.props.filterText} onChange={this.handleFilterTextInputChange}/>
         </span>
         <span className='glyphicon glyphicon-search search-icon'></span>
@@ -33,24 +34,46 @@ class ServerRolesAccordion extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      accordionPosition: 0
+      accordionPosition: 0,
+      activeServers: this.props.displayServers
     };
-    this.handleTriggerClick = this.handleTriggerClick.bind(this);
   }
 
-  //TODO temp implment...need table with drag and drop
-  renderServerTable(servers) {
-    let items = [];
-    servers.forEach((server, idx) => {
-      let item = <div key={idx}>{server.name}</div>;
-      items.push(item);
-    });
-    return items;
+  componentWillReceiveProps(nextProps) {
+    this.setState({activeServers: nextProps.displayServers});
   }
 
-  handleTriggerClick(position, role) {
+  handleTriggerClick = (position, role) => {
     this.setState({accordionPosition: position});
     this.props.clickAction(role);
+    this.setState({activeServers: role.servers});
+  }
+
+  renderAccordionServerTable(servers) {
+    //displayed columns
+    let tableConfig = {
+      columns: [
+        {name: 'id', hidden: true},
+        {name: 'name'},
+        {name: 'ip-addr'},
+        {name: 'mac-addr'},
+        {name: 'role', hidden: true},
+        {name: 'server-group'},
+        {name: 'nic-mapping'},
+        {name: 'source', hidden: true}
+      ]
+    };
+    return (
+      <div className='rounded-corner'>
+        <ServerTable
+          id={this.props.tableId}
+          noHeader
+          tableConfig={tableConfig}
+          tableData={this.state.activeServers}
+          customAction={this.props.editAction}>
+        </ServerTable>
+      </div>
+    );
   }
 
   renderSections() {
@@ -79,13 +102,14 @@ class ServerRolesAccordion extends Component {
             );
         }
       }
+      let isOpen = idx === this.state.accordionPosition;
       return (
         <Collapsible
-          open={idx === this.state.accordionPosition}
+          open={isOpen}
           trigger={optionDisplay.join(' ')} key={role.name}
           handleTriggerClick={() => this.handleTriggerClick(idx, role)}
           value={role.serverRole}>
-          {this.renderServerTable(role.servers)}
+          {isOpen && this.renderAccordionServerTable(role.servers)}
         </Collapsible>
       );
     });
@@ -109,7 +133,6 @@ class ServerInput extends Component {
       errorMsg: '',
       inputValue: this.props.inputValue
     };
-    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   componentDidMount() {
@@ -156,7 +179,7 @@ class ServerInput extends Component {
     return retValid;
   }
 
-  handleInputChange(e, props) {
+  handleInputChange = (e, props) => {
     let val = e.target.value;
     let valid = this.validateInput(val);
     this.setState({

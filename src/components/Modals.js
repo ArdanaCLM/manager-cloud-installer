@@ -63,39 +63,28 @@ class YesNoModal extends ConfirmModal {
 class BaseInputModal extends Modal {
   constructor(props) {
     super(props);
-    this.state = {
-      showModal: false
-    };
-    this.handleClose = this.handleClose.bind(this);
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.setState({
-      showModal: newProps.show
-    });
-  }
-
-  handleClose() {
-    this.setState({ showModal: false });
   }
 
   //won't render footer, but implement footers in the body
   //to have control over the input contents changes.
   render() {
-    return (
-      <Modal
-        className='modals' show={this.state.showModal}
-        dialogClassName={this.props.dialogClass}
-        onHide={this.handleClose}
-        backdrop={'static'}>
-        <Modal.Header closeButton>
-          <Modal.Title className='title'>{this.props.title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {this.props.body}
-        </Modal.Body>
-      </Modal>
-    );
+    if (this.props.show) {
+      return (
+        <Modal
+          className='modals' show={this.props.show}
+          dialogClassName={this.props.dialogClass}
+          onHide={this.props.cancelAction}
+          backdrop={'static'}>
+          <Modal.Header closeButton>
+            <Modal.Title className='title'>{this.props.title}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {this.props.body}
+          </Modal.Body>
+        </Modal>
+      );
+    }
+    return <div></div>;
   }
 }
 

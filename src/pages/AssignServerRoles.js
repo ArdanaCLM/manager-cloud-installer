@@ -1,5 +1,6 @@
 import React from 'react';
 import '../Deployer.css';
+import Cookies from 'universal-cookie';
 import { Tabs, Tab } from 'react-bootstrap';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../components/ConfigHelper.js';
@@ -10,9 +11,14 @@ import { SearchBar, ServerRolesAccordion, ServerInput, ServerDropdown }
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import ConnectionCredsInfo from '../components/ConnectionCredsInfo';
+import { ErrorMessage } from '../components/Messages.js';
+import { LoadingMask } from '../components/LoadingMask.js';
+import ServerTable from '../components/ServerTable.js'
+import EditServerDetails from '../components/EditServerDetails.js'
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
+const COOKIES = new Cookies();
 
 class AssignServerRoles extends BaseWizardPage {
 
@@ -33,18 +39,16 @@ class AssignServerRoles extends BaseWizardPage {
       'server-group'
     ];
     this.activeRowData = undefined;
-//    this.newServer = Array(5).fill(null);
     this.newServer = {};
+    this.errorContent = undefined;
 
-    //save it in session for now
     this.credentials = {
       suma: {
-        token:  undefined,
         creds: {
           username: '',
           password: '',
           host: '',
-          port: 0,
+          port: 8443,
         },
       },
       oneview: {
@@ -56,6 +60,10 @@ class AssignServerRoles extends BaseWizardPage {
         },
       }
     };
+    this.selectedServerRole = '';
+    this.sumaApiUrl = '';
+    this.sumaApiToken = undefined;
+    this.sumaSessionKey = undefined;
 
     //states changes will rerender UI
     this.state = {
@@ -65,20 +73,12 @@ class AssignServerRoles extends BaseWizardPage {
       //server list on the assigned servers side
       //also changed when select role
       displayAssignedServers: [],
-      //when assign and unassign servers, the display
-      //of selected role will be changed
-      selectedServerRole:'',
-      //selected list on the available servers side
-      selectedAvailableServersRows: [],
-      //selected list on the assigned servers side
-      selectedAssignedServersRows: [],
-      //when assign or unassign or discover the filter
-      //text could be cleared
+      //when move servers the filter text could be cleared
       searchFilterText: '',
       //turn on/off next
       pageValid: false,
       //what tab key selected
-      selectedAddServerTabKey: AUTODISCOVER_TAB,
+      selectedServerTabKey: AUTODISCOVER_TAB,
       //show or not credentials modal
       showCredsModal: false,
 
@@ -89,38 +89,27 @@ class AssignServerRoles extends BaseWizardPage {
 
       // show Add Server From CSV modal
       showAddFromCSVModal: false,
+
+      //when loading data or saving data
+      loading: false,
+      //show error message
+      showError: false,
+      //show server details modal
+      showServerDetailsModal: false,
+      //show edit server details modal
+      showEditServerDetailsModal: false,
+
+      rawDiscoveredServers: []
     };
 
-    this.handleDiscovery = this.handleDiscovery.bind(this);
-    this.handleAssignServer = this.handleAssignServer.bind(this);
-    this.handleUnAssignServer = this.handleUnAssignServer.bind(this);
-    this.handleSearchText = this.handleSearchText.bind(this);
-    this.handleAvailableServerRowSelect = this.handleAvailableServerRowSelect.bind(this);
-    this.handleAssignedServerRowSelect = this.handleAssignedServerRowSelect.bind(this);
-
-    this.handleAvailableServerShowMenu = this.handleAvailableServerShowMenu.bind(this);
-    this.handleAssignedServerShowMenu = this.handleAssignedServerShowMenu.bind(this);
-    this.handleAssignedServerShowEdit = this.handleAssignedServerShowEdit.bind(this);
-    this.handleShowDetail = this.handleShowDetail.bind(this);
-    this.handleEditDetailCancel = this.handleEditDetailCancel.bind(this);
-    this.handleEditDetailDone = this.handleEditDetailDone.bind(this);
-
-    this.handleSelectAddServerTab = this.handleSelectAddServerTab.bind(this);
-    this.handleClickRoleAccordion = this.handleClickRoleAccordion.bind(this);
-    //this.handleManualAddServer = this.handleManualAddServer.bind(this);
     this.handleAddServerFromCSV = this.handleAddServerFromCSV.bind(this);
-    this.handleInitDiscovery = this.handleInitDiscovery.bind(this);
-    this.handleDoneCredsInput = this.handleDoneCredsInput.bind(this);
-    this.handleCancelCredsInput = this.handleCancelCredsInput.bind(this);
   }
 
   refreshServers(rawServerData) {
     this.setState({
-      displayAssignedServers: [], //
+      displayAssignedServers: [],
       displayAvailableServers: [],
-      searchFilterText: '',
-      selectedAvailableServersRows: [],
-      selectedAssignedServersRows: []
+      searchFilterText: ''
     });
 
     this.serverRoles.forEach((role) => {
@@ -134,195 +123,117 @@ class AssignServerRoles extends BaseWizardPage {
     this.validateServerRoleAssignment();
   }
 
-  getAvailableServersData() {
+  getSumaServersData(tokenKey, sumaUrl) {
     return (
-      fetch(getAppConfig('shimurl') + '/api/v1/sm/servers')
+      fetch(getAppConfig('shimurl') + '/api/v1/sm/servers', {
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'Authtoken': tokenKey,
+          'Sumaurl': sumaUrl
+        }
+      })
+        .then((response) => this.checkResponse(response))
         .then(response => response.json())
     );
   }
 
-  handleDiscovery() {
-    this.getAvailableServersData()
+  doSumaDiscovery(tokenKey, sumaUrl) {
+    let promise = new Promise((resolve, reject) => {
+      this.getSumaServersData(tokenKey, sumaUrl)
       .then((rawServerData) => {
         if (rawServerData && rawServerData.length > 0) {
           let ids = rawServerData.map((srv) => {
             return srv.id;
           });
 
-          this.getAllServerDetailsData(ids)
+          this.getSumaAllServerDetailsData(ids, tokenKey, sumaUrl)
             .then((details) => {
-              rawServerData = this.updateServerDataWithDetails(details);
-              this.refreshServers(rawServerData);
+              rawServerData = this.updateSumaServerDataWithDetails(details);
+              resolve(rawServerData);
             })
             .catch((error) => {
-              //TODO remove
-              console.error('Failed to get all servers details data');
+              //don't reject ...just move one
             });
         }
       })
       .catch((error) => {
-        //TODO remove
-        console.error('Failed to get available data');
-      });
-  }
+        let msg = translate('server.discover.suma.error');
+        let msgContent = {
+          messages: [msg, error.toString()]
+        };
 
-  //assign selected servers to server role
-  handleAssignServer() {
-    let selectedSvrRole = this.state.selectedServerRole;
-    let serverRole = this.serverRoles.find((role) => {
-      return (selectedSvrRole === role.serverRole);
+        if (this.errorContent !== undefined) {
+          msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
+        }
+        this.errorContent = msgContent;
+        reject(error);
+      });
     });
-    if(serverRole) {
-      let selAvailableSvrs = this.state.selectedAvailableServersRows;
-      let assignedServers = serverRole.servers;
-      serverRole.servers = assignedServers.concat(selAvailableSvrs);
-
-      let assignedIds = serverRole.servers.map((svr) => {
-        return svr.id;
-      });
-      let tempAvailableSvrs = this.state.displayAvailableServers.filter((srv) => {
-        //find one which is not assigned
-        return (assignedIds.indexOf(srv.id) === -1);
-      });
-
-      //update available servers
-      this.setState({
-        displayAssignedServers: serverRole.servers,
-        displayAvailableServers: tempAvailableSvrs,
-        searchFilterText: '',
-        selectedAvailableServersRows: [],
-        selectedAssignedServersRows: []
-      });
-      //check if we meet the model object server role
-      //min requirements
-      this.validateServerRoleAssignment();
-    }
+    return promise;
   }
 
-  //unassign selected servers from server role
-  handleUnAssignServer() {
-    let selectedSvrRole = this.state.selectedServerRole;
-    let serverRole = this.serverRoles.find((role) => {
-      return (selectedSvrRole === role.serverRole);
-    });
-
-    if(serverRole) {
-      let selAssignedSvrs = this.state.selectedAssignedServersRows;
-      let displayAvailableSvrs = this.state.displayAvailableServers;
-
-      //update available servers)
-      this.setState({
-        displayAvailableServers: displayAvailableSvrs.concat(selAssignedSvrs)
-      });
-
-      let selectedIds = selAssignedSvrs.map((svr) => {
-        return svr.id;
-      });
-
-      let displayAssignedSvrs = serverRole.servers.filter((svr) => {
-        //find one which is not selected
-        return (selectedIds.indexOf(svr.id) === -1);
-      });
-
-      serverRole.servers = displayAssignedSvrs;
-      this.setState({
-        displayAssignedServers: displayAssignedSvrs,
-        searchFilterText: '',
-        selectedAvailableServersRows: [],
-        selectedAssignedServersRows: []
-      });
-
-      //check if we meet the model object server role
-      //min requirements
-      this.validateServerRoleAssignment();
+  //run discovery for suma and/or oneview parallelly
+  //meanwhile also go update the table data with more details by query
+  //detail one by one in parallel.
+  doAllDiscovery = () => {
+    let promises = [];
+    if(this.sumaSessionKey) {
+      promises.push(this.doSumaDiscovery(this.sumaSessionKey, this.sumaApiUrl));
     }
+    else if(this.sumaApiToken) {
+      let url = window.location.protocol + '//' + window.location.host +
+        (window.location.port > 0 ? ':' + window.location.port : '')  + '/rpc/api';
+      promises.push(this.doSumaDiscovery(this.sumaApiToken, url));
+    }
+
+    //TODO add oneview discovery in promise array
+    // if(this.state.oneviewSessionKey) {
+    //
+    // }
+
+    return Promise.all(promises);
   }
 
-  //handle click single row on available servers
-  handleAvailableServerRowSelect(isChecked, row) {
-    let selected = this.state.selectedAvailableServersRows.slice();
-    if(isChecked) {
-      selected.push(row);
+  checkResponse(response) {
+    if (!response.ok) {
+      throw Error(response.url + ':' + response.statusText);
     }
-    else {
-      let idx =
-        selected.findIndex((aRow) => {
-          return row.id === aRow.id;
+    return response;
+  }
+
+  handleDiscovery = () => {
+    this.setState({loading: true});
+    let resultServers = [];
+    this.doAllDiscovery()
+      .then((allServerData) => {
+        allServerData.forEach((oneSet, idx) => {
+          resultServers = resultServers.concat(oneSet);
         });
-
-      if(idx !== -1) {
-        selected.splice(idx, 1);
-      }
-    }
-    this.setState({
-      selectedAvailableServersRows : selected
-    });
-  }
-
-  //handle click single row on assigned servers
-  handleAssignedServerRowSelect(isChecked, row) {
-    let selected = this.state.selectedAssignedServersRows.slice();
-    if(isChecked) {
-      selected.push(row);
-    }
-    else {
-      let idx =
-        selected.findIndex((aRow) => {
-          return row.id === aRow.id;
-        });
-
-      if(idx !== -1) {
-        this.selected.splice(idx, 1);
-      }
-    }
-    this.setState({
-      selectedAssignedServersRows : selected
-    });
+        this.saveDiscoveredServers(resultServers)
+          .then((response) => {
+            //TODO remove
+            console.log('successfully saved discovered servers')
+          })
+          .catch((error) => {
+            //TODO remove
+            console.log('failed to save discovered servers')
+          });
+        this.setState({loading: false, rawDiscoveredServers: resultServers});
+        this.refreshServers(resultServers);
+      })
+      .catch((error) => {
+        this.setState({loading: false, showError: true});
+      })
   }
 
   //handle filter text change
-  handleSearchText(filterText) {
-    this.setState({
-      searchFilterText: filterText,
-      selectedAvailableServersRows: []
-    });
+  handleSearchText = (filterText) => {
+    this.setState({searchFilterText: filterText});
   }
 
-  //handle menu clicks
-  handleAvailableServerShowMenu(e, rowData) {
-    let tempData = {};
-    Object.assign(tempData, rowData);
-    this.setState({
-      showAvailableContextMenu: true
-    });
-    this.contextMenuLocation = {x : e.pageX, y: e.pageY};
-    this.activeRowData = tempData;
-  }
-
-  handleAssignedServerShowMenu(e, rowData) {
-    let tempData = {};
-    Object.assign(tempData, rowData);
-    tempData.role = this.state.selectedServerRole;
-    this.setState({
-      showAssignedContextMenu: true
-    });
-    this.activeRowData = tempData;
-    this.contextMenuLocation = {x : e.pageX, y: e.pageY};
-  }
-
-  handleAssignedServerShowEdit() {
-    this.setState({
-      showEditDetails: true,
-      showAssignedContextMenu: false
-    });
-  }
-
-  handleSelectAddServerTab(tabKey) {
-    this.setState({selectedAddServerTabKey: tabKey});
-  }
-
-  handleClickRoleAccordion(role) {
-    //TODO
+  handleSelectServerTab = (tabKey) =>  {
+    this.setState({selectedServerTabKey: tabKey});
   }
 
   handleAddServerManually = () => {
@@ -476,38 +387,90 @@ class AssignServerRoles extends BaseWizardPage {
     //TODO
   }
 
-  handleInitDiscovery() {
-    this.setState({showCredsModal: true});
+  handleConfDiscovery = () => {
+    if(!this.sumaApiToken) {
+      this.setState({showCredsModal: true});
+    }
+    else {
+      this.handleDiscovery();
+    }
   }
 
-  handleCancelCredsInput() {
+  handleCancelCredsInput = () => {
     this.setState({showCredsModal: false});
   }
 
-  //TODO
-  handleDoneCredsInput(credsData) {
+  runDiscovery() {
+
+  }
+
+  handleDoneCredsInput = (credsData) => {
     this.setState({
       showCredsModal: false,
     });
-    if(credsData.suma) {
+    if (credsData.suma) {
       this.credentials.suma = credsData.suma;
+      //save the sessionKey to COOKIES
+      var expDate = new Date();
+      expDate.setDate(expDate.getDate() + 1);
+      COOKIES.set(
+        'sumaSessionKey', this.credentials.suma.sessionKey,
+        {path: '/', expires: expDate});
+      let url =
+        'https://' + this.credentials.suma.creds.host + ':' +
+        (this.credentials.suma.creds.port <= 0 ? '8443' : this.credentials.suma.creds.port) + '/rpc/api';
+      COOKIES.set('sumaApiUrl', url);
+      this.sumaApiUrl = url;
+      this.sumaSessionKey = this.credentials.suma.sessionKey;
     }
-    if(credsData.oneview) {
+    if (credsData.oneview) {
       this.credentials.oneview = credsData.oneview;
+      //TODO save sessionKey
     }
-    //TODO if don't have available server...run discovery with creds info
+
+    //this should only happened at the very beginning
+    //after that user will use configure and discover buttons
+    if (this.state.rawDiscoveredServers.length === 0) {
+      this.setState({loading: true});
+      let resultServers = [];
+      this.doAllDiscovery()
+        .then((allServerData) => {
+          allServerData.forEach((oneSet, idx) => {
+            resultServers = resultServers.concat(oneSet);
+          });
+          this.setState({rawDiscoveredServers: resultServers});
+          //save it to the backend
+          this.saveDiscoveredServers(resultServers)
+          .then((response) => {
+            //TODO remove
+            console.log('successfully saved discovered servers')
+          })
+          .catch((error) => {
+            //TODO remove
+            console.log('failed to save discovered servers')
+          });
+          this.refreshServers(resultServers);
+          this.setState({loading: false});
+        })
+        .catch((error) => {
+          this.setState({loading: false, showError: true});
+        })
+      }
   }
 
-  //TODO doesn't do anything yet
-  handleShowDetail() {
-    this.setState({
-      showDetails: true,
-      showAssignedContextMenu: false,
-      showAvailableContextMenu: false
-    });
+  handleCloseMessageAction = () => {
+    this.setState({showError: false});
+    this.errorContent = undefined;
   }
 
-  handleEditDetailDone(editData) {
+  handleShowServerDetails = (rowData) => {
+    this.setState({showServerDetailsModal: true});
+    this.activeRowData = rowData;
+    //TODO need to get details based on source and id
+    //then pop a modal
+  }
+
+  handleDoneEditServerDetailsInput = (editData) => {
     let roles = this.serverRoles;
     let findRole = roles.find((role) => {
       return role.serverRole === editData.role;
@@ -518,11 +481,8 @@ class AssignServerRoles extends BaseWizardPage {
         return srv.id === editData.id;
       });
       if(server) {
-        //only change part of it
-        //TODO should allow to edit ip-addr or mac-addr?
         server['ip-addr'] = editData['ip-addr'];
         server['mac-addr'] = editData['mac-addr'];
-        //TODO when we unassign...should we clean the following
         server['server-group'] = editData['server-group'];
         server['nic-mapping'] = editData['nic-mapping'];
         server['ilo-ip'] = editData['ilo-ip'];
@@ -532,44 +492,67 @@ class AssignServerRoles extends BaseWizardPage {
     }
 
     this.setState({
-      showEditDetails: false,
-      selectedAvailableServersRows: [],
-      selectedAssignedServersRows: []
+      showEditServerDetailsModal: false
     });
     this.activeRowData = undefined;
 
     this.validateServerRoleAssignment();
   }
 
-  handleEditDetailCancel(editData) {
+  handleCancelEditServerDetailsInput = (editData) => {
     this.setState({
-      showEditDetails: false,
-      selectedAvailableServersRows: [],
-      selectedAssignedServersRows: []
+      showEditServerDetailsModal: false
     });
     this.activeRowData = undefined;
 
     this.validateServerRoleAssignment();
   }
 
-  //get model object before render UI
+  handleClickRoleAccordion = (role) => {
+    this.selectedServerRole = role.serverRole;
+  }
+
+  handleShowEditServerDetails = (rowData) => {
+    this.setState({showEditServerDetailsModal: true});
+    this.activeRowData = rowData;
+  }
+
+  // get model object and saved servers before render UI
   componentWillMount() {
     try {
-      this.credentials.suma.token = apiToken; //global suma token TODO
-    } catch (ReferenceError) {}
+      this.sumaApiToken = apiToken; //global suma token when embedded
+    } catch (ReferenceError) {
+      let sKey = COOKIES.get('sumaSessionKey');
+      //TODO check if expired
+      if(sKey) {
+        this.sumaSessionKey = sKey;
+      }
+      let sUrl = COOKIES.get('sumaApiUrl');
+      if(sUrl) {
+        this.sumaApiUrl = sUrl;
+      }
+    }
 
-    this.getModelObjectData()
-      .then((modelData) => {
-        this.model = modelData;
-        this.getServerGroups(modelData);
-        this.getNicMappings(modelData);
-        this.getServerRoles(modelData);
-        this.validateServerRoleAssignment();
+    this.getSavedDiscoveredServers()
+      .then((rawServerData) => {
+        if(rawServerData) {
+          this.setState({rawDiscoveredServers : rawServerData});
+        }
+        this.getModelObjectData()
+        .then((modelData) => {
+          this.model = modelData;
+          this.getServerGroups(modelData);
+          this.getNicMappings(modelData);
+          this.getServerRoles(modelData, rawServerData);
+          this.validateServerRoleAssignment();
+        })
+        .catch((error) => {
+          //TODO remove
+          console.error('Failed to get model object data');
+        });
       })
       .catch((error) => {
-        //TODO remove
-        console.error('Failed to get model object data');
-        console.error(JSON.stringify(error));
+        console.error('Failed to get saved discovered servers');
       });
 
     // get manually added servers
@@ -580,6 +563,28 @@ class AssignServerRoles extends BaseWizardPage {
           this.setState({serversAddedManually: responseData});
         }
       });
+  }
+
+  getSavedDiscoveredServers() {
+    return (
+      fetch(getAppConfig('shimurl') + '/api/v1/discovered_servers')
+        .then((response) => this.checkResponse(response))
+        .then(response => response.json())
+    );
+  }
+
+  saveDiscoveredServers(resultServers) {
+    return (
+      fetch(getAppConfig('shimurl') + '/api/v1/discovered_servers', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(resultServers)
+      })
+        .then((response) => this.checkResponse(response))
+    );
   }
 
   getServerGroups(modelData) {
@@ -606,18 +611,21 @@ class AssignServerRoles extends BaseWizardPage {
     this.nicMappings = mappings;
   }
 
-  updateServerDataWithDetails(details) {
+  updateSumaServerDataWithDetails = (details) => {
     //details has everything
     let retData = details.map((srvDetail) => {
       let nkdevice = srvDetail.network_devices.find((device) => {
-        return device.interface === 'eth0'; //TODO
+        return device.interface === 'eth0';
       });
       //at this point only these are useful
       let serverData = {
         'id': srvDetail.id + '', //make it a string instead of number
         'name': srvDetail.name,
         'ip-addr': nkdevice.ip,
-        'mac-addr': nkdevice['hardware_address']
+        'mac-addr': nkdevice.hardware_address,
+        'cpu': srvDetail.cpu_info.count,
+        'ram': srvDetail.ram,
+        'source': 'suma'
       };
       return serverData;
     });
@@ -632,7 +640,6 @@ class AssignServerRoles extends BaseWizardPage {
     //could have multiple control planes in the future
 
     //TODO will deal with multiple control plane later
-    //for prototye...handle one for now
     let cpData = modelData['inputModel']['control-planes'][0];
     //TODO some error handling
     //this assume a fresh start.
@@ -679,8 +686,8 @@ class AssignServerRoles extends BaseWizardPage {
             let strId = srv.id + '';  //make it string
             let retValue = {
               'id': strId,
-              'ip-addr': srv['ip-addr'],
               'name': srv.name ? srv.name : strId,
+              'ip-addr': srv['ip-addr'],
               'mac-addr': srv['mac-addr'] || '',
               'role': srv.role || '',
               'server-group': srv['server-group'] || '',
@@ -718,8 +725,8 @@ class AssignServerRoles extends BaseWizardPage {
       }
 
       this.serverRoles = allRoles;
+      this.selectedServerRole = allRoles[displayIdx].serverRole;
       this.setState({
-        selectedServerRole: allRoles[displayIdx].serverRole,
         displayAssignedServers: displayAssignedSrv,
         displayAvailableServers: displayAvailableSrv
       });
@@ -727,28 +734,34 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   //prototype query SUMA for details
-  getOneServerDetailData(url) {
+  getSumaOneServerDetailData = (shimUrl, sumaTokenKey, sumaUrl) => {
+    //TODO passing sumaTokenKey got from test doesn't seem to work..
+    //it has to go with the same rpc client need dig more
     let promise = new Promise((resolve, reject) => {
-      fetch(url)
+      fetch(shimUrl, {
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'Authtoken': sumaTokenKey,
+          'Sumaurl': sumaUrl
+        }
+      })
         .then(response => response.json())
         .then((responseData) => {
           resolve(responseData);
         })
         .catch(error => {
-          //TODO remove
-          console.error('Failed to get one server details data');
+          //pass
         });
     });
     return promise;
   }
 
-  //prototype issue queries to SUMA for all the details
-  getAllServerDetailsData(serverIds) {
+  getSumaAllServerDetailsData = (serverIds, sumaTokenKey, sumaUrl) => {
     let promises = [];
     serverIds.forEach((id) => {
-      //TODO make it constant
-      let url = getAppConfig('shimurl') + '/api/v1/sm/servers/' + id;
-      promises.push(this.getOneServerDetailData(url));
+      let shimUrl = getAppConfig('shimurl') + '/api/v1/sm/servers/' + id;
+      promises.push(this.getSumaOneServerDetailData(shimUrl, sumaTokenKey, sumaUrl));
     });
 
     return Promise.all(promises);
@@ -766,9 +779,6 @@ class AssignServerRoles extends BaseWizardPage {
       let servers = role.servers;
 
       if (servers && servers.length > 0) {
-        //TODO this just prototype we can update model
-        //don't need to go through each of once we have a way
-        //to update each server input ilo stuffs
         servers.forEach((svr, idx) => {
           //update model
           modelServers.push({
@@ -777,7 +787,6 @@ class AssignServerRoles extends BaseWizardPage {
             'role': role.serverRole,
             'ip-addr': svr['ip-addr'],
             'mac-addr': svr['mac-addr'],
-            //TODO need real data...will have user input later
             'nic-mapping': svr['nic-mapping'] || '',
             'ilo-ip': svr['ilo-ip'] || '',
             'ilo-password': svr['ilo-password'] ||'',
@@ -796,13 +805,13 @@ class AssignServerRoles extends BaseWizardPage {
   getModelObjectData() {
     return (
       fetch(getAppConfig('shimurl') + '/api/v1/clm/model')
+        .then((response) => this.checkResponse(response))
         .then(response => response.json())
     );
   }
 
   //save the updated model object
   saveModelObjectData() {
-    let modl = this.model;
     return (
       fetch(getAppConfig('shimurl') + '/api/v1/clm/model', {
         method: 'POST',
@@ -810,8 +819,9 @@ class AssignServerRoles extends BaseWizardPage {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(modl)
+        body: JSON.stringify(this.model)
       })
+      .then((response) => this.checkResponse(response))
     );
   }
 
@@ -885,17 +895,60 @@ class AssignServerRoles extends BaseWizardPage {
     this.doSave();
   }
 
+  renderErrorMessage() {
+    return (
+      <ErrorMessage
+        closeAction={this.handleCloseMessageAction}
+        show={this.state.showError} content={this.errorContent}>
+      </ErrorMessage>
+    );
+  }
+
+  renderLoadingMask() {
+    return (
+      <LoadingMask show={this.state.loading}></LoadingMask>
+    );
+  }
+
   renderAvailServersTable() {
-    return <div>TODO</div>;
+    //displayed columns
+    let tableConfig = {
+      columns: [
+        {name: 'id', hidden: true},
+        {name: 'name'},
+        {name: 'ip-addr',},
+        {name: 'mac-addr'},
+        {name: 'cpu'},
+        {name: 'ram'},
+        {name: 'source', hidden: true}
+      ]
+    };
+
+    //apply simple name filter here
+    let filteredAvailableServers =
+      this.state.displayAvailableServers.filter((server) => {
+        return (server.name.indexOf(this.state.searchFilterText) !== -1);
+      });
+
+    return (
+      <div className='rounded-corner'>
+        <ServerTable
+          id='left'
+          tableConfig={tableConfig}
+          tableData={filteredAvailableServers}
+          customAction={this.handleShowServerDetails}>
+        </ServerTable>
+      </div>
+    )
   }
 
   renderAutoDiscoverContent() {
-    if(!this.state.displayAvailableServers ||
-      this.state.displayAvailableServers.length === 0) {
+    //only render when don't have any raw discovered data or not suma embedded
+    if(this.state.rawDiscoveredServers.length === 0) {
       return (
         <div className='centered'>
           <ActionButton
-            clickAction={this.handleInitDiscovery}
+            clickAction={this.handleConfDiscovery}
             displayLabel={translate('add.server.discover')}/>
         </div>
       );
@@ -936,21 +989,29 @@ class AssignServerRoles extends BaseWizardPage {
     return (
       <Tabs
         activeKey={this.state.tabKey}
-        onSelect={this.handleSelectAddServerTab} id='AvailableServerTabsId'>
+        onSelect={this.handleSelectServerTab} id='AvailableServerTabsId'>
         <Tab
           eventKey={AUTODISCOVER_TAB} title={translate('add.server.auto.discover')}>
-          {this.renderAutoDiscoverContent()}
+          {this.state.selectedServerTabKey === AUTODISCOVER_TAB && this.renderAutoDiscoverContent()}
         </Tab>
         <Tab
           eventKey={MANUALADD_TAB} title={translate('add.server.manual.add')}>
-          {this.renderManualDiscoverContent()}
+          {this.state.selectedServerTabKey === MANUALADD_TAB && this.renderManualDiscoverContent()}
         </Tab>
       </Tabs>
     );
   }
 
+  renderConfigDiscoveryButton() {
+    return  (
+      <ActionButton
+        clickAction={this.handleConfDiscovery}
+        displayLabel={translate('add.server.conf.discover')}/>
+    );
+  }
+
   renderSearchBar() {
-    if (this.state.selectedAddServerTabKey === MANUALADD_TAB &&
+    if (this.state.selectedServerTabKey === MANUALADD_TAB &&
       this.state.serversAddedManually.length > 0) {
       return (
         <div className='action-line'>
@@ -972,7 +1033,28 @@ class AssignServerRoles extends BaseWizardPage {
           </div>
         </div>
       );
-    } else {
+    } else if (this.state.selectedServerTabKey === AUTODISCOVER_TAB &&
+      this.state.rawDiscoveredServers.length > 0) {
+      return (
+        <div className='action-line'>
+          <div className='action-item-left'>
+            <SearchBar
+              filterText={this.state.searchFilterText}
+              filterAction={this.handleSearchText}>
+            </SearchBar>
+          </div>
+          <div>
+            <div className='btn-row action-item-right'>
+              {!this.sumaApiToken && this.renderConfigDiscoveryButton()}
+              <ActionButton
+                clickAction={this.handleDiscovery}
+                displayLabel={translate('add.server.discover')}/>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    else {
       return (
         <SearchBar
           filterText={this.state.searchFilterText}
@@ -985,7 +1067,11 @@ class AssignServerRoles extends BaseWizardPage {
   renderServerRolesAccordion(roles) {
     return (
       <ServerRolesAccordion
-        serverRoles={this.serverRoles} clickAction={this.handleClickRoleAccordion}>
+        serverRoles={this.serverRoles}
+        clickAction={this.handleClickRoleAccordion}
+        tableId='right'
+        displayServers={this.state.displayAssignedServers}
+        editAction={this.handleShowEditServerDetails}>
       </ServerRolesAccordion>
     );
   }
@@ -995,12 +1081,12 @@ class AssignServerRoles extends BaseWizardPage {
       <div className='assign-server-role body-container'>
         <div className="server-container">
           {this.renderSearchBar()}
-          <div className="server-table-container rounded-box">
+          <div className="server-table-container rounded-corner">
             {this.renderAvailableServersTabs()}
           </div>
         </div>
         <div className="server-container">
-          <div className="server-table-container role-accordion-container rounded-box">
+          <div className="server-table-container role-accordion-container rounded-corner">
             {this.renderServerRolesAccordion()}
           </div>
         </div>
@@ -1022,7 +1108,33 @@ class AssignServerRoles extends BaseWizardPage {
       <BaseInputModal
         show={this.state.showCredsModal}
         dialogClass='creds-dialog'
-        body={this.renderCredsInputContent()} title={translate('add.server.connection.creds')}>
+        cancelAction={this.handleCancelCredsInput}
+        body={this.renderCredsInputContent()}
+        title={translate('add.server.connection.creds')}>
+      </BaseInputModal>
+    );
+  }
+
+  renderEditServerInputContent() {
+    return (
+      <EditServerDetails
+        cancelAction={this.handleCancelEditServerDetailsInput}
+        doneAction={this.handleDoneEditServerDetailsInput}
+        serverGroups={this.serverGroups}
+        nicMappings={this.nicMappings}
+        data={this.activeRowData}>
+      </EditServerDetails>
+    );
+  }
+
+  renderEditServerDetailsModal() {
+    return (
+      <BaseInputModal
+        show={this.state.showEditServerDetailsModal}
+        dialogClass='edit-details-dialog'
+        cancelAction={this.handleCancelEditServerDetailsInput}
+        body={this.renderEditServerInputContent()}
+        title={translate('edit.server.details.heading')}>
       </BaseInputModal>
     );
   }
@@ -1035,6 +1147,9 @@ class AssignServerRoles extends BaseWizardPage {
         {this.renderNavButtons()}
         {this.renderCredsInputModal()}
         {this.renderAddServerManuallyModal()}
+        {this.renderEditServerDetailsModal()}
+        {this.renderLoadingMask()}
+        {this.renderErrorMessage()}
       </div>
     );
   }
