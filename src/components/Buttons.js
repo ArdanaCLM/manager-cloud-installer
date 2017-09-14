@@ -8,7 +8,7 @@ function BackButton(props) {
       clickAction={props.clickAction}
       displayLabel={props.displayLabel || translate('back')}
       isDisabled={props.isDisabled}
-      />
+    />
   );
 }
 
