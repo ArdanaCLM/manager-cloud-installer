@@ -51,8 +51,8 @@ def connection_test():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(TIMEOUT)
         s.connect((creds['host'], int(port)))
-    except Exception as e:
-        abort(400)
+    except Exception:
+        abort(404)
     # login
     try:
         suma_url = "https://" + creds['host'] + ":" + str(port) + "/rpc/api"
@@ -61,7 +61,7 @@ def connection_test():
         client = xmlrpclib.Server(suma_url, verbose=0, context=context)
         key = client.auth.login(suma_username, suma_password)
         return jsonify(key)
-    except Exception as e:
+    except Exception:
         abort(403)
 
 
@@ -71,7 +71,7 @@ def sm_server_list():
         return util.forward(util.build_url(None, '/servers'), request)
 
     key = request.headers.get('Authtoken')
-    url = request.headers.get('Sumaurl')
+    url = request.headers.get('Susemanagerurl')
 
     client = get_client(url)
     server_list = client.system.listActiveSystems(key)
@@ -90,7 +90,7 @@ def sm_server_details(id):
         return util.forward(util.build_url(None, '/servers' + id), request)
 
     key = request.headers.get('Authtoken')
-    url = request.headers.get('Sumaurl')
+    url = request.headers.get('Susemanagerurl')
 
     client = get_client(url)
     detail_list = client.system.listActiveSystemsDetails(key, int(id))

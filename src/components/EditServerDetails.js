@@ -30,33 +30,14 @@ class EditServerDetails extends Component {
     };
   }
 
-  componentWillReceiveProps(newProps) {
-    this.setState({
-      data : newProps.data
-    });
-  }
-
   makeDeepCopy(srcData) {
     return JSON.parse(JSON.stringify(srcData));
-  }
-
-  checkFormValues (values) {
-    let isValid = true;
-    let val = values.find((val) => {
-      return val <= 0;
-    });
-
-    if(val <= 0) {
-      isValid = false;
-    }
-
-    return isValid;
   }
 
   isFormValid () {
     let isAllValid = true;
     let values = Object.values(this.allInputsStatus);
-    isAllValid = this.checkFormValues(values);
+    isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN}));
 
     return isAllValid;
   }

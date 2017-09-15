@@ -5,17 +5,6 @@ class ServerRowItem extends Component {
     super(props);
   }
 
-  isHidden(key) {
-    let isHidden = false;
-    let def = this.props.dataDef.find((def, idx) => {
-      return def.name === key && def.hidden === true;
-    });
-    if(def) {
-      isHidden = true;
-    }
-    return isHidden;
-  }
-
   renderServerColumns() {
     let cols = [];
     let keyCount = 0;
@@ -23,11 +12,11 @@ class ServerRowItem extends Component {
       if(!def.hidden) {
         let badgeClass = '';
         if(def.name === 'name') {
-          if(this.props.data.source === 'suma') {
-            badgeClass = 'suma-badge';
+          if(this.props.data.source === 'sm') {
+            badgeClass = 'sm-badge';
           }
-          else if(this.props.data.source === 'oneview') {
-            badgeClass = 'oneview-badge';
+          else if(this.props.data.source === 'ov') {
+            badgeClass = 'ov-badge';
           }
         }
         let col = (
@@ -42,9 +31,7 @@ class ServerRowItem extends Component {
 
   render() {
     return (
-      <tr>
-        {this.renderServerColumns()}
-      </tr>
+      <tr>{this.renderServerColumns()}</tr>
     );
   }
 }

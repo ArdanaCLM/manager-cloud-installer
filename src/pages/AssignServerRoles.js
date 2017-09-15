@@ -42,28 +42,14 @@ class AssignServerRoles extends BaseWizardPage {
     this.newServer = {};
     this.errorContent = undefined;
 
-    this.credentials = {
-      suma: {
-        creds: {
-          username: '',
-          password: '',
-          host: '',
-          port: 8443,
-        },
-      },
-      oneview: {
-        creds: {
-          username: '',
-          password: '',
-          host: '',
-          port: 0,
-        },
-      }
+    this.credentials = window.discoverCreds ? window.discoverCreds : {
+      sm: {creds: {}},
+      ov: {creds: {}}
     };
     this.selectedServerRole = '';
-    this.sumaApiUrl = '';
-    this.sumaApiToken = undefined;
-    this.sumaSessionKey = undefined;
+    this.smApiUrl = '';
+    this.smApiToken = undefined;
+    this.smSessionKey = undefined;
 
     //states changes will rerender UI
     this.state = {
@@ -123,14 +109,14 @@ class AssignServerRoles extends BaseWizardPage {
     this.validateServerRoleAssignment();
   }
 
-  getSumaServersData(tokenKey, sumaUrl) {
+  getSmServersData(tokenKey, smUrl) {
     return (
       fetch(getAppConfig('shimurl') + '/api/v1/sm/servers', {
         headers: {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'Authtoken': tokenKey,
-          'Sumaurl': sumaUrl
+          'Susemanagerurl': smUrl
         }
       })
         .then((response) => this.checkResponse(response))
@@ -138,57 +124,50 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
-  doSumaDiscovery(tokenKey, sumaUrl) {
+  doSmDiscovery(tokenKey, smUrl) {
     let promise = new Promise((resolve, reject) => {
-      this.getSumaServersData(tokenKey, sumaUrl)
+      this.getSmServersData(tokenKey, smUrl)
       .then((rawServerData) => {
         if (rawServerData && rawServerData.length > 0) {
           let ids = rawServerData.map((srv) => {
             return srv.id;
           });
 
-          this.getSumaAllServerDetailsData(ids, tokenKey, sumaUrl)
+          this.getSmAllServerDetailsData(ids, tokenKey, smUrl)
             .then((details) => {
-              rawServerData = this.updateSumaServerDataWithDetails(details);
+              rawServerData = this.updateSmServerDataWithDetails(details);
               resolve(rawServerData);
             })
             .catch((error) => {
-              //don't reject ...just move one
+              //don't reject ...just move on
             });
         }
       })
       .catch((error) => {
-        let msg = translate('server.discover.suma.error');
-        let msgContent = {
-          messages: [msg, error.toString()]
-        };
-
-        if (this.errorContent !== undefined) {
-          msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
-        }
-        this.errorContent = msgContent;
+        let msg = translate('server.discover.sm.error');
+        this.setErrorMessageContent(msg, error.toString());
         reject(error);
       });
     });
     return promise;
   }
 
-  //run discovery for suma and/or oneview parallelly
+  //run discovery for suse manager and/or hpe oneview parallelly
   //meanwhile also go update the table data with more details by query
   //detail one by one in parallel.
   doAllDiscovery = () => {
     let promises = [];
-    if(this.sumaSessionKey) {
-      promises.push(this.doSumaDiscovery(this.sumaSessionKey, this.sumaApiUrl));
+    if(this.smSessionKey) {
+      promises.push(this.doSmDiscovery(this.smSessionKey, this.smApiUrl));
     }
-    else if(this.sumaApiToken) {
+    else if(this.smApiToken) {
       let url = window.location.protocol + '//' + window.location.host +
         (window.location.port > 0 ? ':' + window.location.port : '')  + '/rpc/api';
-      promises.push(this.doSumaDiscovery(this.sumaApiToken, url));
+      promises.push(this.doSmDiscovery(this.smApiToken, url));
     }
 
-    //TODO add oneview discovery in promise array
-    // if(this.state.oneviewSessionKey) {
+    //TODO add hpe oneview discovery in promise array
+    // if(this.state.ovSessionKey) {
     //
     // }
 
@@ -197,34 +176,48 @@ class AssignServerRoles extends BaseWizardPage {
 
   checkResponse(response) {
     if (!response.ok) {
-      throw Error(response.url + ':' + response.statusText);
+      throw Error(response.url + ': ' + response.statusText);
     }
     return response;
   }
 
+  setErrorMessageContent(msg, errorStr) {
+    let msgContent = {
+      messages: errorStr ? [msg, errorStr] : msg
+    };
+
+    if (this.errorContent !== undefined) {
+      msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
+    }
+    this.errorContent = msgContent;
+  }
+
   handleDiscovery = () => {
-    this.setState({loading: true});
-    let resultServers = [];
-    this.doAllDiscovery()
-      .then((allServerData) => {
-        allServerData.forEach((oneSet, idx) => {
-          resultServers = resultServers.concat(oneSet);
-        });
-        this.saveDiscoveredServers(resultServers)
-          .then((response) => {
-            //TODO remove
-            console.log('successfully saved discovered servers')
-          })
-          .catch((error) => {
-            //TODO remove
-            console.log('failed to save discovered servers')
+    if(!this.smApiToken && !this.smSessionKey) {
+      //don't have any session keys...need inputs
+      this.setState({showCredsModal: true});
+    }//TODO include ov sessionkey check
+    else {
+      this.setState({loading: true});
+      let resultServers = [];
+      this.doAllDiscovery()
+        .then((allServerData) => {
+          allServerData.forEach((oneSet, idx) => {
+            resultServers = resultServers.concat(oneSet);
           });
-        this.setState({loading: false, rawDiscoveredServers: resultServers});
-        this.refreshServers(resultServers);
-      })
-      .catch((error) => {
-        this.setState({loading: false, showError: true});
-      })
+          this.saveDiscoveredServers(resultServers)
+            .then((response) => {})
+            .catch((error) => {
+              let msg = translate('server.discover.get');
+              this.setErrorMessageContent(msg, error.toString());
+            });
+          this.setState({loading: false, rawDiscoveredServers: resultServers});
+          this.refreshServers(resultServers);
+        })
+        .catch((error) => {
+          this.setState({loading: false, showError: true});
+        })
+    }
   }
 
   //handle filter text change
@@ -317,6 +310,11 @@ class AssignServerRoles extends BaseWizardPage {
     console.log('add more server');
   }
 
+  getSmUrl(host, port) {
+    let url = 'https://' + host + ':' + (port <= 0 ? '8443' : port) + '/rpc/api';
+    return url;
+  }
+
   renderAddServerManuallyModal = () => {
     let body = '';
     if (this.serverRoles && this.serverGroups && this.nicMappings) {
@@ -388,10 +386,11 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   handleConfDiscovery = () => {
-    if(!this.sumaApiToken) {
+    if(!this.smApiToken) {
       this.setState({showCredsModal: true});
     }
     else {
+      //if embedded don't show configuration
       this.handleDiscovery();
     }
   }
@@ -400,33 +399,32 @@ class AssignServerRoles extends BaseWizardPage {
     this.setState({showCredsModal: false});
   }
 
-  runDiscovery() {
-
-  }
-
   handleDoneCredsInput = (credsData) => {
     this.setState({
       showCredsModal: false,
     });
-    if (credsData.suma) {
-      this.credentials.suma = credsData.suma;
+    if (credsData.sm) {
+      this.credentials.sm = credsData.sm;
       //save the sessionKey to COOKIES
       var expDate = new Date();
       expDate.setDate(expDate.getDate() + 1);
       COOKIES.set(
-        'sumaSessionKey', this.credentials.suma.sessionKey,
+        'suseManagerSessionKey', this.credentials.sm.sessionKey,
         {path: '/', expires: expDate});
-      let url =
-        'https://' + this.credentials.suma.creds.host + ':' +
-        (this.credentials.suma.creds.port <= 0 ? '8443' : this.credentials.suma.creds.port) + '/rpc/api';
-      COOKIES.set('sumaApiUrl', url);
-      this.sumaApiUrl = url;
-      this.sumaSessionKey = this.credentials.suma.sessionKey;
+      COOKIES.set('suseManagerHost', this.credentials.sm.creds.host, {path: '/', expires: expDate});
+      //save port cookie if have port
+      let port = this.credentials.sm.creds.port > 0 ? this.credentials.sm.creds.port : '8443';
+      COOKIES.set('suseManagerPort', port, {path: '/', expires: expDate});
+      this.smApiUrl = this.getSmUrl(this.credentials.sm.creds.host, this.credentials.sm.creds.port);
+      this.smSessionKey = this.credentials.sm.sessionKey;
     }
-    if (credsData.oneview) {
-      this.credentials.oneview = credsData.oneview;
+    if (credsData.ov) {
+      this.credentials.ov = credsData.ov;
       //TODO save sessionKey
     }
+
+    //save the creds to the session for now
+    window.discoverCreds = this.credentials;
 
     //this should only happened at the very beginning
     //after that user will use configure and discover buttons
@@ -441,13 +439,10 @@ class AssignServerRoles extends BaseWizardPage {
           this.setState({rawDiscoveredServers: resultServers});
           //save it to the backend
           this.saveDiscoveredServers(resultServers)
-          .then((response) => {
-            //TODO remove
-            console.log('successfully saved discovered servers')
-          })
+          .then((response) => {})
           .catch((error) => {
-            //TODO remove
-            console.log('failed to save discovered servers')
+            let msg = translate('server.discover.save');
+            this.setErrorMessageContent(msg, error.toString());
           });
           this.refreshServers(resultServers);
           this.setState({loading: false});
@@ -512,6 +507,7 @@ class AssignServerRoles extends BaseWizardPage {
     this.selectedServerRole = role.serverRole;
   }
 
+  //TODO
   handleShowEditServerDetails = (rowData) => {
     this.setState({showEditServerDetailsModal: true});
     this.activeRowData = rowData;
@@ -520,17 +516,22 @@ class AssignServerRoles extends BaseWizardPage {
   // get model object and saved servers before render UI
   componentWillMount() {
     try {
-      this.sumaApiToken = apiToken; //global suma token when embedded
+      this.smApiToken = apiToken; //global suse manager token when embedded
     } catch (ReferenceError) {
-      let sKey = COOKIES.get('sumaSessionKey');
-      //TODO check if expired
+      //it is not embedded so go get cookies
+      //when it is expired..get cookie will get undefined
+      let sKey = COOKIES.get('suseManagerSessionKey');
       if(sKey) {
-        this.sumaSessionKey = sKey;
+        this.smSessionKey = sKey;
       }
-      let sUrl = COOKIES.get('sumaApiUrl');
-      if(sUrl) {
-        this.sumaApiUrl = sUrl;
+      let sHost = COOKIES.get('suseManagerHost');
+      let sPort = COOKIES.get('suseManagerPort');
+      if(sHost && sPort) {
+        this.smApiUrl = this.getSmUrl(sHost, sPort);
+        this.credentials.sm.creds.host = sHost;
       }
+      //if don't have port, set it to default for the creds input
+      this.credentials.sm.creds.port = sPort ? sPort : 8443;
     }
 
     this.getSavedDiscoveredServers()
@@ -538,21 +539,14 @@ class AssignServerRoles extends BaseWizardPage {
         if(rawServerData) {
           this.setState({rawDiscoveredServers : rawServerData});
         }
-        this.getModelObjectData()
-        .then((modelData) => {
-          this.model = modelData;
-          this.getServerGroups(modelData);
-          this.getNicMappings(modelData);
-          this.getServerRoles(modelData, rawServerData);
-          this.validateServerRoleAssignment();
-        })
-        .catch((error) => {
-          //TODO remove
-          console.error('Failed to get model object data');
-        });
+        this.doGetModel(rawServerData);
       })
       .catch((error) => {
-        console.error('Failed to get saved discovered servers');
+        let msg = translate('server.discover.get.error');
+        this.setErrorMessageContent(msg, error.toString());
+        this.setState({showError: true});
+        //still get model
+        this.doGetModel();
       });
 
     // get manually added servers
@@ -565,6 +559,21 @@ class AssignServerRoles extends BaseWizardPage {
       });
   }
 
+  doGetModel(rawServerData) {
+    this.getModelObjectData()
+      .then((modelData) => {
+        this.model = modelData;
+        this.getServerGroups(modelData);
+        this.getNicMappings(modelData);
+        this.getServerRoles(modelData, rawServerData);
+        this.validateServerRoleAssignment();
+      })
+      .catch((error) => {
+        let msg = translate('server.model.get.error');
+        this.setErrorMessageContent(msg, error.toString());
+        this.setState({showError: true});
+      });
+  }
   getSavedDiscoveredServers() {
     return (
       fetch(getAppConfig('shimurl') + '/api/v1/discovered_servers')
@@ -611,7 +620,7 @@ class AssignServerRoles extends BaseWizardPage {
     this.nicMappings = mappings;
   }
 
-  updateSumaServerDataWithDetails = (details) => {
+  updateSmServerDataWithDetails = (details) => {
     //details has everything
     let retData = details.map((srvDetail) => {
       let nkdevice = srvDetail.network_devices.find((device) => {
@@ -625,7 +634,7 @@ class AssignServerRoles extends BaseWizardPage {
         'mac-addr': nkdevice.hardware_address,
         'cpu': srvDetail.cpu_info.count,
         'ram': srvDetail.ram,
-        'source': 'suma'
+        'source': 'sm'
       };
       return serverData;
     });
@@ -733,17 +742,17 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  //prototype query SUMA for details
-  getSumaOneServerDetailData = (shimUrl, sumaTokenKey, sumaUrl) => {
-    //TODO passing sumaTokenKey got from test doesn't seem to work..
+  //prototype query suse manager for details
+  getSmOneServerDetailData = (shimUrl, smTokenKey, smUrl) => {
+    //TODO passing smTokenKey got from test doesn't seem to work..
     //it has to go with the same rpc client need dig more
     let promise = new Promise((resolve, reject) => {
       fetch(shimUrl, {
         headers: {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
-          'Authtoken': sumaTokenKey,
-          'Sumaurl': sumaUrl
+          'Authtoken': smTokenKey,
+          'Susemanagerurl': smUrl
         }
       })
         .then(response => response.json())
@@ -757,11 +766,11 @@ class AssignServerRoles extends BaseWizardPage {
     return promise;
   }
 
-  getSumaAllServerDetailsData = (serverIds, sumaTokenKey, sumaUrl) => {
+  getSmAllServerDetailsData = (serverIds, smTokenKey, smUrl) => {
     let promises = [];
     serverIds.forEach((id) => {
       let shimUrl = getAppConfig('shimurl') + '/api/v1/sm/servers/' + id;
-      promises.push(this.getSumaOneServerDetailData(shimUrl, sumaTokenKey, sumaUrl));
+      promises.push(this.getSmOneServerDetailData(shimUrl, smTokenKey, smUrl));
     });
 
     return Promise.all(promises);
@@ -871,21 +880,14 @@ class AssignServerRoles extends BaseWizardPage {
     //save model and move to next page
     this.saveModelObjectData()
       .then((response) => {
-        if(response && response.ok === false) {
-          //TODO remove
-          console.error('Failed to save model object data');
-          this.props.next(true);
-        }
-        else {
-          //go to next page when move this to goForward
-          this.props.next(false);
-        }
+        //go to next page when move this to goForward
+        this.props.next(false);
       })
       .catch((error) => {
-        //TODO handle error
-        this.props.next(true); //set error
-        //TODO remove
-        console.error('Failed to save model object data');
+        //don't move if can't save model
+        let msg = translate('server.model.save.error');
+        this.setErrorMessageContent(msg, error.toString());
+        this.setState({showError: true});
       });
   }
 
@@ -943,7 +945,7 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   renderAutoDiscoverContent() {
-    //only render when don't have any raw discovered data or not suma embedded
+    //only render when don't have any raw discovered data or not suse manager embedded
     if(this.state.rawDiscoveredServers.length === 0) {
       return (
         <div className='centered'>
@@ -1045,7 +1047,7 @@ class AssignServerRoles extends BaseWizardPage {
           </div>
           <div>
             <div className='btn-row action-item-right'>
-              {!this.sumaApiToken && this.renderConfigDiscoveryButton()}
+              {!this.smApiToken && this.renderConfigDiscoveryButton()}
               <ActionButton
                 clickAction={this.handleDiscovery}
                 displayLabel={translate('add.server.discover')}/>

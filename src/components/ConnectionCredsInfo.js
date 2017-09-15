@@ -6,7 +6,7 @@ import { getAppConfig } from '../components/ConfigHelper.js';
 import {
   IpV4AddressHostValidator, PortValidator
 } from '../components/InputValidators.js';
-import { ErrorMessage } from '../components/Messages.js';
+import { ErrorMessage, SuccessMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
 
 const UNKNOWN = -1;
@@ -19,13 +19,13 @@ class ConnectionCredsInfo extends Component {
 
     //check all inputs are valid
     this.allInputsStatus = {
-      'suma': {
+      'sm': {
         'host': UNKNOWN,
         'username': UNKNOWN,
         'password': UNKNOWN,
         'port': UNKNOWN
       },
-      'oneview': {
+      'ov': {
         'host': UNKNOWN,
         'username': UNKNOWN,
         'password': UNKNOWN,
@@ -33,12 +33,15 @@ class ConnectionCredsInfo extends Component {
       }
     };
     this.errorContent = undefined;
+    this.successContent = undefined;
 
     this.state = {
-      isOneViewChecked: false,
-      sumaTestStatus: UNKNOWN,
-      oneviewTestStatus: UNKNOWN,
+      isOvChecked: false,
+      isSmChecked: false,
+      smTestStatus: UNKNOWN,
+      ovTestStatus: UNKNOWN,
       showError: false,
+      showSuccess: false,
       loading: false
     };
   }
@@ -46,25 +49,22 @@ class ConnectionCredsInfo extends Component {
   componentWillMount() {
     this.data = this.makeDeepCopy(this.props.data);
     this.initData();
-    this.setState({
-      isSumaChecked: this.initSumaCheck()
-    });
   }
 
   initData() {
     //init so we don't need to check too many levels of data defined or undefined
-    if(!this.data.suma) {
-      this.data.suma = {
+    if(!this.data.sm.creds) {
+      this.data.sm = {
         creds: {
           'host': '',
           'username': '',
           'password': '',
-          'port': 0
+          'port': 8443
         }
       };
     }
-    if(!this.data.oneview) {
-      this.data.oneview = {
+    if(!this.data.ov.creds) {
+      this.data.ov = {
         creds: {
           'host': '',
           'username': '',
@@ -79,42 +79,25 @@ class ConnectionCredsInfo extends Component {
     return JSON.parse(JSON.stringify(srcData));
   }
 
-  initSumaCheck() {
-    return (this.data.suma.token !== undefined);
-  }
-
   checkResponse(response) {
     if (!response.ok) {
-      throw Error(response.url + ':' + response.statusText);
+      throw Error(response.status);
     }
     return response;
   }
 
-  checkFormValues (values) {
-    let isValid = true;
-    let val = values.find((val) => {
-      return val <= 0;
-    });
-
-    if(val <= 0) {
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
   isFormValid () {
     let isAllValid = true;
-    if(this.state.isSumaChecked && this.data.suma.token === undefined) {
-      let values = Object.values(this.allInputsStatus.suma);
-      isAllValid = this.checkFormValues(values);
+    if(this.state.isSmChecked) {
+      let values = Object.values(this.allInputsStatus.sm);
+      isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN}));
     }
 
-    //still valid check oneview creds
+    //still valid check hpe oneview creds
     if(isAllValid) {
-      if(this.state.isOneViewChecked) {
-        let values = Object.values(this.allInputsStatus['oneview']);
-        isAllValid = this.checkFormValues(values);
+      if(this.state.isOvChecked) {
+        let values = Object.values(this.allInputsStatus.ov);
+        isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN}));
       }
     }
     return isAllValid;
@@ -123,11 +106,11 @@ class ConnectionCredsInfo extends Component {
   updateFormValidity = (props, isValid, clearTest) => {
     this.allInputsStatus[props.category][props.inputName] = isValid ? VALID : INVALID;
     if (clearTest) {
-      if (props.category === 'suma') {
-        this.setState({sumaTestStatus: UNKNOWN});
+      if (props.category === 'sm') {
+        this.setState({smTestStatus: UNKNOWN});
       }
       else {
-        this.setState({oneviewTestStatus: UNKNOWN});
+        this.setState({ovTestStatus: UNKNOWN});
       }
     }
   }
@@ -135,25 +118,23 @@ class ConnectionCredsInfo extends Component {
   isDoneDisabled() {
     return (
       !this.isFormValid() ||
-      (this.state.isSumaChecked &&
-       this.data.suma.token === undefined &&
-       this.state.sumaTestStatus <= 0) ||
-      (this.state.isOneViewChecked &&
-      this.state.oneviewTestStatus <= 0) ||
-      (!this.state.isSumaChecked && !this.state.isOneViewChecked)
+      (this.state.isSmChecked &&
+       this.state.smTestStatus <= 0) ||
+      (this.state.isOvChecked &&
+      this.state.ovTestStatus <= 0) ||
+      (!this.state.isSmChecked && !this.state.isOvChecked)
     );
   }
 
   isTestDisabled() {
     return (
       !this.isFormValid() ||
-      (!this.state.isOneViewChecked && !this.state.isSumaChecked) ||
-      (!this.state.isOneViewChecked && this.data.suma.token !== undefined)
+      (!this.state.isOvChecked && !this.state.isSmChecked)
     );
   }
 
-  testSuma = () => {
-    this.data.suma.sessionKey = undefined;
+  testSm = () => {
+    this.data.sm.sessionKey = undefined;
     let promise = new Promise((resolve, reject) => {
       fetch(getAppConfig('shimurl') + '/api/v1/sm/connection_test', {
         method: 'POST',
@@ -161,28 +142,43 @@ class ConnectionCredsInfo extends Component {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(this.data.suma.creds)
+        body: JSON.stringify(this.data.sm.creds)
       })
         .then((response) => this.checkResponse(response))
         .then((response) => response.json())
         .then((tokenKey) => {
           resolve(tokenKey);
-          this.data.suma.sessionKey = tokenKey;
-          this.setState({sumaTestStatus: VALID});
+          this.data.sm.sessionKey = tokenKey;
+          this.setState({smTestStatus: VALID});
+          let hostport = this.data.sm.creds.host +
+            (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
+          let msg = translate('server.test.sm.success', hostport);
+          let msgContent = {messages: msg.join(' ')};
+          if (this.successContent !== undefined) {
+            msgContent.messages = msgContent.messages.concat(this.successContent.messages);
+          }
+          this.successContent = msgContent;
         })
         .catch((error) => {
-          let msg =
-            translate(
-              'server.test.suma.error', this.data.suma.creds.host, this.data.suma.creds.username);
-          let msgContent = {
-            messages: [msg, error.toString()]
-          };
+          let msg = translate('server.test.sm.error');
+          if(error.message === '404') {
+            let hostport = this.data.sm.creds.host +
+              (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
+            msg = translate('server.test.sm.error.hostport', hostport);
+            msg = msg.join(' ');
+          }
+          else if(error.message === '403') {
+            msg = translate('server.test.sm.error.userpass', this.data.sm.creds.username);
+            msg = msg.join(' ');
+          }
+
+          let msgContent = {messages: msg};
 
           if (this.errorContent !== undefined) {
             msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
           }
           this.errorContent = msgContent;
-          this.setState({sumaTestStatus: INVALID});
+          this.setState({smTestStatus: INVALID});
           reject(error);
         })
     });
@@ -193,19 +189,19 @@ class ConnectionCredsInfo extends Component {
     this.setState({showError: false});
     this.errorContent = undefined;
     let promises = [];
-    if(this.state.isSumaChecked && this.data.suma.token === undefined) {
+    if(this.state.isSmChecked) {
       this.setState({loading: true});
-      promises.push(this.testSuma())
+      promises.push(this.testSm())
     }
 
     //TODO implement
-    if(this.state.isOneViewChecked) {
-      this.setState({oneviewTestStatus: VALID});
+    if(this.state.isOvChecked) {
+      this.setState({ovTestStatus: VALID});
     }
 
     this.doAllTest(promises)
       .then((tokenKeys) => {
-        this.setState({loading: false});
+        this.setState({loading: false, showSuccess: true});
       })
       .catch((error) => {
         this.setState({loading: false, showError: true});
@@ -230,38 +226,50 @@ class ConnectionCredsInfo extends Component {
 
   handleDone = () => {
     let retData = {};
-    if(this.state.isSumaChecked) {
-      if(!this.data.suma.token) {
-        retData.suma = this.data.suma;
-      }
+    if(this.state.isSmChecked) {
+      retData.sm = this.data.sm;
     }
 
-    if(this.state.isOneViewChecked) {
-      retData.oneview = this.data.oneview;
+    if(this.state.isOvChecked) {
+      retData.ov = this.data.ov;
     }
 
     this.props.doneAction(retData);
   }
 
-  handleSumaCheckBoxChange = (e, data) => {
-    this.setState({isSumaChecked: !this.state.isSumaChecked});
+  handleSmCheckBoxChange = (e, data) => {
+    this.setState({isSmChecked: !this.state.isSmChecked});
   }
 
-  handleOneviewCheckBoxChange = (e, data) => {
-    this.setState({isOneViewChecked: !this.state.isOneViewChecked});
+  handleOvCheckBoxChange = (e, data) => {
+    this.setState({isOvChecked: !this.state.isOvChecked});
   }
 
-  handleCloseMessageAction = () => {
+  handleCloseErrorMessageAction = () => {
     this.setState({showError: false});
     this.errorContent = undefined;
+  }
+
+  handleCloseSuccessMessageAction = () => {
+    this.setState({showSuccess: false});
+    this.successContent = undefined;
   }
 
   renderErrorMessage() {
     return (
       <ErrorMessage
-        closeAction={this.handleCloseMessageAction}
+        closeAction={this.handleCloseErrorMessageAction}
         show={this.state.showError} content={this.errorContent}>
       </ErrorMessage>
+    );
+  }
+
+  renderSuccessMessage() {
+    return (
+      <SuccessMessage
+        closeAction={this.handleCloseSuccessMessageAction}
+        show={this.state.showSuccess} content={this.successContent}>
+      </SuccessMessage>
     );
   }
 
@@ -331,42 +339,27 @@ class ConnectionCredsInfo extends Component {
     );
   }
 
-  renderSumaCreds() {
-    //have suma token don't need creds inputs
-    if(this.data.suma.token) {
-      return (
-        <div className='creds-category'>
-          <input
-            type='checkbox' value='suma'
-            checked={this.state.isSumaChecked}
-            disabled
-            onChange={(e) => this.handleSumaCheckBoxChange(e, 'suma')}/>
-          {translate('server.suma')}
-        </div>
-      );
-    }
-    else { //don't have suma token
-      return (
-        <div className='creds-category'>
-          <input
-            type='checkbox' value='suma'
-            checked={this.state.isSumaChecked}
-            onChange={(e) => this.handleSumaCheckBoxChange(e, 'suma')}/>
-          {translate('server.suma')}
-          {this.state.isSumaChecked && this.renderCredsContent('suma')}
-        </div>
-      );
-    }
-  }
-
-  renderOneviewCreds() {
+  renderSmCreds() {
     return (
       <div className='creds-category'>
         <input
-          type='checkbox' value='oneview' checked={this.state.isOneViewChecked}
-          onChange={(e) => this.handleOneviewCheckBoxChange(e, 'oneview')}/>
-        {translate('server.oneview')}
-        {this.state.isOneViewChecked && this.renderCredsContent('oneview')}
+          type='checkbox' value='sm'
+          checked={this.state.isSmChecked}
+          onChange={(e) => this.handleSmCheckBoxChange(e, 'sm')}/>
+        {translate('server.sm')}
+        {this.state.isSmChecked && this.renderCredsContent('sm')}
+      </div>
+    );
+  }
+
+  renderOvCreds() {
+    return (
+      <div className='creds-category'>
+        <input
+          type='checkbox' value='ov' checked={this.state.isOvChecked}
+          onChange={(e) => this.handleOvCheckBoxChange(e, 'ov')}/>
+        {translate('server.ov')}
+        {this.state.isOvChecked && this.renderCredsContent('ov')}
       </div>
     );
   }
@@ -389,11 +382,12 @@ class ConnectionCredsInfo extends Component {
   render() {
     return (
       <div className='connection-creds-info'>
-        {this.renderSumaCreds()}
-        {this.renderOneviewCreds()}
+        {this.renderSmCreds()}
+        {this.renderOvCreds()}
         {this.renderFooter()}
         {this.renderLoadingMask()}
         {this.renderErrorMessage()}
+        {this.renderSuccessMessage()}
       </div>
     );
   }
