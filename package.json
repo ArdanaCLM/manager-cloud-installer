@@ -26,6 +26,7 @@
     "react-router-dom": "^4.1.1",
     "socket.io-client": "^2.0.3",
     "style-loader": "^0.18.2",
+    "universal-cookie": "^2.1.0",
     "webpack": "^3.2.0"
   },
   "devDependencies": {

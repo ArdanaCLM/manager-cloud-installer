@@ -19,11 +19,11 @@ class NotificationMessage extends Component {
     else {
       msgs.push(<p key={0}>{this.props.content.messages}</p>);
     }
-
     return (
       <div>
         <h4>
-          {this.props.content.title ? this.props.content.title : translate('default.error')}</h4>
+          {this.props.content.title ? this.props.content.title : this.props.defaultTitle}
+        </h4>
         {msgs}
       </div>
     );
@@ -54,12 +54,30 @@ class ErrorMessage extends NotificationMessage {
     return (
       <NotificationMessage
         show={this.props.show}  content={this.props.content}
+        defaultTitle={translate('default.error')}
         type='danger' closeAction={this.props.closeAction}>
       </NotificationMessage>
     );
   }
 }
 
+class SuccessMessage extends NotificationMessage {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <NotificationMessage
+        show={this.props.show} content={this.props.content}
+        defaultTitle={translate('default.success')}
+        type='success' closeAction={this.props.closeAction}>
+      </NotificationMessage>
+    );
+  }
+}
+
 module.exports = {
-  ErrorMessage: ErrorMessage
+  ErrorMessage: ErrorMessage,
+  SuccessMessage: SuccessMessage
 };

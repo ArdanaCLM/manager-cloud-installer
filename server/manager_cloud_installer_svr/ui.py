@@ -15,6 +15,7 @@ progress_file = config.get("general", "progress_file")
 db_file = config.get("general", "db_file")
 db = TinyDB(db_file)
 server_table = db.table('servers')
+discovered_servers_table=db.table('discovered_servers')
 
 """
 Calls handled locally to support the UI
@@ -131,5 +132,22 @@ def delete_server(name):
     try:
         server_table.remove(server.name == name)
         return jsonify(SUCCESS)
+    except Exception:
+        abort(400)
+
+@bp.route("/api/v1/discovered_servers", methods=['GET'])
+def get_discovered_servers():
+    return jsonify(discovered_servers_table.all())
+
+@bp.route("/api/v1/discovered_servers", methods=['POST'])
+def insert_discovered_servers():
+    try:
+        data = request.get_json()
+        if isinstance(data, list):
+            discovered_servers_table.purge()
+            discovered_servers_table.insert_multiple(server for server in data)
+            return jsonify(SUCCESS)
+        else:
+            abort(400)
     except Exception:
         abort(400)
