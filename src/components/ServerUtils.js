@@ -144,6 +144,12 @@ class ServerInput extends Component {
     }
   }
 
+  componentWillReceiveProps(newProps) {
+    if (this.props.inputValue !== newProps.inputValue) {
+      this.setState({inputValue : newProps.inputValue});
+    }
+  }
+
   validateInput(val) {
     let retValid = false;
 
@@ -234,7 +240,7 @@ class ServerDropdown extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (this.props.value !== newProps.value) {
+    if (this.state.value !== newProps.value) {
       this.setState({value : newProps.value});
     }
   }

@@ -39,8 +39,8 @@ class AssignServerRoles extends BaseWizardPage {
       'server-group'
     ];
     this.activeRowData = undefined;
-    this.newServer = {};
     this.errorContent = undefined;
+    this.newServer = {name: '', ip: '', serverRole: '', serverGroup: '', nicMapping: ''};
 
     this.credentials = window.discoverCreds ? window.discoverCreds : {
       sm: {creds: {}},
@@ -233,13 +233,13 @@ class AssignServerRoles extends BaseWizardPage {
     this.setState({showAddServerManuallyModal: true});
   }
 
-  renderInputLine(title, name, type, validator) {
+  renderInputLine = (title, name, type, validator) => {
     return (
       <div className='detail-line'>
         <div className='detail-heading'>{translate(title) + '*'}</div>
         <div className='input-body'>
           <ServerInput isRequired={true} inputName={name} inputType={type} inputValidate={validator}
-            inputAction={this.handleInputLine}/>
+            inputAction={this.handleInputLine} inputValue={this.newServer[name]}/>
         </div>
       </div>
     );
@@ -261,12 +261,13 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  renderDropdownLine(title, name, value, list, handler) {
+  renderDropdownLine(title, name, list, handler) {
     return (
       <div className='detail-line'>
         <div className='detail-heading'>{translate(title) + '*'}</div>
         <div className='input-body'>
-          <ServerDropdown name={name} value={value} optionList={list} selectAction={handler}/>
+          <ServerDropdown name={name} value={this.newServer[name]} optionList={list}
+            selectAction={handler}/>
         </div>
       </div>
     );
@@ -288,8 +289,14 @@ class AssignServerRoles extends BaseWizardPage {
     this.setState({showAddServerManuallyModal: false});
   }
 
+  cancelAddServerManuallyModal = () => {
+    this.resetAddServerManuallyModal();
+    this.closeAddServerManuallyModal();
+  }
+
   saveServerAddedManually = () => {
-    let serverList = [this.newServer];  //save this.newServer to prevent race condition below
+    // save this.newServer before it gets wiped later, to prevent race condition
+    let serverList = [Object.assign({}, this.newServer)];
     this.setState((prevState) => {
       return {serversAddedManually: prevState.serversAddedManually.concat(serverList)};
     });
@@ -301,13 +308,25 @@ class AssignServerRoles extends BaseWizardPage {
       },
       body: JSON.stringify(this.newServer)
       })
+    this.resetAddServerManuallyModal();
+  }
 
-    this.newServer = {};
+  resetAddServerManuallyModal = () => {
+    this.newServer.name = '';
+    this.newServer.ip = '';
+    this.newServer.serverRole = '';
+    this.newServer.serverGroup = '';
+    this.newServer.nicMapping = '';
+    this.setState({validAddServerManuallyForm: false});
+  }
+
+  addOneServer = () => {
+    this.saveServerAddedManually();
     this.closeAddServerManuallyModal();
   }
 
-  addMoreServer() {
-    console.log('add more server');
+  addMoreServer = () => {
+    this.saveServerAddedManually();
   }
 
   getSmUrl(host, port) {
@@ -332,22 +351,23 @@ class AssignServerRoles extends BaseWizardPage {
         <div className='server-details-container'>
           {this.renderInputLine('server.id.name.prompt', 'name', 'text')}
           {this.renderInputLine('server.ip.address.prompt', 'ip', 'text', IpV4AddressValidator)}
-          {this.renderDropdownLine('server.role.prompt', 'role', roles[0], roles,
+          {this.renderDropdownLine('server.role.prompt', 'serverRole', roles,
             this.handleSelectRole)}
-          {this.renderDropdownLine('server.group.prompt', 'group', this.serverGroups[0],
+          {this.renderDropdownLine('server.group.prompt', 'serverGroup',
             this.serverGroups, this.handleSelectGroup)}
-          {this.renderDropdownLine('server.nicmapping.prompt', 'nicmapping', this.nicMappings[0],
+          {this.renderDropdownLine('server.nicmapping.prompt', 'nicMapping',
             this.nicMappings, this.handleSelectNicMapping)}
         </div>
       );
     }
     let footer = (
       <div className='btn-row'>
-        <ActionButton clickAction={this.closeAddServerManuallyModal}
+        <ActionButton clickAction={this.cancelAddServerManuallyModal}
           displayLabel={translate('cancel')}/>
-        <ActionButton clickAction={this.saveServerAddedManually} displayLabel={translate('save')}
+        <ActionButton clickAction={this.addOneServer} displayLabel={translate('save')}
           isDisabled={!this.state.validAddServerManuallyForm}/>
-        <ActionButton clickAction={this.addMoreServer} displayLabel={translate('add.more')}/>
+        <ActionButton clickAction={this.addMoreServer} displayLabel={translate('add.more')}
+          isDisabled={!this.state.validAddServerManuallyForm}/>
       </div>
     );
     return (
@@ -367,7 +387,7 @@ class AssignServerRoles extends BaseWizardPage {
     rows.push(<tr key='headerRow'>{headerRow}</tr>);
 
     // create data rows
-    let servers = this.state.serversAddedManually;
+    let servers = this.sortServersByName(this.state.serversAddedManually);
     servers.map((server, index) => {
       let dataRow = [];
       dataRow.push(<td key={index+server.name}>{server.name}</td>);
@@ -379,6 +399,14 @@ class AssignServerRoles extends BaseWizardPage {
     });
 
     return (rows);
+  }
+
+  sortServersByName(servers) {
+    return servers.sort((a, b) => {
+      let x = a.name;
+      let y = b.name;
+      return ((x < y) ? -1 : (x > y) ? 1 : 0);
+    });
   }
 
   handleAddServerFromCSV() {
