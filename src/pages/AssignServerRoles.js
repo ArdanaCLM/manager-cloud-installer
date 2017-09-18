@@ -32,9 +32,6 @@ class AssignServerRoles extends BaseWizardPage {
     this.serverRoles = [];
     this.selectedModelName = this.props.selectedModelName;
     this.checkInputKeys = [
-      'ilo-ip',
-      'ilo-user',
-      'ilo-password',
       'nic-mapping',
       'server-group'
     ];
