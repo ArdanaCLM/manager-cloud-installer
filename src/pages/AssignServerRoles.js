@@ -318,6 +318,13 @@ class AssignServerRoles extends BaseWizardPage {
           roleObj.servers.push(server);
         }
       });
+      this.saveModelObjectData()
+        .then((response) => {})
+        .catch((error) => {
+          let msg = translate('server.model.save.error');
+          this.setErrorMessageContent(msg, error.toString());
+          this.setState({showError: true});
+        });
     } else {
       this.setState((prevState) => {
         return {serversAddedManually: prevState.serversAddedManually.concat([server])};
