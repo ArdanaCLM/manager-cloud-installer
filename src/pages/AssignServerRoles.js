@@ -40,7 +40,17 @@ class AssignServerRoles extends BaseWizardPage {
     ];
     this.activeRowData = undefined;
     this.errorContent = undefined;
-    this.newServer = {name: '', ip: '', serverRole: '', serverGroup: '', nicMapping: ''};
+    this.newServer = {
+//      'id': '',
+      'name': '',
+      'ip-addr': '',
+      'server-group': '',
+      'nic-mapping': '',
+      'role': '',
+      'ilo-ip': '',
+      'ilo-user': '',
+      'ilo-password': '',
+    };
 
     this.credentials = window.discoverCreds ? window.discoverCreds : {
       sm: {creds: {}},
@@ -233,12 +243,13 @@ class AssignServerRoles extends BaseWizardPage {
     this.setState({showAddServerManuallyModal: true});
   }
 
-  renderInputLine = (title, name, type, validator) => {
+  renderInputLine = (required, title, name, type, validator) => {
+    let inputTitle = (required) ? translate(title) + '*' : translate(title);
     return (
       <div className='detail-line'>
-        <div className='detail-heading'>{translate(title) + '*'}</div>
+        <div className='detail-heading'>{inputTitle}</div>
         <div className='input-body'>
-          <ServerInput isRequired={true} inputName={name} inputType={type} inputValidate={validator}
+          <ServerInput isRequired={required} inputName={name} inputType={type} inputValidate={validator}
             inputAction={this.handleInputLine} inputValue={this.newServer[name]}/>
         </div>
       </div>
@@ -248,12 +259,11 @@ class AssignServerRoles extends BaseWizardPage {
   handleInputLine = (e, valid, props) => {
     let value = e.target.value;
     if (valid) {
-      if (props.inputName === 'name') {
-        this.newServer.name = value;
-      } else {
-        this.newServer.ip = value;
-      }
-      if (this.newServer.name && this.newServer.ip) {
+      let key = props.inputName;
+      this.newServer[key] = value;
+
+//      if (this.newServer.id && this.newServer['ip-addr']) {
+      if (this.newServer.name && this.newServer['ip-addr']) {
         this.setState({validAddServerManuallyForm: true})
       }
     } else {
@@ -261,10 +271,11 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  renderDropdownLine(title, name, list, handler) {
+  renderDropdownLine(required, title, name, list, handler) {
+    let inputTitle = (required) ? translate(title) + '*' : translate(title);
     return (
       <div className='detail-line'>
-        <div className='detail-heading'>{translate(title) + '*'}</div>
+        <div className='detail-heading'>{inputTitle}</div>
         <div className='input-body'>
           <ServerDropdown name={name} value={this.newServer[name]} optionList={list}
             selectAction={handler}/>
@@ -274,15 +285,15 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   handleSelectRole = (role) => {
-    this.newServer.serverRole = role;
+    this.newServer.role = role;
   }
 
   handleSelectGroup = (group) => {
-    this.newServer.serverGroup = group;
+    this.newServer['server-group'] = group;
   }
 
   handleSelectNicMapping = (nicmapping) => {
-    this.newServer.nicMapping = nicmapping;
+    this.newServer['nic-mapping'] = nicmapping;
   }
 
   closeAddServerManuallyModal = () => {
@@ -296,27 +307,52 @@ class AssignServerRoles extends BaseWizardPage {
 
   saveServerAddedManually = () => {
     // save this.newServer before it gets wiped later, to prevent race condition
-    let serverList = [Object.assign({}, this.newServer)];
-    this.setState((prevState) => {
-      return {serversAddedManually: prevState.serversAddedManually.concat(serverList)};
-    });
-    fetch(getAppConfig('shimurl') + '/api/v1/server', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.newServer)
-      })
+    let server = Object.assign({}, this.newServer);
+
+    // if role is not None, add server to this.model and this.serverRoles
+    // so that it will get displayed in the accordion table and saved to the input model
+    if (server.role !== translate('server.none.prompt').toString()) {
+      this.model.inputModel.servers.push(server);
+      this.serverRoles.forEach((roleObj) => {
+        if (roleObj.serverRole === server.role) {
+          roleObj.servers.push(server);
+        }
+      });
+      this.saveModelObjectData()
+        .then((response) => {})
+        .catch((error) => {
+          let msg = translate('server.model.save.error');
+          this.setErrorMessageContent(msg, error.toString());
+          this.setState({showError: true});
+        });
+    } else {
+      this.setState((prevState) => {
+        return {serversAddedManually: prevState.serversAddedManually.concat([server])};
+      });
+      fetch(getAppConfig('shimurl') + '/api/v1/server', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(server)
+        })
+    }
     this.resetAddServerManuallyModal();
   }
 
   resetAddServerManuallyModal = () => {
-    this.newServer.name = '';
-    this.newServer.ip = '';
-    this.newServer.serverRole = '';
-    this.newServer.serverGroup = '';
-    this.newServer.nicMapping = '';
+    this.newServer = {
+//      'id': '',
+      'name': '',
+      'ip-addr': '',
+      'server-group': '',
+      'nic-mapping': '',
+      'role': '',
+      'ilo-ip': '',
+      'ilo-user': '',
+      'ilo-password': '',
+    };
     this.setState({validAddServerManuallyForm: false});
   }
 
@@ -338,25 +374,35 @@ class AssignServerRoles extends BaseWizardPage {
     let body = '';
     if (this.serverRoles && this.serverGroups && this.nicMappings) {
       let roles = this.serverRoles.map((server) => {return server.serverRole});
-      if (!this.newServer.serverRole) {
-        this.newServer.serverRole = roles[0];
+      roles.unshift(translate('server.none.prompt').toString());
+      if (!this.newServer.role) {
+        this.newServer.role = roles[0];
       }
-      if (!this.newServer.serverGroup) {
-        this.newServer.serverGroup = this.serverGroups[0];
+      if (!this.newServer['server-group']) {
+        this.newServer['server-group'] = this.serverGroups[0];
       }
-      if (!this.newServer.nicMapping) {
-        this.newServer.nicMapping = this.nicMappings[0];
+      if (!this.newServer['nic-mapping']) {
+        this.newServer['nic-mapping'] = this.nicMappings[0];
       }
       body = (
+//          {this.renderInputLine(true, 'server.id.name.prompt', 'id', 'text')}
+        <div>
         <div className='server-details-container'>
-          {this.renderInputLine('server.id.name.prompt', 'name', 'text')}
-          {this.renderInputLine('server.ip.address.prompt', 'ip', 'text', IpV4AddressValidator)}
-          {this.renderDropdownLine('server.role.prompt', 'serverRole', roles,
-            this.handleSelectRole)}
-          {this.renderDropdownLine('server.group.prompt', 'serverGroup',
+          {this.renderInputLine(true, 'server.id.name.prompt', 'name', 'text')}
+          {this.renderInputLine(true, 'server.ip.address.prompt', 'ip-addr', 'text', IpV4AddressValidator)}
+          {this.renderDropdownLine(true, 'server.group.prompt', 'server-group',
             this.serverGroups, this.handleSelectGroup)}
-          {this.renderDropdownLine('server.nicmapping.prompt', 'nicMapping',
+          {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
             this.nicMappings, this.handleSelectNicMapping)}
+          {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
+            this.handleSelectRole)}
+        </div>
+        <div className='message-line'>{translate('server.ilo.message')}</div>
+        <div className='server-details-container'>
+          {this.renderInputLine(false, 'server.ilo.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
+          {this.renderInputLine(false, 'server.ilo.username.prompt', 'ilo-user', 'text')}
+          {this.renderInputLine(false, 'server.ilo.password.prompt', 'ilo-password', 'text')}
+        </div>
         </div>
       );
     }
@@ -381,28 +427,30 @@ class AssignServerRoles extends BaseWizardPage {
 
     // create table header
     let headerRow = [];
-    let colHeaders = ['id.name', 'ip.address', 'role', 'group', 'nicmapping'];
+    let colHeaders = ['id.name', 'ip.address', 'group', 'nicmapping'];
     let headers = colHeaders.map(header => translate('server.' + header + '.prompt').toString());
     headers.map((header, index) => {headerRow.push(<th key={index}>{header}</th>);});
     rows.push(<tr key='headerRow'>{headerRow}</tr>);
 
     // create data rows
-    let servers = this.sortServersByName(this.state.serversAddedManually);
+    let servers = this.sortServersById(this.state.serversAddedManually);
     servers.map((server, index) => {
       let dataRow = [];
+//      dataRow.push(<td key={index+server.id}>{server.id}</td>);
       dataRow.push(<td key={index+server.name}>{server.name}</td>);
-      dataRow.push(<td key={index+server.ip}>{server.ip}</td>);
-      dataRow.push(<td key={index+server.serverRole}>{server.serverRole}</td>);
-      dataRow.push(<td key={index+server.serverGroup}>{server.serverGroup}</td>);
-      dataRow.push(<td key={index+server.nicMapping}>{server.nicMapping}</td>);
+      dataRow.push(<td key={index+server['ip-addr']}>{server['ip-addr']}</td>);
+      dataRow.push(<td key={index+server['server-group']}>{server['server-group']}</td>);
+      dataRow.push(<td key={index+server['nic-mapping']}>{server['nic-mapping']}</td>);
       rows.push(<tr key={index}>{dataRow}</tr>);
     });
 
     return (rows);
   }
 
-  sortServersByName(servers) {
+  sortServersById(servers) {
     return servers.sort((a, b) => {
+//      let x = a.id;
+//      let y = b.id;
       let x = a.name;
       let y = b.name;
       return ((x < y) ? -1 : (x > y) ? 1 : 0);
@@ -1115,7 +1163,7 @@ class AssignServerRoles extends BaseWizardPage {
             {this.renderAvailableServersTabs()}
           </div>
         </div>
-        <div className="server-container">
+        <div className="server-container right-col">
           <div className="server-table-container role-accordion-container rounded-corner">
             {this.renderServerRolesAccordion()}
           </div>
