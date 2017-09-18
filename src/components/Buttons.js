@@ -158,6 +158,21 @@ class ItemMenuButton extends Component {
   }
 }
 
+class EditPencilForTableRow extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <td>
+        <p onClick={this.props.clickAction}>
+          <span className='glyphicon glyphicon-pencil edit'></span>
+        </p>
+      </td>
+    );
+  }
+}
+
 module.exports = {
   BackButton: BackButton,
   NextButton: NextButton,
@@ -167,5 +182,6 @@ module.exports = {
   ItemHelpButton: ItemHelpButton,
   AssignButton: AssignButton,
   UnAssignButton: UnAssignButton,
-  ItemMenuButton: ItemMenuButton
+  ItemMenuButton: ItemMenuButton,
+  EditPencilForTableRow: EditPencilForTableRow
 };

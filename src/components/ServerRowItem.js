@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
+import { EditPencilForTableRow } from '../components/Buttons.js';
 
 class ServerRowItem extends Component {
   constructor(props) {
     super(props);
+  }
+
+  handleCustomAction = (data) => {
+    if(this.props.customAction) {
+      this.props.customAction(data);
+    }
   }
 
   renderServerColumns() {
@@ -30,9 +37,23 @@ class ServerRowItem extends Component {
   }
 
   render() {
-    return (
-      <tr>{this.renderServerColumns()}</tr>
-    );
+    if(this.props.tableId === 'right') {
+      return (
+        <tr>
+          {this.renderServerColumns()}
+          <EditPencilForTableRow
+            clickAction={(e) => this.handleCustomAction(this.props.data)}>
+          </EditPencilForTableRow>
+        </tr>
+      );
+    }
+    else {
+      return (
+        <tr>
+          {this.renderServerColumns()}
+        </tr>
+      );
+    }
   }
 }
 

@@ -15,6 +15,8 @@ class ServerTable extends Component {
           <ServerRowItem
             data={row}
             dataDef={this.props.tableConfig.columns}
+            customAction={this.props.customAction}
+            tableId={this.props.id}
             key={index}>
           </ServerRowItem>
         );

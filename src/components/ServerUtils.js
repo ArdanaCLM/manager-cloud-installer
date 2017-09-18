@@ -34,7 +34,7 @@ class ServerRolesAccordion extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      accordionPosition: 0,
+      accordionPosition: this.props.displayPosition,
       activeServers: this.props.displayServers
     };
   }
@@ -43,10 +43,9 @@ class ServerRolesAccordion extends Component {
     this.setState({activeServers: nextProps.displayServers});
   }
 
-  handleTriggerClick = (position, role) => {
-    this.setState({accordionPosition: position});
-    this.props.clickAction(role);
-    this.setState({activeServers: role.servers});
+  handleTriggerClick = (idx, role) => {
+    this.setState({accordionPosition: idx});
+    this.props.clickAction(idx, role);
   }
 
   renderAccordionServerTable(servers) {
@@ -58,8 +57,11 @@ class ServerRolesAccordion extends Component {
         {name: 'ip-addr'},
         {name: 'mac-addr'},
         {name: 'role', hidden: true},
-        {name: 'server-group'},
-        {name: 'nic-mapping'},
+        {name: 'server-group', hidden: true},
+        {name: 'nic-mapping', hidden: true},
+        {name: 'ilo-ip', hidden: true},
+        {name: 'ilo-user', hidden: true},
+        {name: 'ilo-password', hidden: true},
         {name: 'source', hidden: true}
       ]
     };
@@ -109,7 +111,7 @@ class ServerRolesAccordion extends Component {
           trigger={optionDisplay.join(' ')} key={role.name}
           handleTriggerClick={() => this.handleTriggerClick(idx, role)}
           value={role.serverRole}>
-          {isOpen && this.renderAccordionServerTable(role.servers)}
+          {isOpen && this.renderAccordionServerTable()}
         </Collapsible>
       );
     });
@@ -160,7 +162,7 @@ class ServerInput extends Component {
       }
     }
 
-    if(this.props.inputValidate) {//have a validator
+    if(this.props.inputValidate && val !== '') {//have a validator and have some values
       let validateObject = this.props.inputValidate(val);
       if (validateObject) {
         if(validateObject.isValid) {
