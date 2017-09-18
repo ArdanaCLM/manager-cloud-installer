@@ -162,7 +162,7 @@ class ServerInput extends Component {
       }
     }
 
-    if(this.props.inputValidate) {//have a validator
+    if(this.props.inputValidate && val !== '') {//have a validator and have some values
       let validateObject = this.props.inputValidate(val);
       if (validateObject) {
         if(validateObject.isValid) {

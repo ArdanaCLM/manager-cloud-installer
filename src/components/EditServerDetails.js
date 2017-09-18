@@ -25,9 +25,7 @@ class EditServerDetails extends Component {
     };
 
     this.data = this.makeDeepCopy(this.props.data);
-    this.state = {
-      isFormValid: false
-    };
+    this.state = {isFormValid: false};
   }
 
   makeDeepCopy(srcData) {
@@ -71,11 +69,11 @@ class EditServerDetails extends Component {
     }
   }
 
-  renderInput(name, type, validate) {
+  renderInput(name, type, isRequired, validate) {
     if(validate) {
       return (
         <ServerInput
-          isRequired={true} inputName={name} inputType={type}
+          isRequired={isRequired} inputName={name} inputType={type}
           inputValidate={validate} inputValue={this.data[name]}
           inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
         </ServerInput>
@@ -84,7 +82,7 @@ class EditServerDetails extends Component {
     else {
       return (
         <ServerInput
-          isRequired={true} inputName={name} inputType={type}
+          isRequired={isRequired} inputName={name} inputType={type}
           inputValue={this.data[name]} updateFormValidity={this.updateFormValidity}
           inputAction={this.handleInputChange}>
         </ServerInput>
@@ -104,6 +102,7 @@ class EditServerDetails extends Component {
 
   renderServerContent() {
     return (
+      <div>
       <div className='server-details-container'>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.id.prompt')}</div>
@@ -121,13 +120,7 @@ class EditServerDetails extends Component {
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.ip.prompt')}</div>
           <div className='input-body'>
-            {this.renderInput('ip-addr', 'text', IpV4AddressValidator)}
-          </div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.mac.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('mac-addr', 'text', MacAddressValidator)}
+            {this.renderInput('ip-addr', 'text', true, IpV4AddressValidator)}
           </div>
         </div>
         <div className='detail-line'>
@@ -142,24 +135,34 @@ class EditServerDetails extends Component {
             {this.renderDropDown('nic-mapping', this.nicMappings, this.handleSelectNicMapping)}
           </div>
         </div>
+      </div>
+        <div className='message-line'>{translate('server.ilo.message')}</div>
+      <div className='server-details-container'>
+         <div className='detail-line'>
+          <div className='detail-heading'>{translate('server.mac.prompt')}</div>
+          <div className='input-body'>
+            {this.renderInput('mac-addr', 'text', false, MacAddressValidator)}
+          </div>
+        </div>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.ipmi.ip.prompt')}</div>
           <div className='input-body'>
-            {this.renderInput('ilo-ip', 'text', IpV4AddressValidator)}
+            {this.renderInput('ilo-ip', 'text', false, IpV4AddressValidator)}
           </div>
         </div>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.ipmi.username.prompt')}</div>
           <div className='input-body'>
-            {this.renderInput('ilo-user', 'text')}
+            {this.renderInput('ilo-user', 'text', false)}
           </div>
         </div>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.ipmi.password.prompt')}</div>
           <div className='input-body'>
-            {this.renderInput('ilo-password', 'password')}
+            {this.renderInput('ilo-password', 'password', false)}
           </div>
         </div>
+      </div>
       </div>
     );
   }

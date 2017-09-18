@@ -489,7 +489,6 @@ class AssignServerRoles extends BaseWizardPage {
         'suseManagerSessionKey', this.credentials.sm.sessionKey,
         {path: '/', expires: expDate});
       COOKIES.set('suseManagerHost', this.credentials.sm.creds.host, {path: '/', expires: expDate});
-      //save port cookie if have port
       let port = this.credentials.sm.creds.port > 0 ? this.credentials.sm.creds.port : '8443';
       COOKIES.set('suseManagerPort', port, {path: '/', expires: expDate});
       this.smApiUrl = this.getSmUrl(this.credentials.sm.creds.host, this.credentials.sm.creds.port);
@@ -497,7 +496,7 @@ class AssignServerRoles extends BaseWizardPage {
     }
     if (credsData.ov) {
       this.credentials.ov = credsData.ov;
-      //TODO save sessionKey
+      //TODO save sessionKey for ov
     }
 
     //save the creds to the session for now
@@ -1254,7 +1253,7 @@ class AssignServerRoles extends BaseWizardPage {
         {this.renderNavButtons()}
         {this.renderCredsInputModal()}
         {this.renderAddServerManuallyModal()}
-        {this.state.showEditServerDetailsModal && this.renderEditServerDetailsModal()}
+        {this.renderEditServerDetailsModal()}
         {this.renderLoadingMask()}
         {this.renderErrorMessage()}
       </div>
