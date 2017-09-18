@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
 import { ActionButton } from './Buttons.js';
-import { ServerInput, ServerDropDown } from '../components/ServerUtils.js';
+import { ServerInput, ServerDropdown} from '../components/ServerUtils.js';
 import {
   IpV4AddressValidator, MacAddressValidator
 } from '../components/InputValidators.js';
@@ -24,8 +24,8 @@ class EditServerDetails extends Component {
       'mac-addr': UNKNOWN
     };
 
+    this.data = this.makeDeepCopy(this.props.data);
     this.state = {
-      data: this.makeDeepCopy(this.props.data),
       isFormValid: false
     };
   }
@@ -48,7 +48,7 @@ class EditServerDetails extends Component {
   }
 
   handleDone = () => {
-    this.props.doneAction(this.state.data);
+    this.props.doneAction(this.data);
   }
 
   handleCancel = () => {
@@ -56,11 +56,11 @@ class EditServerDetails extends Component {
   }
 
   handleSelectGroup = (groupName) => {
-    this.state.data['server-group'] = groupName;
+    this.data['server-group'] = groupName;
   }
 
   handleSelectNicMapping = (nicMapName) => {
-    this.state.data['nic-mapping'] = nicMapName;
+    this.data['nic-mapping'] = nicMapName;
   }
 
   handleInputChange = (e, isValid, props) => {
@@ -76,7 +76,7 @@ class EditServerDetails extends Component {
       return (
         <ServerInput
           isRequired={true} inputName={name} inputType={type}
-          inputValidate={validate} inputValue={this.state.data[name]}
+          inputValidate={validate} inputValue={this.data[name]}
           inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
         </ServerInput>
       );
@@ -85,7 +85,7 @@ class EditServerDetails extends Component {
       return (
         <ServerInput
           isRequired={true} inputName={name} inputType={type}
-          inputValue={this.state.data[name]} updateFormValidity={this.updateFormValidity}
+          inputValue={this.data[name]} updateFormValidity={this.updateFormValidity}
           inputAction={this.handleInputChange}>
         </ServerInput>
       );
@@ -94,11 +94,11 @@ class EditServerDetails extends Component {
 
   renderDropDown(name, list, handler) {
     return (
-      <ServerDropDown
-        value={this.state.data[name]}
+      <ServerDropdown
+        value={this.data[name]}
         optionList={list}
         selectAction={handler}>
-      </ServerDropDown>
+      </ServerDropdown>
     );
   }
 
@@ -107,15 +107,15 @@ class EditServerDetails extends Component {
       <div className='server-details-container'>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.id.prompt')}</div>
-          <div className='info-body'>{this.state.data.id}</div>
+          <div className='info-body'>{this.data.id}</div>
         </div>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.name.prompt')}</div>
-          <div className='info-body'>{this.state.data.name}</div>
+          <div className='info-body'>{this.data.name}</div>
         </div>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.role.prompt')}</div>
-          <div className='info-body'>{this.state.data.role}</div>
+          <div className='info-body'>{this.data.role}</div>
         </div>
 
         <div className='detail-line'>
@@ -177,12 +177,12 @@ class EditServerDetails extends Component {
   }
 
   render() {
-    if(!this.state.data['server-group']) {
-      this.state.data['server-group'] = this.serverGroups[0];
+    if(!this.data['server-group']) {
+      this.data['server-group'] = this.serverGroups[0];
     }
 
-    if(!this.state.data['nic-mapping']) {
-      this.state.data['nic-mapping'] = this.nicMappings[0];
+    if(!this.data['nic-mapping']) {
+      this.data['nic-mapping'] = this.nicMappings[0];
     }
     return (
       <div className='edit-server-details'>

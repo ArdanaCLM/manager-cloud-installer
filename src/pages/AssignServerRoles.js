@@ -95,7 +95,8 @@ class AssignServerRoles extends BaseWizardPage {
       //show edit server details modal
       showEditServerDetailsModal: false,
 
-      rawDiscoveredServers: []
+      rawDiscoveredServers: [],
+      accordionDisplayPosition: 0
     };
 
     this.handleAddServerFromCSV = this.handleAddServerFromCSV.bind(this);
@@ -559,6 +560,8 @@ class AssignServerRoles extends BaseWizardPage {
         server['ilo-ip'] = editData['ilo-ip'];
         server['ilo-user'] = editData['ilo-user'];
         server['ilo-password'] = editData['ilo-password'];
+        //update model and save on the spot
+        this.updateModelObjectForEditServer(server);
       }
     }
 
@@ -579,11 +582,14 @@ class AssignServerRoles extends BaseWizardPage {
     this.validateServerRoleAssignment();
   }
 
-  handleClickRoleAccordion = (role) => {
+  handleClickRoleAccordion = (idx, role) => {
     this.selectedServerRole = role.serverRole;
+    this.setState({
+      displayAssignedServers: role.servers,
+      accordionDisplayPosition: idx
+    })
   }
 
-  //TODO
   handleShowEditServerDetails = (rowData) => {
     this.setState({showEditServerDetailsModal: true});
     this.activeRowData = rowData;
@@ -758,9 +764,7 @@ class AssignServerRoles extends BaseWizardPage {
       //this is prototype and experimental
       let modelServers = modelData['inputModel'].servers;
       let allRoles = cl_roles.concat(rs_roles);
-      let displayAssignedSrv = [];
       let allAssignedSrvIds = [];
-      let displayIdx = 0;
       allRoles.forEach((role, idx) => {
         let matchedModelSvrs = modelServers.filter((server) => {
           return server.role === role.serverRole;
@@ -790,14 +794,6 @@ class AssignServerRoles extends BaseWizardPage {
           allAssignedSrvIds = allAssignedSrvIds.concat(retIds);
 
           role.servers = servers;
-          //TODO
-          //as refresh and reloading find first one that has assigned role
-          //selected role's assigned servers
-          if((role.servers && role.servers.length > 0) &&
-            displayAssignedSrv.length === 0) {
-            displayAssignedSrv = servers;
-            displayIdx = idx;
-          }
         }
       });
 
@@ -810,9 +806,9 @@ class AssignServerRoles extends BaseWizardPage {
       }
 
       this.serverRoles = allRoles;
-      this.selectedServerRole = allRoles[displayIdx].serverRole;
+      this.selectedServerRole = allRoles[0].serverRole;
       this.setState({
-        displayAssignedServers: displayAssignedSrv,
+        displayAssignedServers: allRoles[this.state.accordionDisplayPosition].servers,
         displayAvailableServers: displayAvailableSrv
       });
     }
@@ -893,6 +889,38 @@ class AssignServerRoles extends BaseWizardPage {
         .then((response) => this.checkResponse(response))
         .then(response => response.json())
     );
+  }
+
+  updateModelObjectForEditServer = (server) => {
+    //update model
+    let modelServers = this.model.inputModel.servers;
+    let modelServer = modelServers.find((srv, idx) => {
+      //TODO once we settled with db, need to add source in the condition
+      return srv.id === server.id;
+    });
+
+    if(modelServer) {
+      //field from edit server
+      modelServer['ip-addr'] = server['ip-addr'];
+      modelServer['mac-addr'] = server['mac-addr'];
+      modelServer['server-group'] = server['server-group'];
+      modelServer['nic-mapping'] = server['nic-mapping'];
+      modelServer['ilo-ip'] = server['ilo-ip'];
+      modelServer['ilo-user'] = server['ilo-user'];
+      modelServer['ilo-password'] = server['ilo-password'];
+    }
+    else {
+      modelServers.push(server);
+    }
+
+    //save it to yaml file
+    this.saveModelObjectData()
+      .then((response) => {})
+      .catch((error) => {
+        let msg = translate('server.model.save.error');
+        this.setErrorMessageContent(msg, error.toString());
+        this.setState({showError: true});
+      });
   }
 
   //save the updated model object
@@ -996,8 +1024,8 @@ class AssignServerRoles extends BaseWizardPage {
         {name: 'name'},
         {name: 'ip-addr',},
         {name: 'mac-addr'},
-        {name: 'cpu'},
-        {name: 'ram'},
+        {name: 'cpu', hidden: true},
+        {name: 'ram', hidden: true},
         {name: 'source', hidden: true}
       ]
     };
@@ -1148,6 +1176,7 @@ class AssignServerRoles extends BaseWizardPage {
         serverRoles={this.serverRoles}
         clickAction={this.handleClickRoleAccordion}
         tableId='right'
+        displayPosition={this.state.accordionDisplayPosition}
         displayServers={this.state.displayAssignedServers}
         editAction={this.handleShowEditServerDetails}>
       </ServerRolesAccordion>
@@ -1225,7 +1254,7 @@ class AssignServerRoles extends BaseWizardPage {
         {this.renderNavButtons()}
         {this.renderCredsInputModal()}
         {this.renderAddServerManuallyModal()}
-        {this.renderEditServerDetailsModal()}
+        {this.state.showEditServerDetailsModal && this.renderEditServerDetailsModal()}
         {this.renderLoadingMask()}
         {this.renderErrorMessage()}
       </div>
