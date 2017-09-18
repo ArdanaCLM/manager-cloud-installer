@@ -805,7 +805,7 @@ class AssignServerRoles extends BaseWizardPage {
       }
 
       this.serverRoles = allRoles;
-      this.selectedServerRole = allRoles[0].serverRole;
+      this.selectedServerRole = allRoles[this.state.accordionDisplayPosition].serverRole;
       this.setState({
         displayAssignedServers: allRoles[this.state.accordionDisplayPosition].servers,
         displayAvailableServers: displayAvailableSrv

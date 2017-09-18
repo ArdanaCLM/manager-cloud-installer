@@ -97,7 +97,7 @@
     "server.ipmi.ip.prompt": "IPMI IP Address",
     "server.ipmi.username.prompt": "IPMI Username",
     "server.ipmi.password.prompt": "IPMI Password",
-    "server.ilo.message": "Plese provide IPMI information if the system will be installed with SLES",
+    "server.ilo.message": "Please provide MAC address and IPMI information if the system will be installed with SLES",
     "server.ilo.ip.prompt": "IPMI IP Address",
     "server.ilo.username.prompt": "IPMI Username",
     "server.ilo.password.prompt": "IPMI Password",

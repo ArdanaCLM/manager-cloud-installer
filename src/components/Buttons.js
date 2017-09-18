@@ -164,9 +164,10 @@ class EditPencilForTableRow extends Component {
   }
   render() {
     return (
-      <td
-        className='glyphicon glyphicon-pencil edit'
-        onClick={this.props.clickAction}>
+      <td>
+        <p class='btn' onClick={this.props.clickAction}>
+          <span className='glyphicon glyphicon-pencil edit'></span>
+        </p>
       </td>
     );
   }
