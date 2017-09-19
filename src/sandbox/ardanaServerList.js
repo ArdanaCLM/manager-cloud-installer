@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
-import { getAppConfig } from '../components/ConfigHelper.js';
+import { getAppConfig } from '../utils/ConfigHelper.js';
 import BaseWizardPage from '../pages/BaseWizardPage';
 import { ActionButton } from '../components/Buttons.js';
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
-import { getAppConfig } from '../components/ConfigHelper.js';
+import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 

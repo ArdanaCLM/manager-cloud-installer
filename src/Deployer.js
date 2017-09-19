@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './Deployer.css';
 import InstallWizard from './InstallWizard';
-import { pages } from './components/WizardDefaults.js';
+import { pages } from './utils/WizardDefaults.js';
 
 class Deployer extends Component {
   render() {

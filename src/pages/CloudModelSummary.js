@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react'
 import { fromJS } from 'immutable';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
-import { getAppConfig } from '../components/ConfigHelper.js';
+import { getAppConfig } from '../utils/ConfigHelper.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ActivePickerButton } from '../components/Buttons.js';
 

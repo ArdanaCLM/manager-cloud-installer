@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { stepProgressValues } from './StepProgressValues.js';
+import { stepProgressValues } from './../utils/StepProgressValues.js';
 
 /**
  * Progress indicator showing the user how far along in the wizard they are
