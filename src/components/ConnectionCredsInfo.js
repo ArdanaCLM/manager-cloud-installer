@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
 import { ServerInput } from '../components/ServerUtils.js';
 import { ActionButton } from '../components/Buttons.js';
-import { getAppConfig } from '../components/ConfigHelper.js';
+import { getAppConfig } from '../utils/ConfigHelper.js';
 import {
   IpV4AddressHostValidator, PortValidator
-} from '../components/InputValidators.js';
+} from '../utils/InputValidators.js';
 import { ErrorMessage, SuccessMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
 

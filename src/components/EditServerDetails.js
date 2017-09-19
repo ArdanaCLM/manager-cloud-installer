@@ -4,7 +4,7 @@ import { ActionButton } from './Buttons.js';
 import { ServerInput, ServerDropdown} from '../components/ServerUtils.js';
 import {
   IpV4AddressValidator, MacAddressValidator
-} from '../components/InputValidators.js';
+} from '../utils/InputValidators.js';
 
 const UNKNOWN = -1;
 const VALID = 1;

@@ -3,9 +3,9 @@ import '../Deployer.css';
 import Cookies from 'universal-cookie';
 import { Tabs, Tab } from 'react-bootstrap';
 import { translate } from '../localization/localize.js';
-import { getAppConfig } from '../components/ConfigHelper.js';
+import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
-import { IpV4AddressValidator } from '../components/InputValidators.js';
+import { IpV4AddressValidator } from '../utils/InputValidators.js';
 import { SearchBar, ServerRolesAccordion, ServerInput, ServerDropdown }
   from '../components/ServerUtils.js';
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';

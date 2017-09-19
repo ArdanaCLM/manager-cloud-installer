@@ -1,7 +1,7 @@
 import React from 'react';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
-import { getAppConfig } from '../components/ConfigHelper.js';
+import { getAppConfig } from '../utils/ConfigHelper.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';

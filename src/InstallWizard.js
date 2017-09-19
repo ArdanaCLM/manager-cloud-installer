@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import './Deployer.css';
 import { translate } from './localization/localize.js';
-import { getAppConfig } from './components/ConfigHelper.js';
-import { stepProgressValues } from './components/StepProgressValues.js';
+import { getAppConfig } from './utils/ConfigHelper.js';
+import { stepProgressValues } from './utils/StepProgressValues.js';
 import WizardProgress from './components/WizardProgress';
 import { LoadingMask } from './components/LoadingMask.js';
 
