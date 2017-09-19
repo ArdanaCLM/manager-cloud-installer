@@ -1,12 +1,12 @@
 .collapsible-table {
-  table {
-    width: 100%;
-  }
   .group-row {
-    background-color: @table-header-color;
-    line-height: 3.2em;
-    font-size: 1.1em;
     border-bottom: 1px solid @box-border-color;
+    td {
+      background: linear-gradient(to bottom, @table-header-gradient-color 0%, @table-header-color 100%);
+      font-weight: bold;
+      line-height: 2.8em;
+      padding-left: 1em;
+    }
     .group-count-col {
       float: right;
       padding-right: 1em;
@@ -24,18 +24,18 @@
   }
   .member-row {
     line-height: 3.5em;
+    td {
+      padding-left: 1em;
+    }
   }
-  .show-row td.paded-cell div {
+  .show-row td div {
     max-height: 40em;
     transition: max-height 1.4s;
   }
-  .hide-row td.paded-cell div {
+  .hide-row td div {
     overflow: hidden;
     max-height: 0;
     transition: max-height 0.6s;
-  }
-  .paded-cell {
-    padding-left: 1em;
   }
   .expand-all-btn-container {
     width: 100%;

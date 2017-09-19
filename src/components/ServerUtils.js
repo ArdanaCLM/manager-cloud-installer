@@ -66,15 +66,13 @@ class ServerRolesAccordion extends Component {
       ]
     };
     return (
-      <div className='rounded-corner'>
-        <ServerTable
-          id={this.props.tableId}
-          noHeader
-          tableConfig={tableConfig}
-          tableData={this.state.activeServers}
-          customAction={this.props.editAction}>
-        </ServerTable>
-      </div>
+      <ServerTable
+        id={this.props.tableId}
+        noHeader
+        tableConfig={tableConfig}
+        tableData={this.state.activeServers}
+        customAction={this.props.editAction}>
+      </ServerTable>
     );
   }
 

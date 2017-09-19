@@ -16,7 +16,7 @@ class InnerTable extends Component {
     }));
     return (
       <div>
-        <h4>{this.props.header}</h4>
+        <h5>{this.props.header}</h5>
         <div className='table-container rounded-corner'>
           <table><tbody>{lines}</tbody></table>
         </div>

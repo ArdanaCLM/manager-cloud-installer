@@ -72,7 +72,7 @@ class CollapsibleTable extends Component {
 
     let groupRows = [<tr className='group-row' key={group.groupName}
       onClick={(event) => this.toggleShowHide(event, group.groupName)}>
-      <td className='paded-cell'>{group.groupName}</td>
+      <td>{group.groupName}</td>
       {fillerTds}
       <td className='group-count-col'>{group.members.length}
         <span className={groupCountColClassName}></span></td></tr>];
@@ -83,8 +83,7 @@ class CollapsibleTable extends Component {
         if (key === 'name') {
           serverName = member[key];
         }
-        cols.push(<td className='paded-cell' key={serverName+member[key]}>
-          <div>{member[key]}</div></td>);
+        cols.push(<td key={serverName+member[key]}><div>{member[key]}</div></td>);
       }
 
       let memberRowClassName = 'member-row';
@@ -115,7 +114,7 @@ class CollapsibleTable extends Component {
       <div className='collapsible-table'>
         {this.renderExpandAllButton()}
         <div className='rounded-corner'>
-          <table><tbody>{rows}</tbody></table>
+          <table className='full-width'><tbody>{rows}</tbody></table>
         </div>
       </div>
     );

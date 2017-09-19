@@ -39,7 +39,7 @@ class ServerRowItem extends Component {
   render() {
     if(this.props.tableId === 'right') {
       return (
-        <tr>
+        <tr className='table-row'>
           {this.renderServerColumns()}
           <EditPencilForTableRow
             clickAction={(e) => this.handleCustomAction(this.props.data)}>
@@ -49,9 +49,7 @@ class ServerRowItem extends Component {
     }
     else {
       return (
-        <tr>
-          {this.renderServerColumns()}
-        </tr>
+        <tr className='table-row'>{this.renderServerColumns()}</tr>
       );
     }
   }
