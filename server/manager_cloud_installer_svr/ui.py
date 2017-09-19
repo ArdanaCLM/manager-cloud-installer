@@ -15,7 +15,6 @@ progress_file = config.get("general", "progress_file")
 db_file = config.get("general", "db_file")
 db = TinyDB(db_file)
 server_table = db.table('servers')
-discovered_servers_table=db.table('discovered_servers')
 
 """
 Calls handled locally to support the UI
@@ -52,41 +51,34 @@ def save_progress():
 # /server CRUD operations
 @bp.route("/api/v1/server", methods=['POST'])
 def insert_servers():
+    """Inserts a list of servers to the server table.  
+    
+    'id' and 'source' fields must be unique
+    
+    **Example Request**:
+    
+    .. sourcecode:: http
+
+    POST /api/v1/server?id=myid&source=src1 HTTP/1.1
+    """
     server = Query()
     try:
         data = request.get_json()
-        if isinstance(data, list):
-            # Check for dupes and missing name keys
-            existing_hosts = []
-            has_missing_name_key = False
-            error_msg = ''
-            for entry in data:
-                if 'name' not in entry:
-                    has_missing_name_key = True
-                    continue
-                name = entry['name']
-                server_entry = server_table.get(server.name == name)
-                if server_entry:
-                    existing_hosts.append(name)
-                if has_missing_name_key:
-                    error_msg += 'Data set contains entries with missing ' \
-                                 'name keys.  '
-                if existing_hosts:
-                    error_msg += "The following servers already exist: "
-                    error_msg += ', '.join(existing_hosts)
-            if error_msg:
-                return jsonify(error=error_msg), 400
-            server_table.insert_multiple(server for server in data)
-        else:
-            # validate dictionary entry
-            if 'name' not in data:
-                return jsonify(error="Entry is missing the name key"), 400
-            name = data['name']
-            server_entry = server_table.get(server.name == name)
-            if server_entry:
-                return jsonify(error="Entry for %s already exists" % name), 400
 
-            server_table.insert(data)
+        # Check for dupes and missing id & server keys
+        for entry in data:
+            if not set(['id', 'source']).issubset(entry):
+                return jsonify(error="There is one or more entries missing "
+                                     "id or source"), 400
+            sid = entry['id']
+            src = entry['source']
+            server_entries = server_table.search(
+                (server.id == sid) & (server.source == src))
+            if server_entries:
+                return jsonify(error="There is an entry already matching "
+                                     "id=%s and server=%s" % (sid, src)), 400
+
+        server_table.insert_multiple(server for server in data)
         return jsonify(SUCCESS)
     except Exception:
         abort(400)
@@ -94,60 +86,105 @@ def insert_servers():
 
 @bp.route("/api/v1/server", methods=['GET'])
 def get_servers():
-    return jsonify(server_table.all())
+    """Returns a list of server(s) given an 'id' and/or 'source'
+    
+    'source' is a comma-delimited list joined by an OR statement
+    'id' and 'source' are joined by an AND statement
+   
+    **Example Request**:
+    
+    .. sourcecode:: http
 
-
-@bp.route("/api/v1/server/<name>", methods=['GET'])
-def get_server(name):
-    server = Query()
+    GET /api/v1/server?id=myid&source=src1,src2 HTTP/1.1
+    """
+    q = Query()
     try:
-        server_entry = server_table.get(server.name == name)
-        if server_entry:
-            return jsonify(server_table.get(server.name == name))
-        else:
-            return jsonify(error="%s not found" % name), 404
+        sid = request.args.get('id', None)
+        src = request.args.get('source', None)
+        if not sid and not src:
+            return jsonify(server_table.all())
+        query_str = create_query_str(sid, src)
+        exec("results = server_table.search(%s)" % query_str)
+        return jsonify(results)
     except Exception:
         abort(400)
 
 
-@bp.route("/api/v1/server/<name>", methods=['PUT'])
-def update_server(name):
+@bp.route("/api/v1/server", methods=['PUT'])
+def update_server():
+    """Update a single server entry (dict) into the server table.  
+    
+    'id' and 'source' fields must be unique
+    
+    **Example Request**:
+    
+    .. sourcecode:: http
+
+    PUT /api/v1/server HTTP/1.1
+    """
     server = Query()
     try:
-        server_entry = server_table.get(server.name == name)
-        if server_entry:
-            server_table.remove(server.name == name)
-            data = request.get_json()
-            server_table.insert(data)
-            return jsonify(SUCCESS)
-        else:
-            return jsonify(error="%s not found to be updated" % name), 404
-    except Exception:
-        abort(400)
-
-
-@bp.route("/api/v1/server/<name>", methods=['DELETE'])
-def delete_server(name):
-    server = Query()
-    try:
-        server_table.remove(server.name == name)
+        entry = request.get_json()
+        if not set(['id', 'source']).issubset(entry):
+            return jsonify(error="There is one or more entries missing "
+                                 "id or source"), 400
+        sid = entry['id']
+        src = entry['source']
+        server_entries = server_table.search(
+            (server.id == sid) & (server.source == src))
+        if not server_entries:
+            return jsonify(error="id:%s; source:%s not found "
+                                 "to be updated" % (sid, src)), 404
+        server_table.remove(
+            (server.id == sid) & (server.source == src))
+        server_table.insert(entry)
         return jsonify(SUCCESS)
     except Exception:
         abort(400)
 
-@bp.route("/api/v1/discovered_servers", methods=['GET'])
-def get_discovered_servers():
-    return jsonify(discovered_servers_table.all())
 
-@bp.route("/api/v1/discovered_servers", methods=['POST'])
-def insert_discovered_servers():
+@bp.route("/api/v1/server", methods=['DELETE'])
+def delete_server():
+    """Removes servers given a set of search parameters.  
+    
+    The search parameters used are the same as get_servers()
+    
+    **Example Request**:
+    
+    .. sourcecode:: http
+
+    DELETE /api/v1/server?id=myid&source=src1,src2 HTTP/1.1
+    """
+    q = Query()
     try:
-        data = request.get_json()
-        if isinstance(data, list):
-            discovered_servers_table.purge()
-            discovered_servers_table.insert_multiple(server for server in data)
-            return jsonify(SUCCESS)
-        else:
-            abort(400)
+        sid = request.args.get('id', None)
+        src = request.args.get('source', None)
+        if not sid and not src:
+            return jsonify(error="id and/or source must be specified"), 400
+        query_str = create_query_str(sid, src)
+        exec("server_table.remove(%s)" % query_str)
+        return jsonify(SUCCESS)
     except Exception:
         abort(400)
+
+
+def create_query_str(sid, src):
+    query_str = ''
+    if sid:
+        query_str = "(q.id == \"%s\")" % sid
+        if not src:
+            return query_str
+    if src:
+        # joins a comma-separated list of source names into a query string
+        # separated by an '|', like:
+        # (source == 'src1')|(source == 'src2')|<and so on>
+        source_query_str = \
+            '|'.join(map(lambda x: "(q.source == \"%s\")" % x, src.split(',')))
+
+        if sid:
+            # join the id query with an '&' on the source query
+            query_str += "&(%s)" % source_query_str
+            return query_str
+        else:
+            # source query only
+            return source_query_str
