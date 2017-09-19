@@ -428,7 +428,7 @@ class AssignServerRoles extends BaseWizardPage {
     let colHeaders = ['id.name', 'ip.address', 'group', 'nicmapping'];
     let headers = colHeaders.map(header => translate('server.' + header + '.prompt').toString());
     headers.map((header, index) => {headerRow.push(<th key={index}>{header}</th>);});
-    rows.push(<tr key='headerRow'>{headerRow}</tr>);
+    rows.push(<tr key='headerRow' className='table-header rounded-corner'>{headerRow}</tr>);
 
     // create data rows
     let servers = this.sortServersById(this.state.serversAddedManually);
@@ -439,7 +439,7 @@ class AssignServerRoles extends BaseWizardPage {
       dataRow.push(<td key={index+server['ip-addr']}>{server['ip-addr']}</td>);
       dataRow.push(<td key={index+server['server-group']}>{server['server-group']}</td>);
       dataRow.push(<td key={index+server['nic-mapping']}>{server['nic-mapping']}</td>);
-      rows.push(<tr key={index}>{dataRow}</tr>);
+      rows.push(<tr key={index} className='table-row'>{dataRow}</tr>);
     });
 
     return (rows);
@@ -1033,14 +1033,12 @@ class AssignServerRoles extends BaseWizardPage {
       });
 
     return (
-      <div className='rounded-corner'>
-        <ServerTable
-          id='left'
-          tableConfig={tableConfig}
-          tableData={filteredAvailableServers}
-          customAction={this.handleShowServerDetails}>
-        </ServerTable>
-      </div>
+      <ServerTable
+        id='left'
+        tableConfig={tableConfig}
+        tableData={filteredAvailableServers}
+        customAction={this.handleShowServerDetails}>
+      </ServerTable>
     )
   }
 
@@ -1067,11 +1065,9 @@ class AssignServerRoles extends BaseWizardPage {
   renderManualDiscoverContent = () => {
     if (this.state.serversAddedManually.length > 0) {
       return (
-        <div className='rounded-corner'>
-          <table className='add-server-manually-table'>
-            <tbody>{this.renderManualDiscoverTable()}</tbody>
-          </table>
-        </div>
+        <table className='full-width'>
+          <tbody>{this.renderManualDiscoverTable()}</tbody>
+        </table>
       );
     } else {
       return (

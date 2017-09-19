@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Table } from 'react-bootstrap';
 import { translate } from '../localization/localize.js';
 import ServerRowItem from './ServerRowItem.js';
 
@@ -36,18 +35,16 @@ class ServerTable extends Component {
       });
 
     return (
-      <thead><tr>{headers}</tr></thead>
+      <tr className='table-header rounded-corner'>{headers}</tr>
     );
   }
 
   render() {
     return (
-      <div className='server-table'>
-        <Table>
-          {!this.props.noHeader && this.renderTableHeaders()}
-          <tbody>{this.renderServerRows()}</tbody>
-        </Table>
-      </div>
+      <table className='full-width'><tbody>
+        {!this.props.noHeader && this.renderTableHeaders()}
+        {this.renderServerRows()}</tbody>
+      </table>
     );
   }
 }

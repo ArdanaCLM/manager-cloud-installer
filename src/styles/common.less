@@ -16,7 +16,7 @@ h5 {
   font-family: 'Lato', sans-serif;
 }
 h1 {
-  font-size: 1.8em;
+  font-size: 2em;
 }
 h2 {
   font-size: 1.6em;
@@ -83,5 +83,26 @@ p {
 }
 
 .shadowed-border {
-  box-shadow: 5px 5px 10px @inactivecolor;
+  box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.09);
+}
+
+.table-header {
+  border-bottom: 1px solid @box-border-color;
+  th {
+    background: linear-gradient(to bottom, @table-header-gradient-color 0%, @table-header-color 100%);
+    font-weight: bold;
+    line-height: 2.8em;
+    padding-left: 1em;
+  }
+}
+
+.table-row {
+  td {
+    padding-left: 1em;
+    line-height: 2.5em;
+  }
+}
+
+.full-width {
+  width: 100%;
 }
