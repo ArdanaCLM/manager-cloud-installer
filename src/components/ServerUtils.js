@@ -136,7 +136,8 @@ class ServerInput extends Component {
     super(props);
     this.state = {
       errorMsg: '',
-      inputValue: this.props.inputValue
+      inputValue: this.props.inputValue,
+      showMask: true
     };
   }
 
@@ -203,6 +204,12 @@ class ServerInput extends Component {
     this.props.inputAction(e, valid, props);
   }
 
+  toggleShowHidePassword = () => {
+    let passwordField = document.getElementById('serverPasswordField');
+    passwordField.type = this.state.showMask ? 'text' : 'password';
+    this.setState((prevState) => {return {showMask: !prevState.showMask};});
+  }
+
   render() {
     let inputType = 'text';
     if(this.props.inputType) {
@@ -214,9 +221,23 @@ class ServerInput extends Component {
       props.max = this.props.max;
     }
 
+    let togglePassword = '';
+    let inputId = 'serverInputField';
+    if (inputType === 'password') {
+      inputId = 'serverPasswordField';
+      if (this.state.showMask) {
+        togglePassword = <i className='material-icons password-icon'
+          onClick={this.toggleShowHidePassword}>visibility</i>
+      } else {
+        togglePassword = <i className='material-icons password-icon'
+          onClick={this.toggleShowHidePassword}>visibility_off</i>
+      }
+    }
+
     return (
       <div className='server-input'>
         <input
+          id={inputId}
           className='rounded-corner'
           required={this.props.isRequired}
           type={inputType} name={this.props.inputName}
@@ -224,6 +245,7 @@ class ServerInput extends Component {
           onChange={(e) => this.handleInputChange(e, this.props)}
           {...props}>
         </input>
+        {togglePassword}
         <div className='error-message'>{this.state.errorMsg}</div>
       </div>
     );

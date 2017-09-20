@@ -406,7 +406,7 @@ class AssignServerRoles extends BaseWizardPage {
         <div className='server-details-container'>
           {this.renderInputLine(false, 'server.ilo.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
           {this.renderInputLine(false, 'server.ilo.username.prompt', 'ilo-user', 'text')}
-          {this.renderInputLine(false, 'server.ilo.password.prompt', 'ilo-password', 'text')}
+          {this.renderInputLine(false, 'server.ilo.password.prompt', 'ilo-password', 'password')}
         </div>
         </div>
       );
