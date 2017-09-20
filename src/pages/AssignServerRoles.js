@@ -229,6 +229,7 @@ class AssignServerRoles extends BaseWizardPage {
             .catch((error) => {
               let msg = translate('server.discover.save');
               this.setErrorMessageContent(msg, error.toString());
+              this.setState({showError: true});
             });
           this.setState({loading: false, rawDiscoveredServers: resultServers});
           this.refreshServers(resultServers);
@@ -502,11 +503,12 @@ class AssignServerRoles extends BaseWizardPage {
           this.setState({rawDiscoveredServers: resultServers});
           //save it to the backend
           this.saveDiscoveredServers(resultServers)
-          .then((response) => {})
-          .catch((error) => {
-            let msg = translate('server.discover.save');
-            this.setErrorMessageContent(msg, error.toString());
-          });
+            .then((response) => {})
+            .catch((error) => {
+              let msg = translate('server.discover.save');
+              this.setErrorMessageContent(msg, error.toString());
+              this.setState({showError: true});
+            });
           this.refreshServers(resultServers);
           this.setState({loading: false});
         })
@@ -548,6 +550,8 @@ class AssignServerRoles extends BaseWizardPage {
         server['ilo-password'] = editData['ilo-password'];
         //update model and save on the spot
         this.updateModelObjectForEditServer(server);
+        //update servers and save to the backend
+        this.updateServerForEditServer(server);
       }
     }
 
@@ -705,6 +709,11 @@ class AssignServerRoles extends BaseWizardPage {
         'mac-addr': nkdevice.hardware_address,
         'cpu': srvDetail.cpu_info.count,
         'ram': srvDetail.ram,
+        'ilo-ip': '',
+        'ilo-user': '',
+        'ilo-password': '',
+        'nic-mapping': '',
+        'server-group': '',
         'source': 'sm'
       };
       return serverData;
@@ -889,7 +898,6 @@ class AssignServerRoles extends BaseWizardPage {
     let serverData = {};
     dataDef.map(function(key, value){
       serverData[key.name] = data[key.name];
-      console.log("removeServerFromRoleDnD values... [" + serverData[key.name] + "]:" + value);
     });
     if(typeof serverData.role !== 'undefined'){
       this.removeServerFromRole(serverData, serverData.role);
@@ -904,12 +912,14 @@ class AssignServerRoles extends BaseWizardPage {
    */
   removeServerFromRole(serverData, role){
     let serverRoles = this.state.serverRoles;
+    let removedServers = [];
     serverRoles.forEach((roleObj) => {
       if(roleObj.serverRole === role){
         //found the matching role , need to remove it now
         var i = 0;
         for(i = roleObj.servers.length - 1; i >= 0; i--){
           if(roleObj.servers[i].id === serverData.id){
+            removedServers.push(roleObj.servers[i]);
             roleObj.servers.splice(i,1);
 
             this.setState((prevState) => {
@@ -973,6 +983,27 @@ class AssignServerRoles extends BaseWizardPage {
         .then((response) => this.checkResponse(response))
         .then(response => response.json())
     );
+  }
+
+  updateServerForEditServer = (server) => {
+    if(this.state.selectedServerTabKey === AUTODISCOVER_TAB) {
+      let discoveredServers = this.state.rawDiscoveredServers;
+      let fIdx = discoveredServers.findIndex((dServer) => {
+        return server.id === dServer.id && server.source === dServer.source;
+      });
+      if (fIdx >= 0) {
+        discoveredServers[fIdx] = server; //update with more information
+      }
+      this.setState({rawDiscoveredServers: discoveredServers})
+      this.saveDiscoveredServers(discoveredServers)
+        .then((response) => {})
+        .catch((error) => {
+          let msg = translate('server.discover.save');
+          this.setErrorMessageContent(msg, error.toString());
+          this.setState({showError: true});
+        });
+    }
+    //TODO for manual added servers
   }
 
   updateModelObjectForEditServer = (server) => {
@@ -1110,6 +1141,11 @@ class AssignServerRoles extends BaseWizardPage {
         {name: 'mac-addr'},
         {name: 'cpu', hidden: true},
         {name: 'ram', hidden: true},
+        {name: 'server-group', hidden: true},
+        {name: 'nic-mapping', hidden: true},
+        {name: 'ilo-ip', hidden: true},
+        {name: 'ilo-user', hidden: true},
+        {name: 'ilo-password', hidden: true},
         {name: 'source', hidden: true}
       ]
     };
