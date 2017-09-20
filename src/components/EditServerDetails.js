@@ -203,13 +203,6 @@ class EditServerDetails extends Component {
   }
 
   render() {
-    // if(!this.data['server-group']) {
-    //   this.data['server-group'] = this.serverGroups[0];
-    // }
-    //
-    // if(!this.data['nic-mapping']) {
-    //   this.data['nic-mapping'] = this.nicMappings[0];
-    // }
     return (
       <div className='edit-server-details'>
         {this.renderServerContent()}
