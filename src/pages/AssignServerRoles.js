@@ -912,14 +912,12 @@ class AssignServerRoles extends BaseWizardPage {
    */
   removeServerFromRole(serverData, role){
     let serverRoles = this.state.serverRoles;
-    let removedServers = [];
     serverRoles.forEach((roleObj) => {
       if(roleObj.serverRole === role){
         //found the matching role , need to remove it now
         var i = 0;
         for(i = roleObj.servers.length - 1; i >= 0; i--){
           if(roleObj.servers[i].id === serverData.id){
-            removedServers.push(roleObj.servers[i]);
             roleObj.servers.splice(i,1);
 
             this.setState((prevState) => {
