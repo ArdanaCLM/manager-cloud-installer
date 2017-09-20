@@ -59,7 +59,8 @@ def insert_servers():
     
     .. sourcecode:: http
 
-    POST /api/v1/server?id=myid&source=src1 HTTP/1.1
+    POST /api/v1/server HTTP/1.1
+         where the body contains a list of server dictionaries
     """
     server = Query()
     try:
@@ -121,6 +122,7 @@ def update_server():
     .. sourcecode:: http
 
     PUT /api/v1/server HTTP/1.1
+         where the body contains a dictionary containing a server's details
     """
     server = Query()
     try:
@@ -169,22 +171,14 @@ def delete_server():
 
 
 def create_query_str(sid, src):
-    query_str = ''
+    queries = []
     if sid:
-        query_str = "(q.id == \"%s\")" % sid
-        if not src:
-            return query_str
-    if src:
-        # joins a comma-separated list of source names into a query string
-        # separated by an '|', like:
-        # (source == 'src1')|(source == 'src2')|<and so on>
-        source_query_str = \
-            '|'.join(map(lambda x: "(q.source == \"%s\")" % x, src.split(',')))
+        queries.append("(q.id == \"%s\")" % sid)
 
-        if sid:
-            # join the id query with an '&' on the source query
-            query_str += "&(%s)" % source_query_str
-            return query_str
-        else:
-            # source query only
-            return source_query_str
+    if src:
+        clauses = []
+        for source in src.split(','):
+            clauses.append('(q.source == "%s")' % source)
+        queries.append("(%s)" % '|'.join(clauses))
+
+    return '&'.join(queries)
