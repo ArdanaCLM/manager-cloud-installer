@@ -255,12 +255,17 @@ class ServerDropdown extends Component {
     let options = this.props.optionList.map((opt) => {
       return <option key={opt} value={opt}>{opt}</option>;
     });
-    let emptyOption = [];
-    if(this.state.value === '' || this.state.value === undefined) {
-      emptyOption = [<option key='noopt' value='noopt'>{translate('server.please.select')}</option>];
+
+    if(this.props.emptyOption && (this.state.value === '' || this.state.value === undefined)) {
+      let emptyOption = [
+        <option
+          key='noopt' value={this.props.emptyOption.value}>{this.props.emptyOption.label}
+        </option>
+      ];
+      //add at the beginning
+      options = emptyOption.concat(options);
     }
 
-    options = emptyOption.concat(options);
     return options;
   }
 

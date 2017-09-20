@@ -111,13 +111,29 @@ class EditServerDetails extends Component {
   }
 
   renderDropDown(name, list, handler) {
-    return (
-      <ServerDropdown
-        value={this.data[name]}
-        optionList={list}
-        selectAction={handler}>
-      </ServerDropdown>
-    );
+    if(this.data[name] === '' || this.data[name] === undefined) {
+      let emptyOptProps = {
+        label: translate('server.please.select'),
+        value: 'noopt'
+      };
+      return (
+        <ServerDropdown
+          value={this.data[name]}
+          optionList={list}
+          emptyOption={emptyOptProps}
+          selectAction={handler}>
+        </ServerDropdown>
+      );
+    }
+    else {
+      return (
+        <ServerDropdown
+          value={this.data[name]}
+          optionList={list}
+          selectAction={handler}>
+        </ServerDropdown>
+      );
+    }
   }
 
   renderServerContent() {
@@ -204,7 +220,7 @@ class EditServerDetails extends Component {
 
   render() {
     return (
-      <div className='edit-server-details'>
+      <div className='server-details-container medium'>
         {this.renderServerContent()}
         {this.renderFooter()}
       </div>
