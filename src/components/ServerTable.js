@@ -16,6 +16,7 @@ class ServerTable extends Component {
             dataDef={this.props.tableConfig.columns}
             customAction={this.props.customAction}
             tableId={this.props.id}
+            checkInputs={this.props.checkInputs}
             key={index}>
           </ServerRowItem>
         );

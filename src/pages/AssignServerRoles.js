@@ -114,10 +114,18 @@ class AssignServerRoles extends BaseWizardPage {
       serverRoles: serverRoles
     });
 
-    //this will parse model and
-    //consolidate availableServers and assignedServers
-    this.getServerRoles(this.model, rawServerData);
-    this.validateServerRoleAssignment();
+    if(this.model) {
+      //this will parse model and
+      //consolidate availableServers and assignedServers
+      this.getServerRoles(this.model, rawServerData);
+      this.validateServerRoleAssignment();
+    }
+    else {
+      //don't have model for some reason
+      let msg = translate('server.model.empty.error');
+      this.setErrorMessageContent(msg);
+      this.setState({showError: true});
+    }
   }
 
   getSmServersData(tokenKey, smUrl) {
@@ -219,8 +227,9 @@ class AssignServerRoles extends BaseWizardPage {
           this.saveDiscoveredServers(resultServers)
             .then((response) => {})
             .catch((error) => {
-              let msg = translate('server.discover.get');
+              let msg = translate('server.discover.save');
               this.setErrorMessageContent(msg, error.toString());
+              this.setState({showError: true});
             });
           this.setState({loading: false, rawDiscoveredServers: resultServers});
           this.refreshServers(resultServers);
@@ -494,11 +503,12 @@ class AssignServerRoles extends BaseWizardPage {
           this.setState({rawDiscoveredServers: resultServers});
           //save it to the backend
           this.saveDiscoveredServers(resultServers)
-          .then((response) => {})
-          .catch((error) => {
-            let msg = translate('server.discover.save');
-            this.setErrorMessageContent(msg, error.toString());
-          });
+            .then((response) => {})
+            .catch((error) => {
+              let msg = translate('server.discover.save');
+              this.setErrorMessageContent(msg, error.toString());
+              this.setState({showError: true});
+            });
           this.refreshServers(resultServers);
           this.setState({loading: false});
         })
@@ -540,6 +550,8 @@ class AssignServerRoles extends BaseWizardPage {
         server['ilo-password'] = editData['ilo-password'];
         //update model and save on the spot
         this.updateModelObjectForEditServer(server);
+        //update servers and save to the backend
+        this.updateServerForEditServer(server);
       }
     }
 
@@ -632,8 +644,11 @@ class AssignServerRoles extends BaseWizardPage {
         let msg = translate('server.model.get.error');
         this.setErrorMessageContent(msg, error.toString());
         this.setState({showError: true});
+        //no model, disable next button
+        this.setState({pageValid : false});
       });
   }
+
   getSavedDiscoveredServers() {
     return (
       fetch(getAppConfig('shimurl') + '/api/v1/discovered_servers')
@@ -694,6 +709,11 @@ class AssignServerRoles extends BaseWizardPage {
         'mac-addr': nkdevice.hardware_address,
         'cpu': srvDetail.cpu_info.count,
         'ram': srvDetail.ram,
+        'ilo-ip': '',
+        'ilo-user': '',
+        'ilo-password': '',
+        'nic-mapping': '',
+        'server-group': '',
         'source': 'sm'
       };
       return serverData;
@@ -878,7 +898,6 @@ class AssignServerRoles extends BaseWizardPage {
     let serverData = {};
     dataDef.map(function(key, value){
       serverData[key.name] = data[key.name];
-      console.log("removeServerFromRoleDnD values... [" + serverData[key.name] + "]:" + value);
     });
     if(typeof serverData.role !== 'undefined'){
       this.removeServerFromRole(serverData, serverData.role);
@@ -962,6 +981,27 @@ class AssignServerRoles extends BaseWizardPage {
         .then((response) => this.checkResponse(response))
         .then(response => response.json())
     );
+  }
+
+  updateServerForEditServer = (server) => {
+    if(this.state.selectedServerTabKey === AUTODISCOVER_TAB) {
+      let discoveredServers = this.state.rawDiscoveredServers;
+      let fIdx = discoveredServers.findIndex((dServer) => {
+        return server.id === dServer.id && server.source === dServer.source;
+      });
+      if (fIdx >= 0) {
+        discoveredServers[fIdx] = server; //update with more information
+      }
+      this.setState({rawDiscoveredServers: discoveredServers})
+      this.saveDiscoveredServers(discoveredServers)
+        .then((response) => {})
+        .catch((error) => {
+          let msg = translate('server.discover.save');
+          this.setErrorMessageContent(msg, error.toString());
+          this.setState({showError: true});
+        });
+    }
+    //TODO for manual added servers
   }
 
   updateModelObjectForEditServer = (server) => {
@@ -1099,6 +1139,11 @@ class AssignServerRoles extends BaseWizardPage {
         {name: 'mac-addr'},
         {name: 'cpu', hidden: true},
         {name: 'ram', hidden: true},
+        {name: 'server-group', hidden: true},
+        {name: 'nic-mapping', hidden: true},
+        {name: 'ilo-ip', hidden: true},
+        {name: 'ilo-user', hidden: true},
+        {name: 'ilo-password', hidden: true},
         {name: 'source', hidden: true}
       ]
     };
@@ -1260,6 +1305,7 @@ class AssignServerRoles extends BaseWizardPage {
         serverRoles={this.state.serverRoles}
         clickAction={this.handleClickRoleAccordion}
         tableId='right'
+        checkInputs={this.checkInputKeys}
         displayPosition={this.state.accordionDisplayPosition}
         displayServers={this.state.displayAssignedServers}
         editAction={this.handleShowEditServerDetails}>

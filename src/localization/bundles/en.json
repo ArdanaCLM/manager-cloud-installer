@@ -120,8 +120,10 @@
     "server.discover.sm.error": "Failed to get SUSE Manager servers.",
     "server.discover.save.error": "Failed to save discovered servers",
     "server.discover.get.error": "Failed to get discovered servers",
+    "server.model.empty.error": "Failed to display assigned servers due to empty model object",
     "server.model.get.error": "Failed to get model object",
     "server.model.save.error": "Failed to save model object",
+    "server.please.select": "Please select...",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",
