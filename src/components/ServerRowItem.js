@@ -54,9 +54,21 @@ class ServerRowItem extends Component {
   }
 
   render() {
+    let cName = 'table-row';
     if(this.props.tableId === 'right') {
+      let requiredUpdate = false;
+      let badInput = undefined;
+      if(this.props.checkInputs) {
+        badInput = this.props.checkInputs.find((key) => {
+          return (this.props.data[key] === undefined || this.props.data[key] === '');
+        });
+      }
+      if(badInput) {
+        requiredUpdate = true;
+      }
+      cName = requiredUpdate ? cName + ' required-update' : cName;
       return (
-        <tr className='table-row'
+        <tr className={cName}
           draggable="true" onDragStart={(event) => this.drag(event, this.props.dataDef, this.props.data)}>
           {this.renderServerColumns()}
           <EditPencilForTableRow
@@ -67,7 +79,7 @@ class ServerRowItem extends Component {
     }
     else {
       return (
-        <tr className='table-row'
+        <tr className={cName}
           draggable="true" onDragStart={(event) => this.drag(event, this.props.dataDef, this.props.data)}>
           {this.renderServerColumns()}
         </tr>

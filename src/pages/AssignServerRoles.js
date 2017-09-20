@@ -114,10 +114,18 @@ class AssignServerRoles extends BaseWizardPage {
       serverRoles: serverRoles
     });
 
-    //this will parse model and
-    //consolidate availableServers and assignedServers
-    this.getServerRoles(this.model, rawServerData);
-    this.validateServerRoleAssignment();
+    if(this.model) {
+      //this will parse model and
+      //consolidate availableServers and assignedServers
+      this.getServerRoles(this.model, rawServerData);
+      this.validateServerRoleAssignment();
+    }
+    else {
+      //don't have model for some reason
+      let msg = translate('server.model.empty.error');
+      this.setErrorMessageContent(msg);
+      this.setState({showError: true});
+    }
   }
 
   getSmServersData(tokenKey, smUrl) {
@@ -219,7 +227,7 @@ class AssignServerRoles extends BaseWizardPage {
           this.saveDiscoveredServers(resultServers)
             .then((response) => {})
             .catch((error) => {
-              let msg = translate('server.discover.get');
+              let msg = translate('server.discover.save');
               this.setErrorMessageContent(msg, error.toString());
             });
           this.setState({loading: false, rawDiscoveredServers: resultServers});
@@ -632,8 +640,11 @@ class AssignServerRoles extends BaseWizardPage {
         let msg = translate('server.model.get.error');
         this.setErrorMessageContent(msg, error.toString());
         this.setState({showError: true});
+        //no model, disable next button
+        this.setState({pageValid : false});
       });
   }
+
   getSavedDiscoveredServers() {
     return (
       fetch(getAppConfig('shimurl') + '/api/v1/discovered_servers')
@@ -1260,6 +1271,7 @@ class AssignServerRoles extends BaseWizardPage {
         serverRoles={this.state.serverRoles}
         clickAction={this.handleClickRoleAccordion}
         tableId='right'
+        checkInputs={this.checkInputKeys}
         displayPosition={this.state.accordionDisplayPosition}
         displayServers={this.state.displayAssignedServers}
         editAction={this.handleShowEditServerDetails}>
