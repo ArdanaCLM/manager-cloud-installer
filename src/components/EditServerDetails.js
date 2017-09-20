@@ -18,9 +18,9 @@ class EditServerDetails extends Component {
     this.serverGroups = this.props.serverGroups;
     this.allInputsStatus = {
       'ip-addr': UNKNOWN,
-      'ilo-user': UNKNOWN,
-      'ilo-password': UNKNOWN,
-      'ilo-ip': UNKNOWN,
+      'ipmi-user': UNKNOWN,
+      'ipmi-password': UNKNOWN,
+      'ipmi-ip': UNKNOWN,
       'mac-addr': UNKNOWN
     };
 
@@ -136,7 +136,7 @@ class EditServerDetails extends Component {
           </div>
         </div>
       </div>
-        <div className='message-line'>{translate('server.ilo.message')}</div>
+        <div className='message-line'>{translate('server.ipmi.message')}</div>
       <div className='server-details-container'>
          <div className='detail-line'>
           <div className='detail-heading'>{translate('server.mac.prompt')}</div>
@@ -147,19 +147,19 @@ class EditServerDetails extends Component {
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.ipmi.ip.prompt')}</div>
           <div className='input-body'>
-            {this.renderInput('ilo-ip', 'text', false, IpV4AddressValidator)}
+            {this.renderInput('ipmi-ip', 'text', false, IpV4AddressValidator)}
           </div>
         </div>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.ipmi.username.prompt')}</div>
           <div className='input-body'>
-            {this.renderInput('ilo-user', 'text', false)}
+            {this.renderInput('ipmi-user', 'text', false)}
           </div>
         </div>
         <div className='detail-line'>
           <div className='detail-heading'>{translate('server.ipmi.password.prompt')}</div>
           <div className='input-body'>
-            {this.renderInput('ilo-password', 'password', false)}
+            {this.renderInput('ipmi-password', 'password', false)}
           </div>
         </div>
       </div>

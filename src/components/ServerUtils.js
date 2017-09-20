@@ -59,9 +59,9 @@ class ServerRolesAccordion extends Component {
         {name: 'role', hidden: true},
         {name: 'server-group', hidden: true},
         {name: 'nic-mapping', hidden: true},
-        {name: 'ilo-ip', hidden: true},
-        {name: 'ilo-user', hidden: true},
-        {name: 'ilo-password', hidden: true},
+        {name: 'ipmi-ip', hidden: true},
+        {name: 'ipmi-user', hidden: true},
+        {name: 'ipmi-password', hidden: true},
         {name: 'source', hidden: true}
       ]
     };
