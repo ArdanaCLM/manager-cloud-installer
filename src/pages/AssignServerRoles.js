@@ -43,9 +43,9 @@ class AssignServerRoles extends BaseWizardPage {
       'server-group': '',
       'nic-mapping': '',
       'role': '',
-      'ilo-ip': '',
-      'ilo-user': '',
-      'ilo-password': '',
+      'ipmi-ip': '',
+      'ipmi-user': '',
+      'ipmi-password': ''
     };
 
     this.credentials = window.discoverCreds ? window.discoverCreds : {
@@ -354,9 +354,9 @@ class AssignServerRoles extends BaseWizardPage {
       'server-group': '',
       'nic-mapping': '',
       'role': '',
-      'ilo-ip': '',
-      'ilo-user': '',
-      'ilo-password': '',
+      'ipmi-ip': '',
+      'ipmi-user': '',
+      'ipmi-password': ''
     };
     this.setState({validAddServerManuallyForm: false});
   }
@@ -402,11 +402,11 @@ class AssignServerRoles extends BaseWizardPage {
           {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
             this.handleSelectRole)}
         </div>
-        <div className='message-line'>{translate('server.ilo.message')}</div>
+        <div className='message-line'>{translate('server.ipmi.message')}</div>
         <div className='server-details-container'>
-          {this.renderInputLine(false, 'server.ilo.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
-          {this.renderInputLine(false, 'server.ilo.username.prompt', 'ilo-user', 'text')}
-          {this.renderInputLine(false, 'server.ilo.password.prompt', 'ilo-password', 'text')}
+          {this.renderInputLine(false, 'server.ipmi.ip.prompt', 'ipmi-ip', 'text', IpV4AddressValidator)}
+          {this.renderInputLine(false, 'server.ipmi.username.prompt', 'ipmi-user', 'text')}
+          {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ipmi-password', 'text')}
         </div>
         </div>
       );
@@ -535,9 +535,9 @@ class AssignServerRoles extends BaseWizardPage {
         server['mac-addr'] = editData['mac-addr'];
         server['server-group'] = editData['server-group'];
         server['nic-mapping'] = editData['nic-mapping'];
-        server['ilo-ip'] = editData['ilo-ip'];
-        server['ilo-user'] = editData['ilo-user'];
-        server['ilo-password'] = editData['ilo-password'];
+        server['ipmi-ip'] = editData['ipmi-ip'];
+        server['ipmi-user'] = editData['ipmi-user'];
+        server['ipmi-password'] = editData['ipmi-password'];
         //update model and save on the spot
         this.updateModelObjectForEditServer(server);
       }
@@ -758,9 +758,9 @@ class AssignServerRoles extends BaseWizardPage {
               'mac-addr': srv['mac-addr'] || '',
               'role': srv.role || '',
               'server-group': srv['server-group'] || '',
-              'ilo-ip': srv['ilo-ip'] || '',
-              'ilo-user': srv['ilo-user'] || '',
-              'ilo-password': srv['ilo-password'] || '',
+              'ipmi-ip': srv['ipmi-ip'] || '',
+              'ipmi-user': srv['ipmi-user'] || '',
+              'ipmi-password': srv['ipmi-password'] || '',
               'nic-mapping': srv['nic-mapping'] || ''
             };
             return retValue;
@@ -942,9 +942,9 @@ class AssignServerRoles extends BaseWizardPage {
             'ip-addr': svr['ip-addr'],
             'mac-addr': svr['mac-addr'],
             'nic-mapping': svr['nic-mapping'] || '',
-            'ilo-ip': svr['ilo-ip'] || '',
-            'ilo-password': svr['ilo-password'] ||'',
-            'ilo-user': svr['ilo-user']|| '',
+            'ipmi-ip': svr['ipmi-ip'] || '',
+            'ipmi-password': svr['ipmi-password'] ||'',
+            'ipmi-user': svr['ipmi-user']|| '',
             'server-group': svr['server-group'] || ''
           });
         });
@@ -978,9 +978,9 @@ class AssignServerRoles extends BaseWizardPage {
       modelServer['mac-addr'] = server['mac-addr'];
       modelServer['server-group'] = server['server-group'];
       modelServer['nic-mapping'] = server['nic-mapping'];
-      modelServer['ilo-ip'] = server['ilo-ip'];
-      modelServer['ilo-user'] = server['ilo-user'];
-      modelServer['ilo-password'] = server['ilo-password'];
+      modelServer['ipmi-ip'] = server['ipmi-ip'];
+      modelServer['ipmi-user'] = server['ipmi-user'];
+      modelServer['ipmi-password'] = server['ipmi-password'];
     }
     else {
       modelServers.push(server);
