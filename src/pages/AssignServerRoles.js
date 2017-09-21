@@ -436,7 +436,7 @@ class AssignServerRoles extends BaseWizardPage {
             {this.renderInputLine(false, 'server.mac.prompt', 'mac-addr', 'text', MacAddressValidator)}
             {this.renderInputLine(false, 'server.ipmi.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
             {this.renderInputLine(false, 'server.ipmi.username.prompt', 'ilo-user', 'text')}
-            {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ilo-password', 'text')}
+            {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ilo-password', 'password')}
           </div>
         </div>
       );
