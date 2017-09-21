@@ -105,9 +105,12 @@ class ServerRolesAccordion extends Component {
       }
       let isOpen = idx === this.state.accordionPosition;
       return (
-        <span
+        <div
           onDrop={(event) => this.props.ondropFunct(event, role.serverRole)}
           onDragOver={(event) => this.props.allowDropFunct(event, role.serverRole)}
+          onDragEnter={(event) => this.props.ondragEnterFunct(event)}
+          onDragLeave={(event) => this.props.ondragLeaveFunct(event)}
+          className='server-dropzone'
           key={role.name}>
           <Collapsible
             open={isOpen}
@@ -116,7 +119,7 @@ class ServerRolesAccordion extends Component {
             value={role.serverRole}>
             {isOpen && this.renderAccordionServerTable()}
           </Collapsible>
-        </span>
+        </div>
       );
     });
 
