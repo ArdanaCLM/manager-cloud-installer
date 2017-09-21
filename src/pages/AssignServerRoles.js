@@ -5,7 +5,7 @@ import { Tabs, Tab } from 'react-bootstrap';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
-import { IpV4AddressValidator } from '../utils/InputValidators.js';
+import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
 import { SearchBar, ServerRolesAccordion, ServerInput, ServerDropdown }
   from '../components/ServerUtils.js';
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
@@ -37,7 +37,8 @@ class AssignServerRoles extends BaseWizardPage {
     this.activeRowData = undefined;
     this.errorContent = undefined;
     this.newServer = {
-//      'id': '',
+      'source': 'manual',
+      'id': '',
       'name': '',
       'ip-addr': '',
       'server-group': '',
@@ -46,6 +47,7 @@ class AssignServerRoles extends BaseWizardPage {
       'ilo-ip': '',
       'ilo-user': '',
       'ilo-password': '',
+      'mac-addr': ''
     };
 
     this.credentials = window.discoverCreds ? window.discoverCreds : {
@@ -261,9 +263,13 @@ class AssignServerRoles extends BaseWizardPage {
     let value = e.target.value;
     if (valid) {
       let key = props.inputName;
-      this.newServer[key] = value;
+      if (key === 'name') {
+        this.newServer.name = value;
+        this.newServer.id = value;
+      } else {
+        this.newServer[key] = value;
+      }
 
-//      if (this.newServer.id && this.newServer['ip-addr']) {
       if (this.newServer.name && this.newServer['ip-addr']) {
         this.setState({validAddServerManuallyForm: true})
       }
@@ -330,25 +336,27 @@ class AssignServerRoles extends BaseWizardPage {
           this.setErrorMessageContent(msg, error.toString());
           this.setState({showError: true});
         });
-    } else {
-      this.setState((prevState) => {
-        return {serversAddedManually: prevState.serversAddedManually.concat([server])};
-      });
-      fetch(getAppConfig('shimurl') + '/api/v1/server', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(server)
-        })
     }
+
+    // add server to the left table and the server API
+    this.setState((prevState) => {
+      return {serversAddedManually: prevState.serversAddedManually.concat([server])};
+    });
+    fetch(getAppConfig('shimurl') + '/api/v1/server', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify([server])
+      })
     this.resetAddServerManuallyModal();
   }
 
   resetAddServerManuallyModal = () => {
     this.newServer = {
-//      'id': '',
+      'source': 'manual',
+      'id': '',
       'name': '',
       'ip-addr': '',
       'server-group': '',
@@ -357,6 +365,7 @@ class AssignServerRoles extends BaseWizardPage {
       'ilo-ip': '',
       'ilo-user': '',
       'ilo-password': '',
+      'mac-addr': ''
     };
     this.setState({validAddServerManuallyForm: false});
   }
@@ -390,11 +399,10 @@ class AssignServerRoles extends BaseWizardPage {
         this.newServer['nic-mapping'] = this.nicMappings[0];
       }
       body = (
-//          {this.renderInputLine(true, 'server.id.name.prompt', 'id', 'text')}
         <div>
         <div className='server-details-container'>
-          {this.renderInputLine(true, 'server.id.name.prompt', 'name', 'text')}
-          {this.renderInputLine(true, 'server.ip.address.prompt', 'ip-addr', 'text', IpV4AddressValidator)}
+          {this.renderInputLine(true, 'server.name.prompt', 'name', 'text')}
+          {this.renderInputLine(true, 'server.ip.prompt', 'ip-addr', 'text', IpV4AddressValidator)}
           {this.renderDropdownLine(true, 'server.group.prompt', 'server-group',
             this.serverGroups, this.handleSelectGroup)}
           {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
@@ -402,11 +410,12 @@ class AssignServerRoles extends BaseWizardPage {
           {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
             this.handleSelectRole)}
         </div>
-        <div className='message-line'>{translate('server.ilo.message')}</div>
+        <div className='message-line'>{translate('server.ipmi.message')}</div>
         <div className='server-details-container'>
-          {this.renderInputLine(false, 'server.ilo.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
-          {this.renderInputLine(false, 'server.ilo.username.prompt', 'ilo-user', 'text')}
-          {this.renderInputLine(false, 'server.ilo.password.prompt', 'ilo-password', 'text')}
+          {this.renderInputLine(false, 'server.mac.prompt', 'mac-addr', 'text', MacAddressValidator)}
+          {this.renderInputLine(false, 'server.ipmi.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
+          {this.renderInputLine(false, 'server.ipmi.username.prompt', 'ilo-user', 'text')}
+          {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ilo-password', 'text')}
         </div>
         </div>
       );
@@ -429,8 +438,6 @@ class AssignServerRoles extends BaseWizardPage {
 
   sortServersById(servers) {
     return servers.sort((a, b) => {
-//      let x = a.id;
-//      let y = b.id;
       let x = a.name;
       let y = b.name;
       return ((x < y) ? -1 : (x > y) ? 1 : 0);
@@ -610,7 +617,7 @@ class AssignServerRoles extends BaseWizardPage {
       });
 
     // get manually added servers
-    fetch(getAppConfig('shimurl') + '/api/v1/server')
+    fetch(getAppConfig('shimurl') + '/api/v1/server?source=manual')
       .then(response => response.json())
       .then((responseData) => {
         if (responseData.length > 0) {
