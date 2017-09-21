@@ -512,11 +512,10 @@ class AssignServerRoles extends BaseWizardPage {
           allServerData.forEach((oneSet, idx) => {
             resultServers = resultServers.concat(oneSet);
           });
-          this.setState({rawDiscoveredServers: resultServers});
           //save it to the backend
           this.doSaveAllDiscoveredServers(resultServers);
           this.refreshServers(resultServers);
-          this.setState({loading: false});
+          this.setState({rawDiscoveredServers: resultServers, loading: false});
         })
         .catch((error) => {
           this.setState({loading: false, showError: true});
