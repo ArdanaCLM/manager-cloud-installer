@@ -136,7 +136,7 @@ class EditServerDetails extends Component {
           </div>
         </div>
       </div>
-        <div className='message-line'>{translate('server.ilo.message')}</div>
+        <div className='message-line'>{translate('server.ipmi.message')}</div>
       <div className='server-details-container'>
          <div className='detail-line'>
           <div className='detail-heading'>{translate('server.mac.prompt')}</div>
