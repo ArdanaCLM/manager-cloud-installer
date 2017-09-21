@@ -32,7 +32,7 @@ class EditServerDetails extends Component {
     return JSON.parse(JSON.stringify(srcData));
   }
 
-  isFormValid () {
+  isFormTextInputValid() {
     let isAllValid = true;
     let values = Object.values(this.allInputsStatus);
     isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN}));
@@ -40,9 +40,27 @@ class EditServerDetails extends Component {
     return isAllValid;
   }
 
+  isFormDropdownValid() {
+    let isValid = true;
+    if(this.data['server-group'] === '' ||
+    this.data['server-group'] === undefined ||
+    this.data['server-group'] === 'noopt') {
+      isValid = false;
+    }
+
+    if(isValid) {
+      if(this.data['nic-mapping'] === '' ||
+      this.data['nic-mapping'] === undefined ||
+      this.data['nic-mapping'] === 'noopt') {
+        isValid = false;
+      }
+    }
+    return isValid;
+  }
+
   updateFormValidity = (props, isValid) => {
     this.allInputsStatus[props.inputName] = isValid ? VALID : INVALID;
-    this.setState({isFormValid: this.isFormValid()})
+    this.setState({isFormValid: this.isFormTextInputValid() && this.isFormDropdownValid()});
   }
 
   handleDone = () => {
@@ -55,10 +73,12 @@ class EditServerDetails extends Component {
 
   handleSelectGroup = (groupName) => {
     this.data['server-group'] = groupName;
+    this.setState({isFormValid: this.isFormTextInputValid() && this.isFormDropdownValid()});
   }
 
   handleSelectNicMapping = (nicMapName) => {
     this.data['nic-mapping'] = nicMapName;
+    this.setState({isFormValid: this.isFormTextInputValid() && this.isFormDropdownValid()});
   }
 
   handleInputChange = (e, isValid, props) => {
@@ -91,16 +111,35 @@ class EditServerDetails extends Component {
   }
 
   renderDropDown(name, list, handler) {
-    return (
-      <ServerDropdown
-        value={this.data[name]}
-        optionList={list}
-        selectAction={handler}>
-      </ServerDropdown>
-    );
+    if(this.data[name] === '' || this.data[name] === undefined) {
+      let emptyOptProps = {
+        label: translate('server.please.select'),
+        value: 'noopt'
+      };
+      return (
+        <ServerDropdown
+          value={this.data[name]}
+          optionList={list}
+          emptyOption={emptyOptProps}
+          selectAction={handler}>
+        </ServerDropdown>
+      );
+    }
+    else {
+      return (
+        <ServerDropdown
+          value={this.data[name]}
+          optionList={list}
+          selectAction={handler}>
+        </ServerDropdown>
+      );
+    }
   }
 
   renderServerContent() {
+    let groupTitle = translate('server.group.prompt') + '*';
+    let nicMappingTitle = translate('server.nicmapping.prompt') + '*';
+
     return (
       <div>
       <div className='server-details-container'>
@@ -124,19 +163,19 @@ class EditServerDetails extends Component {
           </div>
         </div>
         <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.group.prompt')}</div>
+          <div className='detail-heading'>{groupTitle}</div>
           <div className='input-body'>
             {this.renderDropDown('server-group', this.serverGroups, this.handleSelectGroup)}
           </div>
         </div>
         <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.nicmapping.prompt')}</div>
+          <div className='detail-heading'>{nicMappingTitle}</div>
           <div className='input-body'>
             {this.renderDropDown('nic-mapping', this.nicMappings, this.handleSelectNicMapping)}
           </div>
         </div>
       </div>
-        <div className='message-line'>{translate('server.ilo.message')}</div>
+        <div className='message-line'>{translate('server.ipmi.message')}</div>
       <div className='server-details-container'>
          <div className='detail-line'>
           <div className='detail-heading'>{translate('server.mac.prompt')}</div>
@@ -180,13 +219,6 @@ class EditServerDetails extends Component {
   }
 
   render() {
-    if(!this.data['server-group']) {
-      this.data['server-group'] = this.serverGroups[0];
-    }
-
-    if(!this.data['nic-mapping']) {
-      this.data['nic-mapping'] = this.nicMappings[0];
-    }
     return (
       <div className='edit-server-details'>
         {this.renderServerContent()}
