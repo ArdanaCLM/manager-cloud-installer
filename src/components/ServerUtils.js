@@ -70,6 +70,7 @@ class ServerRolesAccordion extends Component {
         id={this.props.tableId}
         noHeader
         tableConfig={tableConfig}
+        checkInputs={this.props.checkInputs}
         tableData={this.state.activeServers}
         customAction={this.props.editAction}>
       </ServerTable>
@@ -165,7 +166,7 @@ class ServerInput extends Component {
       }
     }
 
-    if(this.props.inputValidate && val !== '') {//have a validator and have some values
+    if(this.props.inputValidate && val !== '' && val !== undefined) {//have a validator and have some values
       let validateObject = this.props.inputValidate(val);
       if (validateObject) {
         if(validateObject.isValid) {
@@ -254,6 +255,16 @@ class ServerDropdown extends Component {
     let options = this.props.optionList.map((opt) => {
       return <option key={opt} value={opt}>{opt}</option>;
     });
+
+    if(this.props.emptyOption && (this.state.value === '' || this.state.value === undefined)) {
+      let emptyOption = [
+        <option
+          key='noopt' value={this.props.emptyOption.value}>{this.props.emptyOption.label}
+        </option>
+      ];
+      //add at the beginning
+      options = emptyOption.concat(options);
+    }
 
     return options;
   }
