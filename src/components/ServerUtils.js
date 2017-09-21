@@ -205,8 +205,8 @@ class ServerInput extends Component {
     this.props.inputAction(e, valid, props);
   }
 
-  toggleShowHidePassword = () => {
-    let passwordField = document.getElementById('serverPasswordField');
+  toggleShowHidePassword(inputFieldId) {
+    let passwordField = document.getElementById(inputFieldId);
     passwordField.type = this.state.showMask ? 'text' : 'password';
     this.setState((prevState) => {return {showMask: !prevState.showMask};});
   }
@@ -225,13 +225,13 @@ class ServerInput extends Component {
     let togglePassword = '';
     let inputId = 'serverInputField';
     if (inputType === 'password') {
-      inputId = 'serverPasswordField';
+      inputId = 'serverPasswordField'  + (Math.random(0,1) * 100000) + '';
       if (this.state.showMask) {
         togglePassword = <i className='material-icons password-icon'
-          onClick={this.toggleShowHidePassword}>visibility</i>
+          onClick={() => this.toggleShowHidePassword(inputId)}>visibility</i>
       } else {
         togglePassword = <i className='material-icons password-icon'
-          onClick={this.toggleShowHidePassword}>visibility_off</i>
+          onClick={() => this.toggleShowHidePassword(inputId)}>visibility_off</i>
       }
     }
 
