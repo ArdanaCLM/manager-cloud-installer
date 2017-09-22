@@ -36,7 +36,6 @@ class AssignServerRoles extends BaseWizardPage {
       'server-group'
     ];
     this.activeRowData = undefined;
-    this.errorContent = undefined;
     this.newServer = {
       'source': 'manual',
       'id': '',
@@ -86,8 +85,10 @@ class AssignServerRoles extends BaseWizardPage {
 
       //when loading data or saving data
       loading: false,
-      //show error message
-      showError: false,
+
+      // content of error to show
+      errorContent: undefined,
+
       //show server details modal
       showServerDetailsModal: false,
       //show edit server details modal
@@ -122,7 +123,6 @@ class AssignServerRoles extends BaseWizardPage {
       //don't have model for some reason
       let msg = translate('server.model.empty.error');
       this.setErrorMessageContent(msg);
-      this.setState({showError: true});
     }
   }
 
@@ -198,15 +198,21 @@ class AssignServerRoles extends BaseWizardPage {
     return response;
   }
 
-  setErrorMessageContent(msg, errorStr) {
-    let msgContent = {
-      messages: errorStr ? [msg, errorStr] : msg
-    };
-
-    if (this.errorContent !== undefined) {
-      msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
-    }
-    this.errorContent = msgContent;
+  setErrorMessageContent(title, message) {
+    this.setState(prev => {
+      if (prev.errorContent) {
+        return ({errorContent: {
+          title: prev.errorContent.title || title,
+          messages: prev.errorContent.messages.concat(message)
+        }})
+      } else {
+        return ({errorContent: {
+          title: title,
+          // Note: concat correctly handles message being a single string or an array
+          messages: [].concat(message)
+        }})
+      }
+    })
   }
 
   doSaveAllDiscoveredServers(servers) {
@@ -217,13 +223,11 @@ class AssignServerRoles extends BaseWizardPage {
         .catch((error) => {
           let msg = translate('server.discover.save.error');
           this.setErrorMessageContent(msg, error.toString());
-          this.setState({showError: true});
         });
       })
       .catch((error) => {
         let msg = translate('server.discover.get.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
       });
   }
 
@@ -245,7 +249,7 @@ class AssignServerRoles extends BaseWizardPage {
           this.refreshServers(resultServers);
         })
         .catch((error) => {
-          this.setState({loading: false, showError: true});
+          this.setState({loading: false, errorContent: undefined});
         })
     }
   }
@@ -350,7 +354,6 @@ class AssignServerRoles extends BaseWizardPage {
         .catch((error) => {
           let msg = translate('server.model.save.error');
           this.setErrorMessageContent(msg, error.toString());
-          this.setState({showError: true});
         });
     }
 
@@ -472,7 +475,6 @@ class AssignServerRoles extends BaseWizardPage {
         server['source'] = 'manual';
         server['id'] = server['id'] || server['name'];
       }
-      this.saveServersAddedManually(results.data);
 
       if (results.errors.length > 0) {
         const MAX_LINES = 5;
@@ -482,10 +484,11 @@ class AssignServerRoles extends BaseWizardPage {
           details.push("...");
         }
 
-        let msg = translate('csv.import.error');
-        this.setErrorMessageContent(msg, details);
-        this.setState({showError: true});
+        let title = translate('csv.import.error');
+        this.setErrorMessageContent(title, details);
       }
+
+      this.saveServersAddedManually(results.data);
     });
   }
 
@@ -550,14 +553,9 @@ class AssignServerRoles extends BaseWizardPage {
           this.setState({rawDiscoveredServers: resultServers, loading: false});
         })
         .catch((error) => {
-          this.setState({loading: false, showError: true});
+          this.setState({loading: false});
         })
       }
-  }
-
-  handleCloseMessageAction = () => {
-    this.setState({showError: false});
-    this.errorContent = undefined;
   }
 
   handleShowServerDetails = (rowData) => {
@@ -653,7 +651,6 @@ class AssignServerRoles extends BaseWizardPage {
       .catch((error) => {
         let msg = translate('server.discover.get.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
         //still get model
         this.doGetModel();
       });
@@ -680,7 +677,6 @@ class AssignServerRoles extends BaseWizardPage {
       .catch((error) => {
         let msg = translate('server.model.get.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
         //no model, disable next button
         this.setState({pageValid : false});
       });
@@ -1093,7 +1089,6 @@ class AssignServerRoles extends BaseWizardPage {
         .catch((error) => {
           let msg = translate('server.discover.update.error', discoveredServers[fIdx].id);
           this.setErrorMessageContent(msg, error.toString());
-          this.setState({showError: true});
         });
         this.setState({rawDiscoveredServers: discoveredServers});
       }
@@ -1129,7 +1124,6 @@ class AssignServerRoles extends BaseWizardPage {
       .catch((error) => {
         let msg = translate('server.model.save.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
       });
   }
 
@@ -1201,7 +1195,6 @@ class AssignServerRoles extends BaseWizardPage {
         //don't move if can't save model
         let msg = translate('server.model.save.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
       });
   }
 
@@ -1211,13 +1204,20 @@ class AssignServerRoles extends BaseWizardPage {
     this.doSave();
   }
 
+  clearErrorMessage = () => {
+    this.setState({errorContent: undefined});
+  }
+
   renderErrorMessage() {
-    return (
-      <ErrorMessage
-        closeAction={this.handleCloseMessageAction}
-        show={this.state.showError} content={this.errorContent}>
-      </ErrorMessage>
-    );
+    if (this.state.errorContent) {
+      return (
+        <ErrorMessage
+          closeAction={this.clearErrorMessage}
+          title={this.state.errorContent.title}
+          message={this.state.errorContent.messages}>
+        </ErrorMessage>
+      );
+    }
   }
 
   renderLoadingMask() {
