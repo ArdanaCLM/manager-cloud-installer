@@ -310,42 +310,41 @@ class ConnectionCredsInfo extends Component {
 
   renderCredsContent(refType) {
     return (
-      <div ref={refType} className='input-container'>
-        <div className='input-line'>
-          <div className='input-heading'>{translate('server.host.prompt')}</div>
+      <div ref={refType} className='server-details-container'>
+        <div className='detail-line'>
+          <div className='detail-heading'>{translate('server.host.prompt')}</div>
           <div className='input-body'>
             {this.renderInput('host', 'text', refType, IpV4AddressHostValidator)}
           </div>
         </div>
-        <div className='input-line'>
-          <div className='input-heading'>{translate('server.port.prompt')}</div>
+        <div className='detail-line'>
+          <div className='detail-heading'>{translate('server.port.prompt')}</div>
           <div className='input-body'>
             {this.renderInput('port', 'number', refType, PortValidator)}
           </div>
         </div>
-        <div className='input-line'>
-          <div className='input-heading'>{translate('server.username.prompt')}</div>
+        <div className='detail-line'>
+          <div className='detail-heading'>{translate('server.username.prompt')}</div>
           <div className='input-body'>
             {this.renderInput('username', 'text', refType)}
           </div>
         </div>
-        <div className='input-line'>
-          <div className='input-heading'>{translate('server.password.prompt')}</div>
+        <div className='detail-line'>
+          <div className='detail-heading'>{translate('server.password.prompt')}</div>
           <div className='input-body'>
             {this.renderInput('password', 'password', refType)}
           </div>
         </div>
+        <div className='message-line'></div>
       </div>
     );
   }
 
   renderSmCreds() {
     return (
-      <div className='creds-category'>
-        <input
-          type='checkbox' value='sm'
-          checked={this.state.isSmChecked}
-          onChange={(e) => this.handleSmCheckBoxChange(e, 'sm')}/>
+      <div>
+        <input className='creds-category' type='checkbox' value='sm'
+          checked={this.state.isSmChecked} onChange={(e) => this.handleSmCheckBoxChange(e, 'sm')}/>
         {translate('server.sm')}
         {this.state.isSmChecked && this.renderCredsContent('sm')}
       </div>
@@ -354,10 +353,9 @@ class ConnectionCredsInfo extends Component {
 
   renderOvCreds() {
     return (
-      <div className='creds-category'>
-        <input
-          type='checkbox' value='ov' checked={this.state.isOvChecked}
-          onChange={(e) => this.handleOvCheckBoxChange(e, 'ov')}/>
+      <div>
+        <input className='creds-category' type='checkbox' value='ov'
+          checked={this.state.isOvChecked} onChange={(e) => this.handleOvCheckBoxChange(e, 'ov')}/>
         {translate('server.ov')}
         {this.state.isOvChecked && this.renderCredsContent('ov')}
       </div>
