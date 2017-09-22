@@ -938,16 +938,12 @@ class AssignServerRoles extends BaseWizardPage {
    * trigger server assignment to a role via drag and drop. parses the payload of a ServerRowItem drag event
    * and adds the represented server to the role specified
    *
-   * @param {event} event - the browser event for the drop action, should contain dataDef and data JSON objects per ServerRowItem.js
+   * @param {event} event - the browser event for the drop action, should contain a data JSON object per ServerRowItem.js
    * @param {string} role - the role to assign the server to
    */
   assignServerToRoleDnD(event, role){
-    let dataDef = JSON.parse(event.dataTransfer.getData("dataDef"));
-    let data = JSON.parse(event.dataTransfer.getData("data"));
-    let serverData = {};
-    dataDef.map(function(key, value){
-      serverData[key.name] = data[key.name];
-    });
+    let serverData = JSON.parse(event.dataTransfer.getData("data"));
+
     if(typeof serverData.role !== 'undefined' && serverData.role !== role){
       this.removeServerFromRole(serverData, serverData.role);
     }
@@ -955,24 +951,23 @@ class AssignServerRoles extends BaseWizardPage {
     if(typeof serverData.role === 'undefined' || serverData.role !== role) {
       this.assignServerToRole(serverData, role);
     }
+
+    this.unHighlightDrop(event, true);
   }
 
   /**
    * removes a server from a specified model role, parses the payload of a ServerRowItem drag event for data
    * and them removes the represented server to the role specified
    *
-   * @param {event} event - the browser event for the drop action, should contain dataDef and data JSON objects per ServerRowItem.js
+   * @param {event} event - the browser event for the drop action, should contain a data JSON object per ServerRowItem.js
    */
   removeServerFromRoleDnD(event){
-    let dataDef = JSON.parse(event.dataTransfer.getData("dataDef"));
-    let data = JSON.parse(event.dataTransfer.getData("data"));
-    let serverData = {};
-    dataDef.map(function(key, value){
-      serverData[key.name] = data[key.name];
-    });
+    let serverData = JSON.parse(event.dataTransfer.getData("data"));
     if(typeof serverData.role !== 'undefined'){
       this.removeServerFromRole(serverData, serverData.role);
     }
+
+    this.unHighlightDrop(event, true);
   }
 
   /**
@@ -1009,6 +1004,46 @@ class AssignServerRoles extends BaseWizardPage {
    */
   allowDrop(event, role){
     event.preventDefault();
+  }
+
+  /**
+   * adds an outline highlighting the dropzone for drag and drop server assignment
+   * stores the previous settings on the element to be restored later
+   *
+   * @param {event} event - the browser event from dragEnter
+   */
+  highlightDrop(event) {
+    let element = $(event.target);
+    if(!element.hasClass('server-dropzone')){
+      element = element.closest('.server-dropzone');
+    }
+    element.css('prevoutline', element.css('outline'));
+    element.css('prevmargin', element.css('margin'));
+    element.css('outline', '2px #00C081 dashed');
+    element.css('margin', '2px');
+  }
+
+  /**
+   * removes the outline around the current dropzone, checks the leave event position before deciding to remove
+   * the highlight to make sure its taking the outline off of the correct element. Can be forced to skip
+   * the position check with optional forceclear parameter
+   *
+   * @param {event} event - the browser event from dragLeave
+   * @param {boolean} forceclear (optional) - whether to forcibly remove the highlighting
+   */
+  unHighlightDrop(event, forceclear) {
+    let element = $(event.target);
+    if(!element.hasClass('server-dropzone')){
+      element = element.closest('.server-dropzone');
+    }
+    if(forceclear ||
+       element.offset().left > event.pageX ||
+       element.offset().left + element.width() < event.pageX ||
+       element.offset().top > event.pageY ||
+       element.offset().top + element.height() < event.pageY){
+      element.css('outline', element.css('prevoutline') || '');
+      element.css('margin', element.css('prevmargin') || '');
+    }
   }
 
   //update the model servers based on
@@ -1374,6 +1409,8 @@ class AssignServerRoles extends BaseWizardPage {
     return (
       <ServerRolesAccordion
         ondropFunct={this.assignServerToRoleDnD.bind(this)}
+        ondragEnterFunct={this.highlightDrop.bind(this)}
+        ondragLeaveFunct={this.unHighlightDrop.bind(this)}
         allowDropFunct={this.allowDrop.bind(this)}
         serverRoles={this.state.serverRoles}
         clickAction={this.handleClickRoleAccordion}
@@ -1389,11 +1426,13 @@ class AssignServerRoles extends BaseWizardPage {
   renderServerRoleContent() {
     return (
       <div className='assign-server-role body-container'>
-        <div className="server-container"
-          onDrop={(event) => this.removeServerFromRoleDnD(event)}
-          onDragOver={(event) => this.allowDrop(event, undefined)}>
+        <div className='server-container'>
           {this.renderSearchBar()}
-          <div className="server-table-container rounded-corner">
+          <div className="server-table-container rounded-corner server-dropzone"
+            onDrop={(event) => this.removeServerFromRoleDnD(event)}
+            onDragOver={(event) => this.allowDrop(event, undefined)}
+            onDragEnter={(event) => this.highlightDrop(event)}
+            onDragLeave={(event) => this.unHighlightDrop(event)}>
             {this.renderAvailableServersTabs()}
           </div>
         </div>
