@@ -42,6 +42,58 @@ class ActionButton extends Component {
   }
 }
 
+
+class LoadFileButton extends Component {
+
+  constructor(props) {
+    super(props);
+  }
+
+  // Trigger a click on the hidden button when the visible one is clicked.
+  // The real button (<input type="file">) is actually a single DOM element
+  // that shows both a button and a text field.  We want the text field, and
+  // the input is harder to style, so we will just use one of our own styled
+  // buttons and forward the events to the hidden control.
+  onClickShownButton = (e) => {
+    this.hiddenButton.click();
+  }
+
+  onFileSelected = (e) => {
+    const file = e.target.files[0];
+
+    // Reset the form, which clears out the filename from the hidden input.
+    // Without this, if you were to press the button again and re-load the
+    // same file, it would not trigger the input's onChange event, preventing
+    // the file from being reloaded
+    this.form.reset();
+
+    if (file) {
+      this.props.clickAction(file);
+    }
+  }
+
+  render() {
+    const hidden = { display: 'none' };
+    return (
+      <span>
+        <ActionButton
+          clickAction={this.onClickShownButton}
+          displayLabel={this.props.displayLabel}
+          isDisabled={this.props.isDisabled || false}
+          />
+        <form ref={(form) => { this.form = form; }} >
+          <input type="file"
+            onChange={this.onFileSelected}
+            accept={this.props.extensions || ".csv"}
+            ref={(input) => { this.hiddenButton = input; }}
+            style={hidden}
+          />
+        </form>
+      </span>
+    )
+  }
+}
+
 class PickerButton extends Component {
   constructor(props) {
     super(props);
@@ -179,6 +231,7 @@ module.exports = {
   PickerButton: PickerButton,
   ActivePickerButton: ActivePickerButton,
   ActionButton: ActionButton,
+  LoadFileButton: LoadFileButton,
   ItemHelpButton: ItemHelpButton,
   AssignButton: AssignButton,
   UnAssignButton: UnAssignButton,
