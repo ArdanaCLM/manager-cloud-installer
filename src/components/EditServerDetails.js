@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
 import { ActionButton } from './Buttons.js';
-import { ServerInput, ServerDropdown} from '../components/ServerUtils.js';
+import { ServerInputLine, ServerDropdownLine} from '../components/ServerUtils.js';
 import {
   IpV4AddressValidator, MacAddressValidator
 } from '../utils/InputValidators.js';
@@ -89,119 +89,58 @@ class EditServerDetails extends Component {
     }
   }
 
-  renderInput(name, type, isRequired, validate) {
-    if(validate) {
-      return (
-        <ServerInput
-          isRequired={isRequired} inputName={name} inputType={type}
-          inputValidate={validate} inputValue={this.data[name]}
-          inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
-        </ServerInput>
-      );
-    }
-    else {
-      return (
-        <ServerInput
-          isRequired={isRequired} inputName={name} inputType={type}
-          inputValue={this.data[name]} updateFormValidity={this.updateFormValidity}
-          inputAction={this.handleInputChange}>
-        </ServerInput>
-      );
-    }
+  renderInput(name, type, isRequired, title, validate) {
+    return (
+      <ServerInputLine
+        isRequired={isRequired} inputName={name} inputType={type} label={title}
+        inputValidate={validate} inputValue={this.data[name]}
+        inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}/>
+    );
   }
 
-  renderDropDown(name, list, handler) {
+  renderDropDown(name, list, handler, isRequired, title) {
+    let emptyOptProps = '';
     if(this.data[name] === '' || this.data[name] === undefined) {
-      let emptyOptProps = {
+      emptyOptProps = {
         label: translate('server.please.select'),
         value: 'noopt'
       };
-      return (
-        <ServerDropdown
-          value={this.data[name]}
-          optionList={list}
-          emptyOption={emptyOptProps}
-          selectAction={handler}>
-        </ServerDropdown>
-      );
     }
-    else {
-      return (
-        <ServerDropdown
-          value={this.data[name]}
-          optionList={list}
-          selectAction={handler}>
-        </ServerDropdown>
-      );
-    }
+    return (
+      <ServerDropdownLine label={title} value={this.data[name]} optionList={list}
+        isRequired={isRequired} emptyOption={emptyOptProps} selectAction={handler}/>
+    );
+  }
+
+  renderTextLine(title, value) {
+    return (
+      <div className='detail-line'>
+        <div className='detail-heading'>{translate(title)}</div>
+        <div className='info-body'>{value}</div>
+      </div>
+    );
   }
 
   renderServerContent() {
-    let groupTitle = translate('server.group.prompt') + '*';
-    let nicMappingTitle = translate('server.nicmapping.prompt') + '*';
-
     return (
       <div>
-      <div className='server-details-container'>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.id.prompt')}</div>
-          <div className='info-body'>{this.data.id}</div>
+        <div className='server-details-container'>
+          {this.renderTextLine('server.id.prompt', this.data.id)}
+          {this.renderTextLine('server.name.prompt', this.data.name)}
+          {this.renderTextLine('server.role.prompt', this.data.role)}
+          {this.renderInput('ip-addr', 'text', true, 'server.ip.prompt', IpV4AddressValidator)}
+          {this.renderDropDown('server-group', this.serverGroups, this.handleSelectGroup, true,
+            'server.group.prompt')}
+          {this.renderDropDown('nic-mapping', this.nicMappings, this.handleSelectNicMapping, true,
+            'server.nicmapping.prompt')}
         </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.name.prompt')}</div>
-          <div className='info-body'>{this.data.name}</div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.role.prompt')}</div>
-          <div className='info-body'>{this.data.role}</div>
-        </div>
-
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.ip.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('ip-addr', 'text', true, IpV4AddressValidator)}
-          </div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{groupTitle}</div>
-          <div className='input-body'>
-            {this.renderDropDown('server-group', this.serverGroups, this.handleSelectGroup)}
-          </div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{nicMappingTitle}</div>
-          <div className='input-body'>
-            {this.renderDropDown('nic-mapping', this.nicMappings, this.handleSelectNicMapping)}
-          </div>
-        </div>
-      </div>
         <div className='message-line'>{translate('server.ipmi.message')}</div>
-      <div className='server-details-container'>
-         <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.mac.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('mac-addr', 'text', false, MacAddressValidator)}
-          </div>
+        <div className='server-details-container'>
+          {this.renderInput('mac-addr', 'text', false, 'server.mac.prompt', MacAddressValidator)}
+          {this.renderInput('ilo-ip', 'text', false, 'server.ipmi.ip.prompt',IpV4AddressValidator)}
+          {this.renderInput('ilo-user', 'text', false, 'server.ipmi.username.prompt')}
+          {this.renderInput('ilo-password', 'password', false, 'server.ipmi.password.prompt')}
         </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.ipmi.ip.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('ilo-ip', 'text', false, IpV4AddressValidator)}
-          </div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.ipmi.username.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('ilo-user', 'text', false)}
-          </div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.ipmi.password.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('ilo-password', 'password', false)}
-          </div>
-        </div>
-      </div>
       </div>
     );
   }

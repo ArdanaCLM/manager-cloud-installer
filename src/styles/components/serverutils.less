@@ -60,17 +60,56 @@
   right: 0.5em;
 }
 
+.server-details-container {
+  .detail-line {
+    width: 100%;
+    margin-bottom: 0.7em;
+    display: flex;
+    .detail-heading {
+      width: 35%;
+      min-width: 10em;
+      display: inline-block;
+      text-align: right;
+      padding-right: 2em;
+    }
+    .info-body {
+      width: 80%;
+      min-width: 30em;
+      display: inline-block;
+      position: relative;
+      top: 0px;
+      margin-bottom: 0.6em;
+    }
+    .input-body {
+      width: 80%;
+      min-width: 30em;
+      display: inline-block;
+      position: relative;
+      top: -4px;
+    }
+  }
+
+  .server-detail-select select {
+    padding: 4px;
+    width: 80%;
+  }
+}
+
+.message-line {
+  line-height: 2em;
+  margin: 3em 0 1em 1em;
+}
+
 .server-input {
   .error-message {
     color:@errorcolor;
-    display: inline-block;
-    margin-left: 1em;
+    display: block;
   }
 }
 
 .server-input input {
   padding: 4px;
-  width: 40%;
+  width: 80%;
 }
 
 .sm-badge:before {

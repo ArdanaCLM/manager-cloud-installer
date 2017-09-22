@@ -74,6 +74,7 @@ class SelectServers extends BaseWizardPage {
           title={translate('provision.server.confirm.heading')}
           body={translate('provision.server.confirm.body', this.state.selectedServers.length)}
           yesAction={this.props.proceedAction} noAction={this.props.cancelAction}
+          onHide={this.props.cancelAction}
         />
       </div>
     );

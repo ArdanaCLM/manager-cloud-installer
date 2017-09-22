@@ -6,7 +6,7 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton, LoadFileButton } from '../components/Buttons.js';
 import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
-import { SearchBar, ServerRolesAccordion, ServerInput, ServerDropdown }
+import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine }
   from '../components/ServerUtils.js';
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
@@ -264,15 +264,10 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   renderInputLine = (required, title, name, type, validator) => {
-    let inputTitle = (required) ? translate(title) + '*' : translate(title);
     return (
-      <div className='detail-line'>
-        <div className='detail-heading'>{inputTitle}</div>
-        <div className='input-body'>
-          <ServerInput isRequired={required} inputName={name} inputType={type} inputValidate={validator}
-            inputAction={this.handleInputLine} inputValue={this.newServer[name]}/>
-        </div>
-      </div>
+      <ServerInputLine isRequired={required} label={title} inputName={name}
+        inputType={type} inputValidate={validator} inputAction={this.handleInputLine}
+        inputValue={this.newServer[name]}/>
     );
   }
 
@@ -295,16 +290,10 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  renderDropdownLine(required, title, name, list, handler) {
-    let inputTitle = (required) ? translate(title) + '*' : translate(title);
+  renderDropdownLine(required, title, name, list, handler, emptyOption) {
     return (
-      <div className='detail-line'>
-        <div className='detail-heading'>{inputTitle}</div>
-        <div className='input-body'>
-          <ServerDropdown name={name} value={this.newServer[name]} optionList={list}
-            selectAction={handler}/>
-        </div>
-      </div>
+      <ServerDropdownLine label={title} name={name} value={this.newServer[name]} optionList={list}
+        isRequired={required} selectAction={handler} emptyOption={emptyOption}/>
     );
   }
 
@@ -333,13 +322,11 @@ class AssignServerRoles extends BaseWizardPage {
 
     let serverRoles = this.state.serverRoles;
 
-    // if role is not None, add server to this.model and this.state.serverRoles
+    // if role is provided, add server to this.model and this.state.serverRoles
     // so that it will get displayed in the accordion table and saved to the input model
-    // TODO: Remove the check for server.none.prompt after enhancing ServerDropdown
-    //   to use the value '' when the display value is server.none.prompt
     let modelChanged = false;
     serverList.forEach(server => {
-      if (server.role !== translate('server.none.prompt').toString() && server.role) {
+      if (server.role) {
         this.model.inputModel.servers.push(server);
         modelChanged = true;
 
@@ -408,18 +395,12 @@ class AssignServerRoles extends BaseWizardPage {
     this.saveServersAddedManually([this.newServer]);
   }
 
-  getSmUrl(host, port) {
-    let url = 'https://' + host + ':' + (port <= 0 ? '8443' : port) + '/rpc/api';
-    return url;
-  }
-
   renderAddServerManuallyModal = () => {
     let body = '';
     if (this.state.serverRoles && this.serverGroups && this.nicMappings) {
       let roles = this.state.serverRoles.map((server) => {return server.serverRole});
-      roles.unshift(translate('server.none.prompt').toString());
       if (!this.newServer.role) {
-        this.newServer.role = roles[0];
+        this.newServer.role = '';
       }
       if (!this.newServer['server-group']) {
         this.newServer['server-group'] = this.serverGroups[0];
@@ -427,6 +408,10 @@ class AssignServerRoles extends BaseWizardPage {
       if (!this.newServer['nic-mapping']) {
         this.newServer['nic-mapping'] = this.nicMappings[0];
       }
+      let emptyOption = {
+        label: translate('server.none.prompt'),
+        value: ''
+      };
       body = (
         <div>
           <div className='server-details-container'>
@@ -437,7 +422,7 @@ class AssignServerRoles extends BaseWizardPage {
             {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
               this.nicMappings, this.handleSelectNicMapping)}
             {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
-              this.handleSelectRole)}
+              this.handleSelectRole, emptyOption)}
           </div>
           <div className='message-line'>{translate('server.ipmi.message')}</div>
           <div className='server-details-container'>
@@ -461,7 +446,8 @@ class AssignServerRoles extends BaseWizardPage {
     );
     return (
       <ConfirmModal show={this.state.showAddServerManuallyModal} title={translate('add.server.add')}
-        className={'manual-discover-modal'} body={body} footer={footer}/>
+        className={'manual-discover-modal'} onHide={this.cancelAddServerManuallyModal}
+        body={body} footer={footer}/>
     );
   }
 
@@ -515,6 +501,11 @@ class AssignServerRoles extends BaseWizardPage {
 
   handleCancelCredsInput = () => {
     this.setState({showCredsModal: false});
+  }
+
+  getSmUrl(host, port) {
+    let url = 'https://' + host + ':' + (port <= 0 ? '8443' : port) + '/rpc/api';
+    return url;
   }
 
   handleDoneCredsInput = (credsData) => {

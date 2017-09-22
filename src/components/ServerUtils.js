@@ -256,6 +256,24 @@ class ServerInput extends Component {
   }
 }
 
+class ServerInputLine extends Component {
+  render() {
+    let labelStr = translate(this.props.label).toString();
+    let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
+    return (
+      <div className='detail-line'>
+        <div className='detail-heading'>{label}</div>
+        <div className='input-body'>
+          <ServerInput isRequired={this.props.isRequired} inputName={this.props.inputName}
+            inputType={this.props.inputType} inputValidate={this.props.inputValidate}
+            inputAction={this.props.inputAction} inputValue={this.props.inputValue}
+            updateFormValidity={this.props.updateFormValidity} category={this.props.category}/>
+        </div>
+      </div>
+    );
+  }
+}
+
 class ServerDropdown extends Component {
   constructor(props) {
     super(props);
@@ -304,9 +322,28 @@ class ServerDropdown extends Component {
   }
 }
 
+class ServerDropdownLine extends Component {
+  render() {
+    let labelStr = translate(this.props.label).toString();
+    let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
+    return (
+      <div className='detail-line'>
+        <div className='detail-heading'>{label}</div>
+        <div className='input-body'>
+          <ServerDropdown name={this.props.name} value={this.props.value}
+            optionList={this.props.optionList} emptyOption={this.props.emptyOption}
+            selectAction={this.props.selectAction}/>
+        </div>
+      </div>
+    );
+  }
+}
+
 module.exports = {
   SearchBar: SearchBar,
   ServerRolesAccordion: ServerRolesAccordion,
   ServerInput: ServerInput,
-  ServerDropdown: ServerDropdown
+  ServerInputLine: ServerInputLine,
+  ServerDropdown: ServerDropdown,
+  ServerDropdownLine: ServerDropdownLine
 };
