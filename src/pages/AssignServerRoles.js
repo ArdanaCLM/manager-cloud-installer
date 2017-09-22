@@ -4,7 +4,7 @@ import Cookies from 'universal-cookie';
 import { Tabs, Tab } from 'react-bootstrap';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
-import { ActionButton } from '../components/Buttons.js';
+import { ActionButton, LoadFileButton } from '../components/Buttons.js';
 import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
 import { SearchBar, ServerRolesAccordion, ServerInput, ServerDropdown }
   from '../components/ServerUtils.js';
@@ -15,6 +15,7 @@ import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
 import ServerTable from '../components/ServerTable.js'
 import EditServerDetails from '../components/EditServerDetails.js'
+import { importCSV } from '../utils/CsvImporter.js';
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
@@ -83,9 +84,6 @@ class AssignServerRoles extends BaseWizardPage {
       validAddServerManuallyForm: false,
       serversAddedManually: [],
 
-      // show Add Server From CSV modal
-      showAddFromCSVModal: false,
-
       //when loading data or saving data
       loading: false,
       //show error message
@@ -98,8 +96,6 @@ class AssignServerRoles extends BaseWizardPage {
       rawDiscoveredServers: [],
       accordionDisplayPosition: 0
     };
-
-    this.handleAddServerFromCSV = this.handleAddServerFromCSV.bind(this);
   }
 
   refreshServers(rawServerData) {
@@ -333,25 +329,37 @@ class AssignServerRoles extends BaseWizardPage {
     this.closeAddServerManuallyModal();
   }
 
-  saveServerAddedManually = () => {
-    // save this.newServer before it gets wiped later, to prevent race condition
-    let server = Object.assign({}, this.newServer);
+  saveServersAddedManually = (serverList) => {
+
+    let serverRoles = this.state.serverRoles;
 
     // if role is not None, add server to this.model and this.state.serverRoles
     // so that it will get displayed in the accordion table and saved to the input model
-    if (server.role !== translate('server.none.prompt').toString()) {
-      this.model.inputModel.servers.push(server);
-      let serverRoles = this.state.serverRoles;
-      serverRoles.forEach((roleObj) => {
-        if (roleObj.serverRole === server.role) {
-          roleObj.servers.push(server);
-        }
-      });
+    // TODO: Remove the check for server.none.prompt after enhancing ServerDropdown
+    //   to use the value '' when the display value is server.none.prompt
+    let modelChanged = false;
+    serverList.forEach(server => {
+      if (server.role !== translate('server.none.prompt').toString() && server.role) {
+        this.model.inputModel.servers.push(server);
+        modelChanged = true;
+
+        // TODO: Modifying state directly is unsafe and should be rewritten
+        serverRoles.forEach((roleObj) => {
+          if (roleObj.serverRole === server.role) {
+            roleObj.servers.push(server);
+          }
+        });
+      }
+    });
+
+    if (modelChanged) {
       this.setState((prevState) => {
         serverRoles: serverRoles
       });
+
       this.saveModelObjectData()
-        .then((response) => {})
+        .then((response) => {
+        })
         .catch((error) => {
           let msg = translate('server.model.save.error');
           this.setErrorMessageContent(msg, error.toString());
@@ -359,19 +367,19 @@ class AssignServerRoles extends BaseWizardPage {
         });
     }
 
-    // add server to the left table and the server API
-    this.setState((prevState) => {
-      return {serversAddedManually: prevState.serversAddedManually.concat([server])};
-    });
     fetch(getAppConfig('shimurl') + '/api/v1/server', {
       method: 'POST',
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify([server])
-      })
-    this.resetAddServerManuallyModal();
+      body: JSON.stringify(serverList)
+    })
+
+    // add server to the left table and the server API
+    this.setState((prevState) => {
+      return {serversAddedManually: prevState.serversAddedManually.concat(serverList)};
+    }, this.resetAddServerManuallyModal);
   }
 
   resetAddServerManuallyModal = () => {
@@ -392,12 +400,12 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   addOneServer = () => {
-    this.saveServerAddedManually();
+    this.saveServersAddedManually([this.newServer]);
     this.closeAddServerManuallyModal();
   }
 
   addMoreServer = () => {
-    this.saveServerAddedManually();
+    this.saveServersAddedManually([this.newServer]);
   }
 
   getSmUrl(host, port) {
@@ -465,8 +473,34 @@ class AssignServerRoles extends BaseWizardPage {
     });
   }
 
-  handleAddServerFromCSV() {
-    //TODO
+  handleAddServerFromCSV = file => {
+    const restrictions = {
+      'server-role': this.state.serverRoles.map(e => e['serverRole']),
+      'server-groups': this.serverGroups,
+      'nic-mappings' : this.nicMappings
+    };
+
+    importCSV(file, restrictions, results => {
+      // TODO: Display errors that may exists in results.errors
+      for (let server of results.data) {
+        server['source'] = 'manual';
+        server['id'] = server['id'] || server['name'];
+      }
+      this.saveServersAddedManually(results.data);
+
+      if (results.errors.length > 0) {
+        const MAX_LINES = 5;
+
+        let details = results.errors.slice(0, MAX_LINES);
+        if (results.errors.length > MAX_LINES) {
+          details.push("...");
+        }
+
+        let msg = translate('csv.import.error');
+        this.setErrorMessageContent(msg, details);
+        this.setState({showError: true});
+      }
+    });
   }
 
   handleConfDiscovery = () => {
@@ -1242,12 +1276,14 @@ class AssignServerRoles extends BaseWizardPage {
         </div>
       );
     } else {
+      // When there are no servers yet discovered, the tab shows just
+      // two buttons instead of content
       return (
         <div className='btn-row centered'>
           <ActionButton
             clickAction={this.handleAddServerManually}
             displayLabel={translate('add.server.add')}/>
-          <ActionButton
+          <LoadFileButton
             clickAction={this.handleAddServerFromCSV}
             displayLabel={translate('add.server.add.csv')}/>
         </div>
@@ -1296,7 +1332,7 @@ class AssignServerRoles extends BaseWizardPage {
               <ActionButton
                 clickAction={this.handleAddServerManually}
                 displayLabel={translate('add.server.add')}/>
-              <ActionButton
+              <LoadFileButton
                 clickAction={this.handleAddServerFromCSV}
                 displayLabel={translate('add.server.add.csv')}/>
             </div>

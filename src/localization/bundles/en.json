@@ -67,6 +67,7 @@
     "add.server.manual.add": "Manual Discover",
     "add.server.add": "Add Server",
     "add.server.add.csv": "Import From CSV",
+    "csv.import.error": "CSV import error",
     "add.server.discover": "Discover",
     "add.server.conf.discover": "Configure",
     "add.server.role.min.count.display": "{0} ({1} Total: {2} / Min Size: {3})",

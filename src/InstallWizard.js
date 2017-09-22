@@ -44,6 +44,9 @@ class InstallWizard extends Component {
     // Indicate which of the state variables will be persisted to, and loaded from, the progress API
     this.persistedStateVars = ['currentStep', 'steps', 'selectedModelName', 'sitePlayId']
 
+    // Note: if no progress data can be found, responseData is an empty string
+    const forcedReset = window.location.search.indexOf('reset=true') !== -1;
+
     // Load the current state information from the backend
 
     // To simulate a delay in startup and to be able to see the initial loading mask,
@@ -54,9 +57,6 @@ class InstallWizard extends Component {
       .then(response => response.json())
       .then((responseData) =>
       {
-        // Note: if no progress data can be found, responseData is an empty string
-        const forcedReset = window.location.search.indexOf('reset=true') !== -1;
-
         if (! forcedReset && responseData.steps && this.areStepsInOrder(responseData.steps, this.props.pages)) {
           this.setState(responseData);
         } else {
@@ -77,6 +77,12 @@ class InstallWizard extends Component {
     .catch((error) => {
         this.setState({currentStep: 0}, this.persistState);
     });
+
+    if (forcedReset) {
+      fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov,manual', {
+        method: 'DELETE'
+      })
+    }
   }
 
   /**
