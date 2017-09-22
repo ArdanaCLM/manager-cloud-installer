@@ -21,5 +21,8 @@ for (i = 0; i < window.navigator.languages.length; i++) {
 }
 
 export function translate(key, ...args) {
-  return strings.formatString(strings[key], ...args);
+  // Note!
+  // For some bizarre reason, strings.formatString returns an array of strings rather than a single string.
+  // The join() corrects this by joining the elements into a signle string.
+  return strings.formatString(strings[key], ...args).join('');
 }
