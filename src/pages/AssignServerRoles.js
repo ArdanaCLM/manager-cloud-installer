@@ -429,23 +429,23 @@ class AssignServerRoles extends BaseWizardPage {
       }
       body = (
         <div>
-        <div className='server-details-container'>
-          {this.renderInputLine(true, 'server.name.prompt', 'name', 'text')}
-          {this.renderInputLine(true, 'server.ip.prompt', 'ip-addr', 'text', IpV4AddressValidator)}
-          {this.renderDropdownLine(true, 'server.group.prompt', 'server-group',
-            this.serverGroups, this.handleSelectGroup)}
-          {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
-            this.nicMappings, this.handleSelectNicMapping)}
-          {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
-            this.handleSelectRole)}
-        </div>
-        <div className='message-line'>{translate('server.ipmi.message')}</div>
-        <div className='server-details-container'>
-          {this.renderInputLine(false, 'server.mac.prompt', 'mac-addr', 'text', MacAddressValidator)}
-          {this.renderInputLine(false, 'server.ipmi.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
-          {this.renderInputLine(false, 'server.ipmi.username.prompt', 'ilo-user', 'text')}
-          {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ilo-password', 'text')}
-        </div>
+          <div className='server-details-container'>
+            {this.renderInputLine(true, 'server.name.prompt', 'name', 'text')}
+            {this.renderInputLine(true, 'server.ip.prompt', 'ip-addr', 'text', IpV4AddressValidator)}
+            {this.renderDropdownLine(true, 'server.group.prompt', 'server-group',
+              this.serverGroups, this.handleSelectGroup)}
+            {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
+              this.nicMappings, this.handleSelectNicMapping)}
+            {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
+              this.handleSelectRole)}
+          </div>
+          <div className='message-line'>{translate('server.ipmi.message')}</div>
+          <div className='server-details-container'>
+            {this.renderInputLine(false, 'server.mac.prompt', 'mac-addr', 'text', MacAddressValidator)}
+            {this.renderInputLine(false, 'server.ipmi.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
+            {this.renderInputLine(false, 'server.ipmi.username.prompt', 'ilo-user', 'text')}
+            {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ilo-password', 'password')}
+          </div>
         </div>
       );
     }
