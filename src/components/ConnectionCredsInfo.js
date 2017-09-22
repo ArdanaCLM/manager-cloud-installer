@@ -8,10 +8,14 @@ import {
 } from '../utils/InputValidators.js';
 import { ErrorMessage, SuccessMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
+import { isEmpty } from 'lodash';
 
 const UNKNOWN = -1;
 const VALID = 1;
 const INVALID = 0;
+
+const ERROR_MSG = 0;
+const SUCCESS_MSG = 1;
 
 class ConnectionCredsInfo extends Component {
   constructor(props) {
@@ -32,17 +36,16 @@ class ConnectionCredsInfo extends Component {
         'port': UNKNOWN
       }
     };
-    this.errorContent = undefined;
-    this.successContent = undefined;
 
     this.state = {
       isOvChecked: false,
       isSmChecked: false,
       smTestStatus: UNKNOWN,
       ovTestStatus: UNKNOWN,
-      showError: false,
-      showSuccess: false,
-      loading: false
+      loading: false,
+
+      messages: [],
+      messageType: ERROR_MSG,
     };
   }
 
@@ -119,9 +122,9 @@ class ConnectionCredsInfo extends Component {
     return (
       !this.isFormValid() ||
       (this.state.isSmChecked &&
-       this.state.smTestStatus <= 0) ||
+       this.state.smTestStatus <= 0) ||   // TODO: Avoid using arithmetic on enumerated constants
       (this.state.isOvChecked &&
-      this.state.ovTestStatus <= 0) ||
+      this.state.ovTestStatus <= 0) ||    // TODO: Avoid using arithmetic on enumerated constants
       (!this.state.isSmChecked && !this.state.isOvChecked)
     );
   }
@@ -149,15 +152,15 @@ class ConnectionCredsInfo extends Component {
         .then((tokenKey) => {
           resolve(tokenKey);
           this.data.sm.sessionKey = tokenKey;
-          this.setState({smTestStatus: VALID});
           let hostport = this.data.sm.creds.host +
             (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
           let msg = translate('server.test.sm.success', hostport);
-          let msgContent = {messages: msg.join(' ')};
-          if (this.successContent !== undefined) {
-            msgContent.messages = msgContent.messages.concat(this.successContent.messages);
-          }
-          this.successContent = msgContent;
+
+          this.setState(prev => { return {
+            messages: prev.messages.concat(msg),
+            messageType: SUCCESS_MSG,
+            smTestStatus: VALID
+          }});
         })
         .catch((error) => {
           let msg = translate('server.test.sm.error');
@@ -165,20 +168,16 @@ class ConnectionCredsInfo extends Component {
             let hostport = this.data.sm.creds.host +
               (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
             msg = translate('server.test.sm.error.hostport', hostport);
-            msg = msg.join(' ');
           }
           else if(error.message === '403') {
             msg = translate('server.test.sm.error.userpass', this.data.sm.creds.username);
-            msg = msg.join(' ');
           }
 
-          let msgContent = {messages: msg};
-
-          if (this.errorContent !== undefined) {
-            msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
-          }
-          this.errorContent = msgContent;
-          this.setState({smTestStatus: INVALID});
+          this.setState(prev => { return {
+            messages: prev.messages.concat(msg),
+            messageType: ERROR_MSG,
+            smTestStatus: INVALID
+          }});
           reject(error);
         })
     });
@@ -186,11 +185,13 @@ class ConnectionCredsInfo extends Component {
   }
 
   handleTest = () => {
-    this.setState({showError: false});
-    this.errorContent = undefined;
+    this.setState({
+      messages: [],
+      loading: true
+    });
+
     let promises = [];
     if(this.state.isSmChecked) {
-      this.setState({loading: true});
       promises.push(this.testSm())
     }
 
@@ -201,10 +202,10 @@ class ConnectionCredsInfo extends Component {
 
     this.doAllTest(promises)
       .then((tokenKeys) => {
-        this.setState({loading: false, showSuccess: true});
+        this.setState({loading: false});
       })
       .catch((error) => {
-        this.setState({loading: false, showError: true});
+        this.setState({loading: false});
       })
   }
 
@@ -245,32 +246,31 @@ class ConnectionCredsInfo extends Component {
     this.setState({isOvChecked: !this.state.isOvChecked});
   }
 
-  handleCloseErrorMessageAction = () => {
-    this.setState({showError: false});
-    this.errorContent = undefined;
+  handleCloseMessage = () => {
+    this.setState({
+      messages: [],
+      messageType: ERROR_MSG
+    });
   }
 
-  handleCloseSuccessMessageAction = () => {
-    this.setState({showSuccess: false});
-    this.successContent = undefined;
-  }
-
-  renderErrorMessage() {
-    return (
-      <ErrorMessage
-        closeAction={this.handleCloseErrorMessageAction}
-        show={this.state.showError} content={this.errorContent}>
-      </ErrorMessage>
-    );
-  }
-
-  renderSuccessMessage() {
-    return (
-      <SuccessMessage
-        closeAction={this.handleCloseSuccessMessageAction}
-        show={this.state.showSuccess} content={this.successContent}>
-      </SuccessMessage>
-    );
+  renderMessage() {
+    if (! isEmpty(this.state.messages)) {
+      if (this.state.messageType == ERROR_MSG) {
+        return (
+          <ErrorMessage
+            closeAction={this.handleCloseMessage}
+            message={this.state.messages}>
+          </ErrorMessage>
+        );
+      } else {
+        return (
+          <SuccessMessage
+            closeAction={this.handleCloseMessage}
+            message={this.state.messages}>
+          </SuccessMessage>
+        );
+      }
+    }
   }
 
   renderLoadingMask() {
@@ -285,7 +285,7 @@ class ConnectionCredsInfo extends Component {
         <ServerInput
           isRequired={true} inputName={name} inputType={type}
           inputValidate={validate} category={category}
-          inputValue={this.data[category]['creds'][name]}
+          inputValue={this.data[category]['creds'][name] || ''}
           inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
         </ServerInput>
       );
@@ -301,7 +301,7 @@ class ConnectionCredsInfo extends Component {
       return (
         <ServerInput
           isRequired={required} inputName={name} inputType={type} {...props}
-          category={category} inputValue={this.data[category]['creds'][name]}
+          category={category} inputValue={this.data[category]['creds'][name] || ''}
           inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
         </ServerInput>
       );
@@ -384,8 +384,7 @@ class ConnectionCredsInfo extends Component {
         {this.renderOvCreds()}
         {this.renderFooter()}
         {this.renderLoadingMask()}
-        {this.renderErrorMessage()}
-        {this.renderSuccessMessage()}
+        {this.renderMessage()}
       </div>
     );
   }
