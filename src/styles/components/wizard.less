@@ -42,14 +42,21 @@
 }
 
 .wizard-header {
-  margin: 2em 0 4em;
-  padding: 0 2em;
+  margin: 0px;
+  padding: 0px 2em;
+  height: 80px;
+}
+
+.wizard-page{
+  height: 100%;
 }
 
 .wizard-content {
-  margin: 3em;
+  margin: 20px;
   .heading {
     margin: 0 0 1.5em;
+    margin-bottom: 10px;
   }
+  height: calc(~"100vh - 195px");//subtract the height of the footer & header
+  overflow-y: auto;
 }
-

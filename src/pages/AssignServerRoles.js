@@ -1015,8 +1015,8 @@ class AssignServerRoles extends BaseWizardPage {
     if(forceclear ||
        element.offset().left > event.pageX ||
        element.offset().left + element.width() < event.pageX ||
-       element.offset().top > event.pageY ||
-       element.offset().top + element.height() < event.pageY){
+       element.offset().top >= event.pageY ||
+       element.offset().top + element.height() <= event.pageY){
       element.css('outline', element.css('prevoutline') || '');
       element.css('margin', element.css('prevmargin') || '');
     }
@@ -1450,15 +1450,17 @@ class AssignServerRoles extends BaseWizardPage {
 
   render() {
     return (
-      <div id='AssignServerRoleId' className='wizard-content'>
-        {this.renderHeading(translate('add.server.heading', this.selectedModelName))}
-        {this.renderServerRoleContent()}
-        {this.renderNavButtons()}
-        {this.renderCredsInputModal()}
-        {this.renderAddServerManuallyModal()}
-        {this.renderEditServerDetailsModal()}
-        {this.renderLoadingMask()}
-        {this.renderErrorMessage()}
+      <div className='wizard-page'>
+        <div id='AssignServerRoleId' className='wizard-content'>
+          {this.renderHeading(translate('add.server.heading', this.selectedModelName))}
+          {this.renderServerRoleContent()}
+          {this.renderCredsInputModal()}
+          {this.renderAddServerManuallyModal()}
+          {this.renderEditServerDetailsModal()}
+          {this.renderLoadingMask()}
+          {this.renderErrorMessage()}
+        </div>
+      {this.renderNavButtons()}
       </div>
     );
   }

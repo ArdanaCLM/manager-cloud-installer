@@ -32,8 +32,12 @@ class SelectServers extends BaseWizardPage {
       });
   }
 
-  setNextButtonDisabled() {
-    return this.state.selectedServers.length !== 0;
+  //since the parent controls the next/back buttons, update it when the state changes
+  componentDidUpdate(prevProps, prevState){
+    if(this.state.selectedServers.length !== prevState.selectedServers.length) {
+      //if there are servers to install, there is an "activeSelection"
+      this.props.hasActiveSelection(this.state.selectedServers.length !== 0);
+    }
   }
 
   getSelectedServers(servers) {
@@ -69,7 +73,6 @@ class SelectServers extends BaseWizardPage {
             displayLabel={translate('provision.server.install')} clickAction={this.installServers}
             isDisabled={this.state.selectedServers.length == 0}/>
         </div>
-        {this.renderNavButtons()}
         <YesNoModal show={this.props.showModal}
           title={translate('provision.server.confirm.heading')}
           body={translate('provision.server.confirm.body', this.state.selectedServers.length)}
@@ -86,13 +89,16 @@ class ShowInstallProgress extends BaseWizardPage {
   constructor() {
     super();
     this.state = {
-      installComplete: false,
       currentStep: 0,
       currentProgress: -1,
       errorMsg: ''
     };
 
     this.getProgress = this.getProgress.bind(this);
+  }
+
+  componentWillMount(){
+    this.props.setInstallState(false);
   }
 
   progressing() {
@@ -104,7 +110,8 @@ class ShowInstallProgress extends BaseWizardPage {
       this.setState({errorMsg: 'something is wrong here, please do something'});
     }
     if (this.state.currentProgress == (this.props.installList.length * 2) - 1) {
-      this.setState({errorMsg: '', installComplete: true});
+      this.setState({errorMsg: ''});
+      this.props.setInstallState(true);
     }
   }
 
@@ -140,10 +147,6 @@ class ShowInstallProgress extends BaseWizardPage {
     }));
   }
 
-  setNextButtonDisabled() {
-    return !this.state.installComplete;
-  }
-
   render() {
     return (
       <div>
@@ -163,20 +166,21 @@ class ShowInstallProgress extends BaseWizardPage {
             displayLabel='progress'
             clickAction={() => this.progressing()}/>
         </div>
-        {this.renderNavButtons()}
       </div>
     );
   }
 }
 
 
-class SelectServersToProvision extends Component {
+class SelectServersToProvision extends BaseWizardPage {
   constructor() {
     super();
     this.state = {
       installing: false,
       selectedServers: [],
-      showModal: false
+      showModal: false,
+      installComplete: false,
+      serversSelectedButNotInstalled: false
     };
 
     this.getSelectedServers = this.getSelectedServers.bind(this);
@@ -202,32 +206,54 @@ class SelectServersToProvision extends Component {
     this.setState({showModal: false});
   }
 
+  setInstallCompleteState(isComplete){
+    this.setState({installComplete: isComplete});
+  }
+
+  setServersSelectedButNotInstalledState(serversSelected){
+    this.setState({serversSelectedButNotInstalled: serversSelected});
+  }
+
+  setNextButtonDisabled() {
+    let disabled = false;
+    if(this.state.installing && !this.state.installComplete){
+      disabled = true;
+    } else if (!this.state.installing && this.state.serversSelectedButNotInstalled){
+      disabled = true;
+    }
+    return disabled;
+  }
+
   renderBody() {
     if (!this.state.installing) {
       return (
         <SelectServers
-          back={this.props.back}
-          next={this.props.next}
+          ref='selectServers'
           sendSelectedList={this.getSelectedServers}
           filterName={this.getServerNames}
           showModal={this.state.showModal}
           proceedAction={this.proceedToInstall}
           cancelAction={this.cancelInstall}
+          hasActiveSelection={this.setServersSelectedButNotInstalledState.bind(this)}
         />);
     } else {
       return (
         <ShowInstallProgress
-          next={this.props.next}
+          ref='showInstallProgress'
           installList={this.state.selectedServers}
           filterName={this.getServerNames}
+          setInstallState={this.setInstallCompleteState.bind(this)}
         />);
     }
   }
 
   render() {
     return (
-      <div className='wizard-content'>
-        {this.renderBody()}
+      <div className='wizard-page'>
+        <div className='wizard-content'>
+          {this.renderBody()}
+        </div>
+        {this.renderNavButtons()}
       </div>
     );
   }

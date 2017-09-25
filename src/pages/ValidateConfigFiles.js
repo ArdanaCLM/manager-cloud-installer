@@ -121,26 +121,28 @@ class DisplayFileList extends BaseWizardPage {
     });
 
     return (
-      <div>
-        {this.renderHeading(translate('validate.config.files.heading'))}
-        <div className='validate-config-files'>
-          <div className='body'>
-            <div className='col-xs-6 verticalLine'>
-              <ul>{list}</ul>
+      <div className='wizard-page'>
+        <div className='wizard-content'>
+          {this.renderHeading(translate('validate.config.files.heading'))}
+          <div className='validate-config-files'>
+            <div className='body'>
+              <div className='col-xs-6 verticalLine'>
+                <ul>{list}</ul>
+              </div>
+              <div className='col-xs-6'>
+                {this.getMessage()}
+              </div>
             </div>
-            <div className='col-xs-6'>
-              {this.getMessage()}
+            <div>
+              <ActionButton
+                className='button-with-icon'
+                displayLabel={translate('validate.config.files.validate')}
+                clickAction={() => this.props.onValidateClick()}/>
+              {this.getIcon()}
             </div>
           </div>
-          <div>
-            <ActionButton
-              className='button-with-icon'
-              displayLabel={translate('validate.config.files.validate')}
-              clickAction={() => this.props.onValidateClick()}/>
-            {this.getIcon()}
-          </div>
-          {this.renderNavButtons()}
         </div>
+        {this.renderNavButtons()}
       </div>
     );
   }
@@ -239,7 +241,7 @@ class ValidateConfigFiles extends Component {
 
   render() {
     return (
-      <div className='wizard-content'>
+      <div>
         {this.renderBody()}
       </div>
     );
