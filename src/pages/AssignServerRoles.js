@@ -71,8 +71,6 @@ class AssignServerRoles extends BaseWizardPage {
       displayAssignedServers: [],
       //when move servers the filter text could be cleared
       searchFilterText: '',
-      //turn on/off next
-      pageValid: false,
       //what tab key selected
       selectedServerTabKey: AUTODISCOVER_TAB,
       //show or not credentials modal
@@ -117,7 +115,6 @@ class AssignServerRoles extends BaseWizardPage {
       //this will parse model and
       //consolidate availableServers and assignedServers
       this.getServerRoles(this.model, rawServerData);
-      this.validateServerRoleAssignment();
     }
     else {
       //don't have model for some reason
@@ -594,8 +591,6 @@ class AssignServerRoles extends BaseWizardPage {
       showEditServerDetailsModal: false
     });
     this.activeRowData = undefined;
-
-    this.validateServerRoleAssignment();
   }
 
   handleCancelEditServerDetailsInput = (editData) => {
@@ -603,8 +598,6 @@ class AssignServerRoles extends BaseWizardPage {
       showEditServerDetailsModal: false
     });
     this.activeRowData = undefined;
-
-    this.validateServerRoleAssignment();
   }
 
   handleClickRoleAccordion = (idx, role) => {
@@ -672,13 +665,10 @@ class AssignServerRoles extends BaseWizardPage {
         this.getServerGroups(modelData);
         this.getNicMappings(modelData);
         this.getServerRoles(modelData, rawServerData);
-        this.validateServerRoleAssignment();
       })
       .catch((error) => {
         let msg = translate('server.model.get.error');
         this.setErrorMessageContent(msg, error.toString());
-        //no model, disable next button
-        this.setState({pageValid : false});
       });
   }
 
@@ -898,7 +888,6 @@ class AssignServerRoles extends BaseWizardPage {
   updateAndSaveDataModel() {
     this.updateModelWithServerRoles();
     this.saveModelObjectData();
-    this.validateServerRoleAssignment();
   }
 
   /**
@@ -1143,45 +1132,23 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   //check if we have enough servers roles for the model
-  validateServerRoleAssignment() {
-    let valid = true;
-    this.state.serverRoles.forEach((role) => {
+  isValid = () => {
+    return this.state.serverRoles.every(role => {
       let minCount =  role.minCount;
       let memberCount = role.memberCount;
       let svrSize = role.servers.length;
-      if (memberCount && svrSize !== memberCount && memberCount !== 0) {
-        valid = false;
+      if (memberCount && svrSize !== memberCount) {
+        return false;
       }
-      if(valid) {
-        if(minCount && svrSize < minCount && minCount !== 0) {
-          valid = false;
-        }
+      if(minCount && svrSize < minCount) {
+        return false;
       }
-      //continue check if all server has enough inputs
-      if(valid) {
-        for (let idx in role.servers) {
-          let server = role.servers[idx];
-          let badInputs = this.checkInputKeys.find((key) => {
-            return (server[key] === undefined || server[key] === '');
-          });
-          if(badInputs) {
-            valid = false;
-            break;
-          }
-        }
-      }
+      // verify that each server objecdt in role.servers has all of the required keys
+      return role.servers.every(server => this.checkInputKeys.every(key => key in server))
     });
-    if (!valid) {
-      this.setState({pageValid: false});
-    }
-    else {
-      this.setState({pageValid: true});
-    }
   }
 
-  setNextButtonDisabled() {
-    return !this.state.pageValid;
-  }
+  setNextButtonDisabled = () => !this.isValid();
 
   doSave() {
     this.updateModelWithServerRoles();
