@@ -1015,8 +1015,8 @@ class AssignServerRoles extends BaseWizardPage {
     if(forceclear ||
        element.offset().left > event.pageX ||
        element.offset().left + element.width() < event.pageX ||
-       element.offset().top > event.pageY ||
-       element.offset().top + element.height() < event.pageY){
+       element.offset().top >= event.pageY ||
+       element.offset().top + element.height() <= event.pageY){
       element.css('outline', element.css('prevoutline') || '');
       element.css('margin', element.css('prevmargin') || '');
     }
