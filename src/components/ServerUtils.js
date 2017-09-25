@@ -114,7 +114,7 @@ class ServerRolesAccordion extends Component {
           key={role.name}>
           <Collapsible
             open={isOpen}
-            trigger={optionDisplay.join(' ')} key={role.name}
+            trigger={optionDisplay} key={role.name}
             handleTriggerClick={() => this.handleTriggerClick(idx, role)}
             value={role.serverRole}>
             {isOpen && this.renderAccordionServerTable()}
@@ -258,7 +258,7 @@ class ServerInput extends Component {
 
 class ServerInputLine extends Component {
   render() {
-    let labelStr = translate(this.props.label).toString();
+    let labelStr = translate(this.props.label);
     let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
     return (
       <div className='detail-line'>
@@ -324,7 +324,7 @@ class ServerDropdown extends Component {
 
 class ServerDropdownLine extends Component {
   render() {
-    let labelStr = translate(this.props.label).toString();
+    let labelStr = translate(this.props.label);
     let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
     return (
       <div className='detail-line'>
