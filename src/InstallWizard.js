@@ -234,7 +234,7 @@ class InstallWizard extends Component {
           <h1>{translate('openstack.cloud.deployer.title')}</h1>
           <WizardProgress steps={this.state.steps} />
         </div>
-        <div>
+        <div className='wizard-content-container'>
           <LoadingMask show={this.state.currentStep === undefined}></LoadingMask>
           {this.buildElement()}
         </div>

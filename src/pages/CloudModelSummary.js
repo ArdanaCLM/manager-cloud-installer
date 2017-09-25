@@ -164,9 +164,10 @@ class CloudModelSummary extends BaseWizardPage {
       <div><h4>{translate('model.summary.additional')}</h4></div> : <div/>
 
     return (
-      <div className='wizard-content'>
-        {this.renderHeading(translate('model.summary.heading', this.props.selectedModelName))}
-          <div className='picker-container'>
+      <div className='wizard-page'>
+        <div className='wizard-content'>
+          {this.renderHeading(translate('model.summary.heading', this.props.selectedModelName))}
+          <div className='picker-container altwidth1'>
               <h4>{translate('model.summary.mandatory')}</h4>
               <div className='section'>
                 {mandatoryItems}
@@ -176,7 +177,7 @@ class CloudModelSummary extends BaseWizardPage {
                 {additionalItems}
               </div>
           </div>
-          <div className='details-container'>
+          <div className='details-container altwidth1'>
             {this.getDescription()}
             <p />
             {this.state.activeItem
@@ -191,6 +192,7 @@ class CloudModelSummary extends BaseWizardPage {
             : <div />
             }
           </div>
+        </div>
         {this.renderNavButtons()}
       </div>
     )

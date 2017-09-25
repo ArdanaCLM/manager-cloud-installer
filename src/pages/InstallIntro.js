@@ -14,17 +14,19 @@ class InstallIntro extends BaseWizardPage {
 
   render() {
     return (
-      <div className='wizard-content'>
-        {this.renderHeading(translate('welcome.cloud.install'))}
-        <div className='installIntro'>
-          <div className='col-xs-7'>
-            <div className='topLine'>{translate('install.intro.message.body1')}</div>
-            <div>{translate('install.intro.message.body2')}</div>
-          </div>
-          <div className='col-xs-1'></div>
-          <div className='col-xs-4'>
-            <h5>{translate('install.intro.message.steps.heading')}</h5>
-            {this.getSteps()}
+      <div className='wizard-page'>
+        <div className='wizard-content'>
+          {this.renderHeading(translate('welcome.cloud.install'))}
+          <div className='installIntro'>
+            <div className='col-xs-7'>
+              <div className='topLine'>{translate('install.intro.message.body1')}</div>
+              <div>{translate('install.intro.message.body2')}</div>
+            </div>
+            <div className='col-xs-1'></div>
+            <div className='col-xs-4'>
+              <h5>{translate('install.intro.message.steps.heading')}</h5>
+              {this.getSteps()}
+            </div>
           </div>
         </div>
         {this.renderNavButtons()}

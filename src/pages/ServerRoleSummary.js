@@ -52,9 +52,11 @@ class ServerRoleSummary extends BaseWizardPage {
 
   render() {
     return (
-      <div className='wizard-content'>
-        {this.renderHeading(translate('server.role.summary.heading'))}
-        <CollapsibleTable showExpandAllButton data={this.state.serverObjects}/>
+      <div className='wizard-page'>
+        <div className='wizard-content'>
+          {this.renderHeading(translate('server.role.summary.heading'))}
+          <CollapsibleTable showExpandAllButton data={this.state.serverObjects}/>
+        </div>
         {this.renderNavButtons()}
       </div>
     );

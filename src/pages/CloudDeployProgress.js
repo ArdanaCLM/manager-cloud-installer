@@ -288,19 +288,21 @@ class CloudDeployProgress extends BaseWizardPage {
 
   render() {
     return (
-      <div className='wizard-content'>
-        {this.renderHeading(translate('deploy.progress.heading'))}
-        <div className='deploy-progress'>
-          <div className='progress-body'>
-            <div className='col-xs-4'>
-              <ul>{this.getProgress()}</ul>
-              {this.getError()}
-              <div>
-                {this.renderLogButton()}
+      <div className='wizard-page'>
+        <div className='wizard-content'>
+          {this.renderHeading(translate('deploy.progress.heading'))}
+          <div className='deploy-progress'>
+            <div className='progress-body'>
+              <div className='col-xs-4'>
+                <ul>{this.getProgress()}</ul>
+                {this.getError()}
+                <div>
+                  {this.renderLogButton()}
+                </div>
               </div>
-            </div>
-            <div className='col-xs-8'>
-              {this.state.showLog && <MyLogViewer contents={this.state.displayedLogs} />}
+              <div className='col-xs-8'>
+                {this.state.showLog && <MyLogViewer contents={this.state.displayedLogs} />}
+              </div>
             </div>
           </div>
         </div>
