@@ -11,15 +11,10 @@ class ServerRowItem extends Component {
    * to the dataTransfer (payload) of the drag event so it can be picked up by the drop handler
    *
    * @param {event} ev the browser onDragStart event object
-   * @param {Object} dataDef the server data definition (keys primarily)
    * @param {Object} data the server data payload
    */
-  drag(ev, dataDef, data) {
-    dataDef.map(function (key, value) {
-      ev.dataTransfer.setData(key.name, data[key.name]);
-    });
+  drag(ev, data) {
     //setData only supports strings, JSON stringify here, parse on the other end
-    ev.dataTransfer.setData("dataDef", JSON.stringify(dataDef));
     ev.dataTransfer.setData("data", JSON.stringify(data));
   }
 
@@ -54,7 +49,7 @@ class ServerRowItem extends Component {
   }
 
   render() {
-    let cName = 'table-row';
+    let cName = 'table-row draggable';
     if(this.props.tableId === 'right') {
       let requiredUpdate = false;
       let badInput = undefined;
@@ -69,7 +64,7 @@ class ServerRowItem extends Component {
       cName = requiredUpdate ? cName + ' required-update' : cName;
       return (
         <tr className={cName}
-          draggable="true" onDragStart={(event) => this.drag(event, this.props.dataDef, this.props.data)}>
+          draggable="true" onDragStart={(event) => this.drag(event, this.props.data)}>
           {this.renderServerColumns()}
           <EditPencilForTableRow
             clickAction={(e) => this.handleCustomAction(this.props.data)}>
@@ -80,7 +75,7 @@ class ServerRowItem extends Component {
     else {
       return (
         <tr className={cName}
-          draggable="true" onDragStart={(event) => this.drag(event, this.props.dataDef, this.props.data)}>
+          draggable="true" onDragStart={(event) => this.drag(event, this.props.data)}>
           {this.renderServerColumns()}
         </tr>
       );

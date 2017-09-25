@@ -105,18 +105,21 @@ class ServerRolesAccordion extends Component {
       }
       let isOpen = idx === this.state.accordionPosition;
       return (
-        <span
+        <div
           onDrop={(event) => this.props.ondropFunct(event, role.serverRole)}
           onDragOver={(event) => this.props.allowDropFunct(event, role.serverRole)}
+          onDragEnter={(event) => this.props.ondragEnterFunct(event)}
+          onDragLeave={(event) => this.props.ondragLeaveFunct(event)}
+          className='server-dropzone'
           key={role.name}>
           <Collapsible
             open={isOpen}
-            trigger={optionDisplay.join(' ')} key={role.name}
+            trigger={optionDisplay} key={role.name}
             handleTriggerClick={() => this.handleTriggerClick(idx, role)}
             value={role.serverRole}>
             {isOpen && this.renderAccordionServerTable()}
           </Collapsible>
-        </span>
+        </div>
       );
     });
 
@@ -253,6 +256,24 @@ class ServerInput extends Component {
   }
 }
 
+class ServerInputLine extends Component {
+  render() {
+    let labelStr = translate(this.props.label);
+    let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
+    return (
+      <div className='detail-line'>
+        <div className='detail-heading'>{label}</div>
+        <div className='input-body'>
+          <ServerInput isRequired={this.props.isRequired} inputName={this.props.inputName}
+            inputType={this.props.inputType} inputValidate={this.props.inputValidate}
+            inputAction={this.props.inputAction} inputValue={this.props.inputValue}
+            updateFormValidity={this.props.updateFormValidity} category={this.props.category}/>
+        </div>
+      </div>
+    );
+  }
+}
+
 class ServerDropdown extends Component {
   constructor(props) {
     super(props);
@@ -301,9 +322,28 @@ class ServerDropdown extends Component {
   }
 }
 
+class ServerDropdownLine extends Component {
+  render() {
+    let labelStr = translate(this.props.label);
+    let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
+    return (
+      <div className='detail-line'>
+        <div className='detail-heading'>{label}</div>
+        <div className='input-body'>
+          <ServerDropdown name={this.props.name} value={this.props.value}
+            optionList={this.props.optionList} emptyOption={this.props.emptyOption}
+            selectAction={this.props.selectAction}/>
+        </div>
+      </div>
+    );
+  }
+}
+
 module.exports = {
   SearchBar: SearchBar,
   ServerRolesAccordion: ServerRolesAccordion,
   ServerInput: ServerInput,
-  ServerDropdown: ServerDropdown
+  ServerInputLine: ServerInputLine,
+  ServerDropdown: ServerDropdown,
+  ServerDropdownLine: ServerDropdownLine
 };

@@ -6,7 +6,7 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton, LoadFileButton } from '../components/Buttons.js';
 import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
-import { SearchBar, ServerRolesAccordion, ServerInput, ServerDropdown }
+import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine }
   from '../components/ServerUtils.js';
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
@@ -36,7 +36,6 @@ class AssignServerRoles extends BaseWizardPage {
       'server-group'
     ];
     this.activeRowData = undefined;
-    this.errorContent = undefined;
     this.newServer = {
       'source': 'manual',
       'id': '',
@@ -72,8 +71,6 @@ class AssignServerRoles extends BaseWizardPage {
       displayAssignedServers: [],
       //when move servers the filter text could be cleared
       searchFilterText: '',
-      //turn on/off next
-      pageValid: false,
       //what tab key selected
       selectedServerTabKey: AUTODISCOVER_TAB,
       //show or not credentials modal
@@ -86,8 +83,10 @@ class AssignServerRoles extends BaseWizardPage {
 
       //when loading data or saving data
       loading: false,
-      //show error message
-      showError: false,
+
+      // content of error to show
+      errorContent: undefined,
+
       //show server details modal
       showServerDetailsModal: false,
       //show edit server details modal
@@ -116,13 +115,11 @@ class AssignServerRoles extends BaseWizardPage {
       //this will parse model and
       //consolidate availableServers and assignedServers
       this.getServerRoles(this.model, rawServerData);
-      this.validateServerRoleAssignment();
     }
     else {
       //don't have model for some reason
       let msg = translate('server.model.empty.error');
       this.setErrorMessageContent(msg);
-      this.setState({showError: true});
     }
   }
 
@@ -198,15 +195,21 @@ class AssignServerRoles extends BaseWizardPage {
     return response;
   }
 
-  setErrorMessageContent(msg, errorStr) {
-    let msgContent = {
-      messages: errorStr ? [msg, errorStr] : msg
-    };
-
-    if (this.errorContent !== undefined) {
-      msgContent.messages = msgContent.messages.concat(this.errorContent.messages);
-    }
-    this.errorContent = msgContent;
+  setErrorMessageContent(title, message) {
+    this.setState(prev => {
+      if (prev.errorContent) {
+        return ({errorContent: {
+          title: prev.errorContent.title || title,
+          messages: prev.errorContent.messages.concat(message)
+        }})
+      } else {
+        return ({errorContent: {
+          title: title,
+          // Note: concat correctly handles message being a single string or an array
+          messages: [].concat(message)
+        }})
+      }
+    })
   }
 
   doSaveAllDiscoveredServers(servers) {
@@ -217,13 +220,11 @@ class AssignServerRoles extends BaseWizardPage {
         .catch((error) => {
           let msg = translate('server.discover.save.error');
           this.setErrorMessageContent(msg, error.toString());
-          this.setState({showError: true});
         });
       })
       .catch((error) => {
         let msg = translate('server.discover.get.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
       });
   }
 
@@ -245,7 +246,7 @@ class AssignServerRoles extends BaseWizardPage {
           this.refreshServers(resultServers);
         })
         .catch((error) => {
-          this.setState({loading: false, showError: true});
+          this.setState({loading: false, errorContent: undefined});
         })
     }
   }
@@ -264,15 +265,10 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   renderInputLine = (required, title, name, type, validator) => {
-    let inputTitle = (required) ? translate(title) + '*' : translate(title);
     return (
-      <div className='detail-line'>
-        <div className='detail-heading'>{inputTitle}</div>
-        <div className='input-body'>
-          <ServerInput isRequired={required} inputName={name} inputType={type} inputValidate={validator}
-            inputAction={this.handleInputLine} inputValue={this.newServer[name]}/>
-        </div>
-      </div>
+      <ServerInputLine isRequired={required} label={title} inputName={name}
+        inputType={type} inputValidate={validator} inputAction={this.handleInputLine}
+        inputValue={this.newServer[name]}/>
     );
   }
 
@@ -295,16 +291,10 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  renderDropdownLine(required, title, name, list, handler) {
-    let inputTitle = (required) ? translate(title) + '*' : translate(title);
+  renderDropdownLine(required, title, name, list, handler, emptyOption) {
     return (
-      <div className='detail-line'>
-        <div className='detail-heading'>{inputTitle}</div>
-        <div className='input-body'>
-          <ServerDropdown name={name} value={this.newServer[name]} optionList={list}
-            selectAction={handler}/>
-        </div>
-      </div>
+      <ServerDropdownLine label={title} name={name} value={this.newServer[name]} optionList={list}
+        isRequired={required} selectAction={handler} emptyOption={emptyOption}/>
     );
   }
 
@@ -333,13 +323,11 @@ class AssignServerRoles extends BaseWizardPage {
 
     let serverRoles = this.state.serverRoles;
 
-    // if role is not None, add server to this.model and this.state.serverRoles
+    // if role is provided, add server to this.model and this.state.serverRoles
     // so that it will get displayed in the accordion table and saved to the input model
-    // TODO: Remove the check for server.none.prompt after enhancing ServerDropdown
-    //   to use the value '' when the display value is server.none.prompt
     let modelChanged = false;
     serverList.forEach(server => {
-      if (server.role !== translate('server.none.prompt').toString() && server.role) {
+      if (server.role) {
         this.model.inputModel.servers.push(server);
         modelChanged = true;
 
@@ -363,7 +351,6 @@ class AssignServerRoles extends BaseWizardPage {
         .catch((error) => {
           let msg = translate('server.model.save.error');
           this.setErrorMessageContent(msg, error.toString());
-          this.setState({showError: true});
         });
     }
 
@@ -408,18 +395,12 @@ class AssignServerRoles extends BaseWizardPage {
     this.saveServersAddedManually([this.newServer]);
   }
 
-  getSmUrl(host, port) {
-    let url = 'https://' + host + ':' + (port <= 0 ? '8443' : port) + '/rpc/api';
-    return url;
-  }
-
   renderAddServerManuallyModal = () => {
     let body = '';
     if (this.state.serverRoles && this.serverGroups && this.nicMappings) {
       let roles = this.state.serverRoles.map((server) => {return server.serverRole});
-      roles.unshift(translate('server.none.prompt').toString());
       if (!this.newServer.role) {
-        this.newServer.role = roles[0];
+        this.newServer.role = '';
       }
       if (!this.newServer['server-group']) {
         this.newServer['server-group'] = this.serverGroups[0];
@@ -427,6 +408,10 @@ class AssignServerRoles extends BaseWizardPage {
       if (!this.newServer['nic-mapping']) {
         this.newServer['nic-mapping'] = this.nicMappings[0];
       }
+      let emptyOption = {
+        label: translate('server.none.prompt'),
+        value: ''
+      };
       body = (
         <div>
           <div className='server-details-container'>
@@ -437,7 +422,7 @@ class AssignServerRoles extends BaseWizardPage {
             {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
               this.nicMappings, this.handleSelectNicMapping)}
             {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
-              this.handleSelectRole)}
+              this.handleSelectRole, emptyOption)}
           </div>
           <div className='message-line'>{translate('server.ipmi.message')}</div>
           <div className='server-details-container'>
@@ -461,7 +446,8 @@ class AssignServerRoles extends BaseWizardPage {
     );
     return (
       <ConfirmModal show={this.state.showAddServerManuallyModal} title={translate('add.server.add')}
-        className={'manual-discover-modal'} body={body} footer={footer}/>
+        className={'manual-discover-modal'} onHide={this.cancelAddServerManuallyModal}
+        body={body} footer={footer}/>
     );
   }
 
@@ -486,7 +472,6 @@ class AssignServerRoles extends BaseWizardPage {
         server['source'] = 'manual';
         server['id'] = server['id'] || server['name'];
       }
-      this.saveServersAddedManually(results.data);
 
       if (results.errors.length > 0) {
         const MAX_LINES = 5;
@@ -496,10 +481,11 @@ class AssignServerRoles extends BaseWizardPage {
           details.push("...");
         }
 
-        let msg = translate('csv.import.error');
-        this.setErrorMessageContent(msg, details);
-        this.setState({showError: true});
+        let title = translate('csv.import.error');
+        this.setErrorMessageContent(title, details);
       }
+
+      this.saveServersAddedManually(results.data);
     });
   }
 
@@ -515,6 +501,11 @@ class AssignServerRoles extends BaseWizardPage {
 
   handleCancelCredsInput = () => {
     this.setState({showCredsModal: false});
+  }
+
+  getSmUrl(host, port) {
+    let url = 'https://' + host + ':' + (port <= 0 ? '8443' : port) + '/rpc/api';
+    return url;
   }
 
   handleDoneCredsInput = (credsData) => {
@@ -559,14 +550,9 @@ class AssignServerRoles extends BaseWizardPage {
           this.setState({rawDiscoveredServers: resultServers, loading: false});
         })
         .catch((error) => {
-          this.setState({loading: false, showError: true});
+          this.setState({loading: false});
         })
       }
-  }
-
-  handleCloseMessageAction = () => {
-    this.setState({showError: false});
-    this.errorContent = undefined;
   }
 
   handleShowServerDetails = (rowData) => {
@@ -605,8 +591,6 @@ class AssignServerRoles extends BaseWizardPage {
       showEditServerDetailsModal: false
     });
     this.activeRowData = undefined;
-
-    this.validateServerRoleAssignment();
   }
 
   handleCancelEditServerDetailsInput = (editData) => {
@@ -614,8 +598,6 @@ class AssignServerRoles extends BaseWizardPage {
       showEditServerDetailsModal: false
     });
     this.activeRowData = undefined;
-
-    this.validateServerRoleAssignment();
   }
 
   handleClickRoleAccordion = (idx, role) => {
@@ -662,7 +644,6 @@ class AssignServerRoles extends BaseWizardPage {
       .catch((error) => {
         let msg = translate('server.discover.get.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
         //still get model
         this.doGetModel();
       });
@@ -684,14 +665,10 @@ class AssignServerRoles extends BaseWizardPage {
         this.getServerGroups(modelData);
         this.getNicMappings(modelData);
         this.getServerRoles(modelData, rawServerData);
-        this.validateServerRoleAssignment();
       })
       .catch((error) => {
         let msg = translate('server.model.get.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
-        //no model, disable next button
-        this.setState({pageValid : false});
       });
   }
 
@@ -911,7 +888,6 @@ class AssignServerRoles extends BaseWizardPage {
   updateAndSaveDataModel() {
     this.updateModelWithServerRoles();
     this.saveModelObjectData();
-    this.validateServerRoleAssignment();
   }
 
   /**
@@ -938,16 +914,12 @@ class AssignServerRoles extends BaseWizardPage {
    * trigger server assignment to a role via drag and drop. parses the payload of a ServerRowItem drag event
    * and adds the represented server to the role specified
    *
-   * @param {event} event - the browser event for the drop action, should contain dataDef and data JSON objects per ServerRowItem.js
+   * @param {event} event - the browser event for the drop action, should contain a data JSON object per ServerRowItem.js
    * @param {string} role - the role to assign the server to
    */
   assignServerToRoleDnD(event, role){
-    let dataDef = JSON.parse(event.dataTransfer.getData("dataDef"));
-    let data = JSON.parse(event.dataTransfer.getData("data"));
-    let serverData = {};
-    dataDef.map(function(key, value){
-      serverData[key.name] = data[key.name];
-    });
+    let serverData = JSON.parse(event.dataTransfer.getData("data"));
+
     if(typeof serverData.role !== 'undefined' && serverData.role !== role){
       this.removeServerFromRole(serverData, serverData.role);
     }
@@ -955,24 +927,23 @@ class AssignServerRoles extends BaseWizardPage {
     if(typeof serverData.role === 'undefined' || serverData.role !== role) {
       this.assignServerToRole(serverData, role);
     }
+
+    this.unHighlightDrop(event, true);
   }
 
   /**
    * removes a server from a specified model role, parses the payload of a ServerRowItem drag event for data
    * and them removes the represented server to the role specified
    *
-   * @param {event} event - the browser event for the drop action, should contain dataDef and data JSON objects per ServerRowItem.js
+   * @param {event} event - the browser event for the drop action, should contain a data JSON object per ServerRowItem.js
    */
   removeServerFromRoleDnD(event){
-    let dataDef = JSON.parse(event.dataTransfer.getData("dataDef"));
-    let data = JSON.parse(event.dataTransfer.getData("data"));
-    let serverData = {};
-    dataDef.map(function(key, value){
-      serverData[key.name] = data[key.name];
-    });
+    let serverData = JSON.parse(event.dataTransfer.getData("data"));
     if(typeof serverData.role !== 'undefined'){
       this.removeServerFromRole(serverData, serverData.role);
     }
+
+    this.unHighlightDrop(event, true);
   }
 
   /**
@@ -1009,6 +980,46 @@ class AssignServerRoles extends BaseWizardPage {
    */
   allowDrop(event, role){
     event.preventDefault();
+  }
+
+  /**
+   * adds an outline highlighting the dropzone for drag and drop server assignment
+   * stores the previous settings on the element to be restored later
+   *
+   * @param {event} event - the browser event from dragEnter
+   */
+  highlightDrop(event) {
+    let element = $(event.target);
+    if(!element.hasClass('server-dropzone')){
+      element = element.closest('.server-dropzone');
+    }
+    element.css('prevoutline', element.css('outline'));
+    element.css('prevmargin', element.css('margin'));
+    element.css('outline', '2px #00C081 dashed');
+    element.css('margin', '2px');
+  }
+
+  /**
+   * removes the outline around the current dropzone, checks the leave event position before deciding to remove
+   * the highlight to make sure its taking the outline off of the correct element. Can be forced to skip
+   * the position check with optional forceclear parameter
+   *
+   * @param {event} event - the browser event from dragLeave
+   * @param {boolean} forceclear (optional) - whether to forcibly remove the highlighting
+   */
+  unHighlightDrop(event, forceclear) {
+    let element = $(event.target);
+    if(!element.hasClass('server-dropzone')){
+      element = element.closest('.server-dropzone');
+    }
+    if(forceclear ||
+       element.offset().left > event.pageX ||
+       element.offset().left + element.width() < event.pageX ||
+       element.offset().top > event.pageY ||
+       element.offset().top + element.height() < event.pageY){
+      element.css('outline', element.css('prevoutline') || '');
+      element.css('margin', element.css('prevmargin') || '');
+    }
   }
 
   //update the model servers based on
@@ -1067,7 +1078,6 @@ class AssignServerRoles extends BaseWizardPage {
         .catch((error) => {
           let msg = translate('server.discover.update.error', discoveredServers[fIdx].id);
           this.setErrorMessageContent(msg, error.toString());
-          this.setState({showError: true});
         });
         this.setState({rawDiscoveredServers: discoveredServers});
       }
@@ -1103,7 +1113,6 @@ class AssignServerRoles extends BaseWizardPage {
       .catch((error) => {
         let msg = translate('server.model.save.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
       });
   }
 
@@ -1123,45 +1132,23 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   //check if we have enough servers roles for the model
-  validateServerRoleAssignment() {
-    let valid = true;
-    this.state.serverRoles.forEach((role) => {
+  isValid = () => {
+    return this.state.serverRoles.every(role => {
       let minCount =  role.minCount;
       let memberCount = role.memberCount;
       let svrSize = role.servers.length;
-      if (memberCount && svrSize !== memberCount && memberCount !== 0) {
-        valid = false;
+      if (memberCount && svrSize !== memberCount) {
+        return false;
       }
-      if(valid) {
-        if(minCount && svrSize < minCount && minCount !== 0) {
-          valid = false;
-        }
+      if(minCount && svrSize < minCount) {
+        return false;
       }
-      //continue check if all server has enough inputs
-      if(valid) {
-        for (let idx in role.servers) {
-          let server = role.servers[idx];
-          let badInputs = this.checkInputKeys.find((key) => {
-            return (server[key] === undefined || server[key] === '');
-          });
-          if(badInputs) {
-            valid = false;
-            break;
-          }
-        }
-      }
+      // verify that each server objecdt in role.servers has all of the required keys
+      return role.servers.every(server => this.checkInputKeys.every(key => key in server))
     });
-    if (!valid) {
-      this.setState({pageValid: false});
-    }
-    else {
-      this.setState({pageValid: true});
-    }
   }
 
-  setNextButtonDisabled() {
-    return !this.state.pageValid;
-  }
+  setNextButtonDisabled = () => !this.isValid();
 
   doSave() {
     this.updateModelWithServerRoles();
@@ -1175,7 +1162,6 @@ class AssignServerRoles extends BaseWizardPage {
         //don't move if can't save model
         let msg = translate('server.model.save.error');
         this.setErrorMessageContent(msg, error.toString());
-        this.setState({showError: true});
       });
   }
 
@@ -1185,13 +1171,20 @@ class AssignServerRoles extends BaseWizardPage {
     this.doSave();
   }
 
+  clearErrorMessage = () => {
+    this.setState({errorContent: undefined});
+  }
+
   renderErrorMessage() {
-    return (
-      <ErrorMessage
-        closeAction={this.handleCloseMessageAction}
-        show={this.state.showError} content={this.errorContent}>
-      </ErrorMessage>
-    );
+    if (this.state.errorContent) {
+      return (
+        <ErrorMessage
+          closeAction={this.clearErrorMessage}
+          title={this.state.errorContent.title}
+          message={this.state.errorContent.messages}>
+        </ErrorMessage>
+      );
+    }
   }
 
   renderLoadingMask() {
@@ -1374,6 +1367,8 @@ class AssignServerRoles extends BaseWizardPage {
     return (
       <ServerRolesAccordion
         ondropFunct={this.assignServerToRoleDnD.bind(this)}
+        ondragEnterFunct={this.highlightDrop.bind(this)}
+        ondragLeaveFunct={this.unHighlightDrop.bind(this)}
         allowDropFunct={this.allowDrop.bind(this)}
         serverRoles={this.state.serverRoles}
         clickAction={this.handleClickRoleAccordion}
@@ -1389,11 +1384,13 @@ class AssignServerRoles extends BaseWizardPage {
   renderServerRoleContent() {
     return (
       <div className='assign-server-role body-container'>
-        <div className="server-container"
-          onDrop={(event) => this.removeServerFromRoleDnD(event)}
-          onDragOver={(event) => this.allowDrop(event, undefined)}>
+        <div className='server-container'>
           {this.renderSearchBar()}
-          <div className="server-table-container rounded-corner">
+          <div className="server-table-container rounded-corner server-dropzone"
+            onDrop={(event) => this.removeServerFromRoleDnD(event)}
+            onDragOver={(event) => this.allowDrop(event, undefined)}
+            onDragEnter={(event) => this.highlightDrop(event)}
+            onDragLeave={(event) => this.unHighlightDrop(event)}>
             {this.renderAvailableServersTabs()}
           </div>
         </div>

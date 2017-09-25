@@ -8,8 +8,6 @@ class ConfirmModal extends Modal {
   constructor() {
     super();
     this.state = {showModal: false};
-
-    this.close = this.close.bind(this);
   }
 
   componentWillReceiveProps(newProps) {
@@ -18,19 +16,14 @@ class ConfirmModal extends Modal {
     }
   }
 
-  close() {
-    this.setState({showModal: false});
-  }
-
   render() {
-    let action = (this.props.clickAction) ? this.props.clickAction : this.close;
     let footer = (this.props.footer) ? this.props.footer :
-      (<ActionButton clickAction={action} displayLabel={translate('ok')}/>);
+      (<ActionButton clickAction={this.props.clickAction} displayLabel={translate('ok')}/>);
 
     return (
-      <Modal className='modals' show={this.state.showModal} onHide={action} backdrop={'static'}
-        dialogClassName={this.props.className}>
-        <Modal.Header>
+      <Modal className='modals' show={this.state.showModal} onHide={this.props.onHide}
+        backdrop={'static'} dialogClassName={this.props.className}>
+        <Modal.Header closeButton>
           <Modal.Title className='title'>{this.props.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -55,7 +48,7 @@ class YesNoModal extends ConfirmModal {
 
     return (
       <ConfirmModal show={this.state.showModal} title={this.props.title} body={this.props.body}
-        footer={footer}/>
+        onHide={this.props.noAction} footer={footer}/>
     );
   }
 }

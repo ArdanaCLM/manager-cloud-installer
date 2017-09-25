@@ -26,7 +26,6 @@ class CloudModelPicker extends BaseWizardPage {
         'mid-scale-kvm-vsa'
       ],
       pageValid: this.props.selectedModelName ? true : false,
-      showError: false,
       errorContent: undefined,
       loading: false
     };
@@ -36,7 +35,6 @@ class CloudModelPicker extends BaseWizardPage {
     this.handleHelpChoose = this.handleHelpChoose.bind(this);
     this.handleShowSelectTemplateHelp = this.handleShowSelectTemplateHelp.bind(this);
     this.handleShowHelpChooseHelp = this.handleShowHelpChooseHelp.bind(this);
-    this.handleCloseMessageAction = this.handleCloseMessageAction.bind(this);
   }
 
   componentWillMount() {
@@ -68,8 +66,7 @@ class CloudModelPicker extends BaseWizardPage {
             };
             this.setState({
               pageValid: false,
-              showError: true,
-              errorContent: msgContent,
+              messages: [],
               loading: false
             });
           });
@@ -82,7 +79,6 @@ class CloudModelPicker extends BaseWizardPage {
         };
         this.setState({
           pageValid: false,
-          showError: true,
           errorContent: msgContent,
           loading: false
         });
@@ -119,7 +115,6 @@ class CloudModelPicker extends BaseWizardPage {
           messages: [msg, error.toString()]
         };
         this.setState({
-          showError: true,
           errorContent: msgContent,
           loading: false
         });
@@ -177,10 +172,6 @@ class CloudModelPicker extends BaseWizardPage {
     //TODO
   }
 
-  handleCloseMessageAction () {
-    this.setState({showError: false});
-  }
-
   renderLoadingMask() {
     return (
       <LoadingMask show={this.state.loading}></LoadingMask>
@@ -217,12 +208,15 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   renderErrorMessage() {
-    return (
-      <ErrorMessage
-        closeAction={this.handleCloseMessageAction}
-        show={this.state.showError} content={this.state.errorContent}>
-      </ErrorMessage>
-    );
+    if (this.state.errorContent) {
+      return (
+        <ErrorMessage
+          closeAction={this.setState({errorContent: undefined})}
+          title={this.state.errorContent.title}
+          message={this.state.errorContent.messages}>
+        </ErrorMessage>
+      );
+    }
   }
 
   render() {
