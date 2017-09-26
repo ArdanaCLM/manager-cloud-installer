@@ -9,8 +9,12 @@ import { ActivePickerButton } from '../components/Buttons.js';
 class CloudModelSummary extends BaseWizardPage {
   constructor(props) {
     super(props);
+
+    this.PATH_TO_CONTROL_PLANE = ['inputModel', 'control-planes', '0']
+
     this.state = {
-      controlPlane: undefined,  // The control plane structure from the input model.
+      controlPlane: this.props.model.getIn(this.PATH_TO_CONTROL_PLANE),
+                                // The control plane structure from the input model.
                                 // Note: immutableJS is used so that we can keep track
                                 // of the counts directly in the model, and manage state
                                 // easily (by efficiently creating a new one whenever one
@@ -105,29 +109,9 @@ class CloudModelSummary extends BaseWizardPage {
   goForward(e) {
     e.preventDefault();
 
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/entities/control-planes', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify([this.state.controlPlane.toJSON()])
-    })
-    .then(result => { this.props.next(false); })  // go to the next page
-    .catch((error) => {
-        // TODO: Show a toast error instead of a console log
-      console.error(JSON.stringify(error));
-    });
-  }
-
-  componentDidMount() {
-
-    //fetch initial control plane information
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/entities/control-planes')
-      .then(response => response.json())
-      .then(data => {
-          // TODO: May need to support multiple control planes
-          this.setState({controlPlane: fromJS(data[0])});
-      })
+    // Update the control plane in the global model, save it, and move to the next page
+    let model = this.props.model.updateIn(this.PATH_TO_CONTROL_PLANE, val => this.state.controlPlane);
+    this.props.updateGlobalState('model', model, this.props.next);
   }
 
   renderItems = (section) => {

@@ -1,7 +1,9 @@
 import React from 'react';
+import { fromJS } from 'immutable';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
+import { fetchJson, postJson } from '../utils/RestUtils.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
@@ -10,166 +12,96 @@ import {
 } from '../components/Buttons.js';
 
 class CloudModelPicker extends BaseWizardPage {
+
   constructor(props) {
     super(props);
 
     this.templates = [];
+    this.simpleModels = [ //add more items when user select it from complete templates
+      'entry-scale-esx-kvm-vsa',
+      'entry-scale-ironic-flat-network',
+      'entry-scale-kvm-ceph',
+      'entry-scale-swift',
+      'mid-scale-kvm-vsa'
+    ];
 
     this.state = {
-      selectedModelName: this.props.selectedModelName,
-      selectedDetails: '',
-      simpleModels: [ //add more items when user select it from complete templates
-        'entry-scale-esx-kvm-vsa',
-        'entry-scale-ironic-flat-network',
-        'entry-scale-kvm-ceph',
-        'entry-scale-swift',
-        'mid-scale-kvm-vsa'
-      ],
-      pageValid: this.props.selectedModelName ? true : false,
+      // Capture the name of the selected model
+      selectedModelName: this.props.model.get('name'),
+
       errorContent: undefined,
       loading: false
     };
-
-    this.handlePickModel = this.handlePickModel.bind(this);
-    this.handleSelectTemplate = this.handleSelectTemplate.bind(this);
-    this.handleHelpChoose = this.handleHelpChoose.bind(this);
-    this.handleShowSelectTemplateHelp = this.handleShowSelectTemplateHelp.bind(this);
-    this.handleShowHelpChooseHelp = this.handleShowHelpChooseHelp.bind(this);
   }
 
   componentWillMount() {
-    this.getTemplates();
-  }
-
-  saveTemplateIntoModel(modelName) {
     this.setState({loading: true});
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/templates/' + modelName)
-      .then((response) => this.checkResponse(response))
-      .then((response) => response.json())
-      .then((responseData) => {
-        // Save the selected template as the model
-        fetch(getAppConfig('shimurl') + '/api/v1/clm/model', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(responseData)
-        })
-          .then((response) => this.checkResponse(response))
-          .then((response) => this.setState({pageValid: true, loading: false}))
-          .catch((error) => {
-            let msg = translate('model.picker.save.model.error', modelName);
-            let msgContent = {
-              title: translate('model.picker.save.model.error.title'),
-              messages: [msg, error.toString()]
-            };
-            this.setState({
-              pageValid: false,
-              messages: [],
-              loading: false
-            });
-          });
-      })
-      .catch((error) => {
-        let msg = translate('model.picker.get.model.error', modelName, error);
-        let msgContent = {
-          title: translate('model.picker.get.model.error.title'),
-          messages: [msg, error.toString()]
-        };
-        this.setState({
-          pageValid: false,
-          errorContent: msgContent,
-          loading: false
-        });
-      });
-  }
 
-  checkResponse(response) {
-    if (!response.ok) {
-      throw Error(response.url + ':' + response.statusText);
-    }
-    return response;
-  }
-
-  getTemplates() {
-    this.setState({loading: true});
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/templates')
-      .then(response => this.checkResponse(response))
-      .then(response => response.json())
-      .then((responseData) => {
-        this.templates = responseData;
+    // Load overview for all templates
+    fetchJson('/api/v1/clm/templates')
+      .then((templates) => {
+        this.templates = templates;
         this.setState({loading: false});
-        //set default template selection if we have any
-        if(this.state.selectedModelName) {
-          let temp = this.findTemplate(this.state.selectedModelName);
-          if (temp) {
-            this.setState({selectedDetails: temp.overview});
-          }
-        }
       })
       .catch((error) => {
-        let msg = translate('model.picker.get.template.error');
-        let msgContent = {
-          title: translate('model.picker.get.template.error.title'),
-          messages: [msg, error.toString()]
-        };
         this.setState({
-          errorContent: msgContent,
+          errorContent: {
+            title: translate('model.picker.get.template.error.title'),
+            messages: [
+                translate('model.picker.get.template.error'),
+                error.toString()]
+          },
           loading: false
         });
       });
   }
 
-  findTemplate(modelName) {
-    let tplt = this.templates.find(function(template) {
-      return template.name === modelName;
-    });
-    return tplt;
+  handlePickModel = (e) => {
+    this.setState({selectedModelName: e.target.getAttribute('name')})
   }
 
-  setSelectedDetails(modelName) {
-    let temp = this.findTemplate(modelName);
-    if(temp) {
-      this.setState({selectedDetails: temp.overview});
-    }
+  goForward = (e) => {
+    e.preventDefault();
+
+    this.setState({loading: true});
+    // Load the full template, update the global model, and save it
+    fetchJson('/api/v1/clm/templates/' + this.state.selectedModelName)
+      .then(model => this.props.updateGlobalState('model', fromJS(model), this.props.next))
+      .catch(error => {
+        this.setState({
+          errorContent: {
+            title: translate('model.picker.save.model.error.title'),
+            messages: [
+              translate('model.picker.save.model.error', this.state.selectedModelName),
+              error.toString()]
+          },
+          loading: false
+        });
+      });
   }
 
-  updateParentSelectedModelName = (modelName) => {
-    this.props.updateGlobalState('selectedModelName', modelName);
+  handleSelectTemplate = (e) => {
+    e.preventDefault();
+    //TODO
+  }
+
+  handleHelpChoose = (e) => {
+    e.preventDefault();
+    //TODO
+  }
+
+  handleShowSelectTemplateHelp = (e) => {
+    e.preventDefault();
+    //TODO
+  }
+
+  handleShowHelpChooseHelp = (e) => {
+    e.preventDefault();
+    //TODO
   }
 
   setNextButtonDisabled() {
-    return !this.state.pageValid;
-  }
-
-  handlePickModel(e) {
-    e.preventDefault();
-    let modelName = e.target.getAttribute('name');
-    this.setState({selectedModelName: modelName});
-    this.setSelectedDetails(modelName);
-    this.saveTemplateIntoModel(modelName);
-    this.updateParentSelectedModelName(modelName);
-  }
-
-  handleSelectTemplate(e) {
-    e.preventDefault();
-    //TODO
-  }
-
-  handleHelpChoose(e) {
-    e.preventDefault();
-    //TODO
-  }
-
-  handleShowSelectTemplateHelp(e) {
-    e.preventDefault();
-    //TODO
-  }
-
-  handleShowHelpChooseHelp(e) {
-    e.preventDefault();
-    //TODO
+    return ! this.state.selectedModelName;
   }
 
   renderLoadingMask() {
@@ -178,40 +110,11 @@ class CloudModelPicker extends BaseWizardPage {
     );
   }
 
-  renderPickerButtons() {
-    let btns = [];
-    for (let i = 0; i < this.state.simpleModels.length; i++) {
-      let name = this.state.simpleModels[i];
-      //TODO need better name to display
-      let displayLabel = translate('model.picker.' + name);
-      if(name === this.state.selectedModelName) {
-        btns.push(
-          <PickerButton
-            key={i} keyName={name} isSelected
-            displayLabel={displayLabel} clickAction={this.handlePickModel}/>
-        );
-      }
-      else {
-        btns.push(
-          <PickerButton
-            key={i} keyName={name}
-            displayLabel={displayLabel} clickAction={this.handlePickModel}/>);
-      }
-    }
-    return btns;
-  }
-
-  renderModelDetails(details) {
-    return (
-      <div className='model-details' dangerouslySetInnerHTML={{__html: details}}/>
-    );
-  }
-
   renderErrorMessage() {
     if (this.state.errorContent) {
       return (
         <ErrorMessage
-          closeAction={this.setState({errorContent: undefined})}
+          closeAction={() => this.setState({errorContent: undefined})}
           title={this.state.errorContent.title}
           message={this.state.errorContent.messages}>
         </ErrorMessage>
@@ -220,17 +123,30 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   render() {
-    let details = this.state.selectedDetails;
+    let details = '';
+    const template = this.templates.find(template => template.name === this.state.selectedModelName);
+    if(template) {
+      details = template['overview'];
+    }
+
+    const btns = this.simpleModels.map((name,idx) =>
+        <PickerButton
+          key={idx}
+          keyName={name}
+          isSelected={name === this.state.selectedModelName}
+          displayLabel={translate('model.picker.' + name)}
+          clickAction={this.handlePickModel}/>);
+
     return (
       <div className='wizard-page'>
         <div className='wizard-content'>
           {this.renderHeading(translate('model.picker.heading'))}
           {this.renderLoadingMask()}
           <div className='picker-container'>
-            {this.renderPickerButtons()}
+            {btns}
           </div>
           <div className='details-container'>
-            {this.renderModelDetails(details)}
+            <div className='model-details' dangerouslySetInnerHTML={{__html: details}}/>
           </div>
           <div className='action-btn-container'>
             <div className='action-btn-with-info'>
@@ -261,4 +177,3 @@ class CloudModelPicker extends BaseWizardPage {
 }
 
 export default CloudModelPicker;
-
