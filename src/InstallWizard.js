@@ -5,6 +5,9 @@ import { getAppConfig } from './utils/ConfigHelper.js';
 import { stepProgressValues } from './utils/StepProgressValues.js';
 import WizardProgress from './components/WizardProgress';
 import { LoadingMask } from './components/LoadingMask.js';
+import { Map, fromJS } from 'immutable';
+import { fetchJson, postJson } from './utils/RestUtils.js';
+import { isEmpty } from 'lodash';
 
 
 /**
@@ -31,15 +34,16 @@ class InstallWizard extends Component {
       // then the session should look nearly identical, including:
       // - the user should be on the same step in the wizard
       // - values entered by the user that are not stored anywhere else.  This includes values
-      //   like what model was selected, credentials for remote systems, and so on.
-      //   Information that is already stored in the model should not be duplicated here since it is
-      //   already being persisted in the model (e.g. which servers are assigned which roles).
-      selectedModelName: '',  // name of the model selected
-      sitePlayId: undefined   // play id of the deployment playbook
+      //   like credentials for remote systems, and so on.  Information that is already stored 
+      //   in the model, such as its name or which servers are assigned to which roles, should
+      //   not be duplicated here since it is already being persisted in the model
+      selectedModelName: '',  // name of the model selected.  TODO:Remove this, as it is part of the model
+      sitePlayId: undefined,  // play id of the deployment playbook
+      model: Map()            // immutable model
     };
 
     // Indicate which of the above state variables are passed to wizard pages and can be set by them
-    this.globalStateVars = ['selectedModelName', 'sitePlayId'];
+    this.globalStateVars = ['selectedModelName', 'sitePlayId', 'model'];
 
     // Indicate which of the state variables will be persisted to, and loaded from, the progress API
     this.persistedStateVars = ['currentStep', 'steps', 'selectedModelName', 'sitePlayId']
@@ -52,37 +56,44 @@ class InstallWizard extends Component {
     // To simulate a delay in startup and to be able to see the initial loading mask,
     //    uncomment the following line and the line with the closing parenthesis two lines later
     // new Promise(resolve => setTimeout(resolve, 1000)).then(() =>
-    fetch(getAppConfig('shimurl') + '/api/v1/progress')
-    //  )
-      .then(response => response.json())
-      .then((responseData) =>
-      {
-        if (! forcedReset && responseData.steps && this.areStepsInOrder(responseData.steps, this.props.pages)) {
-          this.setState(responseData);
-        } else {
-          // Set the currentStep to 0 and update its stepProgress to inprogress
-          this.setState((prevState) => {
-            var newSteps = prevState.steps.slice();
-            newSteps.splice(0, 1, {
-              name: prevState.steps[0].name,
-              stepProgress: stepProgressValues.inprogress
-            });
+    fetchJson('/api/v1/clm/model')
+      //  )
+    .then(responseData => {
+      this.setState({'model': fromJS(responseData)});
+    })
+    .catch((error) => {
+      console.log('Unable to retrieve saved model');
+    })
+    .then(() => fetchJson('/api/v1/progress'))
+    .then((responseData) => {
+      if (! forcedReset && responseData.steps && this.areStepsInOrder(responseData.steps, this.props.pages)) {
+        this.setState(responseData);
+      } else {
+        // Set the currentStep to 0 and update its stepProgress to inprogress
+        this.setState((prevState) => {
+          var newSteps = prevState.steps.slice();
+          newSteps.splice(0, 1, {
+            name: prevState.steps[0].name,
+            stepProgress: stepProgressValues.inprogress
+          });
 
-            return {
-              currentStep: 0,
-              steps: newSteps
-            };
-        }, this.persistState);
-      }})
+          return {
+            currentStep: 0,
+            steps: newSteps
+          };
+      }, this.persistState);
+    }})
+    .then(() => {
+      if (forcedReset) {
+        console.log('deleted discovered servers');
+        return fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov,manual', {
+          method: 'DELETE'
+        });
+      }
+    })
     .catch((error) => {
         this.setState({currentStep: 0}, this.persistState);
     });
-
-    if (forcedReset) {
-      fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov,manual', {
-        method: 'DELETE'
-      })
-    }
   }
 
   /**
@@ -133,6 +144,9 @@ class InstallWizard extends Component {
     //Pass the update function as a property
     props.updateGlobalState = this.updateGlobalState;
 
+    //Pass a function to force a model save
+    props.saveModel = this.saveModel;
+
     return React.createElement(this.props.pages[this.state.currentStep].component, props);
   }
 
@@ -146,16 +160,7 @@ class InstallWizard extends Component {
       toPersist[v] = this.state[v];
     }
 
-    // Note that JSON.stringify silently ignores React components, so they
-    // don't get saved
-    fetch(getAppConfig('shimurl') + '/api/v1/progress', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(toPersist)
-    });
+    return postJson('/api/v1/progress', toPersist);
   }
 
   /**
@@ -216,13 +221,34 @@ class InstallWizard extends Component {
   // Setter functions for all state variables that need to be modified within pages.
   // If this list gets long, consider replacing it with a more generic function
   // that provides access to any
-  updateGlobalState = (key, value) => {
+  updateGlobalState = (key, value, saveModel) => {
+
+    function mycallback() {
+      if (saveModel) {
+        // save the model
+        this.saveModel();
+      }
+      if (this.persistedStateVars.includes(key)) {
+        // save the other state variables
+        this.persistState();
+      }
+    }
+
     if (this.globalStateVars.includes(key)) {
       var updatedState = {}
       updatedState[key] = value;
-      this.setState(updatedState, this.persistState);
+
+      this.setState(updatedState, mycallback);
     }
   }
+
+  // Pages in within the installer may request that the model be saved to disk,
+  // which is especially important when some significant change has been made
+  // to the model.  Returns a promise
+  saveModel = () => {
+console.log("Persisting the model"); // TODO: Remove this
+    return postJson('/api/v1/clm/model', this.state.model);
+}
 
   /**
    * boilerplate ReactJS render function
