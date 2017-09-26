@@ -85,7 +85,6 @@ class InstallWizard extends Component {
     }})
     .then(() => {
       if (forcedReset) {
-        console.log('deleted discovered servers');
         return fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov,manual', {
           method: 'DELETE'
         });
@@ -249,13 +248,10 @@ class InstallWizard extends Component {
     }
   }
 
-  // Pages in within the installer may request that the model be saved to disk,
+  // Pages within the installer may request that the model be saved to disk,
   // which is especially important when some significant change has been made
   // to the model.  Returns a promise
-  saveModel = () => {
-console.log("Persisting the model"); // TODO: Remove this
-    return postJson('/api/v1/clm/model', this.state.model);
-}
+  saveModel = () => postJson('/api/v1/clm/model', this.state.model);
 
   /**
    * boilerplate ReactJS render function
