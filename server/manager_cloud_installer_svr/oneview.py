@@ -1,15 +1,36 @@
-# import config.config as config
+import config.config as config
 from flask import Blueprint
 from flask import request
+from flask import abort
+from flask import jsonify
 import util
+import requests
+import json
+
 
 bp = Blueprint('oneview', __name__)
 
-# ONEVIEW_URL = config.get("oneview", "url")
+INSECURE = config.get("suse-manager", "insecure", False)
 
 """
 Calls to HPE OneView
 """
+
+
+@bp.route("/api/v1/ov/connection_test", methods=['POST'])
+def connection_test():
+    creds = request.get_json() or {}
+    verify = True
+    if INSECURE:
+        verify = False
+    try:
+        url = "https://" + creds['host'] + "/rest/login-sessions"
+        headers = {'X-Api-Version': '200', 'Content-Type': 'application/json'}
+        data = {'userName': creds['username'], 'password': creds['password']}
+        response = requests.post(url, data=json.dumps(data), headers=headers, verify=verify)
+        return jsonify(response.json())
+    except Exception:
+        abort(403)
 
 
 @bp.route("/api/v1/ov/servers")
