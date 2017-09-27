@@ -1,9 +1,11 @@
 import config.config as config
 import requests
+import socket
+from flask import abort
 
 USE_JSON_SERVER_ONLY = config.get("testing", "mock")
 JSON_SERVER = config.get("general", "json_server")
-
+TIMEOUT = 2
 
 # Hook function for redirecting all traffic to JSON_SERVER
 def build_url(base, url):
@@ -23,3 +25,12 @@ def forward(url, request):
     resp = requests.Session().send(req.prepare())
 
     return (resp.text, resp.status_code, resp.headers.items())
+
+
+def ping(host, port):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(TIMEOUT)
+        s.connect((host, port))
+    except Exception:
+        abort(404)

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
-import { ServerInput } from '../components/ServerUtils.js';
+import { ServerInput, ServerInputLine } from '../components/ServerUtils.js';
 import { ActionButton } from '../components/Buttons.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import {
@@ -45,7 +45,6 @@ class ConnectionCredsInfo extends Component {
       loading: false,
 
       messages: [],
-      messageType: ERROR_MSG,
     };
   }
 
@@ -72,7 +71,6 @@ class ConnectionCredsInfo extends Component {
           'host': '',
           'username': '',
           'password': '',
-          'port': 0
         }
       };
     }
@@ -157,8 +155,7 @@ class ConnectionCredsInfo extends Component {
           let msg = translate('server.test.sm.success', hostport);
 
           this.setState(prev => { return {
-            messages: prev.messages.concat(msg),
-            messageType: SUCCESS_MSG,
+            messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
             smTestStatus: VALID
           }});
         })
@@ -174,9 +171,49 @@ class ConnectionCredsInfo extends Component {
           }
 
           this.setState(prev => { return {
-            messages: prev.messages.concat(msg),
-            messageType: ERROR_MSG,
+            messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
             smTestStatus: INVALID
+          }});
+          reject(error);
+        })
+    });
+    return promise;
+  }
+
+  testOv = () => {
+    let promise = new Promise((resolve, reject) => {
+      fetch(getAppConfig('shimurl') + '/api/v1/ov/connection_test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.data.ov.creds)
+      })
+        .then(response => response.json())
+        .then((responseData) => {
+          if (responseData.sessionID) {
+            resolve(responseData);
+            this.data.ov.sessionID = responseData.sessionID;
+            let msg = translate('server.test.ov.success', this.data.ov.creds.host);
+            this.setState(prev => { return {
+              messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
+              ovTestStatus: VALID
+            }});
+          } else {
+            let error = responseData.error
+            let msg = translate('server.test.ov.error', this.data.ov.creds.host, error);
+            this.setState(prev => { return {
+              messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
+              ovTestStatus: INVALID
+            }});
+            reject(error);
+          }
+        })
+        .catch((error) => {
+          let msg = translate('server.test.ov.error', this.data.ov.creds.host, error);
+          this.setState(prev => { return {
+            messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
+            ovTestStatus: INVALID
           }});
           reject(error);
         })
@@ -195,9 +232,8 @@ class ConnectionCredsInfo extends Component {
       promises.push(this.testSm())
     }
 
-    //TODO implement
     if(this.state.isOvChecked) {
-      this.setState({ovTestStatus: VALID});
+      promises.push(this.testOv());
     }
 
     this.doAllTest(promises)
@@ -246,30 +282,29 @@ class ConnectionCredsInfo extends Component {
     this.setState({isOvChecked: !this.state.isOvChecked});
   }
 
-  handleCloseMessage = () => {
-    this.setState({
-      messages: [],
-      messageType: ERROR_MSG
+  handleCloseMessage = (ind) => {
+    this.setState((prevState) => {
+      messages: prevState.messages.splice(ind, 1)
     });
   }
 
   renderMessage() {
     if (! isEmpty(this.state.messages)) {
-      if (this.state.messageType == ERROR_MSG) {
-        return (
-          <ErrorMessage
-            closeAction={this.handleCloseMessage}
-            message={this.state.messages}>
-          </ErrorMessage>
-        );
-      } else {
-        return (
-          <SuccessMessage
-            closeAction={this.handleCloseMessage}
-            message={this.state.messages}>
-          </SuccessMessage>
-        );
-      }
+      let msgList = [];
+      this.state.messages.map((msgObj, ind) => {
+        if (msgObj.messageType === ERROR_MSG) {
+          msgList.push(
+            <ErrorMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
+             message={msgObj.msg}/>);
+        } else {
+          msgList.push(
+            <SuccessMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
+              message={msgObj.msg}/>);
+        }
+      });
+      return (
+        <div className='notification-message-container'>{msgList}</div>
+      );
     }
   }
 
@@ -306,6 +341,27 @@ class ConnectionCredsInfo extends Component {
         </ServerInput>
       );
     }
+  }
+
+  renderInputLine = (title, name, type, category, validate) => {
+    return (
+      <ServerInputLine label={title} isRequired={true} inputName={name} inputType={type}
+        inputValidate={validate} category={category}
+        inputValue={this.data[category]['creds'][name] || ''}
+        inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}/>
+    );
+  }
+
+  renderCredsOvContent() {
+    return (
+      <div className='server-details-container'>
+        {this.renderInputLine('server.host1.prompt', 'host', 'text', 'ov',
+          IpV4AddressHostValidator)}
+        {this.renderInputLine('server.user.prompt', 'username', 'text', 'ov')}
+        {this.renderInputLine('server.pass.prompt', 'password', 'password', 'ov')}
+        <div className='message-line'></div>
+      </div>
+    );
   }
 
   renderCredsContent(refType) {
@@ -357,7 +413,7 @@ class ConnectionCredsInfo extends Component {
         <input className='creds-category' type='checkbox' value='ov'
           checked={this.state.isOvChecked} onChange={(e) => this.handleOvCheckBoxChange(e, 'ov')}/>
         {translate('server.ov')}
-        {this.state.isOvChecked && this.renderCredsContent('ov')}
+        {this.state.isOvChecked && this.renderCredsOvContent()}
       </div>
     );
   }
