@@ -241,7 +241,7 @@ class InstallWizard extends Component {
 
   /**
    * renders the header for the overall application, if the displaymode is such that the header is
-   * not to be rendered, returns an empty string
+   * not to be rendered, returns undefined
    * @return {jsx} the jsx representation of the header
    */
   renderHeader(){
@@ -255,12 +255,11 @@ class InstallWizard extends Component {
           </div>
       );
     }
-    return '';
   }
 
   /**
    * renders the sidebar for the overall application, which lists the steps and highlights the
-   * current step. If the displaymode is such that the heade ris not rendered, returns an empty string
+   * current step. If the displaymode is such that the header is not rendered, returns undefined
    * @return {jsx} the jsx representation of the sidebar
    */
   renderSidebar(){
@@ -284,7 +283,6 @@ class InstallWizard extends Component {
           </div>
           );
     }
-    return '';
   }
 
   /**
