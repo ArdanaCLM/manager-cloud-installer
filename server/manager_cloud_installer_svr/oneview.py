@@ -2,6 +2,7 @@ import config.config as config
 from flask import Blueprint
 from flask import request
 from flask import jsonify
+from util import ping
 import util
 import requests
 import json
@@ -19,11 +20,17 @@ Calls to HPE OneView
 @bp.route("/api/v1/ov/connection_test", methods=['POST'])
 def connection_test():
     creds = request.get_json() or {}
+    host = creds['host']
+    try:
+        ping(host, 443)
+    except Exception:
+        return jsonify(error='Host not found'), 404
+
     verify = True
     if INSECURE:
         verify = False
     try:
-        url = "https://" + creds['host'] + "/rest/login-sessions"
+        url = "https://" + host + "/rest/login-sessions"
         headers = {'X-Api-Version': '200', 'Content-Type': 'application/json'}
         data = {'userName': creds['username'], 'password': creds['password']}
         response = requests.post(url, data=json.dumps(data), headers=headers, verify=verify)
