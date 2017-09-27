@@ -30,7 +30,6 @@ class AssignServerRoles extends BaseWizardPage {
     this.model = undefined;
     this.serverGroups = undefined;
     this.nicMappings = undefined;
-    this.selectedModelName = this.props.selectedModelName;
     this.checkInputKeys = [
       'nic-mapping',
       'server-group'
@@ -1452,7 +1451,7 @@ class AssignServerRoles extends BaseWizardPage {
     return (
       <div className='wizard-page'>
         <div id='AssignServerRoleId' className='wizard-content'>
-          {this.renderHeading(translate('add.server.heading', this.selectedModelName))}
+          {this.renderHeading(translate('add.server.heading', this.props.model.get('name')))}
           {this.renderServerRoleContent()}
           {this.renderCredsInputModal()}
           {this.renderAddServerManuallyModal()}
