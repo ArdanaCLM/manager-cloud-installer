@@ -53,20 +53,22 @@ class EditFile extends BaseWizardPage {
 
   render() {
     return (
-      <div>
+      <div className='wizard-page'>
+        <div className='wizard-content'>
         {this.renderHeading(translate('edit.config.files.heading', this.props.file.description,
           this.props.file.name))}
-        <div>
-          <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
-            value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
-        </div>
-        <div className="btn-row">
-          <ActionButton
-            displayLabel={translate('cancel')}
-            clickAction={() => this.handleCancel()}/>
-          <ActionButton
-            displayLabel={translate('done')}
-            clickAction={() => this.handleDone()}/>
+          <div>
+            <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
+              value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
+          </div>
+          <div className="btn-row">
+            <ActionButton
+              displayLabel={translate('cancel')}
+              clickAction={() => this.handleCancel()}/>
+            <ActionButton
+              displayLabel={translate('done')}
+              clickAction={() => this.handleDone()}/>
+          </div>
         </div>
       </div>
     );
