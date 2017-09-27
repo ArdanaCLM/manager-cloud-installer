@@ -249,15 +249,18 @@ class InstallWizard extends Component {
   // that provides access to any
   updateGlobalState = (key, value, callback) => {
 
+    let modelChanged = false;
+
     function mycallback() {
-      let p = undefined;
-      if (key == 'model') {
+      let p;
+      if (modelChanged) {
         // save the model
         p = this.saveModel();
       } else if (this.persistedStateVars.includes(key)) {
         // save the other state variables
         p = this.persistState();
       } else {
+        // don't save it anywhere
         p = Promise.resolve(true);
       }
 
@@ -267,12 +270,13 @@ class InstallWizard extends Component {
       });
     }
 
-    if (this.globalStateVars.includes(key)) {
-      var updatedState = {}
-      updatedState[key] = value;
+    this.setState(prevState => {
+      modelChanged = (key == 'model' && value !== prevState.model);
 
-      this.setState(updatedState, mycallback);
-    }
+      let updatedState = {};
+      updatedState[key] = value;
+      return updatedState;
+    }, mycallback);
   }
 
   // Pages within the installer may request that the model be saved to disk,

@@ -34,18 +34,12 @@ class ServerRolesAccordion extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      accordionPosition: this.props.displayPosition,
-      activeServers: this.props.displayServers
+      accordionPosition: 0
     };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setState({activeServers: nextProps.displayServers});
   }
 
   handleTriggerClick = (idx, role) => {
     this.setState({accordionPosition: idx});
-    this.props.clickAction(idx, role);
   }
 
   renderAccordionServerTable(servers) {
@@ -65,13 +59,16 @@ class ServerRolesAccordion extends Component {
         {name: 'source', hidden: true}
       ]
     };
+
+    const serverList = this.props.serverRoles[this.state.accordionPosition].servers;
+
     return (
       <ServerTable
         id={this.props.tableId}
         noHeader
         tableConfig={tableConfig}
         checkInputs={this.props.checkInputs}
-        tableData={this.state.activeServers}
+        tableData={serverList}
         customAction={this.props.editAction}>
       </ServerTable>
     );
@@ -103,7 +100,7 @@ class ServerRolesAccordion extends Component {
             );
         }
       }
-      let isOpen = idx === this.state.accordionPosition;
+      let isOpen = (idx == this.state.accordionPosition);
       return (
         <div
           onDrop={(event) => this.props.ondropFunct(event, role.serverRole)}

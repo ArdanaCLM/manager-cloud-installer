@@ -3,51 +3,42 @@ import React from 'react';
 import { translate } from '../localization/localize.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import CollapsibleTable from '../components/CollapsibleTable.js';
+import { List, Map } from 'immutable';
 
 class ServerRoleSummary extends BaseWizardPage {
-  constructor() {
-    super();
-    this.state = {serverObjects: []};
 
-    this.formatServerObjects = this.formatServerObjects.bind(this);
+  constructor(props) {
+    super(props);
   }
 
-  componentWillMount() {
-    // retrieve a list of servers that have roles
-    fetch('http://localhost:8081/api/v1/clm/model/entities/servers')
-      .then(response => response.json())
-      .then((responseData) => {
-        let data = this.formatServerObjects(responseData);
-        this.setState({
-          serverObjects: data,
-        });
-      });
-  }
+  formatServerObjects = () => {
 
-  formatServerObjects(objects) {
-    // find unique server roles
-    let serverRoles = objects.map((obj) => {return obj.role;}).sort();
-    let uniqueRoles = [...new Set(serverRoles)];
+    const servers = this.props.model.getIn(['inputModel','servers']);
+    
+    // Create a map of role names to list of servers in each, e.g.
+    //   { 'COMPUTE':[{name:'one',...},{name:'two',...},  'CONTROLLER': [...]}
+    let groupMap = Map();
+    servers.forEach(server => {
+      groupMap = groupMap.update(server.get('role'), 
+        new List(),           // create a new list if role is not in groupMap
+        list => list.push(    // append this servers to the role's list
+          new Map({
+            'name': server.get('name') || server.get('id'),
+            'ipAddr': server.get('ip-addr'),
+            'nicMapping': server.get('nic-mapping'),
+            'serverGroup': server.get('server-group')
+          })
+      ));
+    });
 
-    // create data object for each server role
-    let groups = [];
-    for (let i=0; i<uniqueRoles.length; i++) {
-      let servers = objects.filter((obj) => {return obj.role === uniqueRoles[i];});
-      let formattedServers = [];
-      for (let i=0; i<servers.length; i++) {
-        let server = servers[i];
-        let newObj = {
-          name: (server.name) ? server.name : server.id,
-          ipAddr: server['ip-addr'],
-          nicMapping: server['nic-mapping'],
-          serverGroup: server['server-group']
-        };
-        formattedServers.push(newObj);
-      }
-      let group = {groupName: uniqueRoles[i], members: formattedServers};
-      groups.push(group);
-    }
-    return groups;
+    // Convert the map to a list of objects and return it, e.g.
+    //  [ {groupName:'COMPUTE', members:[{name:'one',...},{name:'two',...}, 
+    //    {groupName:'CONTROLLER', members:[..]}... ]
+    return groupMap.keySeq().sort()         // get a sorted list of keys
+      .map(g => new Map({
+        'groupName': g,
+        'members': groupMap.get(g)})) 
+      .toJS();                              // return as JavaScript objects
   }
 
   render() {
@@ -55,7 +46,7 @@ class ServerRoleSummary extends BaseWizardPage {
       <div className='wizard-page'>
         <div className='wizard-content'>
           {this.renderHeading(translate('server.role.summary.heading'))}
-          <CollapsibleTable showExpandAllButton data={this.state.serverObjects}/>
+          <CollapsibleTable showExpandAllButton data={this.formatServerObjects()}/>
         </div>
         {this.renderNavButtons()}
       </div>
