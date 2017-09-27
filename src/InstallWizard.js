@@ -223,7 +223,7 @@ class InstallWizard extends Component {
 
     function mycallback() {
       let p = undefined;
-      if (key == 'model') {
+      if (key == 'model' && value !== this.state.model) {
         // save the model
         p = this.saveModel();
       } else if (this.persistedStateVars.includes(key)) {
