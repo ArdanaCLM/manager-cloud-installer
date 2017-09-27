@@ -120,7 +120,7 @@
     "server.model.save.error": "Failed to save model object",
     "server.please.select": "Please select...",
     "server.test.ov.success": "Successfully test connection to HPE OneView {0}.",
-    "server.test.ov.error": "Test connection to HPE OneView {0} failed.",
+    "server.test.ov.error": "Test connection to HPE OneView {0} failed. \n{1}",
     "server.user.prompt": "User Name",
     "server.pass.prompt": "Password",
     "server.host1.prompt": "Host",

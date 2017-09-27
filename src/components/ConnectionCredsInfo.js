@@ -191,16 +191,26 @@ class ConnectionCredsInfo extends Component {
       })
         .then(response => response.json())
         .then((responseData) => {
-          resolve(responseData);
-          this.data.ov.sessionID = responseData.sessionID;
-          let msg = translate('server.test.ov.success', this.data.ov.creds.host);
-          this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
-            ovTestStatus: VALID
-          }});
+          if (responseData.sessionID) {
+            resolve(responseData);
+            this.data.ov.sessionID = responseData.sessionID;
+            let msg = translate('server.test.ov.success', this.data.ov.creds.host);
+            this.setState(prev => { return {
+              messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
+              ovTestStatus: VALID
+            }});
+          } else {
+            let error = responseData.error
+            let msg = translate('server.test.ov.error', this.data.ov.creds.host, error);
+            this.setState(prev => { return {
+              messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
+              ovTestStatus: INVALID
+            }});
+            reject(error);
+          }
         })
         .catch((error) => {
-          let msg = translate('server.test.ov.error', this.data.ov.creds.host);
+          let msg = translate('server.test.ov.error', this.data.ov.creds.host, error);
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
             ovTestStatus: INVALID

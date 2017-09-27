@@ -1,7 +1,6 @@
 import config.config as config
 from flask import Blueprint
 from flask import request
-from flask import abort
 from flask import jsonify
 import util
 import requests
@@ -28,9 +27,13 @@ def connection_test():
         headers = {'X-Api-Version': '200', 'Content-Type': 'application/json'}
         data = {'userName': creds['username'], 'password': creds['password']}
         response = requests.post(url, data=json.dumps(data), headers=headers, verify=verify)
-        return jsonify(response.json())
     except Exception:
-        abort(403)
+        return jsonify(error='Connection Error'), 403
+
+    if not response.status_code == 200:
+        return jsonify(error=response.json()['message']), 400
+
+    return jsonify(response.json())
 
 
 @bp.route("/api/v1/ov/servers")
