@@ -148,5 +148,15 @@
     "input.validator.ipv4address.error": "Please enter a valid IPV4 Address",
     "input.validator.macaddress.error": "Please enter a valid MAC Address",
     "input.validator.port.error": "Please enter a valid port between 0 and 65535",
-    "input.validator.ipv4addresshost.error": "Please enter a valid IPV4 Address or Host"
+    "input.validator.ipv4addresshost.error": "Please enter a valid IPV4 Address or Host",
+
+    "clouddeploy.installsteps.InstallIntro": "Introduction",
+    "clouddeploy.installsteps.CloudModelPicker": "Select Cloud Model",
+    "clouddeploy.installsteps.CloudModelSummary": "Model Summary",
+    "clouddeploy.installsteps.AssignServerRoles": "Discovery & Assign Servers",
+    "clouddeploy.installsteps.ServerRoleSummary": "Server Summary",
+    "clouddeploy.installsteps.SelectServersToProvision": "Install OS",
+    "clouddeploy.installsteps.ValidateConfigFiles": "Validate Configuration",
+    "clouddeploy.installsteps.CloudDeployProgress": "Deploy Cloud",
+    "clouddeploy.installsteps.Complete": "Finish"
 }

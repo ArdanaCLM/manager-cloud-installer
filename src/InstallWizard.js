@@ -17,7 +17,14 @@ class InstallWizard extends Component {
   {
     super(props);
 
+    //displaymode "constants" indicating how the progress controls should be rendered
+    this.displayModeHeader = 0;
+    this.displayModeSideBar = 1;
+
     this.state = {
+      //Whether the wizard step progress is displayed via a header or via a side-nav bar
+      displayMode: this.displayModeHeader,
+
       // The current step in the wizard
       currentStep: undefined,
 
@@ -225,16 +232,76 @@ class InstallWizard extends Component {
   }
 
   /**
+   * changes the displaymode from showing the header to sidebar
+   * @param {Number} the displaymode constant for changing the wizard displaymode
+   */
+  setDisplayMode(newMode){
+    this.setState({displayMode: newMode});
+  }
+
+  /**
+   * renders the header for the overall application, if the displaymode is such that the header is
+   * not to be rendered, returns an empty string
+   * @return {jsx} the jsx representation of the header
+   */
+  renderHeader(){
+    if(this.state.displayMode === this.displayModeHeader){
+      return (
+          <div className='wizard-header'>
+            <i className='menutoggle material-icons btn-toggle'
+            onClick={() => this.setDisplayMode(this.displayModeSideBar)}>menu</i>
+            <h1>{translate('openstack.cloud.deployer.title')}</h1>
+            <WizardProgress steps={this.state.steps} />
+          </div>
+      );
+    }
+    return '';
+  }
+
+  /**
+   * renders the sidebar for the overall application, which lists the steps and highlights the
+   * current step. If the displaymode is such that the heade ris not rendered, returns an empty string
+   * @return {jsx} the jsx representation of the sidebar
+   */
+  renderSidebar(){
+    if(this.state.displayMode === this.displayModeSideBar){
+      return (
+          <div className='wizard-sidebar col-sm-2'>
+            <h1>{translate('openstack.cloud.deployer.title')}</h1>
+            <div className='togglewrap'>
+              <i className='menutoggle material-icons btn-toggle'
+                onClick={() => this.setDisplayMode(this.displayModeHeader)}>menu</i>
+            </div>
+            {
+              this.state.steps.map((item, index) => {
+                let stepClass = 'stepItem';
+                if(this.state.currentStep === index){
+                  stepClass = 'stepItem currentstep'
+                }
+                return <div key={index} className={stepClass}>{translate('clouddeploy.installsteps.' + item.name)}</div>;
+              })
+            }
+          </div>
+          );
+    }
+    return '';
+  }
+
+  /**
    * boilerplate ReactJS render function
    */
   render() {
+    let contentCssClass = 'wizard-content-container';
+    if(this.state.displayMode === this.displayModeSideBar){
+      contentCssClass = 'wizard-content-container col-sm-10';
+    } else if(this.state.displayMode === this.displayModeHeader){
+      contentCssClass = 'wizard-content-container hasHeader';
+    }
     return (
       <div>
-        <div className='wizard-header'>
-          <h1>{translate('openstack.cloud.deployer.title')}</h1>
-          <WizardProgress steps={this.state.steps} />
-        </div>
-        <div className='wizard-content-container'>
+        {this.renderHeader()}
+        {this.renderSidebar()}
+        <div className={contentCssClass}>
           <LoadingMask show={this.state.currentStep === undefined}></LoadingMask>
           {this.buildElement()}
         </div>
