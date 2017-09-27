@@ -45,18 +45,59 @@
   margin: 0px;
   padding: 0px 2em;
   height: 80px;
+  .menutoggle {
+    float: right;
+    cursor: pointer;
+  }
 }
 
 .wizard-page{
   height: 100%;
 }
 
-.wizard-content {
+.wizard-sidebar{
+  background-color: @sidebar-background;
+  color: @sidebar-text;
+  height: 100vh;
+  padding-left: 0px;
+  .stepItem, .togglewrap {
+    height: 35px;
+    padding: 8px 0px 8px 16px;
+    margin: 0px 16px 0px 0px;
+    opacity: 0.8;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
+
+  .currentstep{
+    background-color: @preferredcolor;
+    opacity: 1.0;
+  }
+  h1 {
+    padding-left: 16px;
+    font-size: 1.5em;
+  }
+  .togglewrap {
+    width: 100%;
+    margin-bottom: 8px;
+    .menutoggle {
+      cursor: pointer;
+      float: right;
+    }
+  }
+}
+
+.wizard-content-container .wizard-content {
   margin: 20px;
   .heading {
     margin: 0 0 1.5em;
     margin-bottom: 10px;
   }
-  height: calc(~"100vh - 195px");//subtract the height of the footer & header
+  height: calc(~"100vh - 105px");//subtract the height of the footer
+
   overflow-y: auto;
+}
+
+.wizard-content-container.hasHeader .wizard-content {
+  height: calc(~"100vh - 205px");//subtract the height of the footer & header
 }
