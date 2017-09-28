@@ -296,7 +296,11 @@ class ServerDropdown extends Component {
 
   renderOptions() {
     let options = this.props.optionList.map((opt) => {
-      return <option key={opt} value={opt}>{opt}</option>;
+      if (this.props.defaultOption && opt === this.props.defaultOption.value) {
+        return <option key={opt} value={opt}>{this.props.defaultOption.label}</option>;
+      } else {
+        return <option key={opt} value={opt}>{opt}</option>;
+      }
     });
 
     if(this.props.emptyOption && (this.state.value === '' || this.state.value === undefined)) {
@@ -332,7 +336,7 @@ class ServerDropdownLine extends Component {
         <div className='input-body'>
           <ServerDropdown name={this.props.name} value={this.props.value}
             optionList={this.props.optionList} emptyOption={this.props.emptyOption}
-            selectAction={this.props.selectAction}/>
+            selectAction={this.props.selectAction} defaultOption={this.props.defaultOption}/>
         </div>
       </div>
     );
