@@ -290,10 +290,10 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  renderDropdownLine(required, title, name, list, handler, emptyOption) {
+  renderDropdownLine(required, title, name, list, handler, defaultOption) {
     return (
       <ServerDropdownLine label={title} name={name} value={this.newServer[name]} optionList={list}
-        isRequired={required} selectAction={handler} emptyOption={emptyOption}/>
+        isRequired={required} selectAction={handler} defaultOption={defaultOption}/>
     );
   }
 
@@ -398,6 +398,7 @@ class AssignServerRoles extends BaseWizardPage {
     let body = '';
     if (this.state.serverRoles && this.serverGroups && this.nicMappings) {
       let roles = this.state.serverRoles.map((server) => {return server.serverRole});
+      roles.unshift('');
       if (!this.newServer.role) {
         this.newServer.role = '';
       }
@@ -407,7 +408,7 @@ class AssignServerRoles extends BaseWizardPage {
       if (!this.newServer['nic-mapping']) {
         this.newServer['nic-mapping'] = this.nicMappings[0];
       }
-      let emptyOption = {
+      let defaultOption = {
         label: translate('server.none.prompt'),
         value: ''
       };
@@ -421,7 +422,7 @@ class AssignServerRoles extends BaseWizardPage {
             {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
               this.nicMappings, this.handleSelectNicMapping)}
             {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
-              this.handleSelectRole, emptyOption)}
+              this.handleSelectRole, defaultOption)}
           </div>
           <div className='message-line'>{translate('server.ipmi.message')}</div>
           <div className='server-details-container'>
