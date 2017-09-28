@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
@@ -33,7 +33,7 @@ class SelectServers extends BaseWizardPage {
   }
 
   //since the parent controls the next/back buttons, update it when the state changes
-  componentDidUpdate(prevProps, prevState){
+  componentDidUpdate(prevProps, prevState) {
     if(this.state.selectedServers.length !== prevState.selectedServers.length) {
       //if there are servers to install, there is an "activeSelection"
       this.props.hasActiveSelection(this.state.selectedServers.length !== 0);
@@ -97,7 +97,7 @@ class ShowInstallProgress extends BaseWizardPage {
     this.getProgress = this.getProgress.bind(this);
   }
 
-  componentWillMount(){
+  componentWillMount() {
     this.props.setInstallState(false);
   }
 
@@ -206,19 +206,19 @@ class SelectServersToProvision extends BaseWizardPage {
     this.setState({showModal: false});
   }
 
-  setInstallCompleteState(isComplete){
+  setInstallCompleteState(isComplete) {
     this.setState({installComplete: isComplete});
   }
 
-  setServersSelectedButNotInstalledState(serversSelected){
+  setServersSelectedButNotInstalledState(serversSelected) {
     this.setState({serversSelectedButNotInstalled: serversSelected});
   }
 
   setNextButtonDisabled() {
     let disabled = false;
-    if(this.state.installing && !this.state.installComplete){
+    if(this.state.installing && !this.state.installComplete) {
       disabled = true;
-    } else if (!this.state.installing && this.state.serversSelectedButNotInstalled){
+    } else if (!this.state.installing && this.state.serversSelectedButNotInstalled) {
       disabled = true;
     }
     return disabled;

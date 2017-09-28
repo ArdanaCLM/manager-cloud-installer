@@ -55,8 +55,8 @@ class EditFile extends BaseWizardPage {
     return (
       <div className='wizard-page'>
         <div className='wizard-content'>
-        {this.renderHeading(translate('edit.config.files.heading', this.props.file.description,
-          this.props.file.name))}
+          {this.renderHeading(translate('edit.config.files.heading', this.props.file.description,
+            this.props.file.name))}
           <div>
             <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
               value={this.state.contents} onChange={(e) => this.handleChange(e)}/>

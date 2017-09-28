@@ -32,7 +32,7 @@ export function fetchJson(url, init) {
       } else {
         return Promise.reject(res.statusText);
       }
-  });
+    });
 }
 
 /**
@@ -78,7 +78,7 @@ export function postJson(url, body, init) {
       } else {
         return Promise.reject(res.statusText);
       }
-  });
+    });
 }
 
 function buildUrl(url) {

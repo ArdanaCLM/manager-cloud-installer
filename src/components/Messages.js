@@ -18,10 +18,10 @@ class NotificationMessage extends Component {
     return (
       <div className='notification-message'>
         <Alert bsStyle={this.props.type} onDismiss={this.props.closeAction}>
-        <div>
-          <h4>{this.props.title}</h4>
-          {msgs}
-        </div>
+          <div>
+            <h4>{this.props.title}</h4>
+            {msgs}
+          </div>
         </Alert>
       </div>
     );
