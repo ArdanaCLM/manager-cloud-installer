@@ -223,6 +223,27 @@ class InstallWizard extends Component {
     this.setState(stateUpdates, this.persistState);
   }
 
+  /**
+   * Set the wizard to a specific step in the workflow, can only be used to go to previous steps and not forward
+   * @param {number} the step number to switch the wizard to
+   */
+  stepTo(stepNumber) {
+    var steps = this.state.steps, stateUpdates = {};
+    // sanity check the stepNumber, it must be greater than 0 and less than the current step
+    if(stepNumber >= 0 && this.state.currentStep > stepNumber){
+      let i = this.state.currentStep;
+      while(i > stepNumber){
+        steps[i].stepProgress = stepProgressValues.notdone;
+        i--;
+      }
+
+      steps[stepNumber].stepProgress = stepProgressValues.inprogress;
+      stateUpdates.currentStep = stepNumber;
+      stateUpdates.steps = steps;
+      this.setState(stateUpdates, this.persistState);
+    }
+  }
+
   // Setter functions for all state variables that need to be modified within pages.
   // If this list gets long, consider replacing it with a more generic function
   // that provides access to any
@@ -302,10 +323,20 @@ class InstallWizard extends Component {
             {
               this.state.steps.map((item, index) => {
                 let stepClass = 'stepItem';
+                let onClickFnct = undefined;
+                if(this.state.currentStep > index){
+                  stepClass = 'stepItem prevstep';
+                  onClickFnct = () => {
+                    this.stepTo(index);
+                  }
+                }
                 if(this.state.currentStep === index){
                   stepClass = 'stepItem currentstep'
                 }
-                return <div key={index} className={stepClass}>{translate('clouddeploy.installsteps.' + item.name)}</div>;
+                return <div key={index}
+                            className={stepClass}
+                            onClick={onClickFnct}>
+                       {translate('clouddeploy.installsteps.' + item.name)}</div>;
               })
             }
           </div>
