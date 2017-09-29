@@ -112,6 +112,7 @@
     "server.test.sm.error.userpass": "Failed to test connection for SUSE Manager for user {0}. Error in either username or password.",
     "server.test.sm.error": "Failed to test connection for SUSE Manager.",
     "server.discover.sm.error": "Failed to get SUSE Manager servers.",
+    "server.discover.ov.error": "Failed to get HPE Oneview servers.",
     "server.discover.save.error": "Failed to save discovered servers",
     "server.discover.get.error": "Failed to get discovered servers",
     "server.discover.update.error": "Failed to update discovered server {0}",
