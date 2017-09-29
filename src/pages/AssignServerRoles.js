@@ -13,9 +13,10 @@ import BaseWizardPage from './BaseWizardPage.js';
 import ConnectionCredsInfo from '../components/ConnectionCredsInfo';
 import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
-import ServerTable from '../components/ServerTable.js'
-import EditServerDetails from '../components/EditServerDetails.js'
+import ServerTable from '../components/ServerTable.js';
+import EditServerDetails from '../components/EditServerDetails.js';
 import { importCSV } from '../utils/CsvImporter.js';
+import { fromJS } from 'immutable';
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
@@ -27,14 +28,15 @@ class AssignServerRoles extends BaseWizardPage {
     super(props);
 
     //variables
-    this.model = undefined;
-    this.serverGroups = undefined;
-    this.nicMappings = undefined;
     this.checkInputKeys = [
       'nic-mapping',
       'server-group'
     ];
+    // TODO: Remove this
     this.activeRowData = undefined;
+
+    // TODO: Move the Add Server model into its own component and
+    // let it track its own state
     this.newServer = {
       'source': 'manual',
       'id': '',
@@ -49,36 +51,38 @@ class AssignServerRoles extends BaseWizardPage {
       'mac-addr': ''
     };
 
+    // TODO: These probably need to be moved into state, since they are modified by the user
     this.credentials = window.discoverCreds ? window.discoverCreds : {
       sm: {creds: {}},
       ov: {creds: {}}
     };
-    this.selectedServerRole = '';
+
+    // TODO: Remove this and use getSmUrl() to build this when needed
     this.smApiUrl = '';
+
     this.smApiToken = undefined;
     this.smSessionKey = undefined;
 
-    //states changes will rerender UI
     this.state = {
-      //the list of server roles from the cloud model
-      serverRoles: [],
       //server list on the available servers side
       //could be filtered
-      displayAvailableServers: [],
-      //server list on the assigned servers side
-      //also changed when select role
-      displayAssignedServers: [],
+      serversAddedManually: [],
+      rawDiscoveredServers: [],
+
       //when move servers the filter text could be cleared
       searchFilterText: '',
-      //what tab key selected
+
+      //which tab key selected
       selectedServerTabKey: AUTODISCOVER_TAB,
+
       //show or not credentials modal
       showCredsModal: false,
 
       // Add Server Manually modal
       showAddServerManuallyModal: false,
+
+      // TODO: Separate the manual modal into its own component and track its validity internally
       validAddServerManuallyForm: false,
-      serversAddedManually: [],
 
       //when loading data or saving data
       loading: false,
@@ -88,38 +92,10 @@ class AssignServerRoles extends BaseWizardPage {
 
       //show server details modal
       showServerDetailsModal: false,
+
       //show edit server details modal
       showEditServerDetailsModal: false,
-
-      rawDiscoveredServers: [],
-      accordionDisplayPosition: 0
     };
-  }
-
-  refreshServers(rawServerData) {
-    let serverRoles = this.state.serverRoles;
-    serverRoles.forEach((role) => {
-      //clean up servers
-      role.servers = [];
-    });
-
-    this.setState({
-      displayAssignedServers: [],
-      displayAvailableServers: [],
-      searchFilterText: '',
-      serverRoles: serverRoles
-    });
-
-    if(this.model) {
-      //this will parse model and
-      //consolidate availableServers and assignedServers
-      this.getServerRoles(this.model, rawServerData);
-    }
-    else {
-      //don't have model for some reason
-      let msg = translate('server.model.empty.error');
-      this.setErrorMessageContent(msg);
-    }
   }
 
   getSmServersData(tokenKey, smUrl) {
@@ -242,7 +218,6 @@ class AssignServerRoles extends BaseWizardPage {
           });
           this.doSaveAllDiscoveredServers(resultServers);
           this.setState({loading: false, rawDiscoveredServers: resultServers});
-          this.refreshServers(resultServers);
         })
         .catch((error) => {
           this.setState({loading: false, errorContent: undefined});
@@ -320,38 +295,15 @@ class AssignServerRoles extends BaseWizardPage {
 
   saveServersAddedManually = (serverList) => {
 
-    let serverRoles = this.state.serverRoles;
+    // if role is provided, add server to the model
+    let model = this.props.model;
 
-    // if role is provided, add server to this.model and this.state.serverRoles
-    // so that it will get displayed in the accordion table and saved to the input model
-    let modelChanged = false;
     serverList.forEach(server => {
       if (server.role) {
-        this.model.inputModel.servers.push(server);
-        modelChanged = true;
-
-        // TODO: Modifying state directly is unsafe and should be rewritten
-        serverRoles.forEach((roleObj) => {
-          if (roleObj.serverRole === server.role) {
-            roleObj.servers.push(server);
-          }
-        });
+        model = model.updateIn(['inputModel', 'servers'], list => list.push(fromJS(server)));
       }
     });
-
-    if (modelChanged) {
-      this.setState((prevState) => {
-        serverRoles: serverRoles
-      });
-
-      this.saveModelObjectData()
-        .then((response) => {
-        })
-        .catch((error) => {
-          let msg = translate('server.model.save.error');
-          this.setErrorMessageContent(msg, error.toString());
-        });
-    }
+    this.props.updateGlobalState('model', model);
 
     fetch(getAppConfig('shimurl') + '/api/v1/server', {
       method: 'POST',
@@ -396,44 +348,44 @@ class AssignServerRoles extends BaseWizardPage {
 
   renderAddServerManuallyModal = () => {
     let body = '';
-    if (this.state.serverRoles && this.serverGroups && this.nicMappings) {
-      let roles = this.state.serverRoles.map((server) => {return server.serverRole});
-      roles.unshift('');
-      if (!this.newServer.role) {
-        this.newServer.role = '';
-      }
-      if (!this.newServer['server-group']) {
-        this.newServer['server-group'] = this.serverGroups[0];
-      }
-      if (!this.newServer['nic-mapping']) {
-        this.newServer['nic-mapping'] = this.nicMappings[0];
-      }
-      let defaultOption = {
-        label: translate('server.none.prompt'),
-        value: ''
-      };
-      body = (
-        <div>
-          <div className='server-details-container'>
-            {this.renderInputLine(true, 'server.name.prompt', 'name', 'text')}
-            {this.renderInputLine(true, 'server.ip.prompt', 'ip-addr', 'text', IpV4AddressValidator)}
-            {this.renderDropdownLine(true, 'server.group.prompt', 'server-group',
-              this.serverGroups, this.handleSelectGroup)}
-            {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
-              this.nicMappings, this.handleSelectNicMapping)}
-            {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
-              this.handleSelectRole, defaultOption)}
-          </div>
-          <div className='message-line'>{translate('server.ipmi.message')}</div>
-          <div className='server-details-container'>
-            {this.renderInputLine(false, 'server.mac.prompt', 'mac-addr', 'text', MacAddressValidator)}
-            {this.renderInputLine(false, 'server.ipmi.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
-            {this.renderInputLine(false, 'server.ipmi.username.prompt', 'ilo-user', 'text')}
-            {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ilo-password', 'password')}
-          </div>
-        </div>
-      );
+    const serverGroups = this.getServerGroups();
+    const nicMappings = this.getNicMappings();
+    let roles = this.getServerRoles().map(server => server.serverRole);
+    roles.unshift('');
+    if (!this.newServer.role) {
+      this.newServer.role = '';
     }
+    if (!this.newServer['server-group']) {
+      this.newServer['server-group'] = serverGroups[0];
+    }
+    if (!this.newServer['nic-mapping']) {
+      this.newServer['nic-mapping'] = nicMappings[0];
+    }
+    let defaultOption = {
+      label: translate('server.none.prompt'),
+      value: ''
+    };
+    body = (
+      <div>
+        <div className='server-details-container'>
+          {this.renderInputLine(true, 'server.name.prompt', 'name', 'text')}
+          {this.renderInputLine(true, 'server.ip.prompt', 'ip-addr', 'text', IpV4AddressValidator)}
+          {this.renderDropdownLine(true, 'server.group.prompt', 'server-group',
+            serverGroups, this.handleSelectGroup)}
+          {this.renderDropdownLine(true, 'server.nicmapping.prompt', 'nic-mapping',
+            nicMappings, this.handleSelectNicMapping)}
+          {this.renderDropdownLine(false, 'server.role.prompt', 'role', roles,
+            this.handleSelectRole, defaultOption)}
+        </div>
+        <div className='message-line'>{translate('server.ipmi.message')}</div>
+        <div className='server-details-container'>
+          {this.renderInputLine(false, 'server.mac.prompt', 'mac-addr', 'text', MacAddressValidator)}
+          {this.renderInputLine(false, 'server.ipmi.ip.prompt', 'ilo-ip', 'text', IpV4AddressValidator)}
+          {this.renderInputLine(false, 'server.ipmi.username.prompt', 'ilo-user', 'text')}
+          {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ilo-password', 'password')}
+        </div>
+      </div>
+    );
     let footer = (
       <div className='btn-row'>
         <ActionButton clickAction={this.cancelAddServerManuallyModal}
@@ -461,9 +413,9 @@ class AssignServerRoles extends BaseWizardPage {
 
   handleAddServerFromCSV = file => {
     const restrictions = {
-      'server-role': this.state.serverRoles.map(e => e['serverRole']),
-      'server-groups': this.serverGroups,
-      'nic-mappings' : this.nicMappings
+      'server-role': this.getServerRoles().map(e => e['serverRole']),
+      'server-groups': this.getServerGroups(),
+      'nic-mappings' : this.getNicMappings()
     };
 
     importCSV(file, restrictions, results => {
@@ -546,7 +498,6 @@ class AssignServerRoles extends BaseWizardPage {
           });
           //save it to the backend
           this.doSaveAllDiscoveredServers(resultServers);
-          this.refreshServers(resultServers);
           this.setState({rawDiscoveredServers: resultServers, loading: false});
         })
         .catch((error) => {
@@ -562,34 +513,14 @@ class AssignServerRoles extends BaseWizardPage {
     //then pop a modal
   }
 
-  handleDoneEditServerDetailsInput = (editData) => {
-    let roles = this.state.serverRoles;
-    let findRole = roles.find((role) => {
-      return role.serverRole === editData.role;
-    });
+  handleDoneEditServerDetailsInput = (server) => {
+    //update model and save on the spot
+    this.updateModelObjectForEditServer(server);
 
-    if(findRole) {
-      let server = findRole.servers.find((srv) => {
-        return srv.id === editData.id;
-      });
-      if(server) {
-        server['ip-addr'] = editData['ip-addr'];
-        server['mac-addr'] = editData['mac-addr'];
-        server['server-group'] = editData['server-group'];
-        server['nic-mapping'] = editData['nic-mapping'];
-        server['ilo-ip'] = editData['ilo-ip'];
-        server['ilo-user'] = editData['ilo-user'];
-        server['ilo-password'] = editData['ilo-password'];
-        //update model and save on the spot
-        this.updateModelObjectForEditServer(server);
-        //update servers and save to the backend
-        this.updateServerForEditServer(server);
-      }
-    }
+    //update servers and save to the backend
+    this.updateServerForEditServer(server);
 
-    this.setState({
-      showEditServerDetailsModal: false
-    });
+    this.setState({ showEditServerDetailsModal: false });
     this.activeRowData = undefined;
   }
 
@@ -598,14 +529,6 @@ class AssignServerRoles extends BaseWizardPage {
       showEditServerDetailsModal: false
     });
     this.activeRowData = undefined;
-  }
-
-  handleClickRoleAccordion = (idx, role) => {
-    this.selectedServerRole = role.serverRole;
-    this.setState({
-      displayAssignedServers: role.servers,
-      accordionDisplayPosition: idx
-    })
   }
 
   handleShowEditServerDetails = (rowData) => {
@@ -639,13 +562,13 @@ class AssignServerRoles extends BaseWizardPage {
         if(rawServerData) {
           this.setState({rawDiscoveredServers : rawServerData});
         }
-        this.doGetModel(rawServerData);
+        this.getServerRoles(rawServerData);
       })
       .catch((error) => {
         let msg = translate('server.discover.get.error');
         this.setErrorMessageContent(msg, error.toString());
         //still get model
-        this.doGetModel();
+        this.getServerRoles();
       });
 
     // get manually added servers
@@ -655,20 +578,6 @@ class AssignServerRoles extends BaseWizardPage {
         if (responseData.length > 0) {
           this.setState({serversAddedManually: responseData});
         }
-      });
-  }
-
-  doGetModel(rawServerData) {
-    this.getModelObjectData()
-      .then((modelData) => {
-        this.model = modelData;
-        this.getServerGroups(modelData);
-        this.getNicMappings(modelData);
-        this.getServerRoles(modelData, rawServerData);
-      })
-      .catch((error) => {
-        let msg = translate('server.model.get.error');
-        this.setErrorMessageContent(msg, error.toString());
       });
   }
 
@@ -717,28 +626,26 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
-  getServerGroups(modelData) {
-    let modelGrps = modelData.inputModel['server-groups'];
-    let groups = [];
-    if(modelGrps) {
-      modelGrps.forEach((grp) => {
-        if(grp['server-groups']) {
-          groups = groups.concat(grp['server-groups']);
-        }
-      });
-    }
-    this.serverGroups = groups;
+  byNameIgnoreCase = (a,b) => {
+    const x = a.toUpperCase();
+    const y = b.toUpperCase();
+    return ((x < y) ? -1 : (x > y) ? 1 : 0);
   }
 
-  getNicMappings(modelData) {
-    let modelMps = modelData.inputModel['nic-mappings'];
-    let mappings = [];
-    if(modelMps) {
-      mappings = modelMps.map((map) => {
-        return map.name;
-      });
-    }
-    this.nicMappings = mappings;
+  getServerGroups = () => {
+    // the input model's server-groups section is a list, each of which may optionally
+    //    in contain a list of server-groups.  Gather them altogether into
+    //    a single list (using map and reduce), and sort by name
+    return this.props.model.getIn(['inputModel', 'server-groups']).map(e => e.get('server-groups') || [])
+      .reduce((a,b) => a.concat(b))   // Reduce array of arrays to a single flattened array
+      .toJS()                         // Convert from immutable to standard JS object
+      .sort(this.byNameIgnoreCase);   // Sort alphabetically
+  }
+
+  getNicMappings = () => {
+    return this.props.model.getIn(['inputModel','nic-mappings']).map(e => e.get('name'))
+      .toJS()                         // Convert from immutable to standard JS object
+      .sort(this.byNameIgnoreCase);   // Sort alphabetically
   }
 
   updateSmServerDataWithDetails = (details) => {
@@ -769,82 +676,72 @@ class AssignServerRoles extends BaseWizardPage {
     return retData;
   }
 
-  //process model to get server roles information
-  getServerRoles(modelData, rawServerData) {
-    //process this.model and get the list of server roles
-    //from resources and clusters
-    //only pick one control plane for now...
-    //could have multiple control planes in the future
+  // Merges the relevant properties of destination server into the src and returns the merged version.  Neither
+  // src or dest are modified
+  getMergedServer = (src, dest) => {
+    let result = Object.assign({}, src);
 
-    //TODO will deal with multiple control plane later
-    let cpData = modelData['inputModel']['control-planes'][0];
-    //TODO some error handling
-    //this assume a fresh start.
-    //need to deal with preserved state
-    if(cpData) {
-      let resources = cpData.resources;
-      let clusters = cpData.clusters;
-      let rs_roles = resources.map((res) => {
-        let rs_role = {
-          'name': res.name,
-          'minCount': res['min-count'] || 0,
-          'servers': [], //add display server rows
-          'serverRole': res['server-role'],
-          'group': 'resources'
-        };
-        return rs_role;
-      });
-      let cl_roles = clusters.map((res) => {
-        let rs_role = {
-          'name': res.name,
-          'memberCount': res['member-count'] || 0,
-          'serverRole': res['server-role'],
-          'servers': [], //add display server rows
-          'group': 'clusters'
-        };
+    const props = ['name', 'ip-addr', 'mac-addr' ,'server-group' ,'nic-mapping' ,'ilo-ip' ,'ilo-user' ,'ilo-password'];
 
-        return rs_role;
-      });
+    props.forEach(p => {
+      if (p in dest)
+        result[p] = dest[p];
+    });
 
-      //populate servers in roles from model's servers
-      //this is prototype and experimental
-      let modelServers = modelData['inputModel'].servers;
-      let allRoles = cl_roles.concat(rs_roles);
-      let allAssignedSrvIds = [];
-      allRoles.forEach((role, idx) => {
-        let matchedModelSvrs = modelServers.filter((server) => {
-          return server.role === role.serverRole;
-        });
-        let servers = [];
-        if (matchedModelSvrs && matchedModelSvrs.length > 0) {
-          servers = matchedModelSvrs.map((srv) => {
-            let strId = srv.id + '';  //make it string
-            let retValue = {
-              'id': strId,
-              'name': srv.name ? srv.name : strId,
-              'ip-addr': srv['ip-addr'],
-              'mac-addr': srv['mac-addr'] || '',
-              'role': srv.role || '',
-              'server-group': srv['server-group'] || '',
-              'ilo-ip': srv['ilo-ip'] || '',
-              'ilo-user': srv['ilo-user'] || '',
-              'ilo-password': srv['ilo-password'] || '',
-              'nic-mapping': srv['nic-mapping'] || ''
-            };
-            return retValue;
-          });
+    return result;
+  }
 
-          role.servers = servers;
-        }
-      });
+  // Create a sanitized version of the a server entry, with empty strings instead of undefined values
+  getCleanedServer(srv) {
+    const strId = srv['id'].toString();
+    return {
+      'id': strId,
+      'name': srv.name || strId,
+      'ip-addr': srv['ip-addr'],
+      'mac-addr': srv['mac-addr'] || '',
+      'role': srv['role'] || '',
+      'server-group': srv['server-group'] || '',
+      'ilo-ip': srv['ilo-ip'] || '',
+      'ilo-user': srv['ilo-user'] || '',
+      'ilo-password': srv['ilo-password'] || '',
+      'nic-mapping': srv['nic-mapping'] || ''
+    };
+  }
 
-      this.selectedServerRole = allRoles[this.state.accordionDisplayPosition].serverRole;
-      this.setState({
-        displayAssignedServers: allRoles[this.state.accordionDisplayPosition].servers,
-        displayAvailableServers: rawServerData,
-        serverRoles: allRoles
-      });
-    }
+
+  // Retrieve summarized server role information from the model
+  // Each element in this list is an object containing:
+  // - name        : the displayed name, such as "compute"
+  // - serverRole  : the role name, such as "COMPUTE-ROLE"
+  // - servers[]   : list of servers that have the role
+  // - minCount    : minimum count of servers in the role
+  //     or
+  // - memberCount : exact count of servers in the role
+  // - group       : 'clusters' or 'resources' (the type of role)
+  getServerRoles = () => {
+
+    const servers = this.props.model.getIn(['inputModel', 'servers']).toJS();
+
+    // TODO: Handle multiple control planes
+    const cpData = this.props.model.getIn(['inputModel', 'control-planes', '0']).toJS();
+    return cpData.resources.map((res) => {
+      return {
+        'name': res.name,
+        'minCount': res['min-count'] || 0,
+        'servers': servers.filter(s => s.role == res['server-role']).map(s => this.getCleanedServer(s)),
+        'serverRole': res['server-role'],
+        'group': 'resources'
+      };
+    })
+    .concat(cpData.clusters.map((res) => {
+      return {
+        'name': res.name,
+        'memberCount': res['member-count'] || 0,
+        'serverRole': res['server-role'],
+        'servers': servers.filter(s => s.role == res['server-role']).map(s => this.getCleanedServer(s)),
+        'group': 'clusters'
+      };
+    }));
   }
 
   //prototype query suse manager for details
@@ -882,32 +779,35 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   /**
-   * updates the cloud model with the latest role->server mapping and saves it to the backend, triggers sanity
-   * check validation for role/server count
-   */
-  updateAndSaveDataModel() {
-    this.updateModelWithServerRoles();
-    this.saveModelObjectData();
-  }
-
-  /**
    * assign a server to a particular role in the datamodel, then update the model and save it
    *
    * @param {Object} server - data object representing the server and its known metadata
    * @param {string} role - the role that the server is to be assigned to as it matches the model (not the user-friendly translation)
    */
-  assignServerToRole(server, role){
-    let serverRoles = this.state.serverRoles;
-    serverRoles.forEach((roleObj) => {
-      if(roleObj.serverRole === role){
-        roleObj.servers.push(server);
-        server.role = role;
+  assignServerToRole = (server, role) => {
 
-        this.setState((prevState) => {
-          serverRoles: serverRoles
-        }, this.updateAndSaveDataModel);
-      }
-    });
+    let model = this.props.model;
+
+    const index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') == server.id);
+    if (index < 0) {
+      // The server was not in the model, so add it with the new role
+      let new_server = this.getCleanedServer(server);
+      new_server['role'] = role;
+
+      // Append the server to the input model
+      model = model.updateIn(['inputModel', 'servers'], list => list.push(fromJS(new_server)));
+    } else {
+
+      // Update the role in the existing input model entry
+      model = model.updateIn(['inputModel', 'servers'], list => list.map(svr => {
+        if (svr.get('id') == server.id)
+          return svr.set('role', role);
+        else
+          return svr;
+        }
+      ));
+    }
+    this.props.updateGlobalState('model', model);
   }
 
   /**
@@ -917,17 +817,10 @@ class AssignServerRoles extends BaseWizardPage {
    * @param {event} event - the browser event for the drop action, should contain a data JSON object per ServerRowItem.js
    * @param {string} role - the role to assign the server to
    */
-  assignServerToRoleDnD(event, role){
+  assignServerToRoleDnD = (event, role) => {
     let serverData = JSON.parse(event.dataTransfer.getData("data"));
 
-    if(typeof serverData.role !== 'undefined' && serverData.role !== role){
-      this.removeServerFromRole(serverData, serverData.role);
-    }
-
-    if(typeof serverData.role === 'undefined' || serverData.role !== role) {
-      this.assignServerToRole(serverData, role);
-    }
-
+    this.assignServerToRole(serverData, role);
     this.unHighlightDrop(event, true);
   }
 
@@ -937,11 +830,9 @@ class AssignServerRoles extends BaseWizardPage {
    *
    * @param {event} event - the browser event for the drop action, should contain a data JSON object per ServerRowItem.js
    */
-  removeServerFromRoleDnD(event){
+  removeServerFromRoleDnD = (event) => {
     let serverData = JSON.parse(event.dataTransfer.getData("data"));
-    if(typeof serverData.role !== 'undefined'){
-      this.removeServerFromRole(serverData, serverData.role);
-    }
+    this.removeServerFromRole(serverData, serverData.role);
 
     this.unHighlightDrop(event, true);
   }
@@ -952,24 +843,11 @@ class AssignServerRoles extends BaseWizardPage {
    * @param {Object} server - data object representing the server and its known metadata
    * @param {String} role - the role that the server is to be assigned to as it matches the model (not the user-friendly translation)
    */
-  removeServerFromRole(serverData, role){
-    let serverRoles = this.state.serverRoles;
-    serverRoles.forEach((roleObj) => {
-      if(roleObj.serverRole === role){
-        //found the matching role , need to remove it now
-        var i = 0;
-        for(i = roleObj.servers.length - 1; i >= 0; i--){
-          if(roleObj.servers[i].id === serverData.id){
-            roleObj.servers.splice(i,1);
+  removeServerFromRole = (server, role) => {
 
-            this.setState((prevState) => {
-              serverRoles: serverRoles
-            }, this.updateAndSaveDataModel);
-            break;
-          }
-        };
-      }
-    });
+    // Remove the server from the model
+    const model = this.props.model.updateIn(['inputModel', 'servers'], list => list.filter(svr => svr.get('id') != server.id))
+    this.props.updateGlobalState('model', model);
   }
 
   /**
@@ -978,7 +856,7 @@ class AssignServerRoles extends BaseWizardPage {
    * @param {event} event - the browser event from dragging over a dropzone
    * @param {string} role - the server role represented by this dropzone
    */
-  allowDrop(event, role){
+  allowDrop = (event, role) => {
     event.preventDefault();
   }
 
@@ -988,7 +866,7 @@ class AssignServerRoles extends BaseWizardPage {
    *
    * @param {event} event - the browser event from dragEnter
    */
-  highlightDrop(event) {
+  highlightDrop = (event) => {
     let element = $(event.target);
     if(!element.hasClass('server-dropzone')){
       element = element.closest('.server-dropzone');
@@ -1007,7 +885,7 @@ class AssignServerRoles extends BaseWizardPage {
    * @param {event} event - the browser event from dragLeave
    * @param {boolean} forceclear (optional) - whether to forcibly remove the highlighting
    */
-  unHighlightDrop(event, forceclear) {
+  unHighlightDrop = (event, forceclear) => {
     let element = $(event.target);
     if(!element.hasClass('server-dropzone')){
       element = element.closest('.server-dropzone');
@@ -1022,118 +900,65 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  //update the model servers based on
-  //server role assginment
-  updateModelWithServerRoles() {
-    let serverRoles = this.state.serverRoles;
-    let modelObject = this.model;
-
-    modelObject.inputModel.servers = [];
-    serverRoles.forEach((role) => {
-      let modelServers = [];
-      let servers = role.servers;
-
-      if (servers && servers.length > 0) {
-        servers.forEach((svr, idx) => {
-          //update model
-          modelServers.push({
-            'id': svr.id,
-            'name': svr.name || '',
-            'role': role.serverRole,
-            'ip-addr': svr['ip-addr'],
-            'mac-addr': svr['mac-addr'],
-            'nic-mapping': svr['nic-mapping'] || '',
-            'ilo-ip': svr['ilo-ip'] || '',
-            'ilo-password': svr['ilo-password'] ||'',
-            'ilo-user': svr['ilo-user']|| '',
-            'server-group': svr['server-group'] || ''
-          });
-        });
-
-        modelObject.inputModel.servers =
-          modelObject.inputModel.servers.concat(modelServers);
-      }
-    });
-  }
-
-  //query the model object from ardana
-  getModelObjectData() {
-    return (
-      fetch(getAppConfig('shimurl') + '/api/v1/clm/model')
-        .then((response) => this.checkResponse(response))
-        .then(response => response.json())
-    );
-  }
-
+  /**
+   * When a server is edited (which is only possible in from the assigned servers page
+   * on the right), update the details of the matching entry in the list that backs
+   * the available servers (on the left).  This ensures that the correct information
+   * is persisted to the discovered server store, and also ensures that no information
+   * is dropped when unassigning and reassigning servers to roles.
+   */
   updateServerForEditServer = (server) => {
-    if(this.state.selectedServerTabKey === AUTODISCOVER_TAB) {
-      let discoveredServers = this.state.rawDiscoveredServers;
-      let fIdx = discoveredServers.findIndex((dServer) => {
-        return server.id === dServer.id && server.source === dServer.source;
-      });
-      if (fIdx >= 0) {
-        discoveredServers[fIdx] = server; //update with more information
-        this.updateDiscoveredServer(discoveredServers[fIdx])
-        .then((response) => {})
-        .catch((error) => {
-          let msg = translate('server.discover.update.error', discoveredServers[fIdx].id);
-          this.setErrorMessageContent(msg, error.toString());
+    let updated_server;
+    for (let list of ['rawDiscoveredServers', 'serversAddedManually']) {
+      let idx = this.state[list].findIndex(s => server.id === s.id);
+      if (idx >= 0) {
+        this.setState(prev => {
+          let tempList = prev[list].slice();
+          updated_server = this.getMergedServer(tempList[idx], server);
+          tempList.splice(idx, 1, updated_server);
+          return {[list]: tempList};
         });
-        this.setState({rawDiscoveredServers: discoveredServers});
+        break;
       }
+    };
+
+    if (updated_server) {
+      this.updateDiscoveredServer(updated_server)
+      .then((response) => {})
+      .catch((error) => {
+        let msg = translate('server.discover.update.error', updated_server.name);
+        this.setErrorMessageContent(msg, error.toString());
+      });
     }
-    //TODO for manual added servers
   }
 
   updateModelObjectForEditServer = (server) => {
     //update model
-    let modelServers = this.model.inputModel.servers;
-    let modelServer = modelServers.find((srv, idx) => {
-      //TODO once we settled with db, need to add source in the condition
-      return srv.id === server.id;
-    });
+    let model = this.props.model;
 
-    if(modelServer) {
-      //field from edit server
-      modelServer['ip-addr'] = server['ip-addr'];
-      modelServer['mac-addr'] = server['mac-addr'];
-      modelServer['server-group'] = server['server-group'];
-      modelServer['nic-mapping'] = server['nic-mapping'];
-      modelServer['ilo-ip'] = server['ilo-ip'];
-      modelServer['ilo-user'] = server['ilo-user'];
-      modelServer['ilo-password'] = server['ilo-password'];
+    let index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') == server.id);
+    if (index >= 0) {
+      const update_svr = {
+        //fields from edit server
+        'ip-addr': server['ip-addr'],
+        'mac-addr': server['mac-addr'],
+        'server-group': server['server-group'],
+        'nic-mapping': server['nic-mapping'],
+        'ilo-ip': server['ilo-ip'],
+        'ilo-user': server['ilo-user'],
+        'ilo-password': server['ilo-password']
+      }
+      model = model.mergeIn(['inputModel', 'servers', index], update_svr);
+    } else {
+      model = model.updateIn(['inputModel', 'servers'], list => list.push(fromJS(server)));
     }
-    else {
-      modelServers.push(server);
-    }
 
-    //save it to yaml file
-    this.saveModelObjectData()
-      .then((response) => {})
-      .catch((error) => {
-        let msg = translate('server.model.save.error');
-        this.setErrorMessageContent(msg, error.toString());
-      });
-  }
-
-  //save the updated model object
-  saveModelObjectData() {
-    return (
-      fetch(getAppConfig('shimurl') + '/api/v1/clm/model', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(this.model)
-      })
-      .then((response) => this.checkResponse(response))
-    );
+    this.props.updateGlobalState('model', model);
   }
 
   //check if we have enough servers roles for the model
   isValid = () => {
-    return this.state.serverRoles.every(role => {
+    return this.getServerRoles().every(role => {
       let minCount =  role.minCount;
       let memberCount = role.memberCount;
       let svrSize = role.servers.length;
@@ -1143,33 +968,12 @@ class AssignServerRoles extends BaseWizardPage {
       if(minCount && svrSize < minCount) {
         return false;
       }
-      // verify that each server objecdt in role.servers has all of the required keys
-      return role.servers.every(server => this.checkInputKeys.every(key => key in server))
+      // verify that each server object in role.servers has all of the required keys
+      return role.servers.every(server => this.checkInputKeys.every(key => (server[key] ? true : false)));
     });
   }
 
   setNextButtonDisabled = () => !this.isValid();
-
-  doSave() {
-    this.updateModelWithServerRoles();
-    //save model and move to next page
-    this.saveModelObjectData()
-      .then((response) => {
-        //go to next page when move this to goForward
-        this.props.next(false);
-      })
-      .catch((error) => {
-        //don't move if can't save model
-        let msg = translate('server.model.save.error');
-        this.setErrorMessageContent(msg, error.toString());
-      });
-  }
-
-  //save model updates before move to next page
-  goForward(e) {
-    e.preventDefault();
-    this.doSave();
-  }
 
   clearErrorMessage = () => {
     this.setState({errorContent: undefined});
@@ -1212,13 +1016,9 @@ class AssignServerRoles extends BaseWizardPage {
       ]
     };
 
-    let assignedServerIds = [];
-    this.state.serverRoles.forEach((role) => {
-      //clean up servers
-      role.servers.forEach((server) => {
-        assignedServerIds.push(server.id);
-      });
-    });
+    const assignedServerIds = this.props.model.getIn(['inputModel','servers'])
+      .filter(svr => (svr.get('role') ? true : false))    // find servers with roles
+      .map(svr => svr.get('id')).toJS();                  // return just the id field
 
     //apply name and assignment filter here
     let filteredAvailableServers =
@@ -1255,7 +1055,7 @@ class AssignServerRoles extends BaseWizardPage {
     else {
       return (
         <div>
-          {this.renderAvailServersTable(this.state.displayAvailableServers)}
+          {this.renderAvailServersTable(this.state.rawDiscoveredServers)}
         </div>
       );
     }
@@ -1366,16 +1166,13 @@ class AssignServerRoles extends BaseWizardPage {
   renderServerRolesAccordion(roles) {
     return (
       <ServerRolesAccordion
-        ondropFunct={this.assignServerToRoleDnD.bind(this)}
-        ondragEnterFunct={this.highlightDrop.bind(this)}
-        ondragLeaveFunct={this.unHighlightDrop.bind(this)}
-        allowDropFunct={this.allowDrop.bind(this)}
-        serverRoles={this.state.serverRoles}
-        clickAction={this.handleClickRoleAccordion}
+        ondropFunct={this.assignServerToRoleDnD}
+        ondragEnterFunct={this.highlightDrop}
+        ondragLeaveFunct={this.unHighlightDrop}
+        allowDropFunct={this.allowDrop}
+        serverRoles={this.getServerRoles()}
         tableId='right'
         checkInputs={this.checkInputKeys}
-        displayPosition={this.state.accordionDisplayPosition}
-        displayServers={this.state.displayAssignedServers}
         editAction={this.handleShowEditServerDetails}>
       </ServerRolesAccordion>
     );
@@ -1429,8 +1226,8 @@ class AssignServerRoles extends BaseWizardPage {
       <EditServerDetails
         cancelAction={this.handleCancelEditServerDetailsInput}
         doneAction={this.handleDoneEditServerDetailsInput}
-        serverGroups={this.serverGroups}
-        nicMappings={this.nicMappings}
+        serverGroups={this.getServerGroups()}
+        nicMappings={this.getNicMappings()}
         data={this.activeRowData}>
       </EditServerDetails>
     );
