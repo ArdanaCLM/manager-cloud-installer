@@ -908,28 +908,26 @@ class AssignServerRoles extends BaseWizardPage {
    * is dropped when unassigning and reassigning servers to roles.
    */
   updateServerForEditServer = (server) => {
-    let updated_server;
     for (let list of ['rawDiscoveredServers', 'serversAddedManually']) {
       let idx = this.state[list].findIndex(s => server.id === s.id);
       if (idx >= 0) {
+        let updated_server;
         this.setState(prev => {
           let tempList = prev[list].slice();
           updated_server = this.getMergedServer(tempList[idx], server);
           tempList.splice(idx, 1, updated_server);
           return {[list]: tempList};
+        }, () => {
+          this.updateDiscoveredServer(updated_server)
+          .then((response) => {})
+          .catch((error) => {
+            let msg = translate('server.discover.update.error', updated_server.name);
+            this.setErrorMessageContent(msg, error.toString());
+          });
         });
         break;
       }
     };
-
-    if (updated_server) {
-      this.updateDiscoveredServer(updated_server)
-      .then((response) => {})
-      .catch((error) => {
-        let msg = translate('server.discover.update.error', updated_server.name);
-        this.setErrorMessageContent(msg, error.toString());
-      });
-    }
   }
 
   updateModelObjectForEditServer = (server) => {
