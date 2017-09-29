@@ -1451,6 +1451,7 @@ class AssignServerRoles extends BaseWizardPage {
   render() {
     return (
       <div className='wizard-page'>
+        {this.renderErrorMessage()}
         <div id='AssignServerRoleId' className='wizard-content'>
           {this.renderHeading(translate('add.server.heading', this.props.model.get('name')))}
           {this.renderServerRoleContent()}
@@ -1458,7 +1459,6 @@ class AssignServerRoles extends BaseWizardPage {
           {this.renderAddServerManuallyModal()}
           {this.renderEditServerDetailsModal()}
           {this.renderLoadingMask()}
-          {this.renderErrorMessage()}
         </div>
       {this.renderNavButtons()}
       </div>
