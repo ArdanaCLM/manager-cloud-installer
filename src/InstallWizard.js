@@ -45,14 +45,15 @@ class InstallWizard extends Component {
       //   in the model, such as its name or which servers are assigned to which roles, should
       //   not be duplicated here since it is already being persisted in the model
       sitePlayId: undefined,  // play id of the deployment playbook
-      model: Map()            // immutable model
+      model: Map(),           // immutable model
+      connectionInfo: undefined,
     };
 
     // Indicate which of the above state variables are passed to wizard pages and can be set by them
-    this.globalStateVars = ['sitePlayId', 'model'];
+    this.globalStateVars = ['sitePlayId', 'model', 'connectionInfo'];
 
     // Indicate which of the state variables will be persisted to, and loaded from, the progress API
-    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId']
+    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'connectionInfo'];
 
     // Note: if no progress data can be found, responseData is an empty string
     const forcedReset = window.location.search.indexOf('reset=true') !== -1;

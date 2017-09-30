@@ -17,6 +17,7 @@ import ServerTable from '../components/ServerTable.js';
 import EditServerDetails from '../components/EditServerDetails.js';
 import { importCSV } from '../utils/CsvImporter.js';
 import { fromJS } from 'immutable';
+import { isEmpty } from 'lodash';
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
@@ -51,17 +52,14 @@ class AssignServerRoles extends BaseWizardPage {
       'mac-addr': ''
     };
 
-    // TODO: These probably need to be moved into state, since they are modified by the user
-    this.credentials = window.discoverCreds ? window.discoverCreds : {
-      sm: {creds: {}},
-      ov: {creds: {}}
+    this.connections = this.props.connectionInfo ? this.props.connectionInfo : {
+      sm: {checked: false},
+      ov: {checked: false}
     };
-
-    // TODO: Remove this and use getSmUrl() to build this when needed
-    this.smApiUrl = '';
-
     this.smApiToken = undefined;
     this.smSessionKey = undefined;
+    this.ovSessionKey = undefined;
+    this.forcePromtCreds = false;
 
     this.state = {
       //server list on the available servers side
@@ -87,8 +85,8 @@ class AssignServerRoles extends BaseWizardPage {
       //when loading data or saving data
       loading: false,
 
-      // content of error to show
-      errorContent: undefined,
+      // error messages
+      messages: [],
 
       //show server details modal
       showServerDetailsModal: false,
@@ -113,30 +111,71 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
-  doSmDiscovery(tokenKey, smUrl) {
-    let promise = new Promise((resolve, reject) => {
-      this.getSmServersData(tokenKey, smUrl)
-      .then((rawServerData) => {
-        if (rawServerData && rawServerData.length > 0) {
-          let ids = rawServerData.map((srv) => {
-            return srv.id;
-          });
-
-          this.getSmAllServerDetailsData(ids, tokenKey, smUrl)
-            .then((details) => {
-              rawServerData = this.updateSmServerDataWithDetails(details);
-              resolve(rawServerData);
-            })
-            .catch((error) => {
-              //don't reject ...just move on
-            });
+  getOvServersData(tokenKey, ovUrl) {
+    return (
+      fetch(getAppConfig('shimurl') + '/api/v1/ov/servers', {
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'Authtoken': tokenKey,
+          'Ovurl': ovUrl
         }
       })
-      .catch((error) => {
-        let msg = translate('server.discover.sm.error');
-        this.setErrorMessageContent(msg, error.toString());
-        reject(error);
-      });
+        .then((response) => this.checkResponse(response))
+        .then(response => response.json())
+    );
+  }
+
+  discoverSmServers(tokenKey, smUrl) {
+    let promise = new Promise((resolve, reject) => {
+      this.getSmServersData(tokenKey, smUrl)
+        .then((rawServerData) => {
+          if (rawServerData && rawServerData.length > 0) {
+            let ids = rawServerData.map((srv) => {
+              return srv.id;
+            });
+
+            this.getSmAllServerDetailsData(ids, tokenKey, smUrl)
+              .then((details) => {
+                rawServerData =
+                  this.updateSmServerDataWithDetails(details, rawServerData);
+                resolve(rawServerData);
+              })
+          }
+          else {
+            resolve([]);
+          }
+        })
+        .catch((error) => {
+          let msg = translate('server.discover.sm.error');
+          this.setState(prev => { return {
+            messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+          }});
+          reject(error);
+        })
+    });
+    return promise;
+  }
+
+  discoverOvServers(tokenKey, ovUrl) {
+    let promise = new Promise((resolve, reject) => {
+      this.getOvServersData(tokenKey, ovUrl)
+        .then((rawServerData) => {
+          if (rawServerData && rawServerData.members && rawServerData.members.length > 0) {
+            let servers = this.updateOvServerData(rawServerData.members);
+            resolve(servers);
+          }
+          else {
+            resolve([]);
+          }
+        })
+        .catch((error) => {
+          let msg = translate('server.discover.ov.error');
+          this.setState(prev => { return {
+            messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+          }});
+          reject(error);
+        })
     });
     return promise;
   }
@@ -144,23 +183,21 @@ class AssignServerRoles extends BaseWizardPage {
   //run discovery for suse manager and/or hpe oneview parallelly
   //meanwhile also go update the table data with more details by query
   //detail one by one in parallel.
-  doAllDiscovery = () => {
-    let promises = [];
-    if(this.smSessionKey) {
-      promises.push(this.doSmDiscovery(this.smSessionKey, this.smApiUrl));
+  discoverAllServers = () => {
+    let tasks = [];
+    if(this.connections.sm && this.connections.sm.checked && this.smSessionKey) {
+      tasks.push(this.discoverSmServers(this.smSessionKey, this.connections.sm.apiUrl));
     }
     else if(this.smApiToken) {
-      let url = window.location.protocol + '//' + window.location.host +
-        (window.location.port > 0 ? ':' + window.location.port : '')  + '/rpc/api';
-      promises.push(this.doSmDiscovery(this.smApiToken, url));
+      let url = window.location.protocol + '//' + window.location.host  + '/rpc/api';
+      tasks.push(this.discoverSmServers(this.smApiToken, url));
     }
 
-    //TODO add hpe oneview discovery in promise array
-    // if(this.state.ovSessionKey) {
-    //
-    // }
+    if(this.connections.ov && this.connections.ov.checked && this.ovSessionKey) {
+      tasks.push(this.discoverOvServers(this.ovSessionKey, this.connections.ov.apiUrl));
+    }
 
-    return Promise.all(promises);
+    return Promise.all(tasks);
   }
 
   checkResponse(response) {
@@ -170,57 +207,57 @@ class AssignServerRoles extends BaseWizardPage {
     return response;
   }
 
-  setErrorMessageContent(title, message) {
-    this.setState(prev => {
-      if (prev.errorContent) {
-        return ({errorContent: {
-          title: prev.errorContent.title || title,
-          messages: prev.errorContent.messages.concat(message)
-        }})
-      } else {
-        return ({errorContent: {
-          title: title,
-          // Note: concat correctly handles message being a single string or an array
-          messages: [].concat(message)
-        }})
-      }
-    })
-  }
-
-  doSaveAllDiscoveredServers(servers) {
+  saveAllDiscoveredServers(servers) {
     this.deleteDiscoveredServers()
       .then((response) => {
       this.saveDiscoveredServers(servers)
         .then((response) => {})
         .catch((error) => {
           let msg = translate('server.discover.save.error');
-          this.setErrorMessageContent(msg, error.toString());
+          this.setState(prev => { return {
+            messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+          }});
         });
       })
       .catch((error) => {
-        let msg = translate('server.discover.get.error');
-        this.setErrorMessageContent(msg, error.toString());
+        let msg = translate('server.discover.delete.error');
+        this.setState(prev => { return {
+          messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+        }});
       });
   }
 
   handleDiscovery = () => {
-    if(!this.smApiToken && !this.smSessionKey) {
-      //don't have any session keys...need inputs
+    if(this.connections.sm.checked) {
+      let sKey = COOKIES.get('suseManagerSessionKey');
+      this.smSessionKey = sKey; //key or undefined
+    }
+
+    if(this.connections.ov.checked) {
+      let oKey = COOKIES.get('oneViewSessionKey');
+      this.ovSessionKey = oKey; //key or undefined
+    }
+
+    if((!this.smApiToken && this.connections.sm.checked && !this.smSessionKey) ||
+      (this.connections.ov.checked && !this.ovSessionKey)) {
+      //don't have session keys...need inputs
       this.setState({showCredsModal: true});
-    }//TODO include ov sessionkey check
+      this.forcePromtCreds = true;
+    }
     else {
-      this.setState({loading: true});
+      this.setState({loading: true, messages: []});
       let resultServers = [];
-      this.doAllDiscovery()
+      this.discoverAllServers()
         .then((allServerData) => {
           allServerData.forEach((oneSet, idx) => {
             resultServers = resultServers.concat(oneSet);
           });
-          this.doSaveAllDiscoveredServers(resultServers);
+          resultServers = this.sortServersByName(resultServers);
+          this.saveAllDiscoveredServers(resultServers);
           this.setState({loading: false, rawDiscoveredServers: resultServers});
         })
         .catch((error) => {
-          this.setState({loading: false, errorContent: undefined});
+          this.setState({loading: false});
         })
     }
   }
@@ -403,7 +440,7 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
-  sortServersById(servers) {
+  sortServersByName(servers) {
     return servers.sort((a, b) => {
       let x = a.name;
       let y = b.name;
@@ -418,6 +455,7 @@ class AssignServerRoles extends BaseWizardPage {
       'nic-mappings' : this.getNicMappings()
     };
 
+    this.setState({messages: []});
     importCSV(file, restrictions, results => {
       // TODO: Display errors that may exists in results.errors
       for (let server of results.data) {
@@ -434,7 +472,9 @@ class AssignServerRoles extends BaseWizardPage {
         }
 
         let title = translate('csv.import.error');
-        this.setErrorMessageContent(title, details);
+        this.setState(prev => { return {
+            messages: prev.messages.concat([{title: title, msg: details}])
+          }});
       }
 
       this.saveServersAddedManually(results.data);
@@ -443,6 +483,7 @@ class AssignServerRoles extends BaseWizardPage {
 
   handleConfDiscovery = () => {
     if(!this.smApiToken) {
+      this.forcePromtCreds = false;
       this.setState({showCredsModal: true});
     }
     else {
@@ -460,50 +501,69 @@ class AssignServerRoles extends BaseWizardPage {
     return url;
   }
 
+  getCookieExpiredTime(minutes) {
+    let now = new Date();
+    let expDate = new Date(now);
+    expDate.setHours(now.getMinutes() + minutes);
+    return expDate;
+  }
+
+  setSmCredentials(credsData) {
+    this.connections.sm = credsData.sm;
+    this.connections.sm.apiUrl =
+      this.getSmUrl(this.connections.sm.creds.host, this.connections.sm.creds.port);
+    //save the sessionKey to COOKIES
+    let expTime = this.getCookieExpiredTime(60);
+    COOKIES.set(
+      'suseManagerSessionKey', this.connections.sm.sessionKey,
+      {path: '/', expires: expTime});
+    this.smSessionKey = this.connections.sm.sessionKey;
+
+    let conn = JSON.parse(JSON.stringify(this.connections.sm));
+    delete conn.creds.password;
+    return conn;
+  }
+
+  setOvCredentials(credsData) {
+    this.connections.ov = credsData.ov;
+    this.connections.ov.apiUrl =
+      'https://' + this.connections.ov.creds.host;
+    //save the sessionKey to COOKIES
+    let expTime = this.getCookieExpiredTime(60);
+    COOKIES.set(
+      'oneViewSessionKey', this.connections.ov.sessionKey,
+      {path: '/', expires: expTime});
+    this.ovSessionKey = this.connections.ov.sessionKey;
+
+    let conn = JSON.parse(JSON.stringify(this.connections.ov));
+    delete conn.creds.password;
+    return conn;
+  }
+
+
   handleDoneCredsInput = (credsData) => {
-    this.setState({
-      showCredsModal: false,
-    });
-    if (credsData.sm) {
-      this.credentials.sm = credsData.sm;
-      //save the sessionKey to COOKIES
-      var expDate = new Date();
-      expDate.setDate(expDate.getDate() + 1);
-      COOKIES.set(
-        'suseManagerSessionKey', this.credentials.sm.sessionKey,
-        {path: '/', expires: expDate});
-      COOKIES.set('suseManagerHost', this.credentials.sm.creds.host, {path: '/', expires: expDate});
-      let port = this.credentials.sm.creds.port > 0 ? this.credentials.sm.creds.port : '8443';
-      COOKIES.set('suseManagerPort', port, {path: '/', expires: expDate});
-      this.smApiUrl = this.getSmUrl(this.credentials.sm.creds.host, this.credentials.sm.creds.port);
-      this.smSessionKey = this.credentials.sm.sessionKey;
-    }
-    if (credsData.ov) {
-      this.credentials.ov = credsData.ov;
-      //TODO save sessionKey for ov
+    this.setState({showCredsModal: false,});
+    let saveConnect =
+      this.props.connectionInfo ? this.props.connectionInfo : {sm: {}, ov: {}};
+    if (credsData.sm && credsData.sm.checked) {
+      let smConn = this.setSmCredentials(credsData);
+      saveConnect.sm = smConn;
     }
 
-    //save the creds to the session for now
-    window.discoverCreds = this.credentials;
+    if (credsData.ov && credsData.ov.checked) {
+      let ovConn = this.setOvCredentials(credsData);
+      saveConnect.ov = ovConn;
+    }
 
-    //this should only happened at the very beginning
-    //after that user will use configure and discover buttons
-    if (this.state.rawDiscoveredServers.length === 0) {
-      this.setState({loading: true});
-      let resultServers = [];
-      this.doAllDiscovery()
-        .then((allServerData) => {
-          allServerData.forEach((oneSet, idx) => {
-            resultServers = resultServers.concat(oneSet);
-          });
-          //save it to the backend
-          this.doSaveAllDiscoveredServers(resultServers);
-          this.setState({rawDiscoveredServers: resultServers, loading: false});
-        })
-        .catch((error) => {
-          this.setState({loading: false});
-        })
-      }
+    this.props.updateGlobalState('connectionInfo', saveConnect);
+
+    //if it is very first time...run discovery
+    //if it is invoked from configure button, don't run discovery
+    //if clicks discovery button and force promt credential inputs...need to run discovery
+    if((this.state.rawDiscoveredServers && this.state.rawDiscoveredServers.length === 0) ||
+      this.forcePromtCreds) {
+      this.handleDiscovery();
+    }
   }
 
   handleShowServerDetails = (rowData) => {
@@ -532,8 +592,14 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   handleShowEditServerDetails = (rowData) => {
-    this.setState({showEditServerDetailsModal: true});
+    this.setState({showEditServerDetailsModal: true, messages: []});
     this.activeRowData = rowData;
+  }
+
+  handleCloseMessage = (ind) => {
+    this.setState((prevState) => {
+      messages: prevState.messages.splice(ind, 1)
+    });
   }
 
   // get model object and saved servers before render UI
@@ -541,20 +607,7 @@ class AssignServerRoles extends BaseWizardPage {
     try {
       this.smApiToken = apiToken; //global suse manager token when embedded
     } catch (ReferenceError) {
-      //it is not embedded so go get cookies
-      //when it is expired..get cookie will get undefined
-      let sKey = COOKIES.get('suseManagerSessionKey');
-      if(sKey) {
-        this.smSessionKey = sKey;
-      }
-      let sHost = COOKIES.get('suseManagerHost');
-      let sPort = COOKIES.get('suseManagerPort');
-      if(sHost && sPort) {
-        this.smApiUrl = this.getSmUrl(sHost, sPort);
-        this.credentials.sm.creds.host = sHost;
-      }
-      //if don't have port, set it to default for the creds input
-      this.credentials.sm.creds.port = sPort ? sPort : 8443;
+      //pass
     }
 
     this.getSavedDiscoveredServers()
@@ -566,7 +619,9 @@ class AssignServerRoles extends BaseWizardPage {
       })
       .catch((error) => {
         let msg = translate('server.discover.get.error');
-        this.setErrorMessageContent(msg, error.toString());
+        this.setState(prev => { return {
+            messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+          }});
         //still get model
         this.getServerRoles();
       });
@@ -648,39 +703,117 @@ class AssignServerRoles extends BaseWizardPage {
       .sort(this.byNameIgnoreCase);   // Sort alphabetically
   }
 
-  updateSmServerDataWithDetails = (details) => {
-    //details has everything
-    let retData = details.map((srvDetail) => {
-      let nkdevice = srvDetail.network_devices.find((device) => {
-        return device.interface === 'eth0';
+  updateSmServerDataWithDetails = (details, servers) => {
+    let retData = [];
+    //details could contain empty data
+    details.forEach((srvDetail) => {
+      if(srvDetail && srvDetail.id) {
+        let nkdevice = srvDetail.network_devices.find((device) => {
+          return device.interface === 'eth0';
+        });
+        //at this point only these are useful
+        let id = srvDetail.name ? srvDetail.name : srvDetail.id + '';
+        let serverData = {
+          'id': id, //use name if it is there or use id string
+          'name': srvDetail.name,
+          'serverId': srvDetail.id,
+          'ip-addr': nkdevice.ip,
+          'mac-addr': nkdevice.hardware_address,
+          'cpu': srvDetail.cpu_info.count,
+          'ram': srvDetail.ram,
+          'ilo-ip': '',
+          'ilo-user': '',
+          'ilo-password': '',
+          'nic-mapping': '',
+          'server-group': '',
+          'source': 'sm'
+        };
+        retData.push(serverData);
+      }
+    });
+
+    //fill out the data from servers, if can not find in details
+    if(retData.length < servers.length) {
+      let list = [];
+      if(retData.length === 0) {
+        list = servers;
+      }
+      else { //some have details, some don't
+        let ids = retData.map((srv) => {
+          return srv.serverId;
+        });
+        list = servers.filter((srv) => {
+          return ids.indexOf(srv.id) === -1;
+        })
+      }
+
+      let retData2 = list.map((server) => {
+        let id = server.name ? server.name : server.id + '';
+        let serverData = {
+          'id': id, //use name if it is there or use id string
+          'name': server.name,
+          'serverId': server.id,
+          'ip-addr': '',
+          'mac-addr': '',
+          'cpu': '',
+          'ram': '',
+          'ilo-ip': '',
+          'ilo-user': '',
+          'ilo-password': '',
+          'nic-mapping': '',
+          'server-group': '',
+          'source': 'sm'
+        };
+        return serverData;
       });
-      //at this point only these are useful
-      let id = srvDetail.name ? srvDetail.name : srvDetail.id + '';
+
+      if(retData.length === 0) {
+        retData = retData2;
+      }
+      else {
+        retData = retData.concat(retData2);
+      }
+    }
+
+    return retData;
+  }
+
+  updateOvServerData = (servers) => {
+    let retData = servers.map((srv) => {
+      let id = srv.name ? srv.name : srv.uuid + '';
+      let ipmi = undefined;
+      if(srv.mpHostInfo) {
+        ipmi = srv.mpHostInfo.mpIpAddresses.find((addr) => {
+          return addr.type === 'DHCP' || addr.type === 'STATIC';
+        });
+      }
+      //TODO get mac addresse if portMap available
+
       let serverData = {
         'id': id, //use name if it is there or use id string
-        'name': srvDetail.name,
-        'serverId': srvDetail.id,
-        'ip-addr': nkdevice.ip,
-        'mac-addr': nkdevice.hardware_address,
-        'cpu': srvDetail.cpu_info.count,
-        'ram': srvDetail.ram,
-        'ilo-ip': '',
+        'name': srv.name,
+        'serverId': srv.uuid || '',
+        'ip-addr': '',
+        'mac-addr': '',
+        'cpu': srv.processorCoreCount,
+        'ram': srv.memoryMb,
+        'ilo-ip': ipmi ? ipmi.address : '',
         'ilo-user': '',
         'ilo-password': '',
         'nic-mapping': '',
         'server-group': '',
-        'source': 'sm'
+        'source': 'ov'
       };
       return serverData;
     });
     return retData;
   }
 
+
   // Merges the relevant properties of destination server into the src and returns the merged version.  Neither
   // src or dest are modified
   getMergedServer = (src, dest) => {
     let result = Object.assign({}, src);
-
     const props = ['name', 'ip-addr', 'mac-addr' ,'server-group' ,'nic-mapping' ,'ilo-ip' ,'ilo-user' ,'ilo-password'];
 
     props.forEach(p => {
@@ -746,8 +879,6 @@ class AssignServerRoles extends BaseWizardPage {
 
   //prototype query suse manager for details
   getSmOneServerDetailData = (shimUrl, smTokenKey, smUrl) => {
-    //TODO passing smTokenKey got from test doesn't seem to work..
-    //it has to go with the same rpc client need dig more
     let promise = new Promise((resolve, reject) => {
       fetch(shimUrl, {
         headers: {
@@ -762,20 +893,20 @@ class AssignServerRoles extends BaseWizardPage {
           resolve(responseData);
         })
         .catch(error => {
-          //pass
-        });
+          resolve({}); //just have no details
+        })
     });
     return promise;
   }
 
   getSmAllServerDetailsData = (serverIds, smTokenKey, smUrl) => {
-    let promises = [];
+    let tasks = [];
     serverIds.forEach((id) => {
       let shimUrl = getAppConfig('shimurl') + '/api/v1/sm/servers/' + id;
-      promises.push(this.getSmOneServerDetailData(shimUrl, smTokenKey, smUrl));
+      tasks.push(this.getSmOneServerDetailData(shimUrl, smTokenKey, smUrl));
     });
 
-    return Promise.all(promises);
+    return Promise.all(tasks);
   }
 
   /**
@@ -922,7 +1053,9 @@ class AssignServerRoles extends BaseWizardPage {
           .then((response) => {})
           .catch((error) => {
             let msg = translate('server.discover.update.error', updated_server.name);
-            this.setErrorMessageContent(msg, error.toString());
+            this.setState(prev => { return {
+              messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+            }});
           });
         });
         break;
@@ -973,18 +1106,20 @@ class AssignServerRoles extends BaseWizardPage {
 
   setNextButtonDisabled = () => !this.isValid();
 
-  clearErrorMessage = () => {
-    this.setState({errorContent: undefined});
-  }
-
   renderErrorMessage() {
-    if (this.state.errorContent) {
+    if (!isEmpty(this.state.messages)) {
+      let msgList = [];
+      this.state.messages.map((msgObj, ind) => {
+        let theProps = {message: msgObj.msg};
+        if(msgObj.title) {
+          theProps.title = msgObj.title;
+        }
+        msgList.push(
+          <ErrorMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
+                        {...theProps}/>);
+      });
       return (
-        <ErrorMessage
-          closeAction={this.clearErrorMessage}
-          title={this.state.errorContent.title}
-          message={this.state.errorContent.messages}>
-        </ErrorMessage>
+        <div className='notification-message-container'>{msgList}</div>
       );
     }
   }
@@ -1202,7 +1337,7 @@ class AssignServerRoles extends BaseWizardPage {
     return (
       <ConnectionCredsInfo
         cancelAction={this.handleCancelCredsInput} doneAction={this.handleDoneCredsInput}
-        data={this.credentials}>
+        data={this.connections}>
       </ConnectionCredsInfo>
     );
   }
