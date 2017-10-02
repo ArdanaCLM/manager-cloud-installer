@@ -6,11 +6,11 @@ import { ActionButton } from '../components/Buttons.js';
 class CollapsibleTable extends Component {
   constructor(props) {
     super(props);
-      // props.data should be in this following format:
-      // [{"groupName": "Group A", members: [{"id": "Server1", "addr": "192.168.2.2"}, {..}]},
-      //  {"groupName": "Group B", members: [{..}, {..}, {..}]]
-      // Keywords are "groupName" and "members", where group is the name of the collapsible category
-      // and members are the category's members which will be displayed under the category
+    // props.data should be in this following format:
+    // [{"groupName": "Group A", members: [{"id": "Server1", "addr": "192.168.2.2"}, {..}]},
+    //  {"groupName": "Group B", members: [{..}, {..}, {..}]]
+    // Keywords are "groupName" and "members", where group is the name of the collapsible category
+    // and members are the category's members which will be displayed under the category
     this.state = {
       expandedGroup: [props.data[0].groupName],
     };

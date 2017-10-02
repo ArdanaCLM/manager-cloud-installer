@@ -228,10 +228,10 @@ class ServerInput extends Component {
       inputId = 'serverPasswordField'  + (Math.random(0,1) * 100000) + '';
       if (this.state.showMask) {
         togglePassword = <i className='material-icons password-icon'
-          onClick={() => this.toggleShowHidePassword(inputId)}>visibility</i>
+          onClick={() => this.toggleShowHidePassword(inputId)}>visibility</i>;
       } else {
         togglePassword = <i className='material-icons password-icon'
-          onClick={() => this.toggleShowHidePassword(inputId)}>visibility_off</i>
+          onClick={() => this.toggleShowHidePassword(inputId)}>visibility_off</i>;
       }
     }
 

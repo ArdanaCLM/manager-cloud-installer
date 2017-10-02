@@ -2,8 +2,7 @@ import React from 'react';
 import { fromJS } from 'immutable';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
-import { getAppConfig } from '../utils/ConfigHelper.js';
-import { fetchJson, postJson } from '../utils/RestUtils.js';
+import { fetchJson } from '../utils/RestUtils.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
@@ -48,8 +47,8 @@ class CloudModelPicker extends BaseWizardPage {
           errorContent: {
             title: translate('model.picker.get.template.error.title'),
             messages: [
-                translate('model.picker.get.template.error'),
-                error.toString()]
+              translate('model.picker.get.template.error'),
+              error.toString()]
           },
           loading: false
         });
@@ -57,7 +56,7 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   handlePickModel = (e) => {
-    this.setState({selectedModelName: e.target.getAttribute('name')})
+    this.setState({selectedModelName: e.target.getAttribute('name')});
   }
 
   goForward = (e) => {
@@ -130,12 +129,12 @@ class CloudModelPicker extends BaseWizardPage {
     }
 
     const btns = this.simpleModels.map((name,idx) =>
-        <PickerButton
-          key={idx}
-          keyName={name}
-          isSelected={name === this.state.selectedModelName}
-          displayLabel={translate('model.picker.' + name)}
-          clickAction={this.handlePickModel}/>);
+      <PickerButton
+        key={idx}
+        keyName={name}
+        isSelected={name === this.state.selectedModelName}
+        displayLabel={translate('model.picker.' + name)}
+        clickAction={this.handlePickModel}/>);
 
     return (
       <div className='wizard-page'>
@@ -168,7 +167,7 @@ class CloudModelPicker extends BaseWizardPage {
             </div>
           </div>
           {this.renderErrorMessage()}
-          </div>
+        </div>
         {this.renderNavButtons()}
       </div>
     );

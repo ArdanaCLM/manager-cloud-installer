@@ -85,8 +85,8 @@ class MyLogViewer extends Component {
         </div>
         <label>
           <input type="checkbox"
-                 checked={this.state.autoScroll}
-                 onChange={this.handleChange} /> {translate('logviewer.autoscroll')}
+            checked={this.state.autoScroll}
+            onChange={this.handleChange} /> {translate('logviewer.autoscroll')}
         </label>
       </div>
     );
@@ -184,13 +184,13 @@ class CloudDeployProgress extends BaseWizardPage {
    */
   fetchJson = (input, init) => {
     return fetch(input, init)
-    .then(res => {
-          if (res.ok) {
-            return res.json();
-          } else {
-            return Promise.reject(new Error(res.statusText))
-          }
-        });
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          return Promise.reject(new Error(res.statusText));
+        }
+      });
   }
 
   monitorSocket = (playId) => {
@@ -219,39 +219,39 @@ class CloudDeployProgress extends BaseWizardPage {
           'cache-control': 'no-cache'
         }
       })
-      .then(response => {
-        if ('endTime' in response) {
-          // The play has already ended, and is either complete or failed
-          this.setState({deployStatus: (response['code'] == 0 ? DEPLOY_COMPLETE : DEPLOY_FAILED)});
+        .then(response => {
+          if ('endTime' in response) {
+            // The play has already ended, and is either complete or failed
+            this.setState({deployStatus: (response['code'] == 0 ? DEPLOY_COMPLETE : DEPLOY_FAILED)});
 
-          fetch('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId + "/log")
-          .then(response => response.text())
-          .then(response => {
-            const message = response.trimRight('\n');
-            this.logsReceived = List(message);
-            this.setState({displayedLogs: this.logsReceived});
-          })
+            fetch('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId + '/log')
+              .then(response => response.text())
+              .then(response => {
+                const message = response.trimRight('\n');
+                this.logsReceived = List(message);
+                this.setState({displayedLogs: this.logsReceived});
+              });
 
-          this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId + "/events")
-          .then(response => {
-            for (let evt of response) {
-              if (evt.event === 'playbook-stop')
-                this.playbookStopped(evt.playbook);
-              else if (evt.event === 'playbook-start')
-                this.playbookStarted(evt.playbook);
-              else if (evt.event === 'playbook-error')
-                this.playbookError(evt.playbook);
-            }
-          })
-        } else {
-          // The play is still in progress
-          this.setState({deployStatus: DEPLOY_IN_PROGRESS});
-          this.monitorSocket(this.props.sitePlayId);
-        }
-      })
-      .catch((error) => {
-        this.setState({errorMsg: error.message});
-      });
+            this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId + '/events')
+              .then(response => {
+                for (let evt of response) {
+                  if (evt.event === 'playbook-stop')
+                    this.playbookStopped(evt.playbook);
+                  else if (evt.event === 'playbook-start')
+                    this.playbookStarted(evt.playbook);
+                  else if (evt.event === 'playbook-error')
+                    this.playbookError(evt.playbook);
+                }
+              });
+          } else {
+            // The play is still in progress
+            this.setState({deployStatus: DEPLOY_IN_PROGRESS});
+            this.monitorSocket(this.props.sitePlayId);
+          }
+        })
+        .catch((error) => {
+          this.setState({errorMsg: error.message});
+        });
 
     } else {
 
@@ -261,16 +261,16 @@ class CloudDeployProgress extends BaseWizardPage {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify('')
       })
-      .then(response => {
-        const playId = response['id'];
-        this.monitorSocket(playId);
-        this.setState({deployStatus: DEPLOY_IN_PROGRESS});
-        this.props.updateGlobalState('sitePlayId', playId);
-      })
-      .catch((error) => {
-        this.setState({deployStatus: DEPLOY_FAILED,
-                       errorMsg: List(error.message)});
-      });
+        .then(response => {
+          const playId = response['id'];
+          this.monitorSocket(playId);
+          this.setState({deployStatus: DEPLOY_IN_PROGRESS});
+          this.props.updateGlobalState('sitePlayId', playId);
+        })
+        .catch((error) => {
+          this.setState({deployStatus: DEPLOY_FAILED,
+            errorMsg: List(error.message)});
+        });
     }
   }
 
@@ -345,7 +345,7 @@ class CloudDeployProgress extends BaseWizardPage {
       const completedPlaybooks = prevState.playbooksComplete.concat(playbook);
       var newState = {'playbooksComplete': completedPlaybooks};
       if (completedPlaybooks.includes('site.yml')) {
-        newState.deployStatus = DEPLOY_COMPLETE
+        newState.deployStatus = DEPLOY_COMPLETE;
       }
       return newState;
     });
@@ -362,7 +362,7 @@ class CloudDeployProgress extends BaseWizardPage {
       const errorPlaybooks = prevState.playbooksError.concat(playbook);
       var newState = {'playbooksError': errorPlaybooks};
       if (errorPlaybooks.includes('site.yml')) {
-        newState.deployStatus = DEPLOY_FAILED
+        newState.deployStatus = DEPLOY_FAILED;
       }
       return newState;
     });
