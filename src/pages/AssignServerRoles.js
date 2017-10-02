@@ -16,6 +16,7 @@ import { LoadingMask } from '../components/LoadingMask.js';
 import ServerTable from '../components/ServerTable.js';
 import EditServerDetails from '../components/EditServerDetails.js';
 import { importCSV } from '../utils/CsvImporter.js';
+import { alphabetically } from '../utils/Sort.js';
 import { fromJS } from 'immutable';
 
 const AUTODISCOVER_TAB = 1;
@@ -350,7 +351,7 @@ class AssignServerRoles extends BaseWizardPage {
     let body = '';
     const serverGroups = this.getServerGroups();
     const nicMappings = this.getNicMappings();
-    let roles = this.getServerRoles().map(server => server.serverRole);
+    let roles = this.getServerRoles().map(e => e['serverRole']);
     roles.unshift('');
     if (!this.newServer.role) {
       this.newServer.role = '';
@@ -626,12 +627,6 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
-  byNameIgnoreCase = (a,b) => {
-    const x = a.toUpperCase();
-    const y = b.toUpperCase();
-    return ((x < y) ? -1 : (x > y) ? 1 : 0);
-  }
-
   getServerGroups = () => {
     // the input model's server-groups section is a list, each of which may optionally
     //    in contain a list of server-groups.  Gather them altogether into
@@ -639,13 +634,13 @@ class AssignServerRoles extends BaseWizardPage {
     return this.props.model.getIn(['inputModel', 'server-groups']).map(e => e.get('server-groups') || [])
       .reduce((a,b) => a.concat(b))   // Reduce array of arrays to a single flattened array
       .toJS()                         // Convert from immutable to standard JS object
-      .sort(this.byNameIgnoreCase);   // Sort alphabetically
+      .sort(alphabetically);
   }
 
   getNicMappings = () => {
     return this.props.model.getIn(['inputModel','nic-mappings']).map(e => e.get('name'))
       .toJS()                         // Convert from immutable to standard JS object
-      .sort(this.byNameIgnoreCase);   // Sort alphabetically
+      .sort(alphabetically);
   }
 
   updateSmServerDataWithDetails = (details) => {
@@ -718,30 +713,38 @@ class AssignServerRoles extends BaseWizardPage {
   //     or
   // - memberCount : exact count of servers in the role
   // - group       : 'clusters' or 'resources' (the type of role)
-  getServerRoles = () => {
+  byServerNameOrId = (a,b) => {
+    return alphabetically(a['name'] || a['id'], b['name'] || b['id']);
+  }
 
+  getServerRoles = () => {
     const servers = this.props.model.getIn(['inputModel', 'servers']).toJS();
 
     // TODO: Handle multiple control planes
     const cpData = this.props.model.getIn(['inputModel', 'control-planes', '0']).toJS();
-    return cpData.resources.map((res) => {
-      return {
-        'name': res.name,
-        'minCount': res['min-count'] || 0,
-        'servers': servers.filter(s => s.role == res['server-role']).map(s => this.getCleanedServer(s)),
-        'serverRole': res['server-role'],
-        'group': 'resources'
-      };
-    })
-    .concat(cpData.clusters.map((res) => {
-      return {
-        'name': res.name,
-        'memberCount': res['member-count'] || 0,
-        'serverRole': res['server-role'],
-        'servers': servers.filter(s => s.role == res['server-role']).map(s => this.getCleanedServer(s)),
-        'group': 'clusters'
-      };
-    }));
+
+    let results = [];
+    for (let group of ['clusters','resources']) {
+      results = results.concat(cpData[group].map((res) => {
+        let role = {
+          'name': res['name'],
+          'serverRole': res['server-role'],
+          'group': group,
+          'servers': servers
+                      .filter(s => s.role === res['server-role'])
+                      .map(s => this.getCleanedServer(s))          // filter out any extra fields
+                      .sort((a,b) => this.byServerNameOrId(a,b))   // sort servers by name or id within each role
+        };
+        if (group === 'clusters')
+          role['memberCount'] = res['member-count'] || 0;
+        else
+          role['minCount'] = res['min-count'] || 0;
+        return role;
+      }));
+    }
+
+    // Sort the role list by role name
+    return results.sort((a,b) => alphabetically(a['name'],b['name']));
   }
 
   //prototype query suse manager for details
@@ -788,7 +791,7 @@ class AssignServerRoles extends BaseWizardPage {
 
     let model = this.props.model;
 
-    const index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') == server.id);
+    const index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') === server.id);
     if (index < 0) {
       // The server was not in the model, so add it with the new role
       let new_server = this.getCleanedServer(server);
@@ -800,7 +803,7 @@ class AssignServerRoles extends BaseWizardPage {
 
       // Update the role in the existing input model entry
       model = model.updateIn(['inputModel', 'servers'], list => list.map(svr => {
-        if (svr.get('id') == server.id)
+        if (svr.get('id') === server.id)
           return svr.set('role', role);
         else
           return svr;
@@ -934,7 +937,7 @@ class AssignServerRoles extends BaseWizardPage {
     //update model
     let model = this.props.model;
 
-    let index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') == server.id);
+    let index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') === server.id);
     if (index >= 0) {
       const update_svr = {
         //fields from edit server
