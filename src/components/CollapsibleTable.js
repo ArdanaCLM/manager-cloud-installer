@@ -87,21 +87,42 @@ class CollapsibleTable extends Component {
     this.setState({expandedGroup: allGroups});
   }
 
+  collapseAll() {
+    this.setState({expandedGroup: []});
+  }
+
+
+  renderCollapseAllButton() {
+    if (this.props.showCollapseAllButton) {
+      return (
+        <ActionButton
+          displayLabel={translate('collapse.all')}
+          clickAction={() => this.collapseAll()}/>
+      );
+    }
+  }
+
   renderExpandAllButton() {
-    return this.props.showExpandAllButton ? (
-      <div className='expand-all-btn-container'>
+    if (this.props.showExpandAllButton) {
+      return (
         <ActionButton
           className='expand-all-btn'
           displayLabel={translate('expand.all')}
           clickAction={() => this.expandAll()}/>
-      </div>) : ('');
+      );
+    }
   }
 
   render() {
     let rows = this.props.data.map((group) => {return this.renderGroup(group);});
     return (
       <div className='collapsible-table'>
-        {this.renderExpandAllButton()}
+        <div className='action-row'>
+          <div className='btn-row btn-container'>
+            {this.renderCollapseAllButton()}
+            {this.renderExpandAllButton()}
+          </div>
+        </div>
         <div className='rounded-corner'>
           <table className='full-width'><tbody>{rows}</tbody></table>
         </div>

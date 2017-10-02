@@ -17,6 +17,7 @@
     "default.error": "Error",
     "default.success": "Success",
     "expand.all": "Expand All",
+    "collapse.all": "Collapse All",
     "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
     "wizard.loading.pleasewait": "Loading... Please wait",
     "logviewer.autoscroll": "Automatically scroll to the bottom",

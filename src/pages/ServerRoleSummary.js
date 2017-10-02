@@ -51,7 +51,7 @@ class ServerRoleSummary extends BaseWizardPage {
       <div className='wizard-page'>
         <div className='wizard-content'>
           {this.renderHeading(translate('server.role.summary.heading'))}
-          <CollapsibleTable showExpandAllButton data={this.formatServerObjects()}/>
+          <CollapsibleTable showCollapseAllButton showExpandAllButton data={this.formatServerObjects()}/>
         </div>
         {this.renderNavButtons()}
       </div>
