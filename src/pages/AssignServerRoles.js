@@ -141,7 +141,7 @@ class AssignServerRoles extends BaseWizardPage {
                 rawServerData =
                   this.updateSmServerDataWithDetails(details, rawServerData);
                 resolve(rawServerData);
-              })
+              });
           }
           else {
             resolve([]);
@@ -151,9 +151,9 @@ class AssignServerRoles extends BaseWizardPage {
           let msg = translate('server.discover.sm.error');
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-          }});
+          };});
           reject(error);
-        })
+        });
     });
     return promise;
   }
@@ -174,9 +174,9 @@ class AssignServerRoles extends BaseWizardPage {
           let msg = translate('server.discover.ov.error');
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-          }});
+          };});
           reject(error);
-        })
+        });
     });
     return promise;
   }
@@ -211,20 +211,20 @@ class AssignServerRoles extends BaseWizardPage {
   saveAllDiscoveredServers(servers) {
     this.deleteDiscoveredServers()
       .then((response) => {
-      this.saveDiscoveredServers(servers)
-        .then((response) => {})
-        .catch((error) => {
-          let msg = translate('server.discover.save.error');
-          this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-          }});
-        });
+        this.saveDiscoveredServers(servers)
+          .then((response) => {})
+          .catch((error) => {
+            let msg = translate('server.discover.save.error');
+            this.setState(prev => { return {
+              messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+            };});
+          });
       })
       .catch((error) => {
         let msg = translate('server.discover.delete.error');
         this.setState(prev => { return {
           messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-        }});
+        };});
       });
   }
 
@@ -259,7 +259,7 @@ class AssignServerRoles extends BaseWizardPage {
         })
         .catch((error) => {
           this.setState({loading: false});
-        })
+        });
     }
   }
 
@@ -474,8 +474,8 @@ class AssignServerRoles extends BaseWizardPage {
 
         let title = translate('csv.import.error');
         this.setState(prev => { return {
-            messages: prev.messages.concat([{title: title, msg: details}])
-          }});
+          messages: prev.messages.concat([{title: title, msg: details}])
+        };});
       }
 
       this.saveServersAddedManually(results.data);
@@ -606,7 +606,8 @@ class AssignServerRoles extends BaseWizardPage {
 
   handleCloseMessage = (ind) => {
     this.setState((prevState) => {
-      messages: prevState.messages.splice(ind, 1)
+      //eslint falsely flags messages below as not used
+      messages: prevState.messages.splice(ind, 1); // eslint-disable-line no-unused-labels
     });
   }
 
@@ -629,8 +630,8 @@ class AssignServerRoles extends BaseWizardPage {
       .catch((error) => {
         let msg = translate('server.discover.get.error');
         this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-          }});
+          messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+        };});
         //still get model
         this.getServerRoles();
       });
@@ -750,7 +751,7 @@ class AssignServerRoles extends BaseWizardPage {
         });
         list = servers.filter((srv) => {
           return ids.indexOf(srv.id) === -1;
-        })
+        });
       }
 
       let retData2 = list.map((server) => {
@@ -903,7 +904,7 @@ class AssignServerRoles extends BaseWizardPage {
         })
         .catch(error => {
           resolve({}); //just have no details
-        })
+        });
     });
     return promise;
   }
@@ -1063,13 +1064,13 @@ class AssignServerRoles extends BaseWizardPage {
           return {[list]: tempList};
         }, () => {
           this.updateDiscoveredServer(updated_server)
-          .then((response) => {})
-          .catch((error) => {
-            let msg = translate('server.discover.update.error', updated_server.name);
-            this.setState(prev => { return {
-              messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-            }});
-          });
+            .then((response) => {})
+            .catch((error) => {
+              let msg = translate('server.discover.update.error', updated_server.name);
+              this.setState(prev => { return {
+                messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+              };});
+            });
         });
         break;
       }
@@ -1129,7 +1130,7 @@ class AssignServerRoles extends BaseWizardPage {
         }
         msgList.push(
           <ErrorMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
-                        {...theProps}/>);
+            {...theProps}/>);
       });
       return (
         <div className='notification-message-container'>{msgList}</div>

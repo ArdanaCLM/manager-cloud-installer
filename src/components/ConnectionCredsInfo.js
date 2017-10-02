@@ -172,7 +172,7 @@ class ConnectionCredsInfo extends Component {
           };});
           Promise.reject(error);
         })
-    )
+    );
   }
 
   testOv = () => {
@@ -213,7 +213,7 @@ class ConnectionCredsInfo extends Component {
           };});
           Promise.reject(error);
         })
-    )
+    );
   }
 
   handleTest = () => {
@@ -290,7 +290,7 @@ class ConnectionCredsInfo extends Component {
         } else {
           msgList.push(
             <SuccessMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
-             message={msgObj.msg}/>);
+              message={msgObj.msg}/>);
         }
       });
       return (
