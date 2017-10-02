@@ -38,13 +38,13 @@ class ConnectionCredsInfo extends Component {
     };
 
     this.state = {
-      isOvChecked: false,
-      isSmChecked: false,
+      isOvChecked: !!(this.props.data.ov && this.props.data.ov.checked),
+      isSmChecked: !!(this.props.data.sm && this.props.data.sm.checked),
       smTestStatus: UNKNOWN,
       ovTestStatus: UNKNOWN,
       loading: false,
 
-      messages: [],
+      messages: []
     };
   }
 
@@ -56,22 +56,18 @@ class ConnectionCredsInfo extends Component {
   initData() {
     //init so we don't need to check too many levels of data defined or undefined
     if(!this.data.sm.creds) {
-      this.data.sm = {
-        creds: {
-          'host': '',
-          'username': '',
-          'password': '',
-          'port': 8443
-        }
+      this.data.sm.creds = {
+        'host': '',
+        'username': '',
+        'password': '',
+        'port': 8443
       };
     }
     if(!this.data.ov.creds) {
-      this.data.ov = {
-        creds: {
-          'host': '',
-          'username': '',
-          'password': '',
-        }
+      this.data.ov.creds = {
+        'host': '',
+        'username': '',
+        'password': ''
       };
     }
   }
@@ -120,9 +116,9 @@ class ConnectionCredsInfo extends Component {
     return (
       !this.isFormValid() ||
       (this.state.isSmChecked &&
-       this.state.smTestStatus <= 0) ||   // TODO: Avoid using arithmetic on enumerated constants
+        (this.state.smTestStatus === UNKNOWN || this.state.smTestStatus === INVALID)) ||
       (this.state.isOvChecked &&
-      this.state.ovTestStatus <= 0) ||    // TODO: Avoid using arithmetic on enumerated constants
+        (this.state.ovTestStatus === UNKNOWN || this.state.ovTestStatus === INVALID)) ||
       (!this.state.isSmChecked && !this.state.isOvChecked)
     );
   }
@@ -136,7 +132,7 @@ class ConnectionCredsInfo extends Component {
 
   testSm = () => {
     this.data.sm.sessionKey = undefined;
-    let promise = new Promise((resolve, reject) => {
+    return (
       fetch(getAppConfig('shimurl') + '/api/v1/sm/connection_test', {
         method: 'POST',
         headers: {
@@ -148,7 +144,6 @@ class ConnectionCredsInfo extends Component {
         .then((response) => this.checkResponse(response))
         .then((response) => response.json())
         .then((tokenKey) => {
-          resolve(tokenKey);
           this.data.sm.sessionKey = tokenKey;
           let hostport = this.data.sm.creds.host +
             (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
@@ -158,6 +153,7 @@ class ConnectionCredsInfo extends Component {
             messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
             smTestStatus: VALID
           }});
+          Promise.resolve(tokenKey);
         })
         .catch((error) => {
           let msg = translate('server.test.sm.error');
@@ -174,14 +170,14 @@ class ConnectionCredsInfo extends Component {
             messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
             smTestStatus: INVALID
           }});
-          reject(error);
+          Promise.reject(error);
         })
-    });
-    return promise;
+    )
   }
 
   testOv = () => {
-    let promise = new Promise((resolve, reject) => {
+    this.data.ov.sessionKey = undefined;
+    return (
       fetch(getAppConfig('shimurl') + '/api/v1/ov/connection_test', {
         method: 'POST',
         headers: {
@@ -192,21 +188,21 @@ class ConnectionCredsInfo extends Component {
         .then(response => response.json())
         .then((responseData) => {
           if (responseData.sessionID) {
-            resolve(responseData);
-            this.data.ov.sessionID = responseData.sessionID;
+            this.data.ov.sessionKey = responseData.sessionID;
             let msg = translate('server.test.ov.success', this.data.ov.creds.host);
             this.setState(prev => { return {
               messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
               ovTestStatus: VALID
             }});
+            Promise.resolve(responseData);
           } else {
-            let error = responseData.error
+            let error = responseData.error;
             let msg = translate('server.test.ov.error', this.data.ov.creds.host, error);
             this.setState(prev => { return {
               messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
               ovTestStatus: INVALID
             }});
-            reject(error);
+            Promise.reject(error);
           }
         })
         .catch((error) => {
@@ -215,10 +211,9 @@ class ConnectionCredsInfo extends Component {
             messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
             ovTestStatus: INVALID
           }});
-          reject(error);
+          Promise.reject(error);
         })
-    });
-    return promise;
+    )
   }
 
   handleTest = () => {
@@ -227,16 +222,16 @@ class ConnectionCredsInfo extends Component {
       loading: true
     });
 
-    let promises = [];
+    let tests = [];
     if(this.state.isSmChecked) {
-      promises.push(this.testSm())
+      tests.push(this.testSm())
     }
 
     if(this.state.isOvChecked) {
-      promises.push(this.testOv());
+      tests.push(this.testOv());
     }
 
-    this.doAllTest(promises)
+    this.doAllTest(tests)
       .then((tokenKeys) => {
         this.setState({loading: false});
       })
@@ -245,8 +240,8 @@ class ConnectionCredsInfo extends Component {
       })
   }
 
-  doAllTest(promises) {
-    return Promise.all(promises);
+  doAllTest(tests) {
+    return Promise.all(tests);
   }
 
   handleInputChange = (e, isValid, props) => {
@@ -262,14 +257,9 @@ class ConnectionCredsInfo extends Component {
   }
 
   handleDone = () => {
-    let retData = {};
-    if(this.state.isSmChecked) {
-      retData.sm = this.data.sm;
-    }
-
-    if(this.state.isOvChecked) {
-      retData.ov = this.data.ov;
-    }
+    let retData = this.data;
+    retData.sm.checked = this.state.isSmChecked;
+    retData.ov.checked = this.state.isOvChecked;
 
     this.props.doneAction(retData);
   }
@@ -289,7 +279,7 @@ class ConnectionCredsInfo extends Component {
   }
 
   renderMessage() {
-    if (! isEmpty(this.state.messages)) {
+    if (!isEmpty(this.state.messages)) {
       let msgList = [];
       this.state.messages.map((msgObj, ind) => {
         if (msgObj.messageType === ERROR_MSG) {
@@ -299,7 +289,7 @@ class ConnectionCredsInfo extends Component {
         } else {
           msgList.push(
             <SuccessMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
-              message={msgObj.msg}/>);
+             message={msgObj.msg}/>);
         }
       });
       return (

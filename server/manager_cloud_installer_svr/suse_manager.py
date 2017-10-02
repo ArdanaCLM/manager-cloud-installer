@@ -70,17 +70,20 @@ def sm_server_list():
     if util.USE_JSON_SERVER_ONLY:
         return util.forward(util.build_url(None, '/servers'), request)
 
-    key = request.headers.get('Authtoken')
-    url = request.headers.get('Susemanagerurl')
+    try:
+        key = request.headers.get('Auth-Token')
+        url = request.headers.get('Suse-Manager-Url')
 
-    client = get_client(url)
-    server_list = client.system.listActiveSystems(key)
+        client = get_client(url)
+        server_list = client.system.listActiveSystems(key)
 
-    for server in server_list:
-        # last_checkin is an object, which is not json-serializable
-        server['last_checkin'] = str(server['last_checkin'])
+        for server in server_list:
+            # last_checkin is an object, which is not json-serializable
+            server['last_checkin'] = str(server['last_checkin'])
 
-    return jsonify(server_list)
+        return jsonify(server_list)
+    except Exception:
+        abort(400)
 
 
 @bp.route("/api/v1/sm/servers/<id>")
@@ -89,14 +92,17 @@ def sm_server_details(id):
     if util.USE_JSON_SERVER_ONLY:
         return util.forward(util.build_url(None, '/servers' + id), request)
 
-    key = request.headers.get('Authtoken')
-    url = request.headers.get('Susemanagerurl')
+    try:
+        key = request.headers.get('Auth-Token')
+        url = request.headers.get('Suse-Manager-Url')
 
-    client = get_client(url)
-    detail_list = client.system.listActiveSystemsDetails(key, int(id))
+        client = get_client(url)
+        detail_list = client.system.listActiveSystemsDetails(key, int(id))
 
-    detail = detail_list[0]
-    # last_checkin is an object, which is not json-serializable
-    detail['last_checkin'] = str(detail['last_checkin'])
+        detail = detail_list[0]
+        # last_checkin is an object, which is not json-serializable
+        detail['last_checkin'] = str(detail['last_checkin'])
 
-    return jsonify(detail)
+        return jsonify(detail)
+    except Exception:
+        abort(400)

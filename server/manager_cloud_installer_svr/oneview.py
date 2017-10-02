@@ -1,4 +1,5 @@
 import config.config as config
+from flask import abort
 from flask import Blueprint
 from flask import request
 from flask import jsonify
@@ -45,13 +46,39 @@ def connection_test():
 
 @bp.route("/api/v1/ov/servers")
 def ov_server_list():
-    # For now, use only the JSON_SERVER
-    url = util.JSON_SERVER + "/servers"
-    return util.forward(url, request)
+    if util.USE_JSON_SERVER_ONLY:
+        return util.forward(util.build_url(None, '/servers'), request)
+
+    verify = True
+    if INSECURE:
+        verify = False
+
+    key = request.headers.get('Auth-Token')
+    url = request.headers.get('Ov-Url')
+    try:
+        request_url = url + '/rest/server-hardware?start=0&count=-1&sort=position:desc'
+        head = {'Auth': key, 'X-Api-Version': '200'}
+        response = requests.get(request_url, headers=head, verify=verify)
+        return jsonify(response.json())
+    except Exception:
+        abort(400)
 
 
 @bp.route("/api/v1/ov/servers/<id>")
 def ov_server_details(id):
-    # For now, use only the JSON_SERVER
-    url = util.JSON_SERVER + "/servers/" + id
-    return util.forward(url, request)
+    if util.USE_JSON_SERVER_ONLY:
+        return util.forward(util.build_url(None, '/servers' + id), request)
+
+    verify = True
+    if INSECURE:
+        verify = False
+
+    key = request.headers.get('Auth-Token')
+    url = request.headers.get('Ov-Url')
+    try:
+        request_url = url + '/rest/server-hardware/' + id
+        head = {'Auth': key, 'X-Api-Version': '200'}
+        response = requests.get(request_url, headers=head, verify=verify)
+        return jsonify(response.json())
+    except Exception:
+        abort(400)
