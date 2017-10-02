@@ -35,7 +35,7 @@ class EditServerDetails extends Component {
   isFormTextInputValid() {
     let isAllValid = true;
     let values = Object.values(this.allInputsStatus);
-    isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN}));
+    isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN;}));
 
     return isAllValid;
   }

@@ -87,14 +87,14 @@ class ConnectionCredsInfo extends Component {
     let isAllValid = true;
     if(this.state.isSmChecked) {
       let values = Object.values(this.allInputsStatus.sm);
-      isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN}));
+      isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN;}));
     }
 
     //still valid check hpe oneview creds
     if(isAllValid) {
       if(this.state.isOvChecked) {
         let values = Object.values(this.allInputsStatus.ov);
-        isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN}));
+        isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN;}));
       }
     }
     return isAllValid;
@@ -152,7 +152,7 @@ class ConnectionCredsInfo extends Component {
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
             smTestStatus: VALID
-          }});
+          };});
           Promise.resolve(tokenKey);
         })
         .catch((error) => {
@@ -169,10 +169,10 @@ class ConnectionCredsInfo extends Component {
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
             smTestStatus: INVALID
-          }});
+          };});
           Promise.reject(error);
         })
-    )
+    );
   }
 
   testOv = () => {
@@ -193,7 +193,7 @@ class ConnectionCredsInfo extends Component {
             this.setState(prev => { return {
               messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
               ovTestStatus: VALID
-            }});
+            };});
             Promise.resolve(responseData);
           } else {
             let error = responseData.error;
@@ -201,7 +201,7 @@ class ConnectionCredsInfo extends Component {
             this.setState(prev => { return {
               messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
               ovTestStatus: INVALID
-            }});
+            };});
             Promise.reject(error);
           }
         })
@@ -210,10 +210,10 @@ class ConnectionCredsInfo extends Component {
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
             ovTestStatus: INVALID
-          }});
+          };});
           Promise.reject(error);
         })
-    )
+    );
   }
 
   handleTest = () => {
@@ -224,7 +224,7 @@ class ConnectionCredsInfo extends Component {
 
     let tests = [];
     if(this.state.isSmChecked) {
-      tests.push(this.testSm())
+      tests.push(this.testSm());
     }
 
     if(this.state.isOvChecked) {
@@ -237,7 +237,7 @@ class ConnectionCredsInfo extends Component {
       })
       .catch((error) => {
         this.setState({loading: false});
-      })
+      });
   }
 
   doAllTest(tests) {
@@ -274,7 +274,8 @@ class ConnectionCredsInfo extends Component {
 
   handleCloseMessage = (ind) => {
     this.setState((prevState) => {
-      messages: prevState.messages.splice(ind, 1)
+      //for some reason eslint flags 'messages' below as unused even though it clearly is used elsewhere
+      messages: prevState.messages.splice(ind, 1); // eslint-disable-line no-unused-labels
     });
   }
 
@@ -285,11 +286,11 @@ class ConnectionCredsInfo extends Component {
         if (msgObj.messageType === ERROR_MSG) {
           msgList.push(
             <ErrorMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
-             message={msgObj.msg}/>);
+              message={msgObj.msg}/>);
         } else {
           msgList.push(
             <SuccessMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
-             message={msgObj.msg}/>);
+              message={msgObj.msg}/>);
         }
       });
       return (

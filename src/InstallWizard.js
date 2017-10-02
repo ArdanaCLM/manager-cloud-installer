@@ -7,7 +7,7 @@ import WizardProgress from './components/WizardProgress';
 import { LoadingMask } from './components/LoadingMask.js';
 import { Map, fromJS } from 'immutable';
 import { fetchJson, postJson } from './utils/RestUtils.js';
-import { isEmpty } from 'lodash';
+
 
 
 /**
@@ -65,41 +65,41 @@ class InstallWizard extends Component {
     // new Promise(resolve => setTimeout(resolve, 1000)).then(() =>
     fetchJson('/api/v1/clm/model')
       //  )
-    .then(responseData => {
-      this.setState({'model': fromJS(responseData)});
-    })
-    .catch((error) => {
-      console.log('Unable to retrieve saved model');
-    })
-    .then(() => fetchJson('/api/v1/progress'))
-    .then((responseData) => {
-      if (! forcedReset && responseData.steps && this.areStepsInOrder(responseData.steps, this.props.pages)) {
-        this.setState(responseData);
-      } else {
-        // Set the currentStep to 0 and update its stepProgress to inprogress
-        this.setState((prevState) => {
-          var newSteps = prevState.steps.slice();
-          newSteps.splice(0, 1, {
-            name: prevState.steps[0].name,
-            stepProgress: stepProgressValues.inprogress
-          });
+      .then(responseData => {
+        this.setState({'model': fromJS(responseData)});
+      })
+      .catch((error) => {
+        console.log('Unable to retrieve saved model');
+      })
+      .then(() => fetchJson('/api/v1/progress'))
+      .then((responseData) => {
+        if (! forcedReset && responseData.steps && this.areStepsInOrder(responseData.steps, this.props.pages)) {
+          this.setState(responseData);
+        } else {
+          // Set the currentStep to 0 and update its stepProgress to inprogress
+          this.setState((prevState) => {
+            var newSteps = prevState.steps.slice();
+            newSteps.splice(0, 1, {
+              name: prevState.steps[0].name,
+              stepProgress: stepProgressValues.inprogress
+            });
 
-          return {
-            currentStep: 0,
-            steps: newSteps
-          };
-      }, this.persistState);
-    }})
-    .then(() => {
-      if (forcedReset) {
-        return fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov,manual', {
-          method: 'DELETE'
-        });
-      }
-    })
-    .catch((error) => {
+            return {
+              currentStep: 0,
+              steps: newSteps
+            };
+          }, this.persistState);
+        }})
+      .then(() => {
+        if (forcedReset) {
+          return fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov,manual', {
+            method: 'DELETE'
+          });
+        }
+      })
+      .catch((error) => {
         this.setState({currentStep: 0}, this.persistState);
-    });
+      });
   }
 
   /**
@@ -231,9 +231,9 @@ class InstallWizard extends Component {
   stepTo(stepNumber) {
     var steps = this.state.steps, stateUpdates = {};
     // sanity check the stepNumber, it must be greater than 0 and less than the current step
-    if(stepNumber >= 0 && this.state.currentStep > stepNumber){
+    if(stepNumber >= 0 && this.state.currentStep > stepNumber) {
       let i = this.state.currentStep;
-      while(i > stepNumber){
+      while(i > stepNumber) {
         steps[i].stepProgress = stepProgressValues.notdone;
         i--;
       }
@@ -289,7 +289,7 @@ class InstallWizard extends Component {
    * changes the displaymode from showing the header to sidebar
    * @param {Number} the displaymode constant for changing the wizard displaymode
    */
-  setDisplayMode(newMode){
+  setDisplayMode(newMode) {
     this.setState({displayMode: newMode});
   }
 
@@ -298,15 +298,15 @@ class InstallWizard extends Component {
    * not to be rendered, returns undefined
    * @return {jsx} the jsx representation of the header
    */
-  renderHeader(){
-    if(this.state.displayMode === this.displayModeHeader){
+  renderHeader() {
+    if(this.state.displayMode === this.displayModeHeader) {
       return (
-          <div className='wizard-header'>
-            <i className='menutoggle material-icons btn-toggle'
+        <div className='wizard-header'>
+          <i className='menutoggle material-icons btn-toggle'
             onClick={() => this.setDisplayMode(this.displayModeSideBar)}>menu</i>
-            <h1>{translate('openstack.cloud.deployer.title')}</h1>
-            <WizardProgress steps={this.state.steps} />
-          </div>
+          <h1>{translate('openstack.cloud.deployer.title')}</h1>
+          <WizardProgress steps={this.state.steps} />
+        </div>
       );
     }
   }
@@ -316,36 +316,36 @@ class InstallWizard extends Component {
    * current step. If the displaymode is such that the header is not rendered, returns undefined
    * @return {jsx} the jsx representation of the sidebar
    */
-  renderSidebar(){
-    if(this.state.displayMode === this.displayModeSideBar){
+  renderSidebar() {
+    if(this.state.displayMode === this.displayModeSideBar) {
       return (
-          <div className='wizard-sidebar col-sm-2'>
-            <h1>{translate('openstack.cloud.deployer.title')}</h1>
-            <div className='togglewrap'>
-              <i className='menutoggle material-icons btn-toggle'
-                onClick={() => this.setDisplayMode(this.displayModeHeader)}>menu</i>
-            </div>
-            {
-              this.state.steps.map((item, index) => {
-                let stepClass = 'stepItem';
-                let onClickFnct = undefined;
-                if(this.state.currentStep > index){
-                  stepClass = 'stepItem prevstep';
-                  onClickFnct = () => {
-                    this.stepTo(index);
-                  }
-                }
-                if(this.state.currentStep === index){
-                  stepClass = 'stepItem currentstep'
-                }
-                return <div key={index}
-                            className={stepClass}
-                            onClick={onClickFnct}>
-                       {translate('clouddeploy.installsteps.' + item.name)}</div>;
-              })
-            }
+        <div className='wizard-sidebar col-sm-2'>
+          <h1>{translate('openstack.cloud.deployer.title')}</h1>
+          <div className='togglewrap'>
+            <i className='menutoggle material-icons btn-toggle'
+              onClick={() => this.setDisplayMode(this.displayModeHeader)}>menu</i>
           </div>
-          );
+          {
+            this.state.steps.map((item, index) => {
+              let stepClass = 'stepItem';
+              let onClickFnct = undefined;
+              if(this.state.currentStep > index) {
+                stepClass = 'stepItem prevstep';
+                onClickFnct = () => {
+                  this.stepTo(index);
+                };
+              }
+              if(this.state.currentStep === index) {
+                stepClass = 'stepItem currentstep';
+              }
+              return <div key={index}
+                className={stepClass}
+                onClick={onClickFnct}>
+                {translate('clouddeploy.installsteps.' + item.name)}</div>;
+            })
+          }
+        </div>
+      );
     }
   }
 
@@ -354,9 +354,9 @@ class InstallWizard extends Component {
    */
   render() {
     let contentCssClass = 'wizard-content-container';
-    if(this.state.displayMode === this.displayModeSideBar){
+    if(this.state.displayMode === this.displayModeSideBar) {
       contentCssClass = 'wizard-content-container col-sm-10';
-    } else if(this.state.displayMode === this.displayModeHeader){
+    } else if(this.state.displayMode === this.displayModeHeader) {
       contentCssClass = 'wizard-content-container hasHeader';
     }
     return (

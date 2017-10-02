@@ -64,7 +64,7 @@ export function postJson(url, body, init) {
   if (! ('body' in myInit)) {
     if (body === undefined) {
       myInit.body = '';
-    } else if (typeof(body) === "string") {
+    } else if (typeof(body) === 'string') {
       myInit.body = body;
     } else {
       myInit.body = JSON.stringify(body);

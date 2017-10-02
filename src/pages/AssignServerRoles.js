@@ -141,7 +141,7 @@ class AssignServerRoles extends BaseWizardPage {
                 rawServerData =
                   this.updateSmServerDataWithDetails(details, rawServerData);
                 resolve(rawServerData);
-              })
+              });
           }
           else {
             resolve([]);
@@ -151,9 +151,9 @@ class AssignServerRoles extends BaseWizardPage {
           let msg = translate('server.discover.sm.error');
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-          }});
+          };});
           reject(error);
-        })
+        });
     });
     return promise;
   }
@@ -174,9 +174,9 @@ class AssignServerRoles extends BaseWizardPage {
           let msg = translate('server.discover.ov.error');
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-          }});
+          };});
           reject(error);
-        })
+        });
     });
     return promise;
   }
@@ -211,20 +211,20 @@ class AssignServerRoles extends BaseWizardPage {
   saveAllDiscoveredServers(servers) {
     this.deleteDiscoveredServers()
       .then((response) => {
-      this.saveDiscoveredServers(servers)
-        .then((response) => {})
-        .catch((error) => {
-          let msg = translate('server.discover.save.error');
-          this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-          }});
-        });
+        this.saveDiscoveredServers(servers)
+          .then((response) => {})
+          .catch((error) => {
+            let msg = translate('server.discover.save.error');
+            this.setState(prev => { return {
+              messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+            };});
+          });
       })
       .catch((error) => {
         let msg = translate('server.discover.delete.error');
         this.setState(prev => { return {
           messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-        }});
+        };});
       });
   }
 
@@ -259,7 +259,7 @@ class AssignServerRoles extends BaseWizardPage {
         })
         .catch((error) => {
           this.setState({loading: false});
-        })
+        });
     }
   }
 
@@ -296,7 +296,7 @@ class AssignServerRoles extends BaseWizardPage {
       }
 
       if (this.newServer.name && this.newServer['ip-addr']) {
-        this.setState({validAddServerManuallyForm: true})
+        this.setState({validAddServerManuallyForm: true});
       }
     } else {
       this.setState({validAddServerManuallyForm: false});
@@ -350,7 +350,7 @@ class AssignServerRoles extends BaseWizardPage {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(serverList)
-    })
+    });
 
     // add server to the left table and the server API
     this.setState((prevState) => {
@@ -469,13 +469,13 @@ class AssignServerRoles extends BaseWizardPage {
 
         let details = results.errors.slice(0, MAX_LINES);
         if (results.errors.length > MAX_LINES) {
-          details.push("...");
+          details.push('...');
         }
 
         let title = translate('csv.import.error');
         this.setState(prev => { return {
-            messages: prev.messages.concat([{title: title, msg: details}])
-          }});
+          messages: prev.messages.concat([{title: title, msg: details}])
+        };});
       }
 
       this.saveServersAddedManually(results.data);
@@ -606,14 +606,16 @@ class AssignServerRoles extends BaseWizardPage {
 
   handleCloseMessage = (ind) => {
     this.setState((prevState) => {
-      messages: prevState.messages.splice(ind, 1)
+      //eslint falsely flags messages below as not used
+      messages: prevState.messages.splice(ind, 1); // eslint-disable-line no-unused-labels
     });
   }
 
   // get model object and saved servers before render UI
   componentWillMount() {
     try {
-      this.smApiToken = apiToken; //global suse manager token when embedded
+      //global suse manager token when embedded
+      this.smApiToken = apiToken; // eslint-disable-line no-undef
     } catch (ReferenceError) {
       //pass
     }
@@ -628,8 +630,8 @@ class AssignServerRoles extends BaseWizardPage {
       .catch((error) => {
         let msg = translate('server.discover.get.error');
         this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-          }});
+          messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+        };});
         //still get model
         this.getServerRoles();
       });
@@ -749,7 +751,7 @@ class AssignServerRoles extends BaseWizardPage {
         });
         list = servers.filter((srv) => {
           return ids.indexOf(srv.id) === -1;
-        })
+        });
       }
 
       let retData2 = list.map((server) => {
@@ -869,9 +871,9 @@ class AssignServerRoles extends BaseWizardPage {
           'serverRole': res['server-role'],
           'group': group,
           'servers': servers
-                      .filter(s => s.role === res['server-role'])
-                      .map(s => this.getCleanedServer(s))          // filter out any extra fields
-                      .sort((a,b) => this.byServerNameOrId(a,b))   // sort servers by name or id within each role
+            .filter(s => s.role === res['server-role'])
+            .map(s => this.getCleanedServer(s))          // filter out any extra fields
+            .sort((a,b) => this.byServerNameOrId(a,b))   // sort servers by name or id within each role
         };
         if (group === 'clusters')
           role['memberCount'] = res['member-count'] || 0;
@@ -902,7 +904,7 @@ class AssignServerRoles extends BaseWizardPage {
         })
         .catch(error => {
           resolve({}); //just have no details
-        })
+        });
     });
     return promise;
   }
@@ -921,7 +923,8 @@ class AssignServerRoles extends BaseWizardPage {
    * assign a server to a particular role in the datamodel, then update the model and save it
    *
    * @param {Object} server - data object representing the server and its known metadata
-   * @param {string} role - the role that the server is to be assigned to as it matches the model (not the user-friendly translation)
+   * @param {string} role - the role that the server is to be assigned to as it matches the model
+   *   (not the user-friendly translation)
    */
   assignServerToRole = (server, role) => {
 
@@ -943,8 +946,7 @@ class AssignServerRoles extends BaseWizardPage {
           return svr.set('role', role);
         else
           return svr;
-        }
-      ));
+      }));
     }
     this.props.updateGlobalState('model', model);
   }
@@ -953,11 +955,12 @@ class AssignServerRoles extends BaseWizardPage {
    * trigger server assignment to a role via drag and drop. parses the payload of a ServerRowItem drag event
    * and adds the represented server to the role specified
    *
-   * @param {event} event - the browser event for the drop action, should contain a data JSON object per ServerRowItem.js
+   * @param {event} event - the browser event for the drop action, should contain a data
+   *   JSON object per ServerRowItem.js
    * @param {string} role - the role to assign the server to
    */
   assignServerToRoleDnD = (event, role) => {
-    let serverData = JSON.parse(event.dataTransfer.getData("data"));
+    let serverData = JSON.parse(event.dataTransfer.getData('data'));
 
     this.assignServerToRole(serverData, role);
     this.unHighlightDrop(event, true);
@@ -967,10 +970,11 @@ class AssignServerRoles extends BaseWizardPage {
    * removes a server from a specified model role, parses the payload of a ServerRowItem drag event for data
    * and them removes the represented server to the role specified
    *
-   * @param {event} event - the browser event for the drop action, should contain a data JSON object per ServerRowItem.js
+   * @param {event} event - the browser event for the drop action, should contain a data
+   *   JSON object per ServerRowItem.js
    */
   removeServerFromRoleDnD = (event) => {
-    let serverData = JSON.parse(event.dataTransfer.getData("data"));
+    let serverData = JSON.parse(event.dataTransfer.getData('data'));
     this.removeServerFromRole(serverData, serverData.role);
 
     this.unHighlightDrop(event, true);
@@ -980,12 +984,14 @@ class AssignServerRoles extends BaseWizardPage {
    * remove a server from a particular role in the datamodel, then update the model and save it
    *
    * @param {Object} server - data object representing the server and its known metadata
-   * @param {String} role - the role that the server is to be assigned to as it matches the model (not the user-friendly translation)
+   * @param {String} role - the role that the server is to be assigned to as it matches the model
+   *   (not the user-friendly translation)
    */
   removeServerFromRole = (server, role) => {
 
     // Remove the server from the model
-    const model = this.props.model.updateIn(['inputModel', 'servers'], list => list.filter(svr => svr.get('id') != server.id))
+    const model = this.props.model.updateIn(
+      ['inputModel', 'servers'], list => list.filter(svr => svr.get('id') != server.id));
     this.props.updateGlobalState('model', model);
   }
 
@@ -1006,8 +1012,8 @@ class AssignServerRoles extends BaseWizardPage {
    * @param {event} event - the browser event from dragEnter
    */
   highlightDrop = (event) => {
-    let element = $(event.target);
-    if(!element.hasClass('server-dropzone')){
+    let element = $(event.target); // eslint-disable-line no-undef
+    if(!element.hasClass('server-dropzone')) {
       element = element.closest('.server-dropzone');
     }
     element.css('prevoutline', element.css('outline'));
@@ -1025,15 +1031,15 @@ class AssignServerRoles extends BaseWizardPage {
    * @param {boolean} forceclear (optional) - whether to forcibly remove the highlighting
    */
   unHighlightDrop = (event, forceclear) => {
-    let element = $(event.target);
-    if(!element.hasClass('server-dropzone')){
+    let element = $(event.target); // eslint-disable-line no-undef
+    if(!element.hasClass('server-dropzone')) {
       element = element.closest('.server-dropzone');
     }
     if(forceclear ||
        element.offset().left > event.pageX ||
        element.offset().left + element.width() < event.pageX ||
        element.offset().top >= event.pageY ||
-       element.offset().top + element.height() <= event.pageY){
+       element.offset().top + element.height() <= event.pageY) {
       element.css('outline', element.css('prevoutline') || '');
       element.css('margin', element.css('prevmargin') || '');
     }
@@ -1058,17 +1064,17 @@ class AssignServerRoles extends BaseWizardPage {
           return {[list]: tempList};
         }, () => {
           this.updateDiscoveredServer(updated_server)
-          .then((response) => {})
-          .catch((error) => {
-            let msg = translate('server.discover.update.error', updated_server.name);
-            this.setState(prev => { return {
-              messages: prev.messages.concat([{msg: [msg, error.toString()]}])
-            }});
-          });
+            .then((response) => {})
+            .catch((error) => {
+              let msg = translate('server.discover.update.error', updated_server.name);
+              this.setState(prev => { return {
+                messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+              };});
+            });
         });
         break;
       }
-    };
+    }
   }
 
   updateModelObjectForEditServer = (server) => {
@@ -1086,7 +1092,7 @@ class AssignServerRoles extends BaseWizardPage {
         'ilo-ip': server['ilo-ip'],
         'ilo-user': server['ilo-user'],
         'ilo-password': server['ilo-password']
-      }
+      };
       model = model.mergeIn(['inputModel', 'servers', index], update_svr);
     } else {
       model = model.updateIn(['inputModel', 'servers'], list => list.push(fromJS(server)));
@@ -1124,7 +1130,7 @@ class AssignServerRoles extends BaseWizardPage {
         }
         msgList.push(
           <ErrorMessage key={ind} closeAction={() => this.handleCloseMessage(ind)}
-                        {...theProps}/>);
+            {...theProps}/>);
       });
       return (
         <div className='notification-message-container'>{msgList}</div>
@@ -1164,7 +1170,7 @@ class AssignServerRoles extends BaseWizardPage {
     //apply name and assignment filter here
     let filteredAvailableServers =
       servers.filter((server) => {
-        if(server.name.indexOf(this.state.searchFilterText) === -1){
+        if(server.name.indexOf(this.state.searchFilterText) === -1) {
           return false;
         }
 
@@ -1179,7 +1185,7 @@ class AssignServerRoles extends BaseWizardPage {
         tableData={filteredAvailableServers}
         customAction={this.handleShowServerDetails}>
       </ServerTable>
-    )
+    );
   }
 
   renderAutoDiscoverContent() {
@@ -1398,7 +1404,7 @@ class AssignServerRoles extends BaseWizardPage {
           {this.renderLoadingMask()}
           {this.renderErrorMessage()}
         </div>
-      {this.renderNavButtons()}
+        {this.renderNavButtons()}
       </div>
     );
   }

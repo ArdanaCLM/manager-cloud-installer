@@ -15,7 +15,7 @@ class ServerRowItem extends Component {
    */
   drag(ev, data) {
     //setData only supports strings, JSON stringify here, parse on the other end
-    ev.dataTransfer.setData("data", JSON.stringify(data));
+    ev.dataTransfer.setData('data', JSON.stringify(data));
   }
 
   handleCustomAction = (data) => {

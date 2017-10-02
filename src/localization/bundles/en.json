@@ -164,5 +164,32 @@
     "clouddeploy.installsteps.SelectServersToProvision": "Install OS",
     "clouddeploy.installsteps.ValidateConfigFiles": "Validate Configuration",
     "clouddeploy.installsteps.CloudDeployProgress": "Deploy Cloud",
-    "clouddeploy.installsteps.Complete": "Finish"
+    "clouddeploy.installsteps.Complete": "Finish",
+
+    "model.summary.role.displayname.CONTROLLER-ROLE" : "Controller Nodes",
+    "model.summary.role.displayname.COMPUTE-ROLE" : "Compute Nodes",
+    "model.summary.role.displayname.VSA-ROLE" : "VSA Nodes",
+    "model.summary.role.displayname.RGW-ROLE" : "RGW Nodes",
+    "model.summary.role.displayname.OSD-ROLE" : "OSD Nodes",
+    "model.summary.role.displayname.MTRMON-ROLE" : "Monitoring Nodes",
+    "model.summary.role.displayname.DBMQ-ROLE" : "DB/MsgQ Nodes",
+    "model.summary.role.displayname.SWOBJ-ROLE" : "Swift Nodes",
+    "model.summary.role.displayname.CORE-ROLE" : "Core Nodes",
+    "model.summary.role.displayname.SWPAC-ROLE" : "SWPAC Nodes",
+    "model.summary.role.displayname.NEUTRON-ROLE" : "Neutron Nodes",
+    "model.summary.role.displayname.IRONIC-COMPUTE-ROLE" : "Ironic Compute Nodes",
+
+    "model.summary.role.description.CONTROLLER-ROLE" : "Controllers are an essential component of an OpenStack Cloud. We will deploy services such as Keystone, Horizon, Glance here.",
+    "model.summary.role.description.COMPUTE-ROLE" : "Compute nodes is where your workload will eventually run. We will host services such as Nova on those machines. Make sure those machines have enough capacity.",
+    "model.summary.role.description.VSA-ROLE" : "Describe VSA Nodes",
+    "model.summary.role.description.RGW-ROLE" : "Describe RGW Nodes",
+    "model.summary.role.description.OSD-ROLE" : "Describe OSD Nodes",
+    "model.summary.role.description.MTRMON-ROLE" : "SUSE OpenStack Cloud is an enterprise class solution, this is why we ship monitoring capabilities with our system to allow for Day 2 operations out of the box.",
+    "model.summary.role.description.DBMQ-ROLE" : "Describe DB/MsgQ Nodes",
+    "model.summary.role.description.SWOBJ-ROLE" : "You can optionally add storage nodes to your deployment, and configure access to those nodes right from this panel.",
+    "model.summary.role.description.CORE-ROLE" : "Describe Core Nodes",
+    "model.summary.role.description.SWPAC-ROLE" : "Describe SWPAC Nodes",
+    "model.summary.role.description.NEUTRON-ROLE" : "Describe Neutron Nodes",
+    "model.summary.role.description.IRONIC-COMPUTE-ROLE" : "Describe Ironic Compute Nodes",
+    "model.summary.role.description.NOT_FOUND" : "Describe the fact that the customer must have created this role"
 }

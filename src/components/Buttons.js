@@ -80,17 +80,17 @@ class LoadFileButton extends Component {
           clickAction={this.onClickShownButton}
           displayLabel={this.props.displayLabel}
           isDisabled={this.props.isDisabled || false}
-          />
+        />
         <form ref={(form) => { this.form = form; }} >
           <input type="file"
             onChange={this.onFileSelected}
-            accept={this.props.extensions || ".csv"}
+            accept={this.props.extensions || '.csv'}
             ref={(input) => { this.hiddenButton = input; }}
             style={hidden}
           />
         </form>
       </span>
-    )
+    );
   }
 }
 

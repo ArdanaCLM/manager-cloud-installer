@@ -33,7 +33,7 @@ class ServerRoleSummary extends BaseWizardPage {
             'nicMapping': server.get('nic-mapping'),
             'serverGroup': server.get('server-group')
           })
-      ));
+        ));
     });
 
     // Convert the map to a list of objects and return it, e.g.
