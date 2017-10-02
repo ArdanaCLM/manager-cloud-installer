@@ -102,8 +102,8 @@ class AssignServerRoles extends BaseWizardPage {
         headers: {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
-          'Authtoken': tokenKey,
-          'Susemanagerurl': smUrl
+          'Auth-Token': tokenKey,
+          'Suse-Manager-Url': smUrl
         }
       })
         .then((response) => this.checkResponse(response))
@@ -117,8 +117,8 @@ class AssignServerRoles extends BaseWizardPage {
         headers: {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
-          'Authtoken': tokenKey,
-          'Ovurl': ovUrl
+          'Auth-Token': tokenKey,
+          'Ov-Url': ovUrl
         }
       })
         .then((response) => this.checkResponse(response))
@@ -185,7 +185,7 @@ class AssignServerRoles extends BaseWizardPage {
   //detail one by one in parallel.
   discoverAllServers = () => {
     let tasks = [];
-    if(this.connections.sm && this.connections.sm.checked && this.smSessionKey) {
+    if(this.connections.sm.checked && this.smSessionKey) {
       tasks.push(this.discoverSmServers(this.smSessionKey, this.connections.sm.apiUrl));
     }
     else if(this.smApiToken) {
@@ -193,7 +193,7 @@ class AssignServerRoles extends BaseWizardPage {
       tasks.push(this.discoverSmServers(this.smApiToken, url));
     }
 
-    if(this.connections.ov && this.connections.ov.checked && this.ovSessionKey) {
+    if(this.connections.ov.checked && this.ovSessionKey) {
       tasks.push(this.discoverOvServers(this.ovSessionKey, this.connections.ov.apiUrl));
     }
 
@@ -504,7 +504,7 @@ class AssignServerRoles extends BaseWizardPage {
   getCookieExpiredTime(minutes) {
     let now = new Date();
     let expDate = new Date(now);
-    expDate.setHours(now.getMinutes() + minutes);
+    expDate.setMinutes(now.getMinutes() + minutes);
     return expDate;
   }
 
@@ -543,16 +543,23 @@ class AssignServerRoles extends BaseWizardPage {
 
   handleDoneCredsInput = (credsData) => {
     this.setState({showCredsModal: false,});
+    // need to update saved connections
     let saveConnect =
-      this.props.connectionInfo ? this.props.connectionInfo : {sm: {}, ov: {}};
+      this.props.connectionInfo ? this.props.connectionInfo : {sm: {checked: false}, ov: {checked: false}};
     if (credsData.sm && credsData.sm.checked) {
       let smConn = this.setSmCredentials(credsData);
       saveConnect.sm = smConn;
+    }
+    else {
+      saveConnect.sm.checked = false;
     }
 
     if (credsData.ov && credsData.ov.checked) {
       let ovConn = this.setOvCredentials(credsData);
       saveConnect.ov = ovConn;
+    }
+    else {
+      saveConnect.ov.checked = false;
     }
 
     this.props.updateGlobalState('connectionInfo', saveConnect);
@@ -707,6 +714,8 @@ class AssignServerRoles extends BaseWizardPage {
     let retData = [];
     //details could contain empty data
     details.forEach((srvDetail) => {
+      // promise could return empty detail
+      // only pick up non empty detail.
       if(srvDetail && srvDetail.id) {
         let nkdevice = srvDetail.network_devices.find((device) => {
           return device.interface === 'eth0';
@@ -732,7 +741,8 @@ class AssignServerRoles extends BaseWizardPage {
       }
     });
 
-    //fill out the data from servers, if can not find in details
+    // for some reason don't have all the details
+    // fall back to fill out the data from servers
     if(retData.length < servers.length) {
       let list = [];
       if(retData.length === 0) {
@@ -767,12 +777,7 @@ class AssignServerRoles extends BaseWizardPage {
         return serverData;
       });
 
-      if(retData.length === 0) {
-        retData = retData2;
-      }
-      else {
-        retData = retData.concat(retData2);
-      }
+      retData = retData.concat(retData2);
     }
 
     return retData;
@@ -884,8 +889,8 @@ class AssignServerRoles extends BaseWizardPage {
         headers: {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
-          'Authtoken': smTokenKey,
-          'Susemanagerurl': smUrl
+          'Auth-Token': smTokenKey,
+          'Suse-Manager-Url': smUrl
         }
       })
         .then(response => response.json())

@@ -71,8 +71,8 @@ def sm_server_list():
         return util.forward(util.build_url(None, '/servers'), request)
 
     try:
-        key = request.headers.get('Authtoken')
-        url = request.headers.get('Susemanagerurl')
+        key = request.headers.get('Auth-Token')
+        url = request.headers.get('Suse-Manager-Url')
 
         client = get_client(url)
         server_list = client.system.listActiveSystems(key)
@@ -93,8 +93,8 @@ def sm_server_details(id):
         return util.forward(util.build_url(None, '/servers' + id), request)
 
     try:
-        key = request.headers.get('Authtoken')
-        url = request.headers.get('Susemanagerurl')
+        key = request.headers.get('Auth-Token')
+        url = request.headers.get('Suse-Manager-Url')
 
         client = get_client(url)
         detail_list = client.system.listActiveSystemsDetails(key, int(id))

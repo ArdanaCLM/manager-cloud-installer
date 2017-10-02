@@ -53,8 +53,8 @@ def ov_server_list():
     if INSECURE:
         verify = False
 
-    key = request.headers.get('Authtoken')
-    url = request.headers.get('Ovurl')
+    key = request.headers.get('Auth-Token')
+    url = request.headers.get('Ov-Url')
     try:
         request_url = url + '/rest/server-hardware?start=0&count=-1&sort=position:desc'
         head = {'Auth': key, 'X-Api-Version': '200'}
@@ -73,8 +73,8 @@ def ov_server_details(id):
     if INSECURE:
         verify = False
 
-    key = request.headers.get('Authtoken')
-    url = request.headers.get('Ovurl')
+    key = request.headers.get('Auth-Token')
+    url = request.headers.get('Ov-Url')
     try:
         request_url = url + '/rest/server-hardware/' + id
         head = {'Auth': key, 'X-Api-Version': '200'}
