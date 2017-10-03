@@ -49,11 +49,25 @@ class LoadFileButton extends Component {
     super(props);
   }
 
-  // Trigger a click on the hidden button when the visible one is clicked.
-  // The real button (<input type="file">) is actually a single DOM element
-  // that shows both a button and a text field.  We want the text field, and
-  // the input is harder to style, so we will just use one of our own styled
-  // buttons and forward the events to the hidden control.
+  // The standard html control for getting a filename from a user is <input type="file">,
+  // and while this is just a single DOM element, it is actually rendered visually as both
+  // a button and a text field.  The behavior of this control is that when the button is
+  // clicked, it pops up a dialog to the the user select a filename, but does not actually
+  // try to attempt to load that file (it just populates the text field).  The implied
+  // expectation is that there would be a submit button on this page that would then act
+  // on that filename.
+  //
+  // But the behavior we want is to have a button that lets the user select a filename,
+  // and then immediately act on that selected file.  On the surface, it would seem that
+  // we could somehow disable the text field, but it turns out that that is rather
+  // difficult to accomplish.  Furthermore, the button that is rendered as part of the
+  // file input is also difficult to style in a way that is consistent with other buttons.
+  //
+  // So instead we take a "tricky" approach of creating the file input as a hidden DOM
+  // element, and render our own button (which is easy to style), and when our button is
+  // clicked, we pass the click event along to the hidden input.  We also listen for the
+  // change event on that hidden file input so that when a file is selected, we receive
+  // that event and propagate it to the caller.
   onClickShownButton = (e) => {
     this.hiddenButton.click();
   }
