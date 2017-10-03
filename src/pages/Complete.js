@@ -7,10 +7,14 @@ class Complete extends BaseWizardPage {
 
   render() {
     return (
-      <div className='wizard-content'>
-        {this.renderHeading(translate('complete.heading'))}
-        <div className='installIntro'>
-          <div className='topLine'>{translate('complete.message.body')}</div>
+      <div className='wizard-page'>
+        <div className='content-header'>
+          {this.renderHeading(translate('complete.heading'))}
+        </div>
+        <div className='wizard-content'>
+          <div className='installIntro'>
+            <div className='topLine'>{translate('complete.message.body')}</div>
+          </div>
         </div>
       </div>
     );

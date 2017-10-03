@@ -138,8 +138,10 @@ class CloudModelPicker extends BaseWizardPage {
 
     return (
       <div className='wizard-page'>
-        <div className='wizard-content'>
+        <div className='content-header'>
           {this.renderHeading(translate('model.picker.heading'))}
+        </div>
+        <div className='wizard-content'>
           {this.renderLoadingMask()}
           <div className='picker-container'>
             {btns}

@@ -127,6 +127,7 @@
     "server.user.prompt": "User Name",
     "server.pass.prompt": "Password",
     "server.host1.prompt": "Host",
+    "edit.deploy.settings": "Manage Deployment Settings",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",

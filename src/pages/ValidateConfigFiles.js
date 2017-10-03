@@ -54,9 +54,11 @@ class EditFile extends BaseWizardPage {
   render() {
     return (
       <div className='wizard-page'>
-        <div className='wizard-content'>
+        <div className='content-header'>
           {this.renderHeading(translate('edit.config.files.heading', this.props.file.description,
             this.props.file.name))}
+        </div>
+        <div className='wizard-content'>
           <div>
             <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
               value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
@@ -124,8 +126,10 @@ class DisplayFileList extends BaseWizardPage {
 
     return (
       <div className='wizard-page'>
-        <div className='wizard-content'>
+        <div className='content-header'>
           {this.renderHeading(translate('validate.config.files.heading'))}
+        </div>
+        <div className='wizard-content'>
           <div className='validate-config-files'>
             <div className='body'>
               <div className='col-xs-6 verticalLine'>

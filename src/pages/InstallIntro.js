@@ -15,8 +15,10 @@ class InstallIntro extends BaseWizardPage {
   render() {
     return (
       <div className='wizard-page'>
-        <div className='wizard-content'>
+        <div className='content-header'>
           {this.renderHeading(translate('welcome.cloud.install'))}
+        </div>
+        <div className='wizard-content'>
           <div className='installIntro'>
             <div className='col-xs-7'>
               <div className='topLine'>{translate('install.intro.message.body1')}</div>

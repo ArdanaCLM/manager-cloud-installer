@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import '../Deployer.css';
-import { translate } from '../localization/localize.js';
-import { ActionButton } from '../components/Buttons.js';
 
 class CollapsibleTable extends Component {
   constructor(props) {
@@ -11,47 +9,19 @@ class CollapsibleTable extends Component {
     //  {"groupName": "Group B", members: [{..}, {..}, {..}]]
     // Keywords are "groupName" and "members", where group is the name of the collapsible category
     // and members are the category's members which will be displayed under the category
-    this.state = {
-      expandedGroup: [props.data[0].groupName],
-    };
-
-    this.addExpandedGroup = this.addExpandedGroup.bind(this);
-    this.removeExpandedGroup = this.removeExpandedGroup.bind(this);
   }
 
-  toggleShowHide(event, clickedGroup) {
-    let index = this.state.expandedGroup.indexOf(clickedGroup);
-    if (index === -1) {
-      this.addExpandedGroup(clickedGroup);
+  toggleShowHide(event, clickedGroup, wasExpanded) {
+    if (wasExpanded) {
+      this.props.removeExpandedGroup(clickedGroup);
     } else {
-      this.removeExpandedGroup(clickedGroup);
+      this.props.addExpandedGroup(clickedGroup);
     }
   }
 
-  addExpandedGroup(groupName) {
-    this.setState((prevState) => {
-      return {'expandedGroup': prevState.expandedGroup.concat(groupName)};});
-  }
-
-  removeExpandedGroup(groupName) {
-    this.setState((prevState) => {
-      let index = prevState.expandedGroup.indexOf(groupName);
-      if (index !== -1) {
-        prevState.expandedGroup.splice(index, 1);
-      }
-      return {'expandedGroup': prevState.expandedGroup};
-    });
-  }
-
-  isGroupExpanded(groupName) {
-    let index = this.state.expandedGroup.indexOf(groupName);
-    return (index === -1) ? false : true;
-  }
-
   renderGroup(group) {
-    let isExpanded = this.isGroupExpanded(group.groupName);
     let groupCountColClassName = 'expand-collapse-icon ';
-    groupCountColClassName += isExpanded ? 'glyphicon glyphicon-menu-up' :
+    groupCountColClassName += group.isExpanded ? 'glyphicon glyphicon-menu-up' :
       'glyphicon glyphicon-menu-down';
 
     let fillerTds = [];
@@ -60,7 +30,7 @@ class CollapsibleTable extends Component {
     }
 
     let groupRows = [<tr className='group-row' key={group.groupName}
-      onClick={(event) => this.toggleShowHide(event, group.groupName)}>
+      onClick={(event) => this.toggleShowHide(event, group.groupName, group.isExpanded)}>
       <td>{group.groupName}</td>
       {fillerTds}
       <td className='group-count-col'>{group.members.length}
@@ -76,53 +46,16 @@ class CollapsibleTable extends Component {
       }
 
       let memberRowClassName = 'member-row';
-      memberRowClassName += isExpanded ? ' show-row' : ' hide-row';
+      memberRowClassName += group.isExpanded ? ' show-row' : ' hide-row';
       groupRows.push(<tr className={memberRowClassName} key={serverName}>{cols}</tr>);
     });
     return groupRows;
-  }
-
-  expandAll() {
-    let allGroups = this.props.data.map((group) => {return group.groupName;});
-    this.setState({expandedGroup: allGroups});
-  }
-
-  collapseAll() {
-    this.setState({expandedGroup: []});
-  }
-
-
-  renderCollapseAllButton() {
-    if (this.props.showCollapseAllButton) {
-      return (
-        <ActionButton
-          displayLabel={translate('collapse.all')}
-          clickAction={() => this.collapseAll()}/>
-      );
-    }
-  }
-
-  renderExpandAllButton() {
-    if (this.props.showExpandAllButton) {
-      return (
-        <ActionButton
-          className='expand-all-btn'
-          displayLabel={translate('expand.all')}
-          clickAction={() => this.expandAll()}/>
-      );
-    }
   }
 
   render() {
     let rows = this.props.data.map((group) => {return this.renderGroup(group);});
     return (
       <div className='collapsible-table'>
-        <div className='action-row'>
-          <div className='btn-row btn-container'>
-            {this.renderCollapseAllButton()}
-            {this.renderExpandAllButton()}
-          </div>
-        </div>
         <div className='rounded-corner'>
           <table className='full-width'><tbody>{rows}</tbody></table>
         </div>
