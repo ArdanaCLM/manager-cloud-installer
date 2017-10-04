@@ -49,7 +49,7 @@ class ServerRowItem extends Component {
   }
 
   render() {
-    let cName = 'table-row draggable';
+    let cName = 'draggable';
     if(this.props.tableId === 'right') {
       let requiredUpdate = false;
       let badInput = undefined;
