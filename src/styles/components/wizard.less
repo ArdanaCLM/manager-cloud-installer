@@ -52,8 +52,47 @@
   }
 }
 
+@button-height: 34px;   // the height of all buttons is 34px
 .wizard-page{
   height: 100%;
+
+  .content-header{
+    height: @button-height;
+    margin: 10px 20px;
+ 
+    .titleBox {
+      vertical-align: middle;
+      display: inline-block;
+      width: 50%;
+      height: @button-height;
+      line-height: @button-height;
+      h3 {
+        margin: 0px;   // cancel bootstrap's extra margin when working inside of a title box
+        line-height: @button-height;
+      }
+    }
+
+    .buttonBox {
+      vertical-align: middle;
+      display: inline-block;
+      height: @button-height;
+      width: 50%;
+      div {
+        float:right;
+      }
+    }
+
+    // if page omits the titleBox/buttonbox, ensure the same spacing
+    h3 {
+      vertical-align: middle;
+      display: inline-block;
+      width: 100%;
+      height: @button-height;
+
+      margin: 0px;   // cancel bootstrap's extra margin when working inside of a title box
+      line-height: @button-height;
+    }
+  }
 }
 
 .wizard-sidebar{
@@ -95,17 +134,40 @@
   }
 }
 
+.footer-container {
+  margin: 10px;
+  margin-right: 0px;
+  height: 35px;
+  float: right;
+}
+
+.wizard-content-container.hasHeader{
+  .footer-container {
+    margin-right: 15px;
+  }
+}
+
 .wizard-content-container .wizard-content {
   margin: 20px;
   .heading {
     margin: 0 0 1.5em;
     margin-bottom: 10px;
   }
-  height: calc(~"100vh - 105px");//subtract the height of the footer
+  // 139px is calculated as:
+  //   44px   .content-header height (34) + 10px top margin.  Note that the 10px bottom margin is 
+  //                                          collapsed into the 20px margin of the following wizard-content
+  //   40px    20px*2 for wizard-content top and bottom margins
+  //   55px   footer-container: 10px*2 margins + 35px content
+
+  height: calc(~"100vh - 139px");//subtract the height of the footer and the content-header
 
   overflow-y: auto;
 }
 
 .wizard-content-container.hasHeader .wizard-content {
-  height: calc(~"100vh - 205px");//subtract the height of the footer & header
+  // 195px is calculated as:
+  //   20px for margin top for the h1 header (controlled by bootstrap)
+  //   80px for .wizard-header height
+  //   + value from above calculation
+  height: calc(~"100vh - 239px");//subtract the height of the footer & header & content-header
 }

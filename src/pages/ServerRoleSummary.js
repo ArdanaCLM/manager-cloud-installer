@@ -3,6 +3,7 @@ import React from 'react';
 import { translate } from '../localization/localize.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import CollapsibleTable from '../components/CollapsibleTable.js';
+import { ActionButton } from '../components/Buttons.js';
 import { List, Map } from 'immutable';
 import { alphabetically } from '../utils/Sort.js';
 
@@ -10,6 +11,11 @@ class ServerRoleSummary extends BaseWizardPage {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      expandedGroup: [],
+      showDeploySettings: false
+    };
   }
 
   byServerNameOrId = (a,b) => {
@@ -42,16 +48,57 @@ class ServerRoleSummary extends BaseWizardPage {
     return groupMap.keySeq().sort()         // get a sorted list of keys
       .map(g => new Map({
         'groupName': g,
-        'members': groupMap.get(g)}))
+        'members': groupMap.get(g),
+        'isExpanded': this.state.expandedGroup.includes(g)}))
       .toJS();                              // return as JavaScript objects
+  }
+
+  expandAll() {
+    const allGroups = this.props.model.getIn(['inputModel','server-roles']).map(e => e.get('name'));
+    this.setState({expandedGroup: allGroups});
+  }
+
+  collapseAll() {
+    this.setState({expandedGroup: []});
+  }
+
+  removeExpandedGroup = (groupName) => {
+    this.setState(prevState => {
+      return {'expandedGroup': prevState.expandedGroup.filter(e => e != groupName)};
+    });
+  }
+
+  addExpandedGroup = (groupName) => {
+    this.setState((prevState) => {
+      return {'expandedGroup': prevState.expandedGroup.concat(groupName)};
+    });
+  }
+
+  showDeploySettings = () => {
+    this.setState({'showDeploySettings': true});
   }
 
   render() {
     return (
       <div className='wizard-page'>
+        <div className='content-header'>
+          <div className='titleBox'>
+            {this.renderHeading(translate('server.role.summary.heading'))}
+          </div>
+          <div className='buttonBox'>
+            <div className='btn-row'>
+              <ActionButton displayLabel={translate('edit.deploy.settings')}
+                clickAction={() => this.showDeploySettings()}/>
+              <ActionButton displayLabel={translate('collapse.all')} clickAction={() => this.collapseAll()}/>
+              <ActionButton displayLabel={translate('expand.all')} clickAction={() => this.expandAll()}/>
+            </div>
+          </div>
+        </div>
         <div className='wizard-content'>
-          {this.renderHeading(translate('server.role.summary.heading'))}
-          <CollapsibleTable showCollapseAllButton showExpandAllButton data={this.formatServerObjects()}/>
+          <CollapsibleTable
+            addExpandedGroup={this.addExpandedGroup}
+            removeExpandedGroup={this.removeExpandedGroup}
+            data={this.formatServerObjects()}/>
         </div>
         {this.renderNavButtons()}
       </div>

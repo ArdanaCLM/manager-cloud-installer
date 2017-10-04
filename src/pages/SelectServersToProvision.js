@@ -62,23 +62,29 @@ class SelectServers extends BaseWizardPage {
 
   render() {
     return (
-      <div className='server-provision'>
-        {this.renderHeading(translate('provision.server.heading'))}
-        <TransferTable inputList={this.state.availableServers}
-          sendSelectedList={this.getSelectedServers}
-          leftTableHeader={translate('provision.server.left.table')}
-          rightTableHeader={translate('provision.server.right.table')}/>
-        <div className='button-container'>
-          <ActionButton
-            displayLabel={translate('provision.server.install')} clickAction={this.installServers}
-            isDisabled={this.state.selectedServers.length == 0}/>
+      <div>
+        <div className='content-header'>
+          {this.renderHeading(translate('provision.server.heading'))}
         </div>
-        <YesNoModal show={this.props.showModal}
-          title={translate('provision.server.confirm.heading')}
-          body={translate('provision.server.confirm.body', this.state.selectedServers.length)}
-          yesAction={this.props.proceedAction} noAction={this.props.cancelAction}
-          onHide={this.props.cancelAction}
-        />
+        <div className='wizard-content'>
+          <div className='server-provision'>
+            <TransferTable inputList={this.state.availableServers}
+              sendSelectedList={this.getSelectedServers}
+              leftTableHeader={translate('provision.server.left.table')}
+              rightTableHeader={translate('provision.server.right.table')}/>
+            <div className='button-container'>
+              <ActionButton
+                displayLabel={translate('provision.server.install')} clickAction={this.installServers}
+                isDisabled={this.state.selectedServers.length == 0}/>
+            </div>
+            <YesNoModal show={this.props.showModal}
+              title={translate('provision.server.confirm.heading')}
+              body={translate('provision.server.confirm.body', this.state.selectedServers.length)}
+              yesAction={this.props.proceedAction} noAction={this.props.cancelAction}
+              onHide={this.props.cancelAction}
+            />
+          </div>
+        </div>
       </div>
     );
   }
@@ -150,18 +156,20 @@ class ShowInstallProgress extends BaseWizardPage {
   render() {
     return (
       <div>
-        {this.renderHeading(translate('provision.server.progress.heading'))}
-        <div className='deploy-progress'>
-          <div className='progress-body'>
-            <div className='col-xs-6'>
-              <ul>{this.getProgress()}</ul>
-            </div>
-            <div className='col-xs-6'>
-              {this.getError()}
+        <div className='content-header'>
+          {this.renderHeading(translate('provision.server.progress.heading'))}
+        </div>
+        <div className='wizard-content'>
+          <div className='deploy-progress'>
+            <div className='progress-body'>
+              <div className='col-xs-6'>
+                <ul>{this.getProgress()}</ul>
+              </div>
+              <div className='col-xs-6'>
+                {this.getError()}
+              </div>
             </div>
           </div>
-        </div>
-        <div>
           <ActionButton
             displayLabel='progress'
             clickAction={() => this.progressing()}/>
@@ -250,9 +258,7 @@ class SelectServersToProvision extends BaseWizardPage {
   render() {
     return (
       <div className='wizard-page'>
-        <div className='wizard-content'>
-          {this.renderBody()}
-        </div>
+        {this.renderBody()}
         {this.renderNavButtons()}
       </div>
     );

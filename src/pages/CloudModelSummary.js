@@ -149,8 +149,10 @@ class CloudModelSummary extends BaseWizardPage {
 
     return (
       <div className='wizard-page'>
-        <div className='wizard-content'>
+        <div className='content-header'>
           {this.renderHeading(translate('model.summary.heading', this.props.model.get('name')))}
+        </div>
+        <div className='wizard-content'>
           <div className='picker-container altwidth1'>
             <h4>{translate('model.summary.mandatory')}</h4>
             <div className='section'>

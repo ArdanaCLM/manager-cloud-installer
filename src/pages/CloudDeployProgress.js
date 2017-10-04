@@ -289,8 +289,10 @@ class CloudDeployProgress extends BaseWizardPage {
   render() {
     return (
       <div className='wizard-page'>
-        <div className='wizard-content'>
+        <div className='content-header'>
           {this.renderHeading(translate('deploy.progress.heading'))}
+        </div>
+        <div className='wizard-content'>
           <div className='deploy-progress'>
             <div className='progress-body'>
               <div className='col-xs-4'>
