@@ -1,11 +1,50 @@
-import React from 'react';
-
+import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
+import { Tabs, Tab } from 'react-bootstrap';
+import { ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import CollapsibleTable from '../components/CollapsibleTable.js';
 import { ActionButton } from '../components/Buttons.js';
 import { List, Map } from 'immutable';
 import { alphabetically } from '../utils/Sort.js';
+
+const TAB = {
+  NIC_MAPPINGS: 'NIC_MAPPINGS',
+  SERVER_ROLES: 'SERVER_ROLES',
+  NETWORKS: 'NETWORKS'
+}
+
+class EditCloudSettings extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      key: TAB.NIC_MAPPINGS
+    };
+  }
+
+  render() {
+    return (
+      <ConfirmModal
+        show={this.props.show}
+        title={translate('edit.cloud.settings')}
+        className={'manual-discover-modal'}
+        onHide={this.props.onHide}>
+
+        <Tabs activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
+          <Tab eventKey={TAB.NIC_MAPPINGS} title={translate('edit.cloud.settings')}>
+            NIC Mapping stuff
+          </Tab>
+          <Tab eventKey={TAB.SERVER_ROLES} title={translate('edit.server.groups')}>
+          </Tab>
+          <Tab eventKey={TAB.NETWORKS} title={translate('edit.networks')}>
+          </Tab>
+        </Tabs>
+
+      </ConfirmModal>
+    );
+  }
+}
 
 class ServerRoleSummary extends BaseWizardPage {
 
@@ -14,7 +53,6 @@ class ServerRoleSummary extends BaseWizardPage {
 
     this.state = {
       expandedGroup: [],
-      showDeploySettings: false
     };
   }
 
@@ -74,23 +112,22 @@ class ServerRoleSummary extends BaseWizardPage {
     });
   }
 
-  showDeploySettings = () => {
-    this.setState({'showDeploySettings': true});
-  }
-
   render() {
     return (
       <div className='wizard-page'>
+        <EditCloudSettings
+          show={this.state.showCloudSettings}
+          onHide={() => this.setState({showCloudSettings: false})}/>
         <div className='content-header'>
           <div className='titleBox'>
             {this.renderHeading(translate('server.role.summary.heading'))}
           </div>
           <div className='buttonBox'>
             <div className='btn-row'>
-              <ActionButton displayLabel={translate('edit.deploy.settings')}
-                clickAction={() => this.showDeploySettings()}/>
-              <ActionButton displayLabel={translate('collapse.all')} clickAction={() => this.collapseAll()}/>
-              <ActionButton displayLabel={translate('expand.all')} clickAction={() => this.expandAll()}/>
+              <ActionButton displayLabel={translate('edit.cloud.settings')}
+                clickAction={() => this.setState({showCloudSettings: true})} />
+              <ActionButton displayLabel={translate('collapse.all')} clickAction={() => this.collapseAll()} />
+              <ActionButton displayLabel={translate('expand.all')} clickAction={() => this.expandAll()} />
             </div>
           </div>
         </div>
