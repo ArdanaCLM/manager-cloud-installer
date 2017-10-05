@@ -10,7 +10,7 @@ import { alphabetically } from '../utils/Sort.js';
 
 const TAB = {
   NIC_MAPPINGS: 'NIC_MAPPINGS',
-  SERVER_ROLES: 'SERVER_ROLES',
+  SERVER_GROUPS: 'SERVER_GROUPS',
   NETWORKS: 'NETWORKS'
 };
 
@@ -49,7 +49,7 @@ class EditCloudSettings extends Component {
         onHide={this.props.onHide}>
 
         <Tabs id='editCloudSettings' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
-          <Tab eventKey={TAB.NIC_MAPPINGS} title={translate('edit.cloud.settings')}>
+          <Tab eventKey={TAB.NIC_MAPPINGS} title={translate('edit.nic.mappings')}>
             <div className='button-box'>
               <div>
                 <ActionButton displayLabel={translate('add.nic.mapping')} clickAction={() => this.editNicMapping()} />
@@ -69,7 +69,7 @@ class EditCloudSettings extends Component {
             </table>
           </Tab>
 
-          <Tab eventKey={TAB.SERVER_ROLES} title={translate('edit.server.groups')}>
+          <Tab eventKey={TAB.SERVER_GROUPS} title={translate('edit.server.groups')}>
           </Tab>
           <Tab eventKey={TAB.NETWORKS} title={translate('edit.networks')}>
           </Tab>
