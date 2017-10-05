@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { EditPencilForTableRow } from '../components/Buttons.js';
+import { EditPencilForTableRow , InfoForTableRow} from '../components/Buttons.js';
 
 class ServerRowItem extends Component {
   constructor(props) {
@@ -18,9 +18,15 @@ class ServerRowItem extends Component {
     ev.dataTransfer.setData('data', JSON.stringify(data));
   }
 
-  handleCustomAction = (data) => {
-    if(this.props.customAction) {
-      this.props.customAction(data);
+  handleEditAction = (data) => {
+    if(this.props.editAction) {
+      this.props.editAction(data);
+    }
+  }
+
+  handleViewAction = (data, tableId) => {
+    if(this.props.viewAction) {
+      this.props.viewAction(data, tableId);
     }
   }
 
@@ -50,7 +56,7 @@ class ServerRowItem extends Component {
 
   render() {
     let cName = 'table-row draggable';
-    if(this.props.tableId === 'right') {
+    if(this.props.tableId === 'rightTableId') {
       let requiredUpdate = false;
       let badInput = undefined;
       if(this.props.checkInputs) {
@@ -66,8 +72,11 @@ class ServerRowItem extends Component {
         <tr className={cName}
           draggable="true" onDragStart={(event) => this.drag(event, this.props.data)}>
           {this.renderServerColumns()}
+          <InfoForTableRow
+            clickAction={(e) => this.handleViewAction(this.props.data, this.props.tableId)}>
+          </InfoForTableRow>
           <EditPencilForTableRow
-            clickAction={(e) => this.handleCustomAction(this.props.data)}>
+            clickAction={(e) => this.handleEditAction(this.props.data)}>
           </EditPencilForTableRow>
         </tr>
       );
@@ -77,6 +86,9 @@ class ServerRowItem extends Component {
         <tr className={cName}
           draggable="true" onDragStart={(event) => this.drag(event, this.props.data)}>
           {this.renderServerColumns()}
+          <InfoForTableRow
+            clickAction={(e) => this.handleViewAction(this.props.data, this.props.tableId)}>
+          </InfoForTableRow>
         </tr>
       );
     }

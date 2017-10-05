@@ -14,7 +14,8 @@ class ServerTable extends Component {
           <ServerRowItem
             data={row}
             dataDef={this.props.tableConfig.columns}
-            customAction={this.props.customAction}
+            editAction={this.props.editAction}
+            viewAction={this.props.viewAction}
             tableId={this.props.id}
             checkInputs={this.props.checkInputs}
             key={index}>
@@ -35,6 +36,8 @@ class ServerTable extends Component {
         }
       });
 
+    // push an empty header to hold show detail icon
+    headers.push(<th key={keyCount++}></th>);
     return (
       <tr className='table-header rounded-corner'>{headers}</tr>
     );
