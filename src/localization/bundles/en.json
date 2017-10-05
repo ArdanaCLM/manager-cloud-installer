@@ -134,6 +134,10 @@
     "add.nic.mapping": "Add NIC Mapping",
     "nic.mapping.name": "NIC Mapping Name",
     "number.ports": "Number of Ports",
+    "server.group.name": "Server Group Name",
+    "number.networks": "Number of Networks",
+    "number.server.groups": "Number of Server Groups",
+    "add.server.group": "Add Server Groups",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",

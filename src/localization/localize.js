@@ -24,5 +24,10 @@ export function translate(key, ...args) {
   // Note!
   // For some bizarre reason, strings.formatString returns an array of strings rather than a single string.
   // The join() corrects this by joining the elements into a signle string.
-  return strings.formatString(strings[key], ...args).join('');
+  try {
+    return strings.formatString(strings[key], ...args).join('');
+  } catch (e) {
+    console.error('Unable to translate '+key); // eslint-disable-line no-console
+    return key;
+  }
 }
