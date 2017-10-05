@@ -239,6 +239,22 @@ class EditPencilForTableRow extends Component {
   }
 }
 
+class InfoForTableRow extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <td>
+        <p onClick={this.props.clickAction}>
+          <span className='glyphicon glyphicon-info-sign info'></span>
+        </p>
+      </td>
+    );
+  }
+}
+
+
 module.exports = {
   BackButton: BackButton,
   NextButton: NextButton,
@@ -250,5 +266,6 @@ module.exports = {
   AssignButton: AssignButton,
   UnAssignButton: UnAssignButton,
   ItemMenuButton: ItemMenuButton,
-  EditPencilForTableRow: EditPencilForTableRow
+  EditPencilForTableRow: EditPencilForTableRow,
+  InfoForTableRow: InfoForTableRow
 };
