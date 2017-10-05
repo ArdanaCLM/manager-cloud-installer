@@ -403,8 +403,20 @@ class AssignServerRoles extends BaseWizardPage {
       label: translate('server.none.prompt'),
       value: ''
     };
-    body = (
-      <div>
+    let footer = (
+      <div className='btn-row'>
+        <ActionButton clickAction={this.cancelAddServerManuallyModal}
+          displayLabel={translate('cancel')}/>
+        <ActionButton clickAction={this.addOneServer} displayLabel={translate('save')}
+          isDisabled={!this.state.validAddServerManuallyForm}/>
+        <ActionButton clickAction={this.addMoreServer} displayLabel={translate('add.more')}
+          isDisabled={!this.state.validAddServerManuallyForm}/>
+      </div>
+    );
+    return (
+      <ConfirmModal show={this.state.showAddServerManuallyModal} title={translate('add.server.add')}
+        className={'manual-discover-modal'} onHide={this.cancelAddServerManuallyModal} footer={footer}>
+
         <div className='server-details-container'>
           {this.renderInputLine(true, 'server.name.prompt', 'name', 'text')}
           {this.renderInputLine(true, 'server.ip.prompt', 'ip-addr', 'text', IpV4AddressValidator)}
@@ -422,22 +434,8 @@ class AssignServerRoles extends BaseWizardPage {
           {this.renderInputLine(false, 'server.ipmi.username.prompt', 'ilo-user', 'text')}
           {this.renderInputLine(false, 'server.ipmi.password.prompt', 'ilo-password', 'password')}
         </div>
-      </div>
-    );
-    let footer = (
-      <div className='btn-row'>
-        <ActionButton clickAction={this.cancelAddServerManuallyModal}
-          displayLabel={translate('cancel')}/>
-        <ActionButton clickAction={this.addOneServer} displayLabel={translate('save')}
-          isDisabled={!this.state.validAddServerManuallyForm}/>
-        <ActionButton clickAction={this.addMoreServer} displayLabel={translate('add.more')}
-          isDisabled={!this.state.validAddServerManuallyForm}/>
-      </div>
-    );
-    return (
-      <ConfirmModal show={this.state.showAddServerManuallyModal} title={translate('add.server.add')}
-        className={'manual-discover-modal'} onHide={this.cancelAddServerManuallyModal}
-        body={body} footer={footer}/>
+
+      </ConfirmModal>
     );
   }
 
@@ -1347,36 +1345,20 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
-  renderCredsInputContent() {
-    return (
-      <ConnectionCredsInfo
-        cancelAction={this.handleCancelCredsInput} doneAction={this.handleDoneCredsInput}
-        data={this.connections}>
-      </ConnectionCredsInfo>
-    );
-  }
-
   renderCredsInputModal() {
     return (
       <BaseInputModal
         show={this.state.showCredsModal}
-        dialogClass='creds-dialog'
-        cancelAction={this.handleCancelCredsInput}
-        body={this.renderCredsInputContent()}
+        className='creds-dialog'
+        onHide={this.handleCancelCredsInput}
         title={translate('add.server.connection.creds')}>
-      </BaseInputModal>
-    );
-  }
 
-  renderEditServerInputContent() {
-    return (
-      <EditServerDetails
-        cancelAction={this.handleCancelEditServerDetailsInput}
-        doneAction={this.handleDoneEditServerDetailsInput}
-        serverGroups={this.getServerGroups()}
-        nicMappings={this.getNicMappings()}
-        data={this.activeRowData}>
-      </EditServerDetails>
+        <ConnectionCredsInfo
+          cancelAction={this.handleCancelCredsInput} doneAction={this.handleDoneCredsInput}
+          data={this.connections}>
+        </ConnectionCredsInfo>
+
+      </BaseInputModal>
     );
   }
 
@@ -1384,10 +1366,18 @@ class AssignServerRoles extends BaseWizardPage {
     return (
       <BaseInputModal
         show={this.state.showEditServerDetailsModal}
-        dialogClass='edit-details-dialog'
-        cancelAction={this.handleCancelEditServerDetailsInput}
-        body={this.renderEditServerInputContent()}
+        className='edit-details-dialog'
+        onHide={this.handleCancelEditServerDetailsInput}
         title={translate('edit.server.details.heading')}>
+
+        <EditServerDetails
+          cancelAction={this.handleCancelEditServerDetailsInput}
+          doneAction={this.handleDoneEditServerDetailsInput}
+          serverGroups={this.getServerGroups()}
+          nicMappings={this.getNicMappings()}
+          data={this.activeRowData}>
+        </EditServerDetails>
+
       </BaseInputModal>
     );
   }

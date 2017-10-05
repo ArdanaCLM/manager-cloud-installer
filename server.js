@@ -10,4 +10,4 @@ var server = express();
 server.use(express.static('./public'));
 
 server.listen(port);
-console.log('Cloud deployer server listening on port ' + port);
+console.log('Cloud deployer server listening on port ' + port);  // eslint-disable-line no-console

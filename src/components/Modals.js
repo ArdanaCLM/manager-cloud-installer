@@ -4,85 +4,64 @@ import { ActionButton } from '../components/Buttons.js';
 import { translate } from '../localization/localize.js';
 import '../Deployer.css';
 
-class ConfirmModal extends Modal {
-  constructor() {
-    super();
-    this.state = {showModal: false};
-  }
+function ConfirmModal(props) {
+  return (
+    <Modal
+      className='modals'
+      show={props.show}
+      onHide={props.onHide}
+      backdrop={'static'}
+      dialogClassName={props.className}>
 
-  componentWillReceiveProps(newProps) {
-    if (this.props.show !== newProps.show) {
-      this.setState({showModal: newProps.show});
-    }
-  }
-
-  render() {
-    let footer = (this.props.footer) ? this.props.footer :
-      (<ActionButton clickAction={this.props.clickAction} displayLabel={translate('ok')}/>);
-
-    return (
-      <Modal className='modals' show={this.state.showModal} onHide={this.props.onHide}
-        backdrop={'static'} dialogClassName={this.props.className}>
-        <Modal.Header closeButton>
-          <Modal.Title className='title'>{this.props.title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {this.props.body}
-        </Modal.Body>
-        <Modal.Footer>
-          {footer}
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+      <Modal.Header closeButton>
+        <Modal.Title className='title'>{props.title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {props.children}
+      </Modal.Body>
+      <Modal.Footer>
+        {props.footer ||
+          <ActionButton clickAction={props.onHide} displayLabel={translate('ok')}/>}
+      </Modal.Footer>
+    </Modal>
+  );
 }
 
-class YesNoModal extends ConfirmModal {
-  render() {
-    let footer = (
-      <div className="btn-row">
-        <ActionButton clickAction={this.props.yesAction} displayLabel={translate('yes')}/>
-        <ActionButton clickAction={this.props.noAction} displayLabel={translate('no')}/>
-      </div>
-    );
+function YesNoModal(props) {
+  const footer = (
+    <div className="btn-row">
+      <ActionButton clickAction={props.yesAction} displayLabel={translate('yes')}/>
+      <ActionButton clickAction={props.noAction} displayLabel={translate('no')}/>
+    </div>
+  );
 
-    return (
-      <ConfirmModal show={this.state.showModal} title={this.props.title} body={this.props.body}
-        onHide={this.props.noAction} footer={footer}/>
-    );
-  }
+  return (
+    <ConfirmModal show={props.show} title={props.title} onHide={props.noAction} footer={footer}>
+      {props.children}
+    </ConfirmModal>
+  );
 }
 
-class BaseInputModal extends Modal {
-  constructor(props) {
-    super(props);
-  }
+function BaseInputModal(props) {
 
   //won't render footer, but implement footers in the body
   //to have control over the input contents changes.
-  render() {
-    if (this.props.show) {
-      return (
-        <Modal
-          className='modals' show={this.props.show}
-          dialogClassName={this.props.dialogClass}
-          onHide={this.props.cancelAction}
-          backdrop={'static'}>
-          <Modal.Header closeButton>
-            <Modal.Title className='title'>{this.props.title}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {this.props.body}
-          </Modal.Body>
-        </Modal>
-      );
-    }
-    return <div></div>;
-  }
+  return (
+    <Modal
+      className='modals'
+      show={props.show}
+      onHide={props.onHide}
+      backdrop={'static'}
+      dialogClassName={props.className}>
+
+      <Modal.Header closeButton>
+        <Modal.Title className='title'>{props.title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {props.children}
+      </Modal.Body>
+    </Modal>
+  );
 }
 
-module.exports = {
-  ConfirmModal: ConfirmModal,
-  YesNoModal: YesNoModal,
-  BaseInputModal: BaseInputModal
-};
+export { ConfirmModal, YesNoModal, BaseInputModal };
