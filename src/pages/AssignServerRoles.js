@@ -1258,7 +1258,7 @@ class AssignServerRoles extends BaseWizardPage {
     if (this.state.selectedServerTabKey === MANUALADD_TAB &&
       this.state.serversAddedManually.length > 0) {
       return (
-        <div className='action-line'>
+        <div className='action-line table-header-wrapper'>
           <div className='action-item-left'>
             <SearchBar
               filterText={this.state.searchFilterText}
@@ -1280,7 +1280,7 @@ class AssignServerRoles extends BaseWizardPage {
     } else if (this.state.selectedServerTabKey === AUTODISCOVER_TAB &&
       this.state.rawDiscoveredServers.length > 0) {
       return (
-        <div className='action-line'>
+        <div className='action-line table-header-wrapper'>
           <div className='action-item-left'>
             <SearchBar
               filterText={this.state.searchFilterText}
@@ -1300,10 +1300,12 @@ class AssignServerRoles extends BaseWizardPage {
     }
     else {
       return (
-        <SearchBar
-          filterText={this.state.searchFilterText}
-          filterAction={this.handleSearchText}>
-        </SearchBar>
+        <div className='table-header-wrapper'>
+          <SearchBar
+            filterText={this.state.searchFilterText}
+            filterAction={this.handleSearchText}>
+          </SearchBar>
+        </div>
       );
     }
   }
