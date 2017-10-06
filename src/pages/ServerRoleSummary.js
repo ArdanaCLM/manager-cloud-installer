@@ -23,24 +23,106 @@ class EditCloudSettings extends Component {
     };
   }
 
+  addNicMapping = (e) => {
+    console.log('addNicMapping');
+  }
   editNicMapping = (e) => {
-    // TODO: Show a modal for editing the NIC Mapping
+    console.log('editNicMapping');
   }
 
-  render() {
+  addServerGroup = (e) => {
+    console.log('addServerGroup');
+  }
+  editServerGroup = (e) => {
+    console.log('editServerGroup');
+  }
+
+
+  renderNicMappingTab() {
     const rows = this.props.model.getIn(['inputModel','nic-mappings'])
       .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
       .map((m,idx) => {
         const numPorts = m.get('physical-ports').size;
         return (
           <tr key={idx}>
-            <td>{m.get('name')}</td><td>{numPorts}</td>
-            <td>
-              <span onClick={(e) => this.editNicMapping(e)} className='glyphicon glyphicon-pencil edit'></span>
-            </td>
+            <td>{m.get('name')}</td>
+            <td>{numPorts}</td>
+            <td><span onClick={(e) => this.editNicMapping(e)} className='glyphicon glyphicon-pencil edit'></span></td>
           </tr>);
       });
 
+    return (
+      <div>
+        <div className='button-box'>
+          <div>
+            <ActionButton displayLabel={translate('add.nic.mapping')} clickAction={(e) => this.addNicMapping(e)} />
+          </div>
+        </div>
+        <table className='table'>
+          <thead>
+            <tr>
+              <th>{translate('nic.mapping.name')}</th>
+              <th>{translate('number.ports')}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  renderServerGroupsTab() {
+    const rows = this.props.model.getIn(['inputModel','server-groups'])
+      .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
+      .map((m,idx) => {
+        let numNetworks = '-';
+        if (m.has('networks')) {
+          numNetworks = m.get('networks').size;
+        }
+
+        let numServerGroups = '-';
+        if (m.has('server-groups')) {
+          numServerGroups = m.get('server-groups').size;
+        }
+
+        return (
+          <tr key={idx}>
+            <td>{m.get('name')}</td>
+            <td>{numNetworks}</td>
+            <td>{numServerGroups}</td>
+            <td><span onClick={(e) => this.editServerGroup(e)} className='glyphicon glyphicon-pencil edit'></span></td>
+          </tr>);
+      });
+
+    return (
+      <div>
+        <div className='button-box'>
+          <div>
+            <ActionButton displayLabel={translate('add.server.group')} clickAction={(e) => this.addServerGroup(e)} />
+          </div>
+        </div>
+        <table className='table'>
+          <thead>
+            <tr>
+              <th>{translate('server.group.name')}</th>
+              <th>{translate('number.networks')}</th>
+              <th>{translate('number.server.groups')}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+
+  render() {
     return (
       <ConfirmModal
         show={this.props.show}
@@ -50,26 +132,10 @@ class EditCloudSettings extends Component {
 
         <Tabs id='editCloudSettings' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
           <Tab eventKey={TAB.NIC_MAPPINGS} title={translate('edit.nic.mappings')}>
-            <div className='button-box'>
-              <div>
-                <ActionButton displayLabel={translate('add.nic.mapping')} clickAction={() => this.editNicMapping()} />
-              </div>
-            </div>
-            <table className='table'>
-              <thead>
-                <tr>
-                  <th>{translate('nic.mapping.name')}</th>
-                  <th>{translate('number.ports')}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows}
-              </tbody>
-            </table>
+            {this.renderNicMappingTab()}
           </Tab>
-
           <Tab eventKey={TAB.SERVER_GROUPS} title={translate('edit.server.groups')}>
+            {this.renderServerGroupsTab()}
           </Tab>
           <Tab eventKey={TAB.NETWORKS} title={translate('edit.networks')}>
           </Tab>
