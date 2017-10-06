@@ -36,15 +36,15 @@ class ServerTable extends Component {
       });
 
     return (
-      <tr className='table-header rounded-corner'>{headers}</tr>
+      <tr>{headers}</tr>
     );
   }
 
   render() {
     return (
-      <table className='full-width'><tbody>
-        {!this.props.noHeader && this.renderTableHeaders()}
-        {this.renderServerRows()}</tbody>
+      <table className='table'>
+        <thead>{!this.props.noHeader && this.renderTableHeaders()}</thead>
+        <tbody>{this.renderServerRows()}</tbody>
       </table>
     );
   }

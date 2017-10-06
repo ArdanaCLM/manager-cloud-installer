@@ -10,9 +10,9 @@ import { alphabetically } from '../utils/Sort.js';
 
 const TAB = {
   NIC_MAPPINGS: 'NIC_MAPPINGS',
-  SERVER_ROLES: 'SERVER_ROLES',
+  SERVER_GROUPS: 'SERVER_GROUPS',
   NETWORKS: 'NETWORKS'
-}
+};
 
 class EditCloudSettings extends Component {
 
@@ -23,19 +23,53 @@ class EditCloudSettings extends Component {
     };
   }
 
+  editNicMapping = (e) => {
+    // TODO: Show a modal for editing the NIC Mapping
+  }
+
   render() {
+    const rows = this.props.model.getIn(['inputModel','nic-mappings'])
+      .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
+      .map((m,idx) => {
+        const numPorts = m.get('physical-ports').size;
+        return (
+          <tr key={idx}>
+            <td>{m.get('name')}</td><td>{numPorts}</td>
+            <td>
+              <span onClick={(e) => this.editNicMapping(e)} className='glyphicon glyphicon-pencil edit'></span>
+            </td>
+          </tr>);
+      });
+
     return (
       <ConfirmModal
         show={this.props.show}
         title={translate('edit.cloud.settings')}
-        className={'manual-discover-modal'}
+        className={'cloud-settings'}
         onHide={this.props.onHide}>
 
-        <Tabs activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
-          <Tab eventKey={TAB.NIC_MAPPINGS} title={translate('edit.cloud.settings')}>
-            NIC Mapping stuff
+        <Tabs id='editCloudSettings' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
+          <Tab eventKey={TAB.NIC_MAPPINGS} title={translate('edit.nic.mappings')}>
+            <div className='button-box'>
+              <div>
+                <ActionButton displayLabel={translate('add.nic.mapping')} clickAction={() => this.editNicMapping()} />
+              </div>
+            </div>
+            <table className='table'>
+              <thead>
+                <tr>
+                  <th>{translate('nic.mapping.name')}</th>
+                  <th>{translate('number.ports')}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows}
+              </tbody>
+            </table>
           </Tab>
-          <Tab eventKey={TAB.SERVER_ROLES} title={translate('edit.server.groups')}>
+
+          <Tab eventKey={TAB.SERVER_GROUPS} title={translate('edit.server.groups')}>
           </Tab>
           <Tab eventKey={TAB.NETWORKS} title={translate('edit.networks')}>
           </Tab>
@@ -117,7 +151,8 @@ class ServerRoleSummary extends BaseWizardPage {
       <div className='wizard-page'>
         <EditCloudSettings
           show={this.state.showCloudSettings}
-          onHide={() => this.setState({showCloudSettings: false})}/>
+          onHide={() => this.setState({showCloudSettings: false})}
+          model={this.props.model} />
         <div className='content-header'>
           <div className='titleBox'>
             {this.renderHeading(translate('server.role.summary.heading'))}
