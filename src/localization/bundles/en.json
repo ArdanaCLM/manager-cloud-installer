@@ -153,6 +153,9 @@
     "disk.model": "Disk Model",
     "volume.groups": "Volume Groups",
     "device.groups": "Device Groups",
+    "add.interface.model": "Add Interface Model",
+    "interface.model": "Interface Model",
+    "network.interfaces": "Network Interfaces",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",

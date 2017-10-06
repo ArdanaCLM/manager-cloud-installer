@@ -51,6 +51,13 @@ class EditCloudSettings extends Component {
     console.log('editDiskModel');
   }
 
+  addInterfaceModel = (e) => {
+    console.log('addInterfaceModel');
+  }
+  editInterfaceModel = (e) => {
+    console.log('editInterfaceModel');
+  }
+
 
   renderNicMappingTab() {
     const rows = this.props.model.getIn(['inputModel','nic-mappings'])
@@ -219,6 +226,42 @@ class EditCloudSettings extends Component {
   }
 
 
+  renderInterfaceModelsTab() {
+    const rows = this.props.model.getIn(['inputModel','interface-models'])
+      .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
+      .map((m,idx) => {
+        return (
+          <tr key={idx}>
+            <td>{m.get('name')}</td>
+            <td>{m.get('network-interfaces', new List()).size}</td>
+            <td><span onClick={(e) => this.editInterfaceModel(e)} className='glyphicon glyphicon-pencil edit'></span></td>
+          </tr>);
+      });
+
+    return (
+      <div>
+        <div className='button-box'>
+          <div>
+            <ActionButton displayLabel={translate('add.interface.model')} clickAction={(e) => this.addInterfaceModel(e)} />
+          </div>
+        </div>
+        <table className='table'>
+          <thead>
+            <tr>
+              <th>{translate('interface.model')}</th>
+              <th>{translate('network.interfaces')}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+
   render() {
     return (
       <ConfirmModal
@@ -239,6 +282,9 @@ class EditCloudSettings extends Component {
           </Tab>
           <Tab eventKey={TAB.DISK_MODELS} title={translate('edit.disk.models')}>
             {this.renderDiskModelsTab()}
+          </Tab>
+          <Tab eventKey={TAB.INTERFACE_MODELS} title={translate('edit.interface.models')}>
+            {this.renderInterfaceModelsTab()}
           </Tab>
         </Tabs>
 
