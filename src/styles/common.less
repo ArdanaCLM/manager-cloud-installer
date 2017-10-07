@@ -140,3 +140,25 @@ p {
   }
 }
 
+.nav.nav-tabs {
+  li > a {
+    border-bottom: 3px solid transparent;
+  }
+  li > a:focus, li > a:hover {
+    outline-color: transparent;
+    background-color: transparent;
+    border-color: transparent;
+    border-bottom: 3px solid @box-border-color;
+  }
+  li.active > a:active {
+    border: 1px solid transparent;
+  }
+  li.active > a {
+    border: 1px solid transparent;
+    border-bottom: 3px solid @preferredcolor;
+  }
+  a {
+    color: @subheadingcolor;
+  }
+}
+
