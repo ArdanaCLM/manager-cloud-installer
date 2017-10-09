@@ -15,6 +15,7 @@ import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
 import ServerTable from '../components/ServerTable.js';
 import EditServerDetails from '../components/EditServerDetails.js';
+import ViewServerDetails from '../components/ViewServerDetails';
 import { importCSV } from '../utils/CsvImporter.js';
 import { alphabetically } from '../utils/Sort.js';
 import { fromJS } from 'immutable';
@@ -34,8 +35,6 @@ class AssignServerRoles extends BaseWizardPage {
       'nic-mapping',
       'server-group'
     ];
-    // TODO: Remove this
-    this.activeRowData = undefined;
 
     // TODO: Move the Add Server model into its own component and
     // let it track its own state
@@ -92,8 +91,11 @@ class AssignServerRoles extends BaseWizardPage {
       //show server details modal
       showServerDetailsModal: false,
 
-      //show edit server details modal
+      // show edit server details modal
       showEditServerDetailsModal: false,
+
+      // active row data to pass into details modal or edit details modal
+      activeRowData: undefined
     };
   }
 
@@ -190,8 +192,7 @@ class AssignServerRoles extends BaseWizardPage {
       tasks.push(this.discoverSmServers(this.smSessionKey, this.connections.sm.apiUrl));
     }
     else if(this.smApiToken) {
-      let url = window.location.protocol + '//' + window.location.host  + '/rpc/api';
-      tasks.push(this.discoverSmServers(this.smApiToken, url));
+      tasks.push(this.discoverSmServers(this.smApiToken, this.getSmUrlEmbedded()));
     }
 
     if(this.connections.ov.checked && this.ovSessionKey) {
@@ -499,6 +500,10 @@ class AssignServerRoles extends BaseWizardPage {
     return url;
   }
 
+  getSmUrlEmbedded() {
+    return window.location.protocol + '//' + window.location.host + '/rpc/api';
+  }
+
   getCookieExpiredTime(minutes) {
     let now = new Date();
     let expDate = new Date(now);
@@ -571,11 +576,14 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
-  handleShowServerDetails = (rowData) => {
-    this.setState({showServerDetailsModal: true});
-    this.activeRowData = rowData;
-    //TODO need to get details based on source and id
-    //then pop a modal
+  handleShowServerDetails = (rowData, tableId) => {
+    this.setState({showServerDetailsModal: true, activeRowData: rowData});
+    this.activeTableId = tableId;
+  }
+
+  handleCloseServerDetails = () => {
+    this.setState({showServerDetailsModal: false, activeRowData: undefined});
+    this.activeTableId = undefined;
   }
 
   handleDoneEditServerDetailsInput = (server) => {
@@ -585,20 +593,15 @@ class AssignServerRoles extends BaseWizardPage {
     //update servers and save to the backend
     this.updateServerForEditServer(server);
 
-    this.setState({ showEditServerDetailsModal: false });
-    this.activeRowData = undefined;
+    this.setState({showEditServerDetailsModal: false, activeRowData: undefined});
   }
 
-  handleCancelEditServerDetailsInput = (editData) => {
-    this.setState({
-      showEditServerDetailsModal: false
-    });
-    this.activeRowData = undefined;
+  handleCancelEditServerDetailsInput = () => {
+    this.setState({showEditServerDetailsModal: false, activeRowData: undefined});
   }
 
   handleShowEditServerDetails = (rowData) => {
-    this.setState({showEditServerDetailsModal: true, messages: []});
-    this.activeRowData = rowData;
+    this.setState({showEditServerDetailsModal: true, activeRowData: rowData});
   }
 
   handleCloseMessage = (ind) => {
@@ -729,7 +732,8 @@ class AssignServerRoles extends BaseWizardPage {
           'ilo-password': '',
           'nic-mapping': '',
           'server-group': '',
-          'source': 'sm'
+          'source': 'sm',
+          'details': srvDetail //save the details for showing details later
         };
         retData.push(serverData);
       }
@@ -783,7 +787,7 @@ class AssignServerRoles extends BaseWizardPage {
       let ipmi = undefined;
       if(srv.mpHostInfo) {
         ipmi = srv.mpHostInfo.mpIpAddresses.find((addr) => {
-          return addr.type === 'DHCP' || addr.type === 'STATIC';
+          return addr.type === 'DHCP' || addr.type === 'Static';
         });
       }
       //TODO get mac addresse if portMap available
@@ -801,7 +805,8 @@ class AssignServerRoles extends BaseWizardPage {
         'ilo-password': '',
         'nic-mapping': '',
         'server-group': '',
-        'source': 'ov'
+        'source': 'ov',
+        'details': srv //save all the information for showing detail later
       };
       return serverData;
     });
@@ -1115,6 +1120,29 @@ class AssignServerRoles extends BaseWizardPage {
     });
   }
 
+  getSourceData = (activeRowData, activeTableId) => {
+    if(!activeRowData || !activeTableId) {
+      return;
+    }
+    let sourceData = undefined;
+    if(activeTableId.startsWith('letfTableId')) {
+      return activeRowData; //left side table always has source
+    }
+    else {
+      let id = activeRowData.id; //should be a name or id
+      //go to the leftside list for find data
+      sourceData = this.state.rawDiscoveredServers.find((server) => {
+        return id === server.id;
+      });
+      if(!sourceData) {
+        sourceData = this.state.serversAddedManually.find((server) => {
+          return id === server.id;
+        });
+      }
+    }
+    return sourceData;
+  }
+
   setNextButtonDisabled = () => !this.isValid();
 
   renderErrorMessage() {
@@ -1141,7 +1169,7 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
-  renderAvailServersTable(servers) {
+  renderAvailServersTable(servers,  type) {
     //displayed columns
     let tableConfig = {
       columns: [
@@ -1175,12 +1203,13 @@ class AssignServerRoles extends BaseWizardPage {
         return (assignedServerIds.indexOf(server.id) === -1);
       });
 
+    let tableId = 'leftTableId' + type;
     return (
       <ServerTable
-        id='left'
+        id={tableId}
         tableConfig={tableConfig}
         tableData={filteredAvailableServers}
-        customAction={this.handleShowServerDetails}>
+        viewAction={this.handleShowServerDetails}>
       </ServerTable>
     );
   }
@@ -1199,7 +1228,7 @@ class AssignServerRoles extends BaseWizardPage {
     else {
       return (
         <div>
-          {this.renderAvailServersTable(this.state.rawDiscoveredServers)}
+          {this.renderAvailServersTable(this.state.rawDiscoveredServers, '_auto')}
         </div>
       );
     }
@@ -1209,7 +1238,7 @@ class AssignServerRoles extends BaseWizardPage {
     if (this.state.serversAddedManually.length > 0) {
       return (
         <div className='full-width'>
-          {this.renderAvailServersTable(this.state.serversAddedManually)}
+          {this.renderAvailServersTable(this.state.serversAddedManually, '_manual')}
         </div>
       );
     } else {
@@ -1231,7 +1260,7 @@ class AssignServerRoles extends BaseWizardPage {
   renderAvailableServersTabs() {
     return (
       <Tabs
-        activeKey={this.state.tabKey}
+        activeKey={this.state.selectedServerTabKey}
         onSelect={this.handleSelectServerTab} id='AvailableServerTabsId'>
         <Tab
           eventKey={AUTODISCOVER_TAB} title={translate('add.server.auto.discover')}>
@@ -1317,9 +1346,10 @@ class AssignServerRoles extends BaseWizardPage {
         ondragLeaveFunct={this.unHighlightDrop}
         allowDropFunct={this.allowDrop}
         serverRoles={this.getServerRoles()}
-        tableId='right'
+        tableId='rightTableId'
         checkInputs={this.checkInputKeys}
-        editAction={this.handleShowEditServerDetails}>
+        editAction={this.handleShowEditServerDetails}
+        viewAction={this.handleShowServerDetails}>
       </ServerRolesAccordion>
     );
   }
@@ -1358,7 +1388,6 @@ class AssignServerRoles extends BaseWizardPage {
           cancelAction={this.handleCancelCredsInput} doneAction={this.handleDoneCredsInput}
           data={this.connections}>
         </ConnectionCredsInfo>
-
       </BaseInputModal>
     );
   }
@@ -1374,11 +1403,38 @@ class AssignServerRoles extends BaseWizardPage {
         <EditServerDetails
           cancelAction={this.handleCancelEditServerDetailsInput}
           doneAction={this.handleDoneEditServerDetailsInput}
-          serverGroups={this.getServerGroups()}
-          nicMappings={this.getNicMappings()}
-          data={this.activeRowData}>
+          serverGroups={this.getServerGroups()} nicMappings={this.getNicMappings()}
+          data={this.state.activeRowData}>
         </EditServerDetails>
+      </BaseInputModal>
+    );
+  }
 
+  renderServerDetailsModal() {
+    //if the activeRowData is from the right side table...it doesn't have the
+    //source ...need to find source data which has the details
+    let sourceData =
+      this.getSourceData(this.state.activeRowData, this.activeTableId);
+
+    let theProps = {};
+    let dialogClass = 'view-details-dialog ';
+    if(sourceData && (sourceData.source === 'sm' || sourceData.source === 'ov')) {
+      theProps.tableId = this.activeTableId;
+      theProps.source = sourceData.source;
+      theProps.details = sourceData.details;
+      dialogClass = dialogClass + 'more-width';
+    }
+    return (
+      <BaseInputModal
+        show={this.state.showServerDetailsModal}
+        className={dialogClass}
+        onHide={this.handleCloseServerDetails}
+        title={translate('view.server.details.heading')}>
+
+        <ViewServerDetails
+          cancelAction={this.handleCloseServerDetails}
+          data={this.state.activeRowData} {...theProps}>
+        </ViewServerDetails>
       </BaseInputModal>
     );
   }
@@ -1394,6 +1450,7 @@ class AssignServerRoles extends BaseWizardPage {
           {this.renderCredsInputModal()}
           {this.renderAddServerManuallyModal()}
           {this.renderEditServerDetailsModal()}
+          {this.renderServerDetailsModal()}
           {this.renderLoadingMask()}
           {this.renderErrorMessage()}
         </div>
