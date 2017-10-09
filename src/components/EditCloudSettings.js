@@ -24,38 +24,38 @@ class EditCloudSettings extends Component {
   }
 
   addNicMapping = (e) => {
-    console.log('addNicMapping');
+    console.log('addNicMapping'); // eslint-disable-line no-console
   }
   editNicMapping = (e) => {
-    console.log('editNicMapping');
+    console.log('editNicMapping'); // eslint-disable-line no-console
   }
 
   addServerGroup = (e) => {
-    console.log('addServerGroup');
+    console.log('addServerGroup'); // eslint-disable-line no-console
   }
   editServerGroup = (e) => {
-    console.log('editServerGroup');
+    console.log('editServerGroup'); // eslint-disable-line no-console
   }
 
   addNetwork = (e) => {
-    console.log('addNetwork');
+    console.log('addNetwork'); // eslint-disable-line no-console
   }
   editNetwork = (e) => {
-    console.log('editNetwork');
+    console.log('editNetwork'); // eslint-disable-line no-console
   }
 
   addDiskModel = (e) => {
-    console.log('addDiskModel');
+    console.log('addDiskModel'); // eslint-disable-line no-console
   }
   editDiskModel = (e) => {
-    console.log('editDiskModel');
+    console.log('editDiskModel'); // eslint-disable-line no-console
   }
 
   addInterfaceModel = (e) => {
-    console.log('addInterfaceModel');
+    console.log('addInterfaceModel'); // eslint-disable-line no-console
   }
   editInterfaceModel = (e) => {
-    console.log('editInterfaceModel');
+    console.log('editInterfaceModel'); // eslint-disable-line no-console
   }
 
 
@@ -144,8 +144,8 @@ class EditCloudSettings extends Component {
 
 
   renderNetworksTab() {
-    const trueStr = translate("true");
-    const falseStr = translate("false");
+    const trueStr = translate('true');
+    const falseStr = translate('false');
 
     const rows = this.props.model.getIn(['inputModel','networks'])
       .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
@@ -234,7 +234,9 @@ class EditCloudSettings extends Component {
           <tr key={idx}>
             <td>{m.get('name')}</td>
             <td>{m.get('network-interfaces', new List()).size}</td>
-            <td><span onClick={(e) => this.editInterfaceModel(e)} className='glyphicon glyphicon-pencil edit'></span></td>
+            <td>
+              <span onClick={(e) => this.editInterfaceModel(e)} className='glyphicon glyphicon-pencil edit'></span>
+            </td>
           </tr>);
       });
 
@@ -242,7 +244,8 @@ class EditCloudSettings extends Component {
       <div>
         <div className='button-box'>
           <div>
-            <ActionButton displayLabel={translate('add.interface.model')} clickAction={(e) => this.addInterfaceModel(e)} />
+            <ActionButton displayLabel={translate('add.interface.model')}
+              clickAction={(e) => this.addInterfaceModel(e)} />
           </div>
         </div>
         <table className='table'>

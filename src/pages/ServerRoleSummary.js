@@ -1,7 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { translate } from '../localization/localize.js';
-import { Tabs, Tab } from 'react-bootstrap';
-import { ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import CollapsibleTable from '../components/CollapsibleTable.js';
 import { ActionButton } from '../components/Buttons.js';

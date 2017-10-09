@@ -67,7 +67,7 @@ class ArdanaServerList extends BaseWizardPage {
   }
 
   logResponse(data) {
-    console.log(JSON.stringify(data));
+    console.log(JSON.stringify(data)); // eslint-disable-line no-console
   }
 
   render() {

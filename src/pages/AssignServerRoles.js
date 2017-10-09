@@ -385,7 +385,6 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   renderAddServerManuallyModal = () => {
-    let body = '';
     const serverGroups = this.getServerGroups();
     const nicMappings = this.getNicMappings();
     let roles = this.getServerRoles().map(e => e['serverRole']);
