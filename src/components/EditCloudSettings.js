@@ -24,38 +24,38 @@ class EditCloudSettings extends Component {
   }
 
   addNicMapping = (e) => {
-    console.log('addNicMapping');
+    console.log('addNicMapping'); // eslint-disable-line no-console
   }
   editNicMapping = (e) => {
-    console.log('editNicMapping');
+    console.log('editNicMapping'); // eslint-disable-line no-console
   }
 
   addServerGroup = (e) => {
-    console.log('addServerGroup');
+    console.log('addServerGroup'); // eslint-disable-line no-console
   }
   editServerGroup = (e) => {
-    console.log('editServerGroup');
+    console.log('editServerGroup'); // eslint-disable-line no-console
   }
 
   addNetwork = (e) => {
-    console.log('addNetwork');
+    console.log('addNetwork'); // eslint-disable-line no-console
   }
   editNetwork = (e) => {
-    console.log('editNetwork');
+    console.log('editNetwork'); // eslint-disable-line no-console
   }
 
   addDiskModel = (e) => {
-    console.log('addDiskModel');
+    console.log('addDiskModel'); // eslint-disable-line no-console
   }
   editDiskModel = (e) => {
-    console.log('editDiskModel');
+    console.log('editDiskModel'); // eslint-disable-line no-console
   }
 
   addInterfaceModel = (e) => {
-    console.log('addInterfaceModel');
+    console.log('addInterfaceModel'); // eslint-disable-line no-console
   }
   editInterfaceModel = (e) => {
-    console.log('editInterfaceModel');
+    console.log('editInterfaceModel'); // eslint-disable-line no-console
   }
 
 
