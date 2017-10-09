@@ -69,7 +69,8 @@ class ServerRolesAccordion extends Component {
         tableConfig={tableConfig}
         checkInputs={this.props.checkInputs}
         tableData={serverList}
-        customAction={this.props.editAction}>
+        editAction={this.props.editAction}
+        viewAction={this.props.viewAction}>
       </ServerTable>
     );
   }
