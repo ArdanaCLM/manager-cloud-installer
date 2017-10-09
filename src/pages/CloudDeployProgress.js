@@ -2,31 +2,24 @@ import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
+import { STATUS } from '../utils/constants.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import io from 'socket.io-client';
 import { List } from 'immutable';
 import debounce from 'lodash/debounce';
 
+/*
+  Navigation rules:
+  - while the playbook is running (or unknown), Back and Next are disallowed
+  - if the playbook ended successfully, only Next is allowed
+  - if the playbook failed, only Back is allowed
 
-// Rules to enforce:
-// - while the playbook is running (or unknown), Back and Next should be disallowed
-// - if the playbook ended successfully, only Next should be allowed
-// - if the playbook failed, only Back should be allowed
+  The play id is kept in the global state, and its absence indicates
+  that the playbook should be launched.
+*/
 
-// How to determine these for a new session?  For an existing session
-
-// For a new session, query the ardana for the play, and look in
-//  the results to see which of the three situations we are in
-
-// For a running session, can listen for end and fail (which are??)
-// and adjust the status as necessary
-const DEPLOY_UNKNOWN = 0;       // initial state when entering the page while doing initial queries
-const DEPLOY_IN_PROGRESS = 1;
-const DEPLOY_COMPLETE = 2;
-const DEPLOY_FAILED = 3;
-
-const STEPS = [
+const SITE_STEPS = [
   {
     label: translate('deploy.progress.step1'),
     playbooks: ['network_interface-deploy.yml']
@@ -54,7 +47,7 @@ const STEPS = [
   }
 ];
 
-class MyLogViewer extends Component {
+class LogViewer extends Component {
 
   constructor(props) {
     super(props);
@@ -99,7 +92,7 @@ class MyLogViewer extends Component {
 }
 
 
-class CloudDeployProgress extends BaseWizardPage {
+class PlaybookProgress extends Component {
   constructor(props) {
     super(props);
 
@@ -109,39 +102,26 @@ class CloudDeployProgress extends BaseWizardPage {
     this.logsReceived = List();
 
     this.state = {
-      errorMsg: '',                 // error message to display
-      showLog: false,               // controls visibility of log viewer
-      playbooksStarted: [],         // list of playbooks that have started
-      playbooksComplete: [],        // list of playbooks that have completed
-      playbooksError: [],           // list of playbooks that have errored
+      errorMsg: '',                  // error message to display
+      showLog: false,                // controls visibility of log viewer
+      playbooksStarted: [],          // list of playbooks that have started
+      playbooksComplete: [],         // list of playbooks that have completed
+      playbooksError: [],            // list of playbooks that have errored
 
-      // TODO: After ardana-service gets an API to replay events from past
-      //   playbook runs, status can be derived entirely from the three
-      //   arrays above and the following overall status can be removed
-      deployStatus: DEPLOY_UNKNOWN, // overall status of entire deployment
-
-      displayedLogs: List()         // log messages to display in the log viewer
+      displayedLogs: List()          // log messages to display in the log viewer
     };
 
     this.startPlaybook();
   }
 
-  setNextButtonDisabled() {
-    return this.state.deployStatus != DEPLOY_COMPLETE;
-  }
-
-  setBackButtonDisabled() {
-    return this.state.deployStatus != DEPLOY_FAILED;
-  }
-
   getError() {
-    return (this.state.errorMsg) ? (
-      <div>{translate('deploy.progress.failure')}<br/>
-        <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
+    if (this.state.errorMsg)
+      return (<div>{translate('progress.failure')}<br/>
+        <pre className='log'>{this.state.errorMsg}</pre></div>);
   }
 
   getProgress() {
-    return STEPS.map((step, index) => {
+    return this.props.steps.map((step, index) => {
       var status = 'notstarted', i = 0;
 
       //for each step, check if any playbooks failed
@@ -209,15 +189,15 @@ class CloudDeployProgress extends BaseWizardPage {
   }
 
   startPlaybook = () => {
-    // Start the playbook if it has not already been done.  deployStatus will be set
+    // Start the playbook if it has not already been done.  overallStatus will be set
     // initially here.  If the playbook is launched, further updates to the status will
     // be performed as playbook events arrive from the ardana service (which originate
     // in the ansible playbooks)
 
-    if (this.props.sitePlayId) {
+    if (this.props.playId) {
       // Get the output of the play that has already been launched
 
-      this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId, {
+      this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.playId, {
         // Note: Use no-cache in order to get an up-to-date response
         headers: {
           'pragma': 'no-cache',
@@ -227,9 +207,9 @@ class CloudDeployProgress extends BaseWizardPage {
         .then(response => {
           if ('endTime' in response) {
             // The play has already ended, and is either complete or failed
-            this.setState({deployStatus: (response['code'] == 0 ? DEPLOY_COMPLETE : DEPLOY_FAILED)});
+            this.props.updateStatus(response['code'] == 0 ? STATUS.COMPLETE : STATUS.FAILED);
 
-            fetch('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId + '/log')
+            fetch('http://localhost:8081/api/v1/clm/plays/' + this.props.playId + '/log')
               .then(response => response.text())
               .then(response => {
                 const message = response.trimRight('\n');
@@ -237,7 +217,7 @@ class CloudDeployProgress extends BaseWizardPage {
                 this.setState({displayedLogs: this.logsReceived});
               });
 
-            this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.sitePlayId + '/events')
+            this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.playId + '/events')
               .then(response => {
                 for (let evt of response) {
                   if (evt.event === 'playbook-stop')
@@ -250,8 +230,8 @@ class CloudDeployProgress extends BaseWizardPage {
               });
           } else {
             // The play is still in progress
-            this.setState({deployStatus: DEPLOY_IN_PROGRESS});
-            this.monitorSocket(this.props.sitePlayId);
+            this.props.updateStatus(STATUS.IN_PROGRESS);
+            this.monitorSocket(this.props.playId);
           }
         })
         .catch((error) => {
@@ -261,7 +241,7 @@ class CloudDeployProgress extends BaseWizardPage {
     } else {
 
       // Launch the playbook
-      this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/playbooks/site', {
+      this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/playbooks/' + this.props.playbook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify('')
@@ -269,19 +249,19 @@ class CloudDeployProgress extends BaseWizardPage {
         .then(response => {
           const playId = response['id'];
           this.monitorSocket(playId);
-          this.setState({deployStatus: DEPLOY_IN_PROGRESS});
-          this.props.updateGlobalState('sitePlayId', playId);
+          this.props.updateStatus(STATUS.IN_PROGRESS);
+          this.props.updatePlayId(playId);
         })
         .catch((error) => {
-          this.setState({deployStatus: DEPLOY_FAILED,
-            errorMsg: List(error.message)});
+          this.props.updateStatus(STATUS.FAILED);
+          this.setState({errorMsg: List(error.message)});
         });
     }
   }
 
   renderShowLogButton() {
-    const logButtonLabel = translate('deploy.progress.show.log');
-    if (this.props.sitePlayId || this.state.contents) {
+    const logButtonLabel = translate('progress.show.log');
+    if (this.props.playId || this.state.contents) {
       return (
         <ActionButton type='link'
           displayLabel={logButtonLabel}
@@ -291,39 +271,31 @@ class CloudDeployProgress extends BaseWizardPage {
   }
 
   renderLogViewer() {
-    const logButtonLabel = translate('deploy.progress.hide.log');
+    const logButtonLabel = translate('progress.hide.log');
     return (
-      <MyLogViewer contents={this.state.displayedLogs}>
+      <LogViewer contents={this.state.displayedLogs}>
         <ActionButton type='link'
           displayLabel={logButtonLabel}
           clickAction={() => this.setState((prev) => { return {'showLog': !prev.showLog}; }) } />
-      </MyLogViewer>
+      </LogViewer>
     );
   }
 
   render() {
     return (
-      <div className='wizard-page'>
-        <div className='content-header'>
-          {this.renderHeading(translate('deploy.progress.heading'))}
-        </div>
-        <div className='wizard-content'>
-          <div className='deploy-progress'>
-            <div className='progress-body'>
-              <div className='col-xs-4'>
-                <ul>{this.getProgress()}</ul>
-                {this.getError()}
-                <div>
-                  {!this.state.showLog && this.renderShowLogButton()}
-                </div>
-              </div>
-              <div className='col-xs-8'>
-                {this.state.showLog && this.renderLogViewer()}
-              </div>
+      <div className='playbook-progress'>
+        <div className='progress-body'>
+          <div className='col-xs-4'>
+            <ul>{this.getProgress()}</ul>
+            <div>
+              {!this.state.showLog && this.renderShowLogButton()}
             </div>
           </div>
+          <div className='col-xs-8'>
+            {this.getError()}
+            {this.state.showLog && this.renderLogViewer()}
+          </div>
         </div>
-        {this.renderNavButtons()}
       </div>
     );
   }
@@ -358,14 +330,16 @@ class CloudDeployProgress extends BaseWizardPage {
    * @param {String} the playbook filename
    */
   playbookStopped = (playbook) => {
+    let complete = false;
+
     this.setState((prevState) => {
       const completedPlaybooks = prevState.playbooksComplete.concat(playbook);
-      var newState = {'playbooksComplete': completedPlaybooks};
-      if (completedPlaybooks.includes('site.yml')) {
-        newState.deployStatus = DEPLOY_COMPLETE;
-      }
-      return newState;
+      complete = completedPlaybooks.includes(this.props.playbook+'.yml');
+      return {'playbooksComplete': completedPlaybooks};
     });
+    if (complete) {
+      this.props.updateStatus(STATUS.COMPLETE);
+    }
   }
 
   /**
@@ -375,14 +349,17 @@ class CloudDeployProgress extends BaseWizardPage {
    * @param {String} the playbook filename
    */
   playbookError = (playbook) => {
+    let failed = false;
+
     this.setState((prevState) => {
       const errorPlaybooks = prevState.playbooksError.concat(playbook);
-      var newState = {'playbooksError': errorPlaybooks};
-      if (errorPlaybooks.includes('site.yml')) {
-        newState.deployStatus = DEPLOY_FAILED;
-      }
-      return newState;
+      failed = errorPlaybooks.includes(this.props.playbook+'.yml');
+      return {'playbooksError': errorPlaybooks};
     });
+
+    if (failed) {
+      this.props.updateStatus(STATUS.FAILED);
+    }
   }
 
   logMessage = (message) => {
@@ -397,4 +374,41 @@ class CloudDeployProgress extends BaseWizardPage {
   }, 100)
 }
 
+class CloudDeployProgress extends BaseWizardPage {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      overallStatus: STATUS.UNKNOWN // overall status of entire playbook
+    };
+  }
+  setNextButtonDisabled = () => this.state.overallStatus != STATUS.COMPLETE;
+  setBackButtonDisabled = () => this.state.overallStatus != STATUS.FAILED;
+
+  updateStatus = (status) => {this.setState({overallStatus: status});}
+  updatePlayId = (playId) => {this.props.updateGlobalState('sitePlayId', playId);}
+
+  render() {
+    return (
+      <div className='wizard-page'>
+        <div className='content-header'>
+          {this.renderHeading(translate('deploy.progress.heading'))}
+        </div>
+        <div className='wizard-content'>
+          <PlaybookProgress
+            overallStatus={this.state.overallStatus}
+            updateStatus={this.updateStatus}
+            playId={this.props.sitePlayId}
+            updatePlayId={this.updatePlayId}
+            steps={SITE_STEPS}
+            playbook="site" />
+        </div>
+        {this.renderNavButtons()}
+      </div>
+    );
+  }
+}
+
 export default CloudDeployProgress;
+export {CloudDeployProgress, PlaybookProgress};

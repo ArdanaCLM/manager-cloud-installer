@@ -2,10 +2,12 @@ import React from 'react';
 
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
+import { STATUS } from '../utils/constants.js';
 import { ActionButton } from '../components/Buttons.js';
 import { YesNoModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import TransferTable from '../components/TransferTable.js';
+import { PlaybookProgress } from './CloudDeployProgress.js';
 
 class SelectServers extends BaseWizardPage {
   constructor() {
@@ -90,6 +92,7 @@ class SelectServers extends BaseWizardPage {
 }
 
 
+/*
 class ShowInstallProgress extends BaseWizardPage {
   constructor() {
     super();
@@ -159,7 +162,7 @@ class ShowInstallProgress extends BaseWizardPage {
           {this.renderHeading(translate('provision.server.progress.heading'))}
         </div>
         <div className='wizard-content'>
-          <div className='deploy-progress'>
+          <div className='playbook-progress'>
             <div className='progress-body'>
               <div className='col-xs-6'>
                 <ul>{this.getProgress()}</ul>
@@ -177,6 +180,26 @@ class ShowInstallProgress extends BaseWizardPage {
     );
   }
 }
+*/
+
+const OS_INSTALL_STEPS = [
+  {
+    label: translate('install.progress.step1'),
+    playbooks: ['bm-power-status.yml']
+  },
+  {
+    label: translate('install.progress.step2'),
+    playbooks: ['cobbler-deploy.yml']
+  },
+  {
+    label: translate('install.progress.step3'),
+    playbooks: ['bm-reimage.yml']
+  },
+  {
+    label: translate('install.progress.step4'),
+    playbooks: ['dayzero-os-provision.yml']
+  }
+];
 
 
 class SelectServersToProvision extends BaseWizardPage {
@@ -187,7 +210,8 @@ class SelectServersToProvision extends BaseWizardPage {
       selectedServers: [],
       showModal: false,
       installComplete: false,
-      serversSelectedButNotInstalled: false
+      serversSelectedButNotInstalled: false,
+      overallStatus: STATUS.UNKNOWN // overall status of install playbook
     };
 
     this.getSelectedServers = this.getSelectedServers.bind(this);
@@ -221,18 +245,37 @@ class SelectServersToProvision extends BaseWizardPage {
     this.setState({serversSelectedButNotInstalled: serversSelected});
   }
 
-  setNextButtonDisabled() {
-    let disabled = false;
-    if(this.state.installing && !this.state.installComplete) {
-      disabled = true;
-    } else if (!this.state.installing && this.state.serversSelectedButNotInstalled) {
-      disabled = true;
+  setNextButtonDisabled = () => {
+    if (this.state.installing) {
+      return this.state.overallStatus != STATUS.COMPLETE;
+    } else {
+      return this.state.serversSelectedButNotInstalled;
     }
-    return disabled;
   }
 
+  updateStatus = (status) => {this.setState({overallStatus: status});}
+  updatePlayId = (playId) => {this.props.updateGlobalState('installPlayId', playId);}
+
+  // TODO: Support passing parameters to playbook command
+
   renderBody() {
-    if (!this.state.installing) {
+    if (this.state.installing) {
+      return (
+        <div>
+          <div className='content-header'>
+            {this.renderHeading(translate('provision.server.progress.heading'))}
+          </div>
+          <div className='wizard-content'>
+            <PlaybookProgress
+              overallStatus={this.state.overallStatus}
+              updateStatus={this.updateStatus}
+              playId={this.props.installPlayId}
+              updatePlayId={this.updatePlayId}
+              steps={OS_INSTALL_STEPS}
+              playbook="dayzero-os-provision" />
+          </div>
+        </div>);
+    } else {
       return (
         <SelectServers
           ref='selectServers'
@@ -242,14 +285,6 @@ class SelectServersToProvision extends BaseWizardPage {
           proceedAction={this.proceedToInstall}
           cancelAction={this.cancelInstall}
           hasActiveSelection={this.setServersSelectedButNotInstalledState.bind(this)}
-        />);
-    } else {
-      return (
-        <ShowInstallProgress
-          ref='showInstallProgress'
-          installList={this.state.selectedServers}
-          filterName={this.getServerNames}
-          setInstallState={this.setInstallCompleteState.bind(this)}
         />);
     }
   }

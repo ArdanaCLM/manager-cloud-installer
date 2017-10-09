@@ -206,7 +206,6 @@
     "complete.message.body": "Some post deploy instruction contents here...",
 
     "deploy.progress.heading": "Cloud Deployment In Progress",
-    "deploy.progress.failure": "Deployment Failure : {0}",
     "deploy.progress.step1": "Network Configuration",
     "deploy.progress.step2": "Compute nodes deployed",
     "deploy.progress.step3": "Monitoring nodes deployed",
@@ -214,8 +213,16 @@
     "deploy.progress.step5": "Quick health check",
     "deploy.progress.step6": "Additional Setup and Configuration",
     "deploy.progress.step7": "n/a",
-    "deploy.progress.show.log": "Show Log",
-    "deploy.progress.hide.log": "Hide Log",
+
+    "install.progress.heading": "SLES Installation In Progress",
+    "install.progress.step1": "Verify IPMI Connectivity",
+    "install.progress.step2": "Install and Configure Cobbler",
+    "install.progress.step3": "Provision SLES",
+    "install.progress.step4": "Additional Setup and Configuration",
+
+    "progress.failure": "Failure",
+    "progress.show.log": "Show Log",
+    "progress.hide.log": "Hide Log",
 
     "provision.server.heading": "Choose servers on which SLES will be installed",
     "provision.server.left.table": "Available Servers",

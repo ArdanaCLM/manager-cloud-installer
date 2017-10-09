@@ -27,11 +27,11 @@ export const pages = [{
   name: 'AssignServerRoles',
   component: AssignServerRoles
 }, {
-  name: 'ServerRoleSummary',
-  component: ServerRoleSummary
-}, {
   name: 'SelectServersToProvision',
   component: SelectServersToProvision
+}, {
+  name: 'ServerRoleSummary',
+  component: ServerRoleSummary
 }, {
   name: 'ValidateConfigFiles',
   component: ValidateConfigFiles
