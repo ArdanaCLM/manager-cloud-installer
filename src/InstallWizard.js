@@ -69,7 +69,7 @@ class InstallWizard extends Component {
         this.setState({'model': fromJS(responseData)});
       })
       .catch((error) => {
-        console.log('Unable to retrieve saved model');
+        console.log('Unable to retrieve saved model');// eslint-disable-line no-console
       })
       .then(() => fetchJson('/api/v1/progress'))
       .then((responseData) => {

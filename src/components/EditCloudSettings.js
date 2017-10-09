@@ -144,8 +144,8 @@ class EditCloudSettings extends Component {
 
 
   renderNetworksTab() {
-    const trueStr = translate("true");
-    const falseStr = translate("false");
+    const trueStr = translate('true');
+    const falseStr = translate('false');
 
     const rows = this.props.model.getIn(['inputModel','networks'])
       .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
@@ -234,7 +234,9 @@ class EditCloudSettings extends Component {
           <tr key={idx}>
             <td>{m.get('name')}</td>
             <td>{m.get('network-interfaces', new List()).size}</td>
-            <td><span onClick={(e) => this.editInterfaceModel(e)} className='glyphicon glyphicon-pencil edit'></span></td>
+            <td>
+              <span onClick={(e) => this.editInterfaceModel(e)} className='glyphicon glyphicon-pencil edit'></span>
+            </td>
           </tr>);
       });
 
@@ -242,7 +244,8 @@ class EditCloudSettings extends Component {
       <div>
         <div className='button-box'>
           <div>
-            <ActionButton displayLabel={translate('add.interface.model')} clickAction={(e) => this.addInterfaceModel(e)} />
+            <ActionButton displayLabel={translate('add.interface.model')}
+              clickAction={(e) => this.addInterfaceModel(e)} />
           </div>
         </div>
         <table className='table'>
