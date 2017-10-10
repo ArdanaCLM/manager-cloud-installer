@@ -80,13 +80,13 @@ class EditFile extends BaseWizardPage {
 class DisplayFileList extends BaseWizardPage {
   getMessage() {
     if (this.props.valid === UNKNOWN) {
-      return (<div className='info'>{translate('validate.config.files.msg.info')}</div>);
+      return (<div>{translate('validate.config.files.msg.info')}</div>);
     } else if (this.props.valid === VALIDATING) {
-      return (<div className='info'>{translate('validate.config.files.msg.validating')}</div>);
+      return (<div>{translate('validate.config.files.msg.validating')}</div>);
     } else if (this.props.valid === VALID) {
-      return (<div className='info'>{translate('validate.config.files.msg.valid')}</div>);
+      return (<div>{translate('validate.config.files.msg.valid')}</div>);
     } else {
-      return (<div className='info'>{translate('validate.config.files.msg.invalid')}<br/>
+      return (<div>{translate('validate.config.files.msg.invalid')}<br/>
         <pre className='log'>{this.props.invalidMsg}</pre></div>);
     }
   }

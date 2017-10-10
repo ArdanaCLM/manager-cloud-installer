@@ -247,7 +247,7 @@ class InfoForTableRow extends Component {
     return (
       <td className='actions'>
         <p onClick={this.props.clickAction}>
-          <span className='glyphicon glyphicon-info-sign info'></span>
+          <span className='glyphicon glyphicon-info-sign detail-info'></span>
         </p>
       </td>
     );
