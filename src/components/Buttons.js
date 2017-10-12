@@ -157,15 +157,11 @@ class ActivePickerButton extends Component {
 }
 
 class ItemHelpButton extends Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
-    let helpAction = this.props.clickAction;
     return (
       <span
         className='glyphicon glyphicon-info-sign helper'
-        onClick={helpAction}>
+        onClick={this.props.clickAction}>
       </span>
     );
   }
