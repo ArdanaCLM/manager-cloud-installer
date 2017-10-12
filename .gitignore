@@ -8,7 +8,6 @@
 
 # production
 /build
-/public/bundle.js
 /dist
 /public
 /day0-install-ui-*.tar
