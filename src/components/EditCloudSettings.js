@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { List } from 'immutable';
 import { translate } from '../localization/localize.js';
 import { Tabs, Tab } from 'react-bootstrap';
 import { ConfirmModal } from '../components/Modals.js';
@@ -8,7 +9,9 @@ import { alphabetically } from '../utils/Sort.js';
 const TAB = {
   NIC_MAPPINGS: 'NIC_MAPPINGS',
   SERVER_GROUPS: 'SERVER_GROUPS',
-  NETWORKS: 'NETWORKS'
+  NETWORKS: 'NETWORKS',
+  DISK_MODELS: 'DISK_MODELS',
+  INTERFACE_MODELS: 'INTERFACE_MODELS'
 };
 
 class EditCloudSettings extends Component {
@@ -21,24 +24,38 @@ class EditCloudSettings extends Component {
   }
 
   addNicMapping = (e) => {
-    console.log('addNicMapping');
+    console.log('addNicMapping'); // eslint-disable-line no-console
   }
   editNicMapping = (e) => {
-    console.log('editNicMapping');
+    console.log('editNicMapping'); // eslint-disable-line no-console
   }
 
   addServerGroup = (e) => {
-    console.log('addServerGroup');
+    console.log('addServerGroup'); // eslint-disable-line no-console
   }
   editServerGroup = (e) => {
-    console.log('editServerGroup');
+    console.log('editServerGroup'); // eslint-disable-line no-console
   }
 
   addNetwork = (e) => {
-    console.log('addNetwork');
+    console.log('addNetwork'); // eslint-disable-line no-console
   }
   editNetwork = (e) => {
-    console.log('editNetwork');
+    console.log('editNetwork'); // eslint-disable-line no-console
+  }
+
+  addDiskModel = (e) => {
+    console.log('addDiskModel'); // eslint-disable-line no-console
+  }
+  editDiskModel = (e) => {
+    console.log('editDiskModel'); // eslint-disable-line no-console
+  }
+
+  addInterfaceModel = (e) => {
+    console.log('addInterfaceModel'); // eslint-disable-line no-console
+  }
+  editInterfaceModel = (e) => {
+    console.log('editInterfaceModel'); // eslint-disable-line no-console
   }
 
 
@@ -127,8 +144,8 @@ class EditCloudSettings extends Component {
 
 
   renderNetworksTab() {
-    const trueStr = translate("true");
-    const falseStr = translate("false");
+    const trueStr = translate('true');
+    const falseStr = translate('false');
 
     const rows = this.props.model.getIn(['inputModel','networks'])
       .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
@@ -171,6 +188,83 @@ class EditCloudSettings extends Component {
   }
 
 
+  renderDiskModelsTab() {
+    const rows = this.props.model.getIn(['inputModel','disk-models'])
+      .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
+      .map((m,idx) => {
+        return (
+          <tr key={idx}>
+            <td>{m.get('name')}</td>
+            <td>{m.get('volume-groups', new List()).size}</td>
+            <td>{m.get('device_groups', new List()).size}</td>
+            <td><span onClick={(e) => this.editDiskModel(e)} className='glyphicon glyphicon-pencil edit'></span></td>
+          </tr>);
+      });
+
+    return (
+      <div>
+        <div className='button-box'>
+          <div>
+            <ActionButton displayLabel={translate('add.disk.model')} clickAction={(e) => this.addDiskModel(e)} />
+          </div>
+        </div>
+        <table className='table'>
+          <thead>
+            <tr>
+              <th>{translate('disk.model')}</th>
+              <th>{translate('volume.groups')}</th>
+              <th>{translate('device.groups')}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+
+  renderInterfaceModelsTab() {
+    const rows = this.props.model.getIn(['inputModel','interface-models'])
+      .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
+      .map((m,idx) => {
+        return (
+          <tr key={idx}>
+            <td>{m.get('name')}</td>
+            <td>{m.get('network-interfaces', new List()).size}</td>
+            <td>
+              <span onClick={(e) => this.editInterfaceModel(e)} className='glyphicon glyphicon-pencil edit'></span>
+            </td>
+          </tr>);
+      });
+
+    return (
+      <div>
+        <div className='button-box'>
+          <div>
+            <ActionButton displayLabel={translate('add.interface.model')}
+              clickAction={(e) => this.addInterfaceModel(e)} />
+          </div>
+        </div>
+        <table className='table'>
+          <thead>
+            <tr>
+              <th>{translate('interface.model')}</th>
+              <th>{translate('network.interfaces')}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+
   render() {
     return (
       <ConfirmModal
@@ -188,6 +282,12 @@ class EditCloudSettings extends Component {
           </Tab>
           <Tab eventKey={TAB.NETWORKS} title={translate('edit.networks')}>
             {this.renderNetworksTab()}
+          </Tab>
+          <Tab eventKey={TAB.DISK_MODELS} title={translate('edit.disk.models')}>
+            {this.renderDiskModelsTab()}
+          </Tab>
+          <Tab eventKey={TAB.INTERFACE_MODELS} title={translate('edit.interface.models')}>
+            {this.renderInterfaceModelsTab()}
           </Tab>
         </Tabs>
 
