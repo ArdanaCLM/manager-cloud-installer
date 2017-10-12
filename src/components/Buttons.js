@@ -171,41 +171,24 @@ class ItemHelpButton extends Component {
   }
 }
 
-class AssignButton extends Component {
-  constructor(props) {
-    super(props);
+function AssignmentButton(props) {
+  let cName = ' assignment-button';
+  if (props.type === 'right') {
+    cName = 'fa fa-angle-right' + cName;
+    cName = cName + ' right-button';
+  } else if (props.type === 'left') {
+    cName = 'fa fa-angle-left' + cName;
+  } else if (props.type === 'double-right') {
+    cName = 'fa fa-angle-double-right' + cName;
+  } else if (props.type === 'double-left') {
+    cName = 'fa fa-angle-double-left' + cName;
   }
-
-  render() {
-    let assignAction = this.props.clickAction;
-    let isDisabled = this.props.isDisabled === true;
-    let cName = 'glyphicon glyphicon-arrow-right assign';
-    cName = isDisabled ? cName + ' disabled' : cName;
-    return (
-      <span
-        className={cName} onClick={assignAction}>
-      </span>
-    );
-  }
+  cName = (props.isDisabled === true) ? cName + ' disabled' : cName;
+  return (
+    <span className={cName} onClick={props.clickAction}/>
+  );
 }
 
-
-class UnAssignButton extends Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    let unAssignAction = this.props.clickAction;
-    let isDisabled = this.props.isDisabled === true;
-    let cName = 'glyphicon glyphicon-arrow-left unassign';
-    cName = isDisabled ? cName + ' disabled' : cName;
-    return (
-      <span
-        className={cName} onClick={unAssignAction}>
-      </span>
-    );
-  }
-}
 
 class ItemMenuButton extends Component {
   constructor(props) {
@@ -263,8 +246,7 @@ module.exports = {
   ActionButton: ActionButton,
   LoadFileButton: LoadFileButton,
   ItemHelpButton: ItemHelpButton,
-  AssignButton: AssignButton,
-  UnAssignButton: UnAssignButton,
+  AssignmentButton: AssignmentButton,
   ItemMenuButton: ItemMenuButton,
   EditPencilForTableRow: EditPencilForTableRow,
   InfoForTableRow: InfoForTableRow

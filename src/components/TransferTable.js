@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import '../Deployer.css';
-import { AssignButton, UnAssignButton } from '../components/Buttons.js';
+import { AssignmentButton } from '../components/Buttons.js';
 
 class InnerTable extends Component {
   render() {
@@ -36,10 +36,6 @@ class TransferTable extends Component {
       startingLeftIndex: -1,
       startingRightIndex: -1
     };
-
-    this.selectOnTable = this.selectOnTable.bind(this);
-    this.transferToLeft = this.transferToLeft.bind(this);
-    this.transferToRight = this.transferToRight.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -55,7 +51,7 @@ class TransferTable extends Component {
     }
   }
 
-  selectOnTable(isLeftTable, event) {
+  selectOnTable = (isLeftTable, event) => {
     var currentLocation = event.target.offsetTop / event.target.offsetHeight;
     var newSelected = isLeftTable ? this.state.selectedLeft.slice() :
       this.state.selectedRight.slice();
@@ -98,7 +94,7 @@ class TransferTable extends Component {
     }
   }
 
-  transferToLeft() {
+  transferToLeft = () => {
     if (this.state.selectedRight.length > 0) {
       // add selected items to the left table
       var leftObjects = [];
@@ -122,7 +118,20 @@ class TransferTable extends Component {
     }
   }
 
-  transferToRight() {
+  transferAllToLeft = () => {
+    if (this.state.rightTableItems.length > 0) {
+      this.setState((prevState) => {
+        return {
+          leftTableItems: prevState.leftTableItems.concat(prevState.rightTableItems).sort(),
+          rightTableItems: [],
+          selectedLeft: [],
+          selectedRight: []
+        };
+      });
+    }
+  }
+
+  transferToRight = () => {
     if (this.state.selectedLeft.length > 0) {
       // add selected items to the right table
       var rightObjects = [];
@@ -146,6 +155,19 @@ class TransferTable extends Component {
     }
   }
 
+  transferAllToRight = () => {
+    if (this.state.leftTableItems.length > 0) {
+      this.setState((prevState) => {
+        return {
+          leftTableItems: [],
+          rightTableItems: prevState.leftTableItems.concat(prevState.rightTableItems).sort(),
+          selectedLeft: [],
+          selectedRight: []
+        };
+      });
+    }
+  }
+
   render() {
     return (
       <div className='transfer-table'>
@@ -158,10 +180,14 @@ class TransferTable extends Component {
 
         <div className='transfer-button-container'>
           <div className='inner-button-container'>
-            <AssignButton clickAction={this.transferToRight}
+            <AssignmentButton clickAction={this.transferAllToRight} type='double-right'
+              isDisabled={this.state.leftTableItems.length == 0}/>
+            <AssignmentButton clickAction={this.transferToRight} type='right'
               isDisabled={this.state.selectedLeft.length == 0}/>
-            <UnAssignButton clickAction={this.transferToLeft}
+            <AssignmentButton clickAction={this.transferToLeft} type='left'
               isDisabled={this.state.selectedRight.length == 0}/>
+            <AssignmentButton clickAction={this.transferAllToLeft} type='double-left'
+              isDisabled={this.state.rightTableItems.length == 0}/>
           </div>
         </div>
 
