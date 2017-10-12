@@ -157,9 +157,9 @@ class ConnectionCredsInfo extends Component {
             Promise.resolve(responseData);
           }
           else {
-            let msg = translate('server.test.sm.error');
             let hostport = this.data.sm.creds.host +
                 (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
+            let msg = translate('server.test.sm.error', hostport);
             if(status === 404) {
               msg = translate('server.test.sm.error.hostport', hostport);
             }
