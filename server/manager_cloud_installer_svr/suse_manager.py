@@ -1,6 +1,6 @@
 from . import util
 import config.config as config
-from flask import abort, Response
+from flask import abort
 from flask import Blueprint
 from flask import jsonify
 from flask import request

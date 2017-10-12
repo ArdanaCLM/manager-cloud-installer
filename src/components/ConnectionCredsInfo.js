@@ -358,6 +358,22 @@ class ConnectionCredsInfo extends Component {
     );
   }
 
+  renderCredsOvContent() {
+    return (
+      <div className='server-details-container'>
+        {this.renderInputLine('server.host1.prompt', 'host', 'text', 'ov',
+          IpV4AddressHostValidator)}
+        {this.renderInputLine('server.user.prompt', 'username', 'text', 'ov')}
+        {this.renderInputLine('server.pass.prompt', 'password', 'password', 'ov')}
+        <input className='secured' type='checkbox' value='ovsecured'
+          checked={this.state.isOvSecured} onChange={this.handleOvSecuredChange}/>
+        {translate('server.secure')}
+        <ItemHelpButton clickAction={(e) => this.handleShowSslHelp('ov')}/>
+        <div className='message-line'></div>
+      </div>
+    );
+  }
+
   renderCredsSmContent() {
     return (
       <div className='server-details-container'>
@@ -366,26 +382,10 @@ class ConnectionCredsInfo extends Component {
         {this.renderInputLine('server.port.prompt', 'port', 'number', 'sm', PortValidator)}
         {this.renderInputLine('server.user.prompt', 'username', 'text', 'sm')}
         {this.renderInputLine('server.pass.prompt', 'password', 'password', 'sm')}
-        <input className='secure' type='checkbox' value='smsecured'
+        <input className='secured' type='checkbox' value='smsecured'
           checked={this.state.isSmSecured} onChange={this.handleSmSecuredChange}/>
         {translate('server.secure')}
         <ItemHelpButton clickAction={(e) => this.handleShowSslHelp('sm')}/>
-        <div className='message-line'></div>
-      </div>
-    );
-  }
-
-  renderCredsOvContent() {
-    return (
-      <div className='server-details-container'>
-        {this.renderInputLine('server.host1.prompt', 'host', 'text', 'ov',
-          IpV4AddressHostValidator)}
-        {this.renderInputLine('server.user.prompt', 'username', 'text', 'ov')}
-        {this.renderInputLine('server.pass.prompt', 'password', 'password', 'ov')}
-        <input className='secure' type='checkbox' value='ovsecured'
-          checked={this.state.isOvSecured} onChange={this.handleOvSecuredChange}/>
-        {translate('server.secure')}
-        <ItemHelpButton clickAction={(e) => this.handleShowSslHelp('ov')}/>
         <div className='message-line'></div>
       </div>
     );
