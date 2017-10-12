@@ -11,6 +11,7 @@
 /public/bundle.js
 /dist
 /public
+/day0-install-ui-*.tar
 
 # generated files
 src/Deployer.css
