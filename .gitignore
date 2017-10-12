@@ -9,6 +9,7 @@
 # production
 /build
 /public/bundle.js
+/dist
 
 # generated files
 src/Deployer.css

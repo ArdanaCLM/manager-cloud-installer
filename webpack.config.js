@@ -8,7 +8,8 @@ module.exports = {
     './index.js'
   ],
   output: {
-    filename: 'public/bundle.js'
+    path:path.join(__dirname, '/dist'),
+    filename: 'index.js'
   },
   module: {
     loaders: [
