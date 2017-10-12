@@ -263,7 +263,7 @@ class ServerInputLine extends Component {
         <div className='detail-heading'>{label}</div>
         <div className='input-body'>
           <ServerInput isRequired={this.props.isRequired} inputName={this.props.inputName}
-            inputType={this.props.inputType} inputValidate={this.props.inputValidate}
+            inputType={this.props.inputType} inputValidate={this.props.inputValidate} {... this.props}
             inputAction={this.props.inputAction} inputValue={this.props.inputValue}
             updateFormValidity={this.props.updateFormValidity} category={this.props.category}/>
         </div>

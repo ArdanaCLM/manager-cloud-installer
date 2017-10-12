@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
-import { ServerInput, ServerInputLine } from '../components/ServerUtils.js';
-import { ActionButton } from '../components/Buttons.js';
+import { ServerInputLine } from '../components/ServerUtils.js';
+import { ActionButton, ItemHelpButton } from '../components/Buttons.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import {
   IpV4AddressHostValidator, PortValidator
@@ -40,6 +40,8 @@ class ConnectionCredsInfo extends Component {
     this.state = {
       isOvChecked: !!(this.props.data.ov && this.props.data.ov.checked),
       isSmChecked: !!(this.props.data.sm && this.props.data.sm.checked),
+      isOvSecured: !!(this.props.data.ov && this.props.data.ov.secured),
+      isSmSecured: !!(this.props.data.sm && this.props.data.sm.secured),
       smTestStatus: UNKNOWN,
       ovTestStatus: UNKNOWN,
       loading: false,
@@ -60,27 +62,22 @@ class ConnectionCredsInfo extends Component {
         'host': '',
         'username': '',
         'password': '',
-        'port': 8443
+        'port': 8443,
+        'secured': true
       };
     }
     if(!this.data.ov.creds) {
       this.data.ov.creds = {
         'host': '',
         'username': '',
-        'password': ''
+        'password': '',
+        'secured': true
       };
     }
   }
 
   makeDeepCopy(srcData) {
     return JSON.parse(JSON.stringify(srcData));
-  }
-
-  checkResponse(response) {
-    if (!response.ok) {
-      throw Error(response.status);
-    }
-    return response;
   }
 
   isFormValid () {
@@ -132,42 +129,60 @@ class ConnectionCredsInfo extends Component {
 
   testSm = () => {
     this.data.sm.sessionKey = undefined;
+    let status = 200;
     return (
       fetch(getAppConfig('shimurl') + '/api/v1/sm/connection_test', {
         method: 'POST',
         headers: {
           'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Secured': this.state.isSmSecured
         },
         body: JSON.stringify(this.data.sm.creds)
       })
-        .then((response) => this.checkResponse(response))
-        .then((response) => response.json())
-        .then((tokenKey) => {
-          this.data.sm.sessionKey = tokenKey;
-          let hostport = this.data.sm.creds.host +
-            (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
-          let msg = translate('server.test.sm.success', hostport);
+        .then((response) => {status = response.status; return response.json();})
+        .then((responseData) => {
+          if(!responseData.error) {
+            this.data.sm.sessionKey = responseData;
+            let hostport = this.data.sm.creds.host +
+              (this.data.sm.creds.port > 0 ? ':' + this.data.sm.creds.port : '');
+            let msg = translate('server.test.sm.success', hostport);
 
-          this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
-            smTestStatus: VALID
-          };});
-          Promise.resolve(tokenKey);
+            this.setState(prev => {
+              return {
+                messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
+                smTestStatus: VALID
+              };
+            });
+            Promise.resolve(responseData);
+          }
+          else {
+            let msg = translate('server.test.sm.error');
+            let hostport = this.data.sm.creds.host +
+                (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
+            if(status === 404) {
+              msg = translate('server.test.sm.error.hostport', hostport);
+            }
+            else if(status === 403) {
+              msg = translate('server.test.sm.error.userpass', hostport, this.data.sm.creds.username);
+            }
+            else if(status === 495) {
+              msg = translate('server.test.sm.error.secured', hostport);
+            }
+            this.setState(prev => { return {
+              messages: prev.messages.concat([{msg: [msg, responseData.error], messageType: ERROR_MSG}]),
+              smTestStatus: INVALID
+            };});
+            Promise.reject(responseData.error);
+          }
         })
         .catch((error) => {
-          let msg = translate('server.test.sm.error');
-          if(error.message === '404') {
-            let hostport = this.data.sm.creds.host +
-              (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
-            msg = translate('server.test.sm.error.hostport', hostport);
-          }
-          else if(error.message === '403') {
-            msg = translate('server.test.sm.error.userpass', this.data.sm.creds.username);
-          }
+          let hostport = this.data.sm.creds.host +
+                (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
+          let msg = translate('server.test.sm.error', hostport);
 
           this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
+            messages: prev.messages.concat([{msg: [msg, error.toString()], messageType: ERROR_MSG}]),
             smTestStatus: INVALID
           };});
           Promise.reject(error);
@@ -181,7 +196,8 @@ class ConnectionCredsInfo extends Component {
       fetch(getAppConfig('shimurl') + '/api/v1/ov/connection_test', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Secured': this.state.isOvSecured
         },
         body: JSON.stringify(this.data.ov.creds)
       })
@@ -197,9 +213,9 @@ class ConnectionCredsInfo extends Component {
             Promise.resolve(responseData);
           } else {
             let error = responseData.error;
-            let msg = translate('server.test.ov.error', this.data.ov.creds.host, error);
+            let msg = translate('server.test.ov.error', this.data.ov.creds.host);
             this.setState(prev => { return {
-              messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
+              messages: prev.messages.concat([{msg: [msg, error], messageType: ERROR_MSG}]),
               ovTestStatus: INVALID
             };});
             Promise.reject(error);
@@ -260,16 +276,26 @@ class ConnectionCredsInfo extends Component {
     let retData = this.data;
     retData.sm.checked = this.state.isSmChecked;
     retData.ov.checked = this.state.isOvChecked;
+    retData.sm.secured = this.state.isSmSecured;
+    retData.ov.secured = this.state.isOvSecured;
 
     this.props.doneAction(retData);
   }
 
-  handleSmCheckBoxChange = (e, data) => {
+  handleSmCheckBoxChange = () => {
     this.setState({isSmChecked: !this.state.isSmChecked});
   }
 
-  handleOvCheckBoxChange = (e, data) => {
+  handleOvCheckBoxChange = () => {
     this.setState({isOvChecked: !this.state.isOvChecked});
+  }
+
+  handleSmSecuredChange = () => {
+    this.setState({isSmSecured: !this.state.isSmSecured});
+  }
+
+  handleOvSecuredChange = () => {
+    this.setState({isOvSecured: !this.state.isOvSecured});
   }
 
   handleCloseMessage = (ind) => {
@@ -277,6 +303,17 @@ class ConnectionCredsInfo extends Component {
       //for some reason eslint flags 'messages' below as unused even though it clearly is used elsewhere
       messages: prevState.messages.splice(ind, 1); // eslint-disable-line no-unused-labels
     });
+  }
+
+  handleShowSslHelp = (type) => {
+    if(type === 'sm') {
+      //TODO proper doc link
+      window.open('https://www.suse.com/documentation/suse-manager-3/');
+    }
+    else {
+      //TODO proper doc link
+      window.open('https://www.hpe.com/h20195/v2/default.aspx?cc=us&lc=en&oid=5410258');
+    }
   }
 
   renderMessage() {
@@ -305,39 +342,17 @@ class ConnectionCredsInfo extends Component {
     );
   }
 
-  renderInput(name, type, category, validate) {
-    if(validate) {
-      return (
-        <ServerInput
-          isRequired={true} inputName={name} inputType={type}
-          inputValidate={validate} category={category}
-          inputValue={this.data[category]['creds'][name] || ''}
-          inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
-        </ServerInput>
-      );
-    }
-    else {
-      let props = {};
-      let required = true;
-      if(name === 'port') {
-        props.min = 0;
-        props.max = 65535;
-        required = false;
-      }
-      return (
-        <ServerInput
-          isRequired={required} inputName={name} inputType={type} {...props}
-          category={category} inputValue={this.data[category]['creds'][name] || ''}
-          inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}>
-        </ServerInput>
-      );
-    }
-  }
-
   renderInputLine = (title, name, type, category, validate) => {
+    let theprops = {};
+    let required = true;
+    if(name === 'port') {
+      theprops.min = 0;
+      theprops.max = 65535;
+      required = false;
+    }
     return (
-      <ServerInputLine label={title} isRequired={true} inputName={name} inputType={type}
-        inputValidate={validate} category={category}
+      <ServerInputLine label={title} isRequired={required} inputName={name} inputType={type}
+        inputValidate={validate} category={category} {...theprops}
         inputValue={this.data[category]['creds'][name] || ''}
         inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}/>
     );
@@ -350,38 +365,27 @@ class ConnectionCredsInfo extends Component {
           IpV4AddressHostValidator)}
         {this.renderInputLine('server.user.prompt', 'username', 'text', 'ov')}
         {this.renderInputLine('server.pass.prompt', 'password', 'password', 'ov')}
+        <input className='secured' type='checkbox' value='ovsecured'
+          checked={this.state.isOvSecured} onChange={this.handleOvSecuredChange}/>
+        {translate('server.secure')}
+        <ItemHelpButton clickAction={(e) => this.handleShowSslHelp('ov')}/>
         <div className='message-line'></div>
       </div>
     );
   }
 
-  renderCredsContent(refType) {
+  renderCredsSmContent() {
     return (
-      <div ref={refType} className='server-details-container'>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.host.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('host', 'text', refType, IpV4AddressHostValidator)}
-          </div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.port.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('port', 'number', refType, PortValidator)}
-          </div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.username.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('username', 'text', refType)}
-          </div>
-        </div>
-        <div className='detail-line'>
-          <div className='detail-heading'>{translate('server.password.prompt')}</div>
-          <div className='input-body'>
-            {this.renderInput('password', 'password', refType)}
-          </div>
-        </div>
+      <div className='server-details-container'>
+        {this.renderInputLine('server.host1.prompt', 'host', 'text', 'sm',
+          IpV4AddressHostValidator)}
+        {this.renderInputLine('server.port.prompt', 'port', 'number', 'sm', PortValidator)}
+        {this.renderInputLine('server.user.prompt', 'username', 'text', 'sm')}
+        {this.renderInputLine('server.pass.prompt', 'password', 'password', 'sm')}
+        <input className='secured' type='checkbox' value='smsecured'
+          checked={this.state.isSmSecured} onChange={this.handleSmSecuredChange}/>
+        {translate('server.secure')}
+        <ItemHelpButton clickAction={(e) => this.handleShowSslHelp('sm')}/>
         <div className='message-line'></div>
       </div>
     );
@@ -391,9 +395,9 @@ class ConnectionCredsInfo extends Component {
     return (
       <div>
         <input className='creds-category' type='checkbox' value='sm'
-          checked={this.state.isSmChecked} onChange={(e) => this.handleSmCheckBoxChange(e, 'sm')}/>
+          checked={this.state.isSmChecked} onChange={this.handleSmCheckBoxChange}/>
         {translate('server.sm')}
-        {this.state.isSmChecked && this.renderCredsContent('sm')}
+        {this.state.isSmChecked && this.renderCredsSmContent()}
       </div>
     );
   }
@@ -402,7 +406,7 @@ class ConnectionCredsInfo extends Component {
     return (
       <div>
         <input className='creds-category' type='checkbox' value='ov'
-          checked={this.state.isOvChecked} onChange={(e) => this.handleOvCheckBoxChange(e, 'ov')}/>
+          checked={this.state.isOvChecked} onChange={this.handleOvCheckBoxChange}/>
         {translate('server.ov')}
         {this.state.isOvChecked && this.renderCredsOvContent()}
       </div>
