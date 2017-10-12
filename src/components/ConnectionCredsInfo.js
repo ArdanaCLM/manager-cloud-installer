@@ -163,10 +163,10 @@ class ConnectionCredsInfo extends Component {
             if(status === 404) {
               msg = translate('server.test.sm.error.hostport', hostport);
             }
-            else if(status === 403) {
+            else if(status === 401) {
               msg = translate('server.test.sm.error.userpass', hostport, this.data.sm.creds.username);
             }
-            else if(status === 495) {
+            else if(status === 403) {
               msg = translate('server.test.sm.error.secured', hostport);
             }
             this.setState(prev => { return {

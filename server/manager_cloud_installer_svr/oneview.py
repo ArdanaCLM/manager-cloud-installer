@@ -38,9 +38,9 @@ def connection_test():
         response = requests.post(url, data=json.dumps(data), headers=headers, verify=verify)
     except Exception as e:
         if 'SSLError' in str(e):
-            return jsonify(error=str(e)), 495
-        else:
             return jsonify(error=str(e)), 403
+        else:
+            return jsonify(error=str(e)), 401
 
     if not response.status_code == 200:
         return jsonify(error=response.json()['message']), 400

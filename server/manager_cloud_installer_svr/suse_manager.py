@@ -58,9 +58,9 @@ def connection_test():
         return jsonify(key)
     except Exception as e:
         if 'SSL:' in str(e) or 'doesn\'t match' in str(e):
-            return jsonify(error=str(e)), 495
-        else:
             return jsonify(error=str(e)), 403
+        else:
+            return jsonify(error=str(e)), 401
 
 
 
