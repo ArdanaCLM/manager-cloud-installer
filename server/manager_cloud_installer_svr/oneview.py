@@ -24,19 +24,23 @@ def connection_test():
     host = creds['host']
     try:
         ping(host, 443)
-    except Exception:
-        return jsonify(error='Host not found'), 404
+    except Exception as e:
+        return jsonify(error=str(e)), 404
 
     verify = True
-    if INSECURE:
+    secured = request.headers.get('Secured')
+    if secured == 'false':
         verify = False
     try:
         url = "https://" + host + "/rest/login-sessions"
         headers = {'X-Api-Version': '200', 'Content-Type': 'application/json'}
         data = {'userName': creds['username'], 'password': creds['password']}
         response = requests.post(url, data=json.dumps(data), headers=headers, verify=verify)
-    except Exception:
-        return jsonify(error='Connection Error'), 403
+    except Exception as e:
+        if 'SSLError' in str(e):
+            return jsonify(error=str(e)), 495
+        else:
+            return jsonify(error=str(e)), 403
 
     if not response.status_code == 200:
         return jsonify(error=response.json()['message']), 400
@@ -50,7 +54,8 @@ def ov_server_list():
         return util.forward(util.build_url(None, '/servers'), request)
 
     verify = True
-    if INSECURE:
+    secured = request.headers.get('Secured')
+    if secured == 'false':
         verify = False
 
     key = request.headers.get('Auth-Token')
@@ -70,7 +75,8 @@ def ov_server_details(id):
         return util.forward(util.build_url(None, '/servers' + id), request)
 
     verify = True
-    if INSECURE:
+    secured = request.headers.get('Secured')
+    if secured == 'false':
         verify = False
 
     key = request.headers.get('Auth-Token')
