@@ -409,7 +409,7 @@ class AssignServerRoles extends BaseWizardPage {
           displayLabel={translate('cancel')}/>
         <ActionButton type='default' clickAction={this.addMoreServer} displayLabel={translate('add.more')}
           isDisabled={!this.state.validAddServerManuallyForm}/>
-        <ActionButton  clickAction={this.addOneServer} displayLabel={translate('save')}
+        <ActionButton clickAction={this.addOneServer} displayLabel={translate('save')}
           isDisabled={!this.state.validAddServerManuallyForm}/>
       </div>
     );

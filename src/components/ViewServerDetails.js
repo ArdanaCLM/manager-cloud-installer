@@ -31,7 +31,7 @@ class ViewServerDetails extends Component {
   renderFooter() {
     return (
       <div className='btn-row button-container'>
-        <ActionButton type='primary'
+        <ActionButton
           clickAction={this.handleClose} displayLabel={translate('common.close')}/>
       </div>
     );
