@@ -17,6 +17,7 @@
   color: white;
   display:inline-block;
 }
+
 .btn-primary:hover,
 .btn-primary:focus {
   background-color: @active-button-color;
@@ -33,6 +34,25 @@
   border: 1px solid @preferredcolor;
   cursor: not-allowed;
   opacity: 0.65;
+}
+
+.btn-default:hover,
+.btn-default:focus,
+.btn-default {
+  color: @defaultcolor;
+  background-color: transparent;
+  border-color: @defaultcolor;
+  display:inline-block;
+}
+
+.btn-link:hover,
+.btn-link:focus,
+.btn-link {
+  color: @info-link-color;
+  background-color: transparent;
+  border-color: transparent;
+  display:inline-block;
+  text-decoration: underline;
 }
 
 // Buttons in a .btn-row are automatically separated with a gap

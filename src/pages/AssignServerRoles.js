@@ -405,11 +405,11 @@ class AssignServerRoles extends BaseWizardPage {
     };
     let footer = (
       <div className='btn-row'>
-        <ActionButton clickAction={this.cancelAddServerManuallyModal}
+        <ActionButton type='default' clickAction={this.cancelAddServerManuallyModal}
           displayLabel={translate('cancel')}/>
-        <ActionButton clickAction={this.addOneServer} displayLabel={translate('save')}
+        <ActionButton type='default' clickAction={this.addMoreServer} displayLabel={translate('add.more')}
           isDisabled={!this.state.validAddServerManuallyForm}/>
-        <ActionButton clickAction={this.addMoreServer} displayLabel={translate('add.more')}
+        <ActionButton  clickAction={this.addOneServer} displayLabel={translate('save')}
           isDisabled={!this.state.validAddServerManuallyForm}/>
       </div>
     );
@@ -1276,7 +1276,7 @@ class AssignServerRoles extends BaseWizardPage {
 
   renderConfigDiscoveryButton() {
     return  (
-      <ActionButton
+      <ActionButton type='default'
         clickAction={this.handleConfDiscovery}
         displayLabel={translate('add.server.conf.discover')}/>
     );

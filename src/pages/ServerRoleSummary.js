@@ -88,8 +88,10 @@ class ServerRoleSummary extends BaseWizardPage {
             <div className='btn-row'>
               <ActionButton displayLabel={translate('edit.cloud.settings')}
                 clickAction={() => this.setState({showCloudSettings: true})} />
-              <ActionButton displayLabel={translate('collapse.all')} clickAction={() => this.collapseAll()} />
-              <ActionButton displayLabel={translate('expand.all')} clickAction={() => this.expandAll()} />
+              <ActionButton type='default'
+                displayLabel={translate('collapse.all')} clickAction={() => this.collapseAll()} />
+              <ActionButton type='default'
+                displayLabel={translate('expand.all')} clickAction={() => this.expandAll()} />
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { translate } from '../localization/localize.js';
 
 function BackButton(props) {
   return (
-    <ActionButton
+    <ActionButton type='default'
       clickAction={props.clickAction}
       displayLabel={props.displayLabel || translate('back')}
       isDisabled={props.isDisabled}
@@ -23,14 +23,9 @@ function NextButton(props) {
 }
 
 class ActionButton extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
-    let buttonClass = 'btn btn-primary' +
-      (this.props.isDisabled ? ' disabled' : '') +
-      (this.props.className ? ' ' + this.props.className : '');
+    let buttonClass = 'btn ' + (this.props.type ? 'btn-' + this.props.type : 'btn-primary ') +
+      (this.props.isDisabled ? ' disabled' : '');
 
     return (
       <button

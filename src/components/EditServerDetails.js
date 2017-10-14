@@ -148,7 +148,7 @@ class EditServerDetails extends Component {
   renderFooter() {
     return (
       <div className='btn-row input-button-container'>
-        <ActionButton
+        <ActionButton type='default'
           clickAction={this.handleCancel} displayLabel={translate('cancel')}/>
         <ActionButton
           isDisabled={!this.state.isFormValid}

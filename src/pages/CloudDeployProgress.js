@@ -83,11 +83,16 @@ class MyLogViewer extends Component {
             {this.props.contents.join('')}
           </pre>
         </div>
-        <label>
-          <input type="checkbox"
-            checked={this.state.autoScroll}
-            onChange={this.handleChange} /> {translate('logviewer.autoscroll')}
-        </label>
+        <div className='log-viewer-control'>
+          <label className='log-viewer-scroll'>
+            <input type="checkbox"
+              checked={this.state.autoScroll}
+              onChange={this.handleChange} /> {translate('logviewer.autoscroll')}
+          </label>
+          <div className='log-viewer-hide'>
+            {this.props.children}
+          </div>
+        </div>
       </div>
     );
   }
@@ -274,16 +279,26 @@ class CloudDeployProgress extends BaseWizardPage {
     }
   }
 
-  renderLogButton() {
-    const logButtonLabel = this.state.showLog ? 'Hide Log' : 'Show Log';
-
+  renderShowLogButton() {
+    const logButtonLabel = translate('deploy.progress.show.log');
     if (this.props.sitePlayId || this.state.contents) {
       return (
-        <ActionButton
+        <ActionButton type='link'
           displayLabel={logButtonLabel}
           clickAction={() => this.setState((prev) => { return {'showLog': !prev.showLog}; }) } />
       );
     }
+  }
+
+  renderLogViewer() {
+    const logButtonLabel = translate('deploy.progress.hide.log');
+    return (
+      <MyLogViewer contents={this.state.displayedLogs}>
+        <ActionButton type='link'
+          displayLabel={logButtonLabel}
+          clickAction={() => this.setState((prev) => { return {'showLog': !prev.showLog}; }) } />
+      </MyLogViewer>
+    );
   }
 
   render() {
@@ -299,11 +314,11 @@ class CloudDeployProgress extends BaseWizardPage {
                 <ul>{this.getProgress()}</ul>
                 {this.getError()}
                 <div>
-                  {this.renderLogButton()}
+                  {!this.state.showLog && this.renderShowLogButton()}
                 </div>
               </div>
               <div className='col-xs-8'>
-                {this.state.showLog && <MyLogViewer contents={this.state.displayedLogs} />}
+                {this.state.showLog && this.renderLogViewer()}
               </div>
             </div>
           </div>
