@@ -53,8 +53,8 @@ class AssignServerRoles extends BaseWizardPage {
     };
 
     this.connections = this.props.connectionInfo ? this.props.connectionInfo : {
-      sm: {checked: false},
-      ov: {checked: false}
+      sm: {checked: false, secured: true},
+      ov: {checked: false, secured: true}
     };
     this.smApiToken = undefined;
     this.smSessionKey = undefined;
@@ -121,7 +121,8 @@ class AssignServerRoles extends BaseWizardPage {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'Auth-Token': tokenKey,
-          'Ov-Url': ovUrl
+          'Ov-Url': ovUrl,
+          'Secured': this.connections.ov.secured
         }
       })
         .then((response) => this.checkResponse(response))
@@ -548,7 +549,8 @@ class AssignServerRoles extends BaseWizardPage {
     this.setState({showCredsModal: false,});
     // need to update saved connections
     let saveConnect =
-      this.props.connectionInfo ? this.props.connectionInfo : {sm: {checked: false}, ov: {checked: false}};
+      this.props.connectionInfo ? this.props.connectionInfo : {
+        sm: {checked: false, secured: true}, ov: {checked: false, secured: true}};
     if (credsData.sm && credsData.sm.checked) {
       let smConn = this.setSmCredentials(credsData);
       saveConnect.sm = smConn;

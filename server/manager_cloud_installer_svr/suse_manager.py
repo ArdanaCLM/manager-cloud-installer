@@ -27,21 +27,15 @@ def get_client(url):
     client = xmlrpclib.Server(url, verbose=0, context=context)
     return client
 
-def connect():
-    context = None
-    if INSECURE:
-        context = ssl._create_unverified_context()
-
-    client = xmlrpclib.Server(SUSE_MANAGER_URL, verbose=0, context=context)
-    key = client.auth.login(SUSE_MANAGER_USERNAME, SUSE_MANAGER_PASSWORD)
-    return (client, key)
-
 
 @bp.route("/api/v1/sm/connection_test", methods=['POST'])
 def connection_test():
-    context = None
-    if INSECURE:
+    context = ssl._create_default_https_context()
+
+    secured = request.headers.get('Secured')
+    if secured == 'false':
         context = ssl._create_unverified_context()
+
     creds = request.get_json() or {}
     port = "8443"
     if creds['port'] != 0:
@@ -51,8 +45,9 @@ def connection_test():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(TIMEOUT)
         s.connect((creds['host'], int(port)))
-    except Exception:
-        abort(404)
+    except Exception as e:
+        return jsonify(error=str(e)), 404
+
     # login
     try:
         suma_url = "https://" + creds['host'] + ":" + str(port) + "/rpc/api"
@@ -61,8 +56,12 @@ def connection_test():
         client = xmlrpclib.Server(suma_url, verbose=0, context=context)
         key = client.auth.login(suma_username, suma_password)
         return jsonify(key)
-    except Exception:
-        abort(403)
+    except Exception as e:
+        if 'SSL:' in str(e) or 'doesn\'t match' in str(e):
+            return jsonify(error=str(e)), 403
+        else:
+            return jsonify(error=str(e)), 401
+
 
 
 @bp.route("/api/v1/sm/servers")

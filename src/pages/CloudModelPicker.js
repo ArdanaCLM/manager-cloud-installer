@@ -112,11 +112,13 @@ class CloudModelPicker extends BaseWizardPage {
   renderErrorMessage() {
     if (this.state.errorContent) {
       return (
-        <ErrorMessage
-          closeAction={() => this.setState({errorContent: undefined})}
-          title={this.state.errorContent.title}
-          message={this.state.errorContent.messages}>
-        </ErrorMessage>
+        <div className='notification-message-container'>
+          <ErrorMessage
+            closeAction={() => this.setState({errorContent: undefined})}
+            title={this.state.errorContent.title}
+            message={this.state.errorContent.messages}>
+          </ErrorMessage>
+        </div>
       );
     }
   }
@@ -173,7 +175,6 @@ class CloudModelPicker extends BaseWizardPage {
         {this.renderNavButtons()}
       </div>
     );
-    //TODO need fix issue of order of next and back button
   }
 }
 
