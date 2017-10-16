@@ -8,7 +8,8 @@ module.exports = {
     './index.js'
   ],
   output: {
-    filename: 'public/bundle.js'
+    path:path.join(__dirname, '/dist'),
+    filename: 'index.js'
   },
   module: {
     loaders: [
@@ -44,7 +45,7 @@ module.exports = {
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
-        loader: 'file-loader?name=public/fonts/[name].[ext]'
+        loader: 'file-loader?name=lib/fonts/[name].[ext]'
       }
     ]
   }

@@ -8,7 +8,9 @@
 
 # production
 /build
+/dist
 /public
+/*.tar
 
 # generated files
 src/Deployer.css
