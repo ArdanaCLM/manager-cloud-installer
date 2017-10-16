@@ -97,8 +97,8 @@
   padding-left: 0px;
   .stepItem, .togglewrap {
     height: 35px;
-    padding: 8px 0px 8px 16px;
-    margin: 0px 16px 0px 0px;
+    padding: 8px 0px 8px 10px;
+    margin: 0px 8px 0px 0px;
     opacity: 0.5;
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -114,17 +114,23 @@
     opacity: 0.8;
   }
 
+  .title-section {
+    display: inline-flex;
+  }
+
   h1 {
-    padding-left: 16px;
+    padding-left: 8px;
     font-size: 1.5em;
+    width: 85%;
   }
   .togglewrap {
-    width: 100%;
+    width: 15%;
+    display: inline-block;
     margin-bottom: 8px;
+    margin-top: 12px;
     .menutoggle {
       cursor: pointer;
       float: right;
-      margin-right: 14px; //lines up with the right side of  menu items below
     }
   }
 }

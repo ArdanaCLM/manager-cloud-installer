@@ -1,9 +1,22 @@
+
 .log-viewer {
+  position: relative;
   min-width: 45em;
   min-height: 45em;
   pre {
     min-height: 45em;
     max-height: 45em;
     overflow: auto;
+  }
+}
+
+.log-viewer-control {
+  display: inline-flex;
+  .log-viewer-scroll {
+    margin-top: 0.5em;
+  }
+  .log-viewer-hide {
+    position: absolute;
+    right: 0.5em;
   }
 }

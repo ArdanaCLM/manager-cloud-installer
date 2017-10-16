@@ -214,6 +214,8 @@
     "deploy.progress.step5": "Quick health check",
     "deploy.progress.step6": "Additional Setup and Configuration",
     "deploy.progress.step7": "n/a",
+    "deploy.progress.show.log": "Show Log",
+    "deploy.progress.hide.log": "Hide Log",
 
     "provision.server.heading": "Choose servers on which SLES will be installed",
     "provision.server.left.table": "Available Servers",

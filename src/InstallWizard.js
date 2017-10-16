@@ -320,10 +320,12 @@ class InstallWizard extends Component {
     if(this.state.displayMode === this.displayModeSideBar) {
       return (
         <div className='wizard-sidebar col-sm-2'>
-          <h1>{translate('openstack.cloud.deployer.title')}</h1>
-          <div className='togglewrap'>
-            <i className='menutoggle material-icons btn-toggle'
-              onClick={() => this.setDisplayMode(this.displayModeHeader)}>menu</i>
+          <div className='title-section'>
+            <h1>{translate('openstack.cloud.deployer.title')}</h1>
+            <div className='togglewrap'>
+              <i className='menutoggle material-icons btn-toggle'
+                onClick={() => this.setDisplayMode(this.displayModeHeader)}>menu</i>
+            </div>
           </div>
           {
             this.state.steps.map((item, index) => {
