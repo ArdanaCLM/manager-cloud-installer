@@ -10,7 +10,7 @@
 /build
 /dist
 /public
-/day0-install-ui-*.tar
+/*.tar
 
 # generated files
 src/Deployer.css

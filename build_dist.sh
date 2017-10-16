@@ -28,9 +28,9 @@ mkdir -p dist/lib/fonts
 cp third_party/fonts/* dist/lib/fonts
 
 #create a version variable using the commit hash
-SHA=`git log | head -1 | sed 's/commit //' | cut -c1-6`
+SHA=$(git rev-parse HEAD | cut -c1-6)
 
 #create a tarball of the UI dist
 cd dist
-tar -cvf ../day0-install-ui-${SHA}.tar *
+tar -cvf ../day0-install-ui-${SHA}.tar .
 cd ..
