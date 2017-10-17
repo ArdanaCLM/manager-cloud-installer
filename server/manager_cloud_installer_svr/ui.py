@@ -4,6 +4,8 @@ from flask import Blueprint
 from flask import jsonify
 from flask import request
 import json
+import re
+import subprocess
 from tinydb import Query
 from tinydb import TinyDB
 
@@ -51,12 +53,12 @@ def save_progress():
 # /server CRUD operations
 @bp.route("/api/v1/server", methods=['POST'])
 def insert_servers():
-    """Inserts a list of servers to the server table.  
-    
+    """Inserts a list of servers to the server table.
+
     'id' and 'source' fields must be unique
-    
+
     **Example Request**:
-    
+
     .. sourcecode:: http
 
     POST /api/v1/server HTTP/1.1
@@ -88,12 +90,12 @@ def insert_servers():
 @bp.route("/api/v1/server", methods=['GET'])
 def get_servers():
     """Returns a list of server(s) given an 'id' and/or 'source'
-    
+
     'source' is a comma-delimited list joined by an OR statement
     'id' and 'source' are joined by an AND statement
-   
+
     **Example Request**:
-    
+
     .. sourcecode:: http
 
     GET /api/v1/server?id=myid&source=src1,src2 HTTP/1.1
@@ -113,12 +115,12 @@ def get_servers():
 
 @bp.route("/api/v1/server", methods=['PUT'])
 def update_server():
-    """Update a single server entry (dict) into the server table.  
-    
+    """Update a single server entry (dict) into the server table.
+
     'id' and 'source' fields must be unique
-    
+
     **Example Request**:
-    
+
     .. sourcecode:: http
 
     PUT /api/v1/server HTTP/1.1
@@ -147,12 +149,12 @@ def update_server():
 
 @bp.route("/api/v1/server", methods=['DELETE'])
 def delete_server():
-    """Removes servers given a set of search parameters.  
-    
+    """Removes servers given a set of search parameters.
+
     The search parameters used are the same as get_servers()
-    
+
     **Example Request**:
-    
+
     .. sourcecode:: http
 
     DELETE /api/v1/server?id=myid&source=src1,src2 HTTP/1.1
@@ -182,3 +184,40 @@ def create_query_str(sid, src):
         queries.append("(%s)" % '|'.join(clauses))
 
     return '&'.join(queries)
+
+
+@bp.route("/api/v1/ips", methods=['GET'])
+def get_ips():
+    """Returns list of ip addresses of the local host
+
+    **Example Request**:
+
+    .. sourcecode:: http
+
+    GET /api/v1/ips HTTP/1.1
+
+    **Example Response**:
+
+    .. sourcecode:: http
+    HTTP/1.1 200 OK
+
+    [
+        "127.0.0.1",
+        "192.168.1.200"
+    ]
+    """
+
+    ips = []
+    pattern = re.compile(r'inet +([0-9.]+)')
+
+    try:
+        lines = subprocess.check_output(["ip", "-o", "-4", "addr", "show"])
+        for line in lines.split('\n'):
+            g = pattern.search(line)
+            if g:
+                ips.append(g.group(1))
+
+    except subprocess.CalledProcessError:
+        pass
+
+    return jsonify(ips)

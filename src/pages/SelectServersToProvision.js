@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { translate } from '../localization/localize.js';
-import { getAppConfig } from '../utils/ConfigHelper.js';
 import { STATUS } from '../utils/constants.js';
 import { ActionButton } from '../components/Buttons.js';
 import { YesNoModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import TransferTable from '../components/TransferTable.js';
 import { PlaybookProgress } from './CloudDeployProgress.js';
+import { fetchJson } from '../utils/RestUtils.js';
 
 class SelectServers extends BaseWizardPage {
   constructor() {
@@ -24,9 +24,8 @@ class SelectServers extends BaseWizardPage {
 
   componentWillMount() {
     // retrieve a list of servers that have roles
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/entities/servers')
-      .then(response => response.json())
-      .then((responseData) => {
+    fetchJson('/api/v1/clm/model/entities/servers')
+      .then(responseData => {
         this.setState({
           serverObjects: responseData,
           availableServers: this.props.filterName(responseData)
@@ -92,96 +91,6 @@ class SelectServers extends BaseWizardPage {
 }
 
 
-/*
-class ShowInstallProgress extends BaseWizardPage {
-  constructor() {
-    super();
-    this.state = {
-      currentStep: 0,
-      currentProgress: -1,
-      errorMsg: ''
-    };
-
-    this.getProgress = this.getProgress.bind(this);
-  }
-
-  componentWillMount() {
-    this.props.setInstallState(false);
-  }
-
-  progressing() {
-    // TODO replace with real installation progress
-    // fake the steps through progress button for now
-    var now = this.state.currentProgress + 1;
-    this.setState({currentProgress: now, currentStep: Math.floor(now/2)});
-    if (this.state.currentProgress == (this.props.installList.length - 1) * 2) {
-      this.setState({errorMsg: 'something is wrong here, please do something'});
-    }
-    if (this.state.currentProgress == (this.props.installList.length * 2) - 1) {
-      this.setState({errorMsg: ''});
-      this.props.setInstallState(true);
-    }
-  }
-
-  getError() {
-    return (this.state.errorMsg) ? (
-      <div>
-        <div className='error-heading'>{translate('provision.server.failure',
-          this.props.installList[this.state.currentStep].name)}</div>
-        <pre className='log'>{this.state.errorMsg}</pre></div>) : (<div></div>);
-  }
-
-  getProgress() {
-    let servers = this.props.filterName(this.props.installList);
-    return (servers.map((server, index) => {
-      var status = '';
-      if (this.state.currentProgress >= index) {
-        let failStep = (servers.length * 2) - 1;
-        if (this.state.currentProgress >= failStep && index == (servers.length - 1)) {
-          status = (this.state.currentProgress == failStep) ? 'fail' : 'succeed';
-        } else {
-          if (this.state.currentStep == index) {
-            if (this.state.currentProgress%2 == 0) {
-              status = 'progressing';
-            } else {
-              status = 'succeed';
-            }
-          } else if (Math.floor(this.state.currentProgress/2) > index) {
-            status = 'succeed';
-          }
-        }
-      }
-      return (<li key={index} className={status}>{server}</li>);
-    }));
-  }
-
-  render() {
-    return (
-      <div>
-        <div className='content-header'>
-          {this.renderHeading(translate('provision.server.progress.heading'))}
-        </div>
-        <div className='wizard-content'>
-          <div className='playbook-progress'>
-            <div className='progress-body'>
-              <div className='col-xs-6'>
-                <ul>{this.getProgress()}</ul>
-              </div>
-              <div className='col-xs-6'>
-                {this.getError()}
-              </div>
-            </div>
-          </div>
-          <ActionButton
-            displayLabel='progress'
-            clickAction={() => this.progressing()}/>
-        </div>
-      </div>
-    );
-  }
-}
-*/
-
 const OS_INSTALL_STEPS = [
   {
     label: translate('install.progress.step1'),
@@ -217,6 +126,13 @@ class SelectServersToProvision extends BaseWizardPage {
     this.getSelectedServers = this.getSelectedServers.bind(this);
     this.proceedToInstall = this.proceedToInstall.bind(this);
     this.cancelInstall = this.cancelInstall.bind(this);
+
+    this.ips = [];
+  }
+
+  componentWillMount() {
+    fetchJson('/api/v1/ips')
+      .then(data => {this.ips = data;});
   }
 
   getSelectedServers(servers) {
@@ -256,10 +172,15 @@ class SelectServersToProvision extends BaseWizardPage {
   updateStatus = (status) => {this.setState({overallStatus: status});}
   updatePlayId = (playId) => {this.props.updateGlobalState('installPlayId', playId);}
 
-  // TODO: Support passing parameters to playbook command
-
   renderBody() {
     if (this.state.installing) {
+      const payload = {
+        'extra-vars': {
+          'nodelist': this.state.selectedServers
+            .filter(e => ! this.ips.includes(e['ip-addr']))   // filter out the deployer itself
+            .map(e => e.id).join(',')
+        }};
+
       return (
         <div>
           <div className='content-header'>
@@ -272,7 +193,8 @@ class SelectServersToProvision extends BaseWizardPage {
               playId={this.props.installPlayId}
               updatePlayId={this.updatePlayId}
               steps={OS_INSTALL_STEPS}
-              playbook="dayzero-os-provision" />
+              playbook="dayzero-os-provision"
+              payload={payload} />
           </div>
         </div>);
     } else {
