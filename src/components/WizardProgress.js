@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { stepProgressValues } from './../utils/StepProgressValues.js';
+import { STATUS } from './../utils/constants.js';
 
 /**
  * Progress indicator showing the user how far along in the wizard they are
@@ -10,15 +10,15 @@ class WizardProgress extends Component {
   render()
   {
     var stateBubbles = this.props.steps.map(function(item,index) {
-      if(item.stepProgress === stepProgressValues.done) {
+      if(item.stepProgress === STATUS.COMPLETE) {
         return (
           <span key={index} className="progress done"/>
         );
-      } else if(item.stepProgress === stepProgressValues.inprogress) {
+      } else if(item.stepProgress === STATUS.IN_PROGRESS) {
         return (
           <span key={index} className="progress in-progress"/>
         );
-      } else if(item.stepProgress === stepProgressValues.error) {
+      } else if(item.stepProgress === STATUS.FAILED) {
         return (
           <span key={index} className="progress error"/>
         );

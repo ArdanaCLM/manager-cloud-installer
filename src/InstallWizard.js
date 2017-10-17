@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './Deployer.css';
 import { translate } from './localization/localize.js';
 import { getAppConfig } from './utils/ConfigHelper.js';
-import { stepProgressValues } from './utils/StepProgressValues.js';
+import { STATUS } from './utils/constants.js';
 import WizardProgress from './components/WizardProgress';
 import { LoadingMask } from './components/LoadingMask.js';
 import { Map, fromJS } from 'immutable';
@@ -41,19 +41,20 @@ class InstallWizard extends Component {
       // then the session should look nearly identical, including:
       // - the user should be on the same step in the wizard
       // - values entered by the user that are not stored anywhere else.  This includes values
-      //   like credentials for remote systems, and so on.  Information that is already stored 
+      //   like credentials for remote systems, and so on.  Information that is already stored
       //   in the model, such as its name or which servers are assigned to which roles, should
       //   not be duplicated here since it is already being persisted in the model
       sitePlayId: undefined,  // play id of the deployment playbook
+      installPlayId: undefined,  // play id of the playbook to provision operating systems
       model: Map(),           // immutable model
       connectionInfo: undefined,
     };
 
     // Indicate which of the above state variables are passed to wizard pages and can be set by them
-    this.globalStateVars = ['sitePlayId', 'model', 'connectionInfo'];
+    this.globalStateVars = ['sitePlayId', 'installPlayId', 'model', 'connectionInfo'];
 
     // Indicate which of the state variables will be persisted to, and loaded from, the progress API
-    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'connectionInfo'];
+    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'installPlayId', 'connectionInfo'];
 
     // Note: if no progress data can be found, responseData is an empty string
     const forcedReset = window.location.search.indexOf('reset=true') !== -1;
@@ -81,7 +82,7 @@ class InstallWizard extends Component {
             var newSteps = prevState.steps.slice();
             newSteps.splice(0, 1, {
               name: prevState.steps[0].name,
-              stepProgress: stepProgressValues.inprogress
+              stepProgress: STATUS.IN_PROGRESS
             });
 
             return {
@@ -177,15 +178,15 @@ class InstallWizard extends Component {
     //TODO - update state setting logic to accept error states
     var steps = this.state.steps, stateUpdates = {};
     if(isError) {
-      steps[this.state.currentStep].stepProgress = stepProgressValues.error;
+      steps[this.state.currentStep].stepProgress = STATUS.FAILED;
     } else {
-      steps[this.state.currentStep].stepProgress = stepProgressValues.done;
+      steps[this.state.currentStep].stepProgress = STATUS.COMPLETE;
 
 
       //verify that there is a next page
       if (steps[(this.state.currentStep + 1)]) {
         //update the next step to inprogress
-        steps[(this.state.currentStep + 1)].stepProgress = stepProgressValues.inprogress;
+        steps[(this.state.currentStep + 1)].stepProgress = STATUS.IN_PROGRESS;
 
         //prepared to advance to the next page
         stateUpdates.currentStep = this.state.currentStep + 1;
@@ -205,15 +206,15 @@ class InstallWizard extends Component {
     //TODO - update state setting logic to accept error states
     var steps = this.state.steps, stateUpdates = {};
     if(isError) {
-      steps[this.state.currentStep].stepProgress = stepProgressValues.error;
+      steps[this.state.currentStep].stepProgress = STATUS.FAILED;
     } else {
-      steps[this.state.currentStep].stepProgress = stepProgressValues.notdone;
+      steps[this.state.currentStep].stepProgress = STATUS.NOT_STARTED;
     }
 
     //verify that there is a previous page
     if(steps[(this.state.currentStep - 1)]) {
       //update previous step to inprogress
-      steps[(this.state.currentStep - 1)].stepProgress = stepProgressValues.inprogress;
+      steps[(this.state.currentStep - 1)].stepProgress = STATUS.IN_PROGRESS;
 
       //prepare to go back a page
       stateUpdates.currentStep = this.state.currentStep - 1;
@@ -234,11 +235,11 @@ class InstallWizard extends Component {
     if(stepNumber >= 0 && this.state.currentStep > stepNumber) {
       let i = this.state.currentStep;
       while(i > stepNumber) {
-        steps[i].stepProgress = stepProgressValues.notdone;
+        steps[i].stepProgress = STATUS.NOT_STARTED;
         i--;
       }
 
-      steps[stepNumber].stepProgress = stepProgressValues.inprogress;
+      steps[stepNumber].stepProgress = STATUS.IN_PROGRESS;
       stateUpdates.currentStep = stepNumber;
       stateUpdates.steps = steps;
       this.setState(stateUpdates, this.persistState);
