@@ -244,7 +244,7 @@ class PlaybookProgress extends Component {
       this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/playbooks/' + this.props.playbook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify('')
+        body: JSON.stringify(this.props.payload || '')
       })
         .then(response => {
           const playId = response['id'];
