@@ -213,9 +213,9 @@ def get_ips():
     try:
         lines = subprocess.check_output(["ip", "-o", "-4", "addr", "show"])
         for line in lines.split('\n'):
-            g = pattern.search(line)
-            if g:
-                ips.append(g.group(1))
+            match = pattern.search(line)
+            if match:
+                ips.append(match.group(1))
 
     except subprocess.CalledProcessError:
         pass
