@@ -18,41 +18,47 @@
   display:inline-block;
 }
 
-.btn-primary:hover,
-.btn-primary:focus {
+.btn.btn-primary:active,
+.btn.btn-primary:hover,
+.btn.btn-primary:focus {
   background-color: @active-button-color;
   border: 1px solid @active-button-color;
+  outline: 0;
 }
-.btn-primary:disabled,
-.btn-primary[disabled] {
+.btn.btn-primary:disabled,
+.btn.btn-primary[disabled] {
   cursor: not-allowed;
   opacity: 0.65;
 }
-.btn-primary:disabled:hover,
-.btn-primary[disabled]:hover {
+.btn.btn-primary:disabled:hover,
+.btn.btn-primary[disabled]:hover {
   background-color: @preferredcolor;
   border: 1px solid @preferredcolor;
   cursor: not-allowed;
   opacity: 0.65;
 }
 
-.btn-default:hover,
-.btn-default:focus,
-.btn-default {
+.btn.btn-default:active,
+.btn.btn-default:hover,
+.btn.btn-default:focus,
+.btn.btn-default {
   color: @defaultcolor;
-  background-color: transparent;
+  background-color: @page-background-color;
   border-color: @defaultcolor;
   display:inline-block;
+  outline: 0;
 }
 
-.btn-link:hover,
-.btn-link:focus,
-.btn-link {
+.btn.btn-link:active,
+.btn.btn-link:hover,
+.btn.btn-link:focus,
+.btn.btn-link {
   color: @info-link-color;
   background-color: transparent;
   border-color: transparent;
   display:inline-block;
   text-decoration: underline;
+  outline: 0;
 }
 
 // Buttons in a .btn-row are automatically separated with a gap

@@ -52,7 +52,7 @@ class TransferTable extends Component {
   }
 
   selectOnTable = (isLeftTable, event) => {
-    var currentLocation = event.target.offsetTop / event.target.offsetHeight;
+    var currentLocation = Math.ceil(event.target.offsetTop / event.target.offsetHeight);
     var newSelected = isLeftTable ? this.state.selectedLeft.slice() :
       this.state.selectedRight.slice();
     var currentTable = isLeftTable ? this.state.leftTableItems : this.state.rightTableItems;

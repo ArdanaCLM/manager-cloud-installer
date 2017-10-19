@@ -64,11 +64,11 @@ class EditFile extends BaseWizardPage {
               value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
           </div>
           <div className="btn-row">
-            <ActionButton
+            <ActionButton type='default'
               displayLabel={translate('cancel')}
               clickAction={() => this.handleCancel()}/>
             <ActionButton
-              displayLabel={translate('done')}
+              displayLabel={translate('save')}
               clickAction={() => this.handleDone()}/>
           </div>
         </div>
