@@ -6,7 +6,7 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton, LoadFileButton } from '../components/Buttons.js';
 import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
-import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine, isRoleAssignmentValid}
+import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine, isRoleAssignmentValid }
   from '../components/ServerUtils.js';
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
