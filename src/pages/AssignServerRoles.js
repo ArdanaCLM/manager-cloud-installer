@@ -6,7 +6,7 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton, LoadFileButton } from '../components/Buttons.js';
 import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
-import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine }
+import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine, isRoleAssignmentValid}
   from '../components/ServerUtils.js';
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
@@ -1108,17 +1108,7 @@ class AssignServerRoles extends BaseWizardPage {
   //check if we have enough servers roles for the model
   isValid = () => {
     return this.getServerRoles().every(role => {
-      let minCount =  role.minCount;
-      let memberCount = role.memberCount;
-      let svrSize = role.servers.length;
-      if (memberCount && svrSize !== memberCount) {
-        return false;
-      }
-      if(minCount && svrSize < minCount) {
-        return false;
-      }
-      // verify that each server object in role.servers has all of the required keys
-      return role.servers.every(server => this.checkInputKeys.every(key => (server[key] ? true : false)));
+      return isRoleAssignmentValid(role, this.checkInputKeys);
     });
   }
 

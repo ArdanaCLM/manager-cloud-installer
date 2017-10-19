@@ -31,7 +31,7 @@ function YesNoModal(props) {
   const footer = (
     <div className="btn-row">
       <ActionButton clickAction={props.yesAction} displayLabel={translate('yes')}/>
-      <ActionButton clickAction={props.noAction} displayLabel={translate('no')}/>
+      <ActionButton type='default' clickAction={props.noAction} displayLabel={translate('no')}/>
     </div>
   );
 
