@@ -6,7 +6,7 @@ class InnerTable extends Component {
   render() {
     var lines = (this.props.items.map((item) => {
       // highlight selected row
-      if (this.props.selectedTable.length > 0 && this.props.selectedTable.indexOf(item) !== -1) {
+      if (this.props.selectedItems.length > 0 && this.props.selectedItems.indexOf(item) !== -1) {
         return (<tr onClick={this.props.clickAction} key={item} className='highlight'>
           <td>{item}</td></tr>);
       } else {
@@ -29,8 +29,6 @@ class TransferTable extends Component {
   constructor() {
     super();
     this.state = {
-      leftTableItems: [],
-      rightTableItems: [],
       selectedLeft: [],
       selectedRight: [],
       startingLeftIndex: -1,
@@ -38,24 +36,11 @@ class TransferTable extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.inputList !== nextProps.inputList) {
-      this.setState({leftTableItems: nextProps.inputList.sort()});
-    }
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if (this.state.rightTableItems !== nextState.rightTableItems) {
-      // send selected items out the parent
-      this.props.sendSelectedList(nextState.rightTableItems);
-    }
-  }
-
   selectOnTable = (isLeftTable, event) => {
     var currentLocation = Math.ceil(event.target.offsetTop / event.target.offsetHeight);
     var newSelected = isLeftTable ? this.state.selectedLeft.slice() :
       this.state.selectedRight.slice();
-    var currentTable = isLeftTable ? this.state.leftTableItems : this.state.rightTableItems;
+    var currentTable = isLeftTable ? this.props.leftList : this.props.rightList;
 
     // use shift + click to select multiple rows
     if (event.shiftKey) {
@@ -96,75 +81,47 @@ class TransferTable extends Component {
 
   transferToLeft = () => {
     if (this.state.selectedRight.length > 0) {
-      // add selected items to the left table
-      var leftObjects = [];
-      for (let i=0; i<this.state.selectedRight.length; i++) {
-        for (let j=0; j<this.state.rightTableItems.length; j++) {
-          if (this.state.rightTableItems[j] == this.state.selectedRight[i]) {
-            leftObjects.push(this.state.rightTableItems[j]);
-          }
-        }
-      }
-      var newLeftTableItems = this.state.leftTableItems.concat(leftObjects);
-      this.setState({leftTableItems: newLeftTableItems.sort()});
+      // add selected items to the left table and remove them from the right table
+      const newLeftList = this.props.leftList.concat(this.state.selectedRight).sort();
+      const newRightList = this.props.rightList.filter(e => ! this.state.selectedRight.includes(e));
 
-      // remove selected items from the right table
-      var newRightTableItems = this.state.rightTableItems.slice();
-      for (let k=0; k<this.state.selectedRight.length; k++) {
-        newRightTableItems.splice(
-          newRightTableItems.indexOf(this.state.selectedRight[k]), 1);
-      }
-      this.setState({rightTableItems: newRightTableItems.sort(), selectedRight: []});
+      this.setState({selectedRight: []});
+      this.props.updateLeftList(newLeftList);
+      this.props.updateRightList(newRightList);
     }
   }
 
   transferAllToLeft = () => {
-    if (this.state.rightTableItems.length > 0) {
-      this.setState((prevState) => {
-        return {
-          leftTableItems: prevState.leftTableItems.concat(prevState.rightTableItems).sort(),
-          rightTableItems: [],
-          selectedLeft: [],
-          selectedRight: []
-        };
-      });
+    if (this.props.rightList.length > 0) {
+
+      const newLeftList = this.props.leftList.concat(this.props.rightList).sort();
+
+      this.setState({selectedRight: []});
+      this.props.updateLeftList(newLeftList);
+      this.props.updateRightList([]);
     }
   }
 
   transferToRight = () => {
     if (this.state.selectedLeft.length > 0) {
-      // add selected items to the right table
-      var rightObjects = [];
-      for (let i=0; i<this.state.selectedLeft.length; i++) {
-        for (let j=0; j<this.state.leftTableItems.length; j++) {
-          if (this.state.leftTableItems[j] == this.state.selectedLeft[i]) {
-            rightObjects.push(this.state.leftTableItems[j]);
-          }
-        }
-      }
-      var newRightTableItems = this.state.rightTableItems.concat(rightObjects);
-      this.setState({rightTableItems: newRightTableItems.sort()});
+      // add selected items to the right table and remove them from the left table
+      const newRightList = this.props.rightList.concat(this.state.selectedLeft).sort();
+      const newLeftList = this.props.leftList.filter(e => ! this.state.selectedLeft.includes(e));
 
-      // remove selected items from the left table
-      var newLeftTableItems = this.state.leftTableItems.slice();
-      for (let k=0; k<this.state.selectedLeft.length; k++) {
-        newLeftTableItems.splice(
-          newLeftTableItems.indexOf(this.state.selectedLeft[k]), 1);
-      }
-      this.setState({leftTableItems: newLeftTableItems.sort(), selectedLeft: []});
+      this.setState({selectedLeft: []});
+      this.props.updateLeftList(newLeftList);
+      this.props.updateRightList(newRightList);
+
     }
   }
 
   transferAllToRight = () => {
-    if (this.state.leftTableItems.length > 0) {
-      this.setState((prevState) => {
-        return {
-          leftTableItems: [],
-          rightTableItems: prevState.leftTableItems.concat(prevState.rightTableItems).sort(),
-          selectedLeft: [],
-          selectedRight: []
-        };
-      });
+    if (this.props.leftList.length > 0) {
+      const newRightList = this.props.rightList.concat(this.props.leftList).sort();
+
+      this.setState({selectedLeft: []});
+      this.props.updateLeftList([]);
+      this.props.updateRightList(newRightList);
     }
   }
 
@@ -172,30 +129,30 @@ class TransferTable extends Component {
     return (
       <div className='transfer-table'>
         <div className='table-width'>
-          <InnerTable items={this.state.leftTableItems}
+          <InnerTable items={this.props.leftList}
             clickAction={(event) => this.selectOnTable(true, event)}
             header={this.props.leftTableHeader}
-            selectedTable={this.state.selectedLeft}/>
+            selectedItems={this.state.selectedLeft}/>
         </div>
 
         <div className='transfer-button-container'>
           <div className='inner-button-container'>
             <AssignmentButton clickAction={this.transferAllToRight} type='double-right'
-              isDisabled={this.state.leftTableItems.length == 0}/>
+              isDisabled={this.props.leftList.length == 0}/>
             <AssignmentButton clickAction={this.transferToRight} type='right'
               isDisabled={this.state.selectedLeft.length == 0}/>
             <AssignmentButton clickAction={this.transferToLeft} type='left'
               isDisabled={this.state.selectedRight.length == 0}/>
             <AssignmentButton clickAction={this.transferAllToLeft} type='double-left'
-              isDisabled={this.state.rightTableItems.length == 0}/>
+              isDisabled={this.props.rightList.length == 0}/>
           </div>
         </div>
 
         <div className='table-width'>
-          <InnerTable items={this.state.rightTableItems}
+          <InnerTable items={this.props.rightList}
             clickAction={(event) => this.selectOnTable(false, event)}
             header={this.props.rightTableHeader}
-            selectedTable={this.state.selectedRight}/>
+            selectedItems={this.state.selectedRight}/>
         </div>
       </div>
     );
