@@ -127,7 +127,7 @@ class CloudModelPicker extends BaseWizardPage {
     let details = '';
     const template = this.templates.find(template => template.name === this.state.selectedModelName);
     if(template) {
-      // details is the html help content read from model template which fetched from the backend server.
+      // details is the html help content read from model template fetched from the backend server.
       // It should be safe to be rendered as the raw html content in the details view.
       details = template['overview'];
     }
