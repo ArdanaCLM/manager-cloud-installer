@@ -505,11 +505,17 @@ class AssignServerRoles extends BaseWizardPage {
     return window.location.protocol + '//' + window.location.host + '/rpc/api';
   }
 
-  getCookieExpiredTime(minutes) {
+  getCookieOptions(minutes) {
     let now = new Date();
-    let expDate = new Date(now);
-    expDate.setMinutes(now.getMinutes() + minutes);
-    return expDate;
+    let expTime = new Date(now);
+    expTime.setMinutes(now.getMinutes() + minutes);
+
+    let retOp = {path: '/', expires: expTime, secure: true, sameSite: true};
+    //allow http for development
+    if(getAppConfig('dev')) {
+      retOp.secure = false;
+    }
+    return retOp;
   }
 
   setSmCredentials(credsData) {
@@ -517,10 +523,9 @@ class AssignServerRoles extends BaseWizardPage {
     this.connections.sm.apiUrl =
       this.getSmUrl(this.connections.sm.creds.host, this.connections.sm.creds.port);
     //save the sessionKey to COOKIES
-    let expTime = this.getCookieExpiredTime(60);
     COOKIES.set(
-      'suseManagerSessionKey', this.connections.sm.sessionKey,
-      {path: '/', expires: expTime});
+      'suseManagerSessionKey', this.connections.sm.sessionKey, this.getCookieOptions(60)
+    );
     this.smSessionKey = this.connections.sm.sessionKey;
 
     let conn = JSON.parse(JSON.stringify(this.connections.sm));
@@ -533,10 +538,9 @@ class AssignServerRoles extends BaseWizardPage {
     this.connections.ov.apiUrl =
       'https://' + this.connections.ov.creds.host;
     //save the sessionKey to COOKIES
-    let expTime = this.getCookieExpiredTime(60);
     COOKIES.set(
-      'oneViewSessionKey', this.connections.ov.sessionKey,
-      {path: '/', expires: expTime});
+      'oneViewSessionKey', this.connections.ov.sessionKey, this.getCookieOptions(60)
+    );
     this.ovSessionKey = this.connections.ov.sessionKey;
 
     let conn = JSON.parse(JSON.stringify(this.connections.ov));
