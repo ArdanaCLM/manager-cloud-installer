@@ -184,8 +184,11 @@
     "edit.disk.models": "Disk Models",
     "edit.interface.models": "Interface Models",
     "add.nic.mapping": "Add NIC Mapping",
+    "edit.nic.mapping": "Edit NIC Mapping",
     "nic.mapping.name": "NIC Mapping Name",
     "number.ports": "Number of Ports",
+    "port.logical.name": "Port Logical Name",
+    "pci.address": "PCI Address",
     "server.group.name": "Server Group Name",
     "number.networks": "Number of Networks",
     "number.server.groups": "Number of Server Groups",
@@ -204,6 +207,7 @@
     "add.interface.model": "Add Interface Model",
     "interface.model": "Interface Model",
     "network.interfaces": "Network Interfaces",
+    "details.nicmapping.confirm.remove": "You've selected to remove a NIC mapping: {0}.\n\n Are you sure you want to proceed?",
 
     "details.network.none": "Network - None",
     "details.server.group.none": "Server Group - None",
@@ -246,6 +250,8 @@
     "input.validator.macaddress.error": "Please enter a valid MAC Address",
     "input.validator.port.error": "Please enter a valid port between 0 and 65535",
     "input.validator.ipv4addresshost.error": "Please enter a valid IPV4 Address or Host",
+    "input.validator.pciaddress.error": "Please enter a valid PCI Address",
+    "input.validator.networkinterface.error": "Please enter a valid network interface",
 
     "clouddeploy.installsteps.InstallIntro": "Introduction",
     "clouddeploy.installsteps.CloudModelPicker": "Select Cloud Model",
