@@ -5,6 +5,7 @@ import { Tabs, Tab } from 'react-bootstrap';
 import { ConfirmModal } from '../../components/Modals.js';
 import { ActionButton } from '../../components/Buttons.js';
 import { alphabetically } from '../../utils/Sort.js';
+import NicMappingTab from './NicMappingTab.js';
 
 const TAB = {
   NIC_MAPPINGS: 'NIC_MAPPINGS',
@@ -21,13 +22,6 @@ class EditCloudSettings extends Component {
     this.state = {
       key: TAB.NIC_MAPPINGS
     };
-  }
-
-  addNicMapping = (e) => {
-    console.log('addNicMapping'); // eslint-disable-line no-console
-  }
-  editNicMapping = (e) => {
-    console.log('editNicMapping'); // eslint-disable-line no-console
   }
 
   addServerGroup = (e) => {
@@ -275,7 +269,7 @@ class EditCloudSettings extends Component {
 
         <Tabs id='editCloudSettings' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
           <Tab eventKey={TAB.NIC_MAPPINGS} title={translate('edit.nic.mappings')}>
-            {this.renderNicMappingTab()}
+            <NicMappingTab model={this.props.model} updateGlobalState={this.props.updateGlobalState} />
           </Tab>
           <Tab eventKey={TAB.SERVER_GROUPS} title={translate('edit.server.groups')}>
             {this.renderServerGroupsTab()}
