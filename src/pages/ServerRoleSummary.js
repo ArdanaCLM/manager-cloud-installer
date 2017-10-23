@@ -3,7 +3,7 @@ import { translate } from '../localization/localize.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import CollapsibleTable from '../components/CollapsibleTable.js';
 import { ActionButton } from '../components/Buttons.js';
-import { EditCloudSettings } from '../components/EditCloudSettings.js';
+import { EditCloudSettings } from './ServerRoleSummary/EditCloudSettings.js';
 import { List, Map } from 'immutable';
 import { alphabetically } from '../utils/Sort.js';
 

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { List } from 'immutable';
-import { translate } from '../localization/localize.js';
+import { translate } from '../../localization/localize.js';
 import { Tabs, Tab } from 'react-bootstrap';
-import { ConfirmModal } from '../components/Modals.js';
-import { ActionButton } from '../components/Buttons.js';
-import { alphabetically } from '../utils/Sort.js';
+import { ConfirmModal } from '../../components/Modals.js';
+import { ActionButton } from '../../components/Buttons.js';
+import { alphabetically } from '../../utils/Sort.js';
 
 const TAB = {
   NIC_MAPPINGS: 'NIC_MAPPINGS',
