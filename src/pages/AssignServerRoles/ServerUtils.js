@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Collapsible from 'react-collapsible';
-import '../Deployer.css';
-import { translate } from '../localization/localize.js';
+import '../../Deployer.css';
+import { translate } from '../../localization/localize.js';
 import ServerTable from './ServerTable.js';
 
 export class SearchBar extends Component {

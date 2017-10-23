@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { translate } from '../localization/localize.js';
-import { ServerInputLine } from '../components/ServerUtils.js';
-import { ActionButton, ItemHelpButton } from '../components/Buttons.js';
-import { getAppConfig } from '../utils/ConfigHelper.js';
+import { translate } from '../../localization/localize.js';
+import { ServerInputLine } from './ServerUtils.js';
+import { ActionButton, ItemHelpButton } from '../../components/Buttons.js';
+import { getAppConfig } from '../../utils/ConfigHelper.js';
 import {
   IpV4AddressHostValidator, PortValidator
-} from '../utils/InputValidators.js';
-import { ErrorMessage, SuccessMessage } from '../components/Messages.js';
-import { LoadingMask } from '../components/LoadingMask.js';
+} from '../../utils/InputValidators.js';
+import { ErrorMessage, SuccessMessage } from '../../components/Messages.js';
+import { LoadingMask } from '../../components/LoadingMask.js';
 import { isEmpty } from 'lodash';
 
 const UNKNOWN = -1;

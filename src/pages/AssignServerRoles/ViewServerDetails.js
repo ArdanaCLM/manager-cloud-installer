@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { translate } from '../localization/localize.js';
-import { ActionButton } from './Buttons.js';
+import { translate } from '../../localization/localize.js';
+import { ActionButton } from '../../components/Buttons.js';
 import SmServerDetails from './SmServerDetails.js';
 import OvServerDetails from './OvServerDetails.js';
 import ModelServerDetails from './ModelServerDetails.js';
