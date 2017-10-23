@@ -79,7 +79,8 @@ class ServerRoleSummary extends BaseWizardPage {
         <EditCloudSettings
           show={this.state.showCloudSettings}
           onHide={() => this.setState({showCloudSettings: false})}
-          model={this.props.model} />
+          model={this.props.model}
+          updateGlobalState={this.props.updateGlobalState}/>
         <div className='content-header'>
           <div className='titleBox'>
             {this.renderHeading(translate('server.role.summary.heading'))}
