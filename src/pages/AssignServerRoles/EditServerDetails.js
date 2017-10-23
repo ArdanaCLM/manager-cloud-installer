@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
 import { ActionButton } from '../../components/Buttons.js';
-import { ServerInputLine, ServerDropdownLine} from './ServerUtils.js';
+import { ServerInputLine, ServerDropdownLine} from '../../components/ServerUtils.js';
 import {
   IpV4AddressValidator, MacAddressValidator
 } from '../../utils/InputValidators.js';

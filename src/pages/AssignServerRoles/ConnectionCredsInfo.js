@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
-import { ServerInputLine } from './ServerUtils.js';
+import { ServerInputLine } from '../../components/ServerUtils.js';
 import { ActionButton, ItemHelpButton } from '../../components/Buttons.js';
 import { getAppConfig } from '../../utils/ConfigHelper.js';
 import {

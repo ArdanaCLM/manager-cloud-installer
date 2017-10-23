@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Collapsible from 'react-collapsible';
-import '../../Deployer.css';
-import { translate } from '../../localization/localize.js';
+import '../Deployer.css';
+import { translate } from '../localization/localize.js';
 import ServerTable from './ServerTable.js';
 
 export class SearchBar extends Component {
@@ -267,6 +267,8 @@ export class ServerInput extends Component {
           type={inputType} name={this.props.inputName}
           value={this.state.inputValue}
           onChange={(e) => this.handleInputChange(e, this.props)}
+          placeholder={this.props.placeholder}
+          disabled={this.props.disabled}
           {...props}>
         </input>
         {togglePassword}

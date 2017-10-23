@@ -25,6 +25,7 @@
     "openstack.cloud.deployer.title": "SUSE Openstack Cloud Deployer",
     "wizard.loading.pleasewait": "Loading... Please wait",
     "logviewer.autoscroll": "Automatically scroll to the bottom",
+    "no.options.available": "No options available",
 
     "install.intro.message.body1": "You are about to install a new cloud.",
     "install.intro.message.body2": "You will need to supply information about the servers, networks and storage that will make up your cloud. The Openstack Cloud installer will then take care of deploying and configuring your new cloud for you.",
@@ -201,6 +202,9 @@
     "add.interface.model": "Add Interface Model",
     "interface.model": "Interface Model",
     "network.interfaces": "Network Interfaces",
+
+    "details.network.none": "Network - None",
+    "details.server.group.none": "Server Group - None",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",
