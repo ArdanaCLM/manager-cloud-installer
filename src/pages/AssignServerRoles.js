@@ -7,13 +7,13 @@ import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton, LoadFileButton } from '../components/Buttons.js';
 import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
 import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine, isRoleAssignmentValid }
-  from './AssignServerRoles/ServerUtils.js';
+  from '../components/ServerUtils.js';
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import ConnectionCredsInfo from './AssignServerRoles/ConnectionCredsInfo';
 import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
-import ServerTable from './AssignServerRoles/ServerTable.js';
+import ServerTable from '../components/ServerTable.js';
 import EditServerDetails from './AssignServerRoles/EditServerDetails.js';
 import ViewServerDetails from './AssignServerRoles/ViewServerDetails';
 import { importCSV } from '../utils/CsvImporter.js';

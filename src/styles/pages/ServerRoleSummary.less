@@ -4,6 +4,73 @@
     margin-bottom: 10px;
   }
 
-  min-width: 55em;
+  //min-width: 55em;
+  min-width: 90em;
+
+  .action-row {
+    height: 4em;
+  }
+
+  .add-button {
+    padding-right: 5px;
+    font-size: 16px;
+    color: @info-link-color;
+    position: relative;
+    top: 3px;
+    cursor: pointer;
+  }
+
+  .details-section {
+    min-height: 10em;
+    .no-options {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: @subheadingcolor;
+    }
+    .details-header {
+      font-weight: bold;
+      line-height: 2.8em;
+    }
+    //.details-body {
+    //  margin-bottom: 1.5em;
+    //}
+    .details-body select,
+    .details-body input {
+      height: 28px;
+      margin-top: 0.8em;
+    }
+    .dropdown-plus-minus {
+      display: flex;
+    }
+    .dropdown-plus-minus .server-detail-select,
+    .dropdown-plus-minus .server-input {
+      width: 80%;
+    }
+    .dropdown-plus-minus .server-detail-select select,
+    .dropdown-plus-minus .server-input input {
+      width: 100%;
+    }
+    .plus-minus-container {
+      display: flex;
+      margin-top: 0.8em;   // same as margin-top of '.details-body select'
+      .left-sign {
+        color: @info-link-color;
+        margin: auto 9px auto 9px;
+      }
+      .right-sign {
+        color: @info-link-color;
+        margin: auto 0 auto 0;
+      }
+    }
+    .details-btn {
+      width: 80%;
+      margin-top: 1.5em;
+      .btn-container {
+        float: right;
+      }
+    }
+  }
 }
 
