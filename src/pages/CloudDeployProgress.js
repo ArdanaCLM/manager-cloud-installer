@@ -197,7 +197,7 @@ class PlaybookProgress extends Component {
     if (this.props.playId) {
       // Get the output of the play that has already been launched
 
-      this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.playId, {
+      this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/plays/' + this.props.playId, {
         // Note: Use no-cache in order to get an up-to-date response
         headers: {
           'pragma': 'no-cache',
@@ -209,7 +209,7 @@ class PlaybookProgress extends Component {
             // The play has already ended, and is either complete or failed
             this.props.updateStatus(response['code'] == 0 ? STATUS.COMPLETE : STATUS.FAILED);
 
-            fetch('http://localhost:8081/api/v1/clm/plays/' + this.props.playId + '/log')
+            fetch(getAppConfig('shimurl') + '/api/v1/clm/plays/' + this.props.playId + '/log')
               .then(response => response.text())
               .then(response => {
                 const message = response.trimRight('\n');
@@ -217,7 +217,7 @@ class PlaybookProgress extends Component {
                 this.setState({displayedLogs: this.logsReceived});
               });
 
-            this.fetchJson('http://localhost:8081/api/v1/clm/plays/' + this.props.playId + '/events')
+            this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/plays/' + this.props.playId + '/events')
               .then(response => {
                 for (let evt of response) {
                   if (evt.event === 'playbook-stop')

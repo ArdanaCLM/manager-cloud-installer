@@ -649,7 +649,7 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   getSavedDiscoveredServers() {
-    return (
+    return (c
       fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov')
         .then((response) => this.checkResponse(response))
         .then(response => response.json())

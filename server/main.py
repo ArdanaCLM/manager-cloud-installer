@@ -23,10 +23,11 @@ CORS(app)
 if __name__ == "__main__":
 
     flask_config = config.get_flask_config()
-    port = flask_config.pop('port', 8081)
+    port = flask_config.pop('PORT', 8081)
+    host = flask_config.pop('HOST', '127.0.0.1')
 
     app.config.from_mapping(config.get_flask_config())
 
     # app.run(debug=True)
     socketio.init_app(app)
-    socketio.run(app, port=port, use_reloader=True)
+    socketio.run(app, host=host, port=port, use_reloader=True)
