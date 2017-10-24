@@ -1,2 +1,4 @@
 public/*
+dist/*
+third_party/*
 protractor.conf.js
