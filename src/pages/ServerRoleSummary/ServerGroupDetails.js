@@ -8,29 +8,26 @@ import { InlineAddRemoveDropdown } from '../../components/InlineAddRemoveFields.
 class ServerGroupDetails extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      name: '',
-      networks: [],
-      serverGroups: [],
-      completeData: false
-    };
-    // for comparison purposes when checking for changes
-    this.origName = '';
-    this.origNetworks = [];
-    this.origServerGroups = [];
-  }
-
-  componentWillMount() {
-    // only set values in the edit mode
-    if (this.props.value !== '') {
+    if (props.value === '') {
+      // add mode
+      this.state = {
+        name: '',
+        networks: [],
+        serverGroups: [],
+        completeData: false
+      };
+    } else {
+      this.state = {
+        // edit mode
+        name: props.value.name,
+        networks: props.value.networks,
+        serverGroups: props.value.serverGroups,
+        completeData: false
+      };
+      // for comparison purposes when checking for changes
       this.origName = this.props.value.name;
       this.origNetworks = this.props.value.networks.slice().sort();
       this.origServerGroups = this.props.value.serverGroups.slice().sort();
-      this.setState({
-        name: this.props.value.name,
-        networks: this.props.value.networks,
-        serverGroups: this.props.value.serverGroups,
-      });
     }
   }
 
@@ -74,7 +71,6 @@ class ServerGroupDetails extends Component {
   }
 
   checkDataToSave = () => {
-
     if (this.props.value === '') {
       if ((this.state.networks.length > 0 || this.state.serverGroups.length > 0) &&
            this.state.name !== '') {
@@ -142,10 +138,8 @@ class ServerGroupDetails extends Component {
 }
 
 export function getServerGroupIndex(model, name) {
-  const serverGroups = model.getIn(['inputModel','server-groups']).toJS();
-  let index = -1;
-  serverGroups.map((serverGroup, i) => {if (serverGroup.name === name) {index = i;}});
-  return index;
+  return model.getIn(['inputModel','server-groups']).findIndex(
+    serverGroup => serverGroup.get('name') === name);
 }
 
 export default ServerGroupDetails;

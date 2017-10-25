@@ -5,16 +5,16 @@ import { ServerInput, ServerDropdown } from '../components/ServerUtils.js';
 class InlineAddRemoveDropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      items: [''],
-      selectedItem: ''
-    };
-  }
-
-  componentWillMount() {
-    if (this.props.values && this.props.values.length > 0) {
-      let values = this.props.values;
-      this.setState({items: values, selectedItem: values[values.length - 1]});
+    if (props.values && props.values.length > 0) {
+      this.state = {
+        items: props.values,
+        selectedItem: props.values[props.values.length - 1]
+      };
+    } else {
+      this.state = {
+        items: [''],
+        selectedItem: ''
+      };
     }
   }
 

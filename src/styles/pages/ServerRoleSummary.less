@@ -17,6 +17,10 @@
     position: relative;
     top: 3px;
     cursor: pointer;
+    &.disabled {
+      color: @inactivecolor;
+      cursor: default;
+    }
   }
 
   .details-section {
@@ -82,17 +86,29 @@
     display: flex;
     float: right;
     cursor: pointer;
-    .view-sign {
+    .view-button {
       color: @info-link-color;
       margin: auto 0 auto 0;
+      &.disabled {
+        color: @inactivecolor;
+        cursor: default;
+      }
     }
-    .edit-sign {
+    .edit-button {
       color: @info-link-color;
       margin: auto 12px auto 12px;
+      &.disabled {
+        color: @inactivecolor;
+        cursor: default;
+      }
     }
-    .remove-sign {
+    .remove-button {
       color: @info-link-color;
       margin: auto 0 auto 0;
+      &.disabled {
+        color: @inactivecolor;
+        cursor: default;
+      }
     }
   }
 }

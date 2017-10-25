@@ -19,15 +19,21 @@ class ServerGroupsTab extends Component {
   }
 
   addServerGroup = () => {
-    this.setState({showServerGroupDetails: true, value: ''});
+    if (!this.state.showServerGroupDetails) {
+      this.setState({showServerGroupDetails: true, value: ''});
+    }
   }
 
   editServerGroup = (selected) => {
-    this.setState({showServerGroupDetails: true, value: selected});
+    if (!this.state.showServerGroupDetails) {
+      this.setState({showServerGroupDetails: true, value: selected});
+    }
   }
 
   confirmRemoveServerGroup = (name) => {
-    this.setState({showRemoveConfirmation: true, serverGroupToRemove: name});
+    if (!this.state.showServerGroupDetails) {
+      this.setState({showRemoveConfirmation: true, serverGroupToRemove: name});
+    }
   }
 
   removeServerGroup = (name) => {
@@ -40,7 +46,9 @@ class ServerGroupsTab extends Component {
   }
 
   viewServerGroup = (selected) => {
-    this.setState({showServerGroupDetails: true, showViewMode: true, value: selected});
+    if (!this.state.showServerGroupDetails) {
+      this.setState({showServerGroupDetails: true, showViewMode: true, value: selected});
+    }
   }
 
   renderViewDetails = () => {
@@ -102,6 +110,15 @@ class ServerGroupsTab extends Component {
           serverGroups: m.has('server-groups') ? m.get('server-groups').toJS() : [],
         };
 
+        let viewClass = 'glyphicon glyphicon-info-sign view-button';
+        let editClass = 'glyphicon glyphicon-pencil edit-button';
+        let removeClass = 'fa fa-minus remove-button';
+        if (this.state.showServerGroupDetails) {
+          viewClass = viewClass + ' disabled';
+          editClass = editClass + ' disabled';
+          removeClass = removeClass + ' disabled';
+        }
+
         return (
           <tr key={idx}>
             <td>{name}</td>
@@ -109,20 +126,19 @@ class ServerGroupsTab extends Component {
             <td>{numServerGroups}</td>
             <td>
             <div className='row-action-container'>
-              <span onClick={() => this.viewServerGroup(selected)}
-                className='glyphicon glyphicon-info-sign view-sign'></span>
-              <span onClick={() => this.editServerGroup(selected)}
-                className='glyphicon glyphicon-pencil edit-sign'></span>
-              <span key={name + 'minus'} className={'fa fa-minus remove-sign'}
-                onClick={() => this.confirmRemoveServerGroup(name)}/>
+              <span onClick={() => this.viewServerGroup(selected)} className={viewClass}/>
+              <span onClick={() => this.editServerGroup(selected)} className={editClass}/>
+              <span onClick={() => this.confirmRemoveServerGroup(name)} className={removeClass}/>
             </div>
             </td>
           </tr>);
     });
 
+    let addClass = 'material-icons add-button';
+    addClass = this.state.showServerGroupDetails ? addClass + ' disabled' : addClass;
     let actionRow = (
       <tr key='serverGroupAction' className='action-row'>
-        <td><i className='material-icons add-button' onClick={this.addServerGroup}>
+        <td><i className={addClass} onClick={this.addServerGroup}>
           add_circle</i>{translate('add.server.group')}</td>
         <td></td>
         <td></td>
@@ -144,7 +160,7 @@ class ServerGroupsTab extends Component {
       }
     }
 
-    let confirmRemoveSection = (<div></div>);
+    let confirmRemoveSection = '';
     if (this.state.showRemoveConfirmation) {
       confirmRemoveSection = (
         <YesNoModal show={this.state.showRemoveConfirmation} title={translate('warning')}
