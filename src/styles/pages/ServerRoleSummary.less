@@ -4,7 +4,6 @@
     margin-bottom: 10px;
   }
 
-  //min-width: 55em;
   min-width: 90em;
 
   .action-row {
@@ -33,20 +32,27 @@
       font-weight: bold;
       line-height: 2.8em;
     }
-    //.details-body {
-    //  margin-bottom: 1.5em;
-    //}
+    .details-body .server-input input {
+      width: 85%;
+    }
     .details-body select,
     .details-body input {
       height: 28px;
       margin-top: 0.8em;
+    }
+    .details-title {
+      font-weight: bold;
+      margin: 0.8em 0 2px 1em;
+    }
+    .details-line {
+      margin: 0.5em 0 2px 3em;
     }
     .dropdown-plus-minus {
       display: flex;
     }
     .dropdown-plus-minus .server-detail-select,
     .dropdown-plus-minus .server-input {
-      width: 80%;
+      width: 85%;
     }
     .dropdown-plus-minus .server-detail-select select,
     .dropdown-plus-minus .server-input input {
@@ -65,11 +71,28 @@
       }
     }
     .details-btn {
-      width: 80%;
+      width: 100%;
       margin-top: 1.5em;
       .btn-container {
         float: right;
       }
+    }
+  }
+  .row-action-container {
+    display: flex;
+    float: right;
+    cursor: pointer;
+    .view-sign {
+      color: @info-link-color;
+      margin: auto 0 auto 0;
+    }
+    .edit-sign {
+      color: @info-link-color;
+      margin: auto 12px auto 12px;
+    }
+    .remove-sign {
+      color: @info-link-color;
+      margin: auto 0 auto 0;
     }
   }
 }

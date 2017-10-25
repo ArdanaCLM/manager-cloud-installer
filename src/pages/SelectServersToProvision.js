@@ -105,8 +105,8 @@ class SelectServersToProvision extends BaseWizardPage {
             <TransferTable
               leftList={this.state.leftList}
               rightList={this.state.rightList}
-              updateLeftList={(list) => this.setState({leftList: list}) }
-              updateRightList={(list) => this.setState({rightList: list}) }
+              updateLeftList={(list) => this.setState({leftList: list})}
+              updateRightList={(list) => this.setState({rightList: list})}
               leftTableHeader={translate('provision.server.left.table')}
               rightTableHeader={translate('provision.server.right.table')}/>
             <div className='button-container'>
@@ -116,9 +116,9 @@ class SelectServersToProvision extends BaseWizardPage {
                 isDisabled={this.state.rightList.length == 0}/>
             </div>
             <YesNoModal show={this.state.showModal}
-              title={translate('provision.server.confirm.heading')}
-              yesAction={() => this.setState({installing: true, showModal: false}) }
-              noAction={() => this.setState({showModal: false}) } >
+              title={translate('warning')}
+              yesAction={() => this.setState({installing: true, showModal: false})}
+              noAction={() => this.setState({showModal: false})}>
               {translate('provision.server.confirm.body', this.state.rightList.length)}
             </YesNoModal>
           </div>
