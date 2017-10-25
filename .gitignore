@@ -11,6 +11,8 @@
 /dist
 /public
 /*.tar
+/server/web
+manager_cloud_installer_server_venv
 
 # generated files
 src/Deployer.css

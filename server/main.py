@@ -12,13 +12,19 @@ from manager_cloud_installer_svr import ui
 logging.basicConfig(level=logging.DEBUG)
 
 LOG = logging.getLogger(__name__)
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='',
+            static_folder='web')
 app.register_blueprint(ardana.bp)
 app.register_blueprint(ui.bp)
 app.register_blueprint(oneview.bp)
 app.register_blueprint(suse_manager.bp)
 app.register_blueprint(socket_proxy.bp)
 CORS(app)
+
+@app.route('/')
+def root():
+    return app.send_static_file('index.html')
 
 if __name__ == "__main__":
 

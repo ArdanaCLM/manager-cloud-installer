@@ -48,6 +48,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prestart": "npm run less | webpack",
+    "start-noshim": "npm run jsonserv | npm run webdev | npm run watchless",
     "start": "npm run jsonserv | npm run webdev | npm run watchless | npm run shim",
     "lints": "eslint .",
     "protractor-setup": "./node_modules/protractor/bin/webdriver-manager update",
