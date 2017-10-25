@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { translate } from '../localization/localize.js';
+import { translate } from '../../localization/localize.js';
 
 class ModelServerDetails extends Component {
   constructor(props) {

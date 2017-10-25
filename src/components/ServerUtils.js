@@ -4,7 +4,7 @@ import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import ServerTable from './ServerTable.js';
 
-class SearchBar extends Component {
+export class SearchBar extends Component {
   constructor(props) {
     super(props);
   }
@@ -30,7 +30,25 @@ class SearchBar extends Component {
   }
 }
 
-class ServerRolesAccordion extends Component {
+export function isRoleAssignmentValid (role, checkInputs) {
+  let minCount =  role.minCount;
+  let memberCount = role.memberCount;
+  let svrSize = role.servers.length;
+  if (memberCount && svrSize !== memberCount) {
+    return false;
+  }
+  if(minCount && svrSize < minCount) {
+    return false;
+  }
+  if(checkInputs) {
+    return role.servers.every((server) =>
+      checkInputs.every(key => (server[key] ? true : false))
+    );
+  }
+  return true;
+}
+
+export class ServerRolesAccordion extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -101,7 +119,10 @@ class ServerRolesAccordion extends Component {
             );
         }
       }
-      let isOpen = (idx == this.state.accordionPosition);
+      let isOpen = (idx === this.state.accordionPosition);
+      let valid = isRoleAssignmentValid(role, this.props.checkInputs);
+      let triggerClass = valid ? '' : 'has-error';
+
       return (
         <div
           onDrop={(event) => this.props.ondropFunct(event, role.serverRole)}
@@ -111,8 +132,9 @@ class ServerRolesAccordion extends Component {
           className='server-dropzone'
           key={role.name}>
           <Collapsible
-            open={isOpen}
-            trigger={optionDisplay} key={role.name}
+            open={isOpen} key={role.name}
+            trigger={optionDisplay} triggerClassName={triggerClass}
+            triggerOpenedClassName={triggerClass}
             handleTriggerClick={() => this.handleTriggerClick(idx, role)}
             value={role.serverRole}>
             {isOpen && this.renderAccordionServerTable()}
@@ -133,7 +155,7 @@ class ServerRolesAccordion extends Component {
   }
 }
 
-class ServerInput extends Component {
+export class ServerInput extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -245,6 +267,8 @@ class ServerInput extends Component {
           type={inputType} name={this.props.inputName}
           value={this.state.inputValue}
           onChange={(e) => this.handleInputChange(e, this.props)}
+          placeholder={this.props.placeholder}
+          disabled={this.props.disabled}
           {...props}>
         </input>
         {togglePassword}
@@ -254,7 +278,7 @@ class ServerInput extends Component {
   }
 }
 
-class ServerInputLine extends Component {
+export class ServerInputLine extends Component {
   render() {
     let labelStr = translate(this.props.label);
     let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
@@ -272,7 +296,7 @@ class ServerInputLine extends Component {
   }
 }
 
-class ServerDropdown extends Component {
+export class ServerDropdown extends Component {
   constructor(props) {
     super(props);
 
@@ -324,7 +348,7 @@ class ServerDropdown extends Component {
   }
 }
 
-class ServerDropdownLine extends Component {
+export class ServerDropdownLine extends Component {
   render() {
     let labelStr = translate(this.props.label);
     let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
@@ -340,12 +364,3 @@ class ServerDropdownLine extends Component {
     );
   }
 }
-
-module.exports = {
-  SearchBar: SearchBar,
-  ServerRolesAccordion: ServerRolesAccordion,
-  ServerInput: ServerInput,
-  ServerInputLine: ServerInputLine,
-  ServerDropdown: ServerDropdown,
-  ServerDropdownLine: ServerDropdownLine
-};
