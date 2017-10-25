@@ -18,6 +18,7 @@
     "save": "Save",
     "add.more": "Add More",
     "test": "Test",
+    "warning": "Warning",
     "default.error": "Error",
     "default.success": "Success",
     "expand.all": "Expand All",
@@ -188,7 +189,8 @@
     "server.group.name": "Server Group Name",
     "number.networks": "Number of Networks",
     "number.server.groups": "Number of Server Groups",
-    "add.server.group": "Add Server Groups",
+    "add.server.group": "Add Server Group",
+    "edit.server.group": "Edit Server Group",
     "network": "Network",
     "vlanid": "VLAN ID",
     "cidr": "CIDR",
@@ -205,6 +207,8 @@
 
     "details.network.none": "Network - None",
     "details.server.group.none": "Server Group - None",
+    "details.server.group.view": "Server Group Details",
+    "details.server.group.confirm.remove": "You've selected to remove a server group: {0}.\n\n Are you sure you want to proceed?",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",
@@ -234,7 +238,6 @@
     "provision.server.install": "Install",
     "provision.server.progress.heading": "Server Installation In Progress",
     "provision.server.failure": "Server Installation Failure : {0}",
-    "provision.server.confirm.heading": "WARNING",
     "provision.server.confirm.body": "You've selected to have SLES installed on {0} server(s).\n All existing data on the servers will be overwritten, including any OSes that are already installed.\n\n Are you sure you want to proceed?",
 
     "server.role.summary.heading": "Server and Server Role Summary",
