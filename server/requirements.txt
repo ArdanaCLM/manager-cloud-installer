@@ -1,8 +1,8 @@
 eventlet==0.20.0
-Flask==0.12.2
-Flask-Cors==3.0.3
-Flask-SocketIO==2.9.2
-PyYAML==3.12
-requests==2.18.4
-socketIO-client==0.7.2
-tinydb==3.6.0
+Flask>=0.10,<1.0 # BSD
+Flask-Cors       # MIT
+Flask-SocketIO   # MIT
+PyYAML>=3.10.0   # MIT
+requests
+socketIO-client>=0.7.0
+tinydb>=3.5.0    # MIT
