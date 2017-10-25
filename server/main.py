@@ -9,7 +9,12 @@ from manager_cloud_installer_svr import socketio
 from manager_cloud_installer_svr import suse_manager
 from manager_cloud_installer_svr import ui
 
-logging.basicConfig(level=logging.DEBUG)
+# attempt to set the log file to /var/log/cloudinstaller/mci.log, but if its not writable, still configure
+# default logging level to DEBUG
+try:
+    logging.basicConfig(level=logging.DEBUG, filename='/var/log/cloudinstaller/mci.log')
+except IOError as e:
+    logging.basicConfig(level=logging.DEBUG)
 
 LOG = logging.getLogger(__name__)
 app = Flask(__name__,

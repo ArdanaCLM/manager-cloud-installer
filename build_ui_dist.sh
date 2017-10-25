@@ -20,6 +20,9 @@ npm run dist
 #copy the production index.html to the dist folder
 cp index.production dist/index.html
 
+#copy the config file to the dist folder
+cp config.json dist
+
 #copy non-bundled third-party dependencies into dist
 # bootstrap
 mkdir -p dist/lib/bootstrap
