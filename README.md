@@ -17,3 +17,27 @@ To run the selenium tests:
 2. start the app in another terminal `npm start`
 3. run the tests `npm run protractor`
 For more information on protractor/selenium locators see http://www.protractortest.org/#/locators
+
+# Building and running the production version of the installer
+Build just the ui components (output to "dist" folder):
+build_ui.sh
+
+Build just the ui components and package them into a tarball:
+build_ui.sh -t
+
+Build the entire app (output to manager_cloud_installer_server_venv):
+build_dist.sh
+
+Build the entire app and create tarball out of the output:
+build_dist.sh -t
+
+build_dist.sh -t will create a cloudinstaller-{SHA}.tar file that can be untarred in another location.
+To run the application from that location, run "python" on lib/python2.7/site-packages/cloudinstaller/main.py
+
+For example:
+cd /tmp
+mkdir cloudinstaller
+cd cloudinstaller
+cp <repo_location>/cloudinstaller-934A34.tar .
+tar -xvf cloudinstaller-934A34.tar
+python lib/python2.7/site-packages/cloudinstaller/main.py
