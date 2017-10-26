@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { EditPencilForTableRow , InfoForTableRow} from '../components/Buttons.js';
+import { EditPencilForTableRow , InfoForTableRow} from './Buttons.js';
 
 class ServerRowItem extends Component {
   constructor(props) {

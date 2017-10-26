@@ -6,16 +6,16 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton, LoadFileButton } from '../components/Buttons.js';
 import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
-import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine }
+import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine, isRoleAssignmentValid }
   from '../components/ServerUtils.js';
 import { BaseInputModal, ConfirmModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
-import ConnectionCredsInfo from '../components/ConnectionCredsInfo';
+import ConnectionCredsInfo from './AssignServerRoles/ConnectionCredsInfo';
 import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
 import ServerTable from '../components/ServerTable.js';
-import EditServerDetails from '../components/EditServerDetails.js';
-import ViewServerDetails from '../components/ViewServerDetails';
+import EditServerDetails from './AssignServerRoles/EditServerDetails.js';
+import ViewServerDetails from './AssignServerRoles/ViewServerDetails';
 import { importCSV } from '../utils/CsvImporter.js';
 import { alphabetically } from '../utils/Sort.js';
 import { fromJS } from 'immutable';
@@ -505,11 +505,17 @@ class AssignServerRoles extends BaseWizardPage {
     return window.location.protocol + '//' + window.location.host + '/rpc/api';
   }
 
-  getCookieExpiredTime(minutes) {
+  getCookieOptions(minutes) {
     let now = new Date();
-    let expDate = new Date(now);
-    expDate.setMinutes(now.getMinutes() + minutes);
-    return expDate;
+    let expTime = new Date(now);
+    expTime.setMinutes(now.getMinutes() + minutes);
+
+    let retOp = {path: '/', expires: expTime, secure: true, sameSite: true};
+    //allow http for development
+    if(getAppConfig('dev')) {
+      retOp.secure = false;
+    }
+    return retOp;
   }
 
   setSmCredentials(credsData) {
@@ -517,10 +523,9 @@ class AssignServerRoles extends BaseWizardPage {
     this.connections.sm.apiUrl =
       this.getSmUrl(this.connections.sm.creds.host, this.connections.sm.creds.port);
     //save the sessionKey to COOKIES
-    let expTime = this.getCookieExpiredTime(60);
     COOKIES.set(
-      'suseManagerSessionKey', this.connections.sm.sessionKey,
-      {path: '/', expires: expTime});
+      'suseManagerSessionKey', this.connections.sm.sessionKey, this.getCookieOptions(60)
+    );
     this.smSessionKey = this.connections.sm.sessionKey;
 
     let conn = JSON.parse(JSON.stringify(this.connections.sm));
@@ -533,10 +538,9 @@ class AssignServerRoles extends BaseWizardPage {
     this.connections.ov.apiUrl =
       'https://' + this.connections.ov.creds.host;
     //save the sessionKey to COOKIES
-    let expTime = this.getCookieExpiredTime(60);
     COOKIES.set(
-      'oneViewSessionKey', this.connections.ov.sessionKey,
-      {path: '/', expires: expTime});
+      'oneViewSessionKey', this.connections.ov.sessionKey, this.getCookieOptions(60)
+    );
     this.ovSessionKey = this.connections.ov.sessionKey;
 
     let conn = JSON.parse(JSON.stringify(this.connections.ov));
@@ -1108,17 +1112,7 @@ class AssignServerRoles extends BaseWizardPage {
   //check if we have enough servers roles for the model
   isValid = () => {
     return this.getServerRoles().every(role => {
-      let minCount =  role.minCount;
-      let memberCount = role.memberCount;
-      let svrSize = role.servers.length;
-      if (memberCount && svrSize !== memberCount) {
-        return false;
-      }
-      if(minCount && svrSize < minCount) {
-        return false;
-      }
-      // verify that each server object in role.servers has all of the required keys
-      return role.servers.every(server => this.checkInputKeys.every(key => (server[key] ? true : false)));
+      return isRoleAssignmentValid(role, this.checkInputKeys);
     });
   }
 
