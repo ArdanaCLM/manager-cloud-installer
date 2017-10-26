@@ -1,5 +1,15 @@
 #!/bin/bash
 
+TARBALL=false
+
+# if -t is specified, build a tarball of the UI bits
+while getopts t option
+do
+  case "${option}" in
+  t) TARBALL=true;;
+  esac
+done
+
 #erase the previous dist
 rm -rf dist
 
@@ -8,6 +18,9 @@ npm run dist
 
 #copy the production index.html to the dist folder
 cp index.production dist/index.html
+
+#copy the config file to the dist folder
+cp config.json dist
 
 #copy non-bundled third-party dependencies into dist
 # bootstrap
@@ -30,7 +43,9 @@ cp third_party/fonts/* dist/lib/fonts
 #create a version variable using the commit hash
 SHA=$(git rev-parse HEAD | cut -c1-6)
 
-#create a tarball of the UI dist
-cd dist
-tar -cvf ../day0-install-ui-${SHA}.tar .
-cd ..
+if $TARBALL
+then
+  #create a tarball of the UI dist
+  cd dist
+  tar -cvf ../day0-install-ui-${SHA}.tar .
+fi

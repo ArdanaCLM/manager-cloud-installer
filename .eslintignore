@@ -2,3 +2,5 @@ public/*
 dist/*
 third_party/*
 protractor.conf.js
+server/web/*
+manager_cloud_installer_server_venv/*

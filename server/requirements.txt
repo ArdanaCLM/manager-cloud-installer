@@ -1,6 +1,8 @@
-Flask>=0.10,<1.0  # BSD
-eventlet          # MIT
-flask-socketio    # MIT
-flask-cors        # MIT
-PyYAML>=3.10.0    # MIT
-tinydb>=3.5.0     # MIT
+eventlet==0.20.0 # MIT
+Flask>=0.10,<1.0 # BSD
+Flask-Cors       # MIT
+Flask-SocketIO   # MIT
+PyYAML>=3.10.0   # MIT
+requests         # APACHE2
+socketIO-client>=0.7.0 # MIT
+tinydb>=3.5.0    # MIT
