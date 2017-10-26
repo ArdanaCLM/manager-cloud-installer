@@ -39,6 +39,7 @@
     .details-body .server-input input {
       width: 85%;
     }
+
     .details-body select,
     .details-body input {
       height: 28px;
@@ -51,16 +52,24 @@
     .details-line {
       margin: 0.5em 0 2px 3em;
     }
+
     .dropdown-plus-minus {
       display: flex;
-    }
-    .dropdown-plus-minus .server-detail-select,
-    .dropdown-plus-minus .server-input {
-      width: 85%;
-    }
-    .dropdown-plus-minus .server-detail-select select,
-    .dropdown-plus-minus .server-input input {
-      width: 100%;
+
+      .server-detail-select, .server-input {
+        width: 85%;
+        select, input { 
+          width: 100%;
+        }
+      }
+
+      .field-container {
+        width: 85%;
+        display: flex;
+        .server-input:not(:last-child) {
+          margin-right: 0.5em;
+        }
+      }
     }
     .plus-minus-container {
       display: flex;

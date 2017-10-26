@@ -10,8 +10,10 @@ const IPV4ADDRESS_HOST = new RegExp(
   HOST.toString().slice(1, HOST.toString().length-1)
 );
 const PORT = /^0*(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[0-9])$/;
+const PCI_ADDRESS = /^[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$/;
+const NET_INTERFACE = /^[0-9a-zA-Z.:_]{1,16}$/;
 
-function validateIpV4Address(ipAddress) {
+export function IpV4AddressValidator(ipAddress) {
   let retValue = {
     isValid: true,
     errorMsg: ''
@@ -26,7 +28,7 @@ function validateIpV4Address(ipAddress) {
   return retValue;
 }
 
-function validateMacAddress(macAddress) {
+export function MacAddressValidator(macAddress) {
   let retValue = {
     isValid: true,
     errorMsg: ''
@@ -41,7 +43,7 @@ function validateMacAddress(macAddress) {
   return retValue;
 }
 
-function validatePort(port) {
+export function PortValidator(port) {
   let retValue = {
     isValid: true,
     errorMsg: ''
@@ -56,7 +58,7 @@ function validatePort(port) {
   return retValue;
 }
 
-function validateIpV4AddressHost(host) {
+export function IpV4AddressHostValidator(host) {
   let retValue = {
     isValid: true,
     errorMsg: ''
@@ -71,9 +73,30 @@ function validateIpV4AddressHost(host) {
   return retValue;
 }
 
-module.exports =  {
-  IpV4AddressValidator: validateIpV4Address,
-  MacAddressValidator: validateMacAddress,
-  PortValidator: validatePort,
-  IpV4AddressHostValidator: validateIpV4AddressHost
-};
+export function PCIAddressValidator(str) {
+  if(PCI_ADDRESS.exec(str) === null) {
+    return {
+      isValid: false,
+      errorMsg: translate('input.validator.pciaddress.error')
+    };
+  } else {
+    return {
+      isValid: true,
+      errorMsg: ''
+    };
+  }
+}
+
+export function NetworkInterfaceValidator(str) {
+  if(NET_INTERFACE.exec(str) === null) {
+    return {
+      isValid: false,
+      errorMsg: translate('input.validator.networkinterface.error')
+    };
+  } else {
+    return {
+      isValid: true,
+      errorMsg: ''
+    };
+  }
+}
