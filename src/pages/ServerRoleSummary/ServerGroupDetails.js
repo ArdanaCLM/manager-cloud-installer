@@ -13,16 +13,14 @@ class ServerGroupDetails extends Component {
       this.state = {
         name: '',
         networks: [],
-        serverGroups: [],
-        completeData: false
+        serverGroups: []
       };
     } else {
       this.state = {
         // edit mode
         name: props.value.name,
         networks: props.value.networks,
-        serverGroups: props.value.serverGroups,
-        completeData: false
+        serverGroups: props.value.serverGroups
       };
       // for comparison purposes when checking for changes
       this.origName = this.props.value.name;
@@ -72,21 +70,13 @@ class ServerGroupDetails extends Component {
 
   checkDataToSave = () => {
     if (this.props.value === '') {
-      if ((this.state.networks.length > 0 || this.state.serverGroups.length > 0) &&
-           this.state.name !== '') {
-        return true;
-      } else {
-        return false;
-      }
+      return this.state.name !== '';
     } else {
       let newNetworks = this.state.networks.slice().sort();
       let newServerGroups = this.state.serverGroups.slice().sort();
-      if (((this.state.networks.length > 0 || this.state.serverGroups.length > 0) &&
-           this.state.name !== '') &&
-        ((this.state.name !== this.origName) ||
-         (JSON.stringify(newNetworks) !== JSON.stringify(this.origNetworks)) ||
-         (JSON.stringify(newServerGroups) !== JSON.stringify(this.origServerGroups)))
-      ) {
+      if ((this.state.name !== '' && this.state.name !== this.origName) ||
+        ((JSON.stringify(newNetworks) !== JSON.stringify(this.origNetworks)) ||
+         (JSON.stringify(newServerGroups) !== JSON.stringify(this.origServerGroups)))) {
         return true;
       } else {
         return false;
@@ -109,20 +99,24 @@ class ServerGroupDetails extends Component {
       .map((group) => {return group.get('name');}).sort().toJS();
     let header = (this.props.value === '') ? translate('add.server.group') :
       translate('edit.server.group');
+    let exceptions = [];
+    if (this.props.value !== '') {
+      exceptions.push(this.state.name);
+    }
 
     return (
       <div className='details-section'>
         <div className='details-header'>{header}</div>
         <div className='details-body'>
           <ServerInput isRequired={true} placeholder={translate('server.group.name') + '*'}
-            inputValue={this.props.value.name} inputName='name' inputType='text'
+            inputValue={this.state.name} inputName='name' inputType='text'
             inputAction={this.handleInputLine}/>
           <InlineAddRemoveDropdown name='networks' options={networkModel}
-            values={this.props.value.networks} defaultOption={networkDefaultOption}
+            values={this.state.networks} defaultOption={networkDefaultOption}
             sendSelectedList={this.getSelectedNetworks}/>
           <InlineAddRemoveDropdown name='serverGroups' options={serverGroupModel}
-            values={this.props.value.serverGroups} defaultOption={serverGroupDefaultOption}
-            sendSelectedList={this.getSelectedServerGroups}/>
+            values={this.state.serverGroups} defaultOption={serverGroupDefaultOption}
+            sendSelectedList={this.getSelectedServerGroups} exceptions={exceptions}/>
           <div className='btn-row details-btn'>
             <div className='btn-container'>
               <ActionButton key='cancel' type='default' clickAction={this.props.closeAction}
