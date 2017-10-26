@@ -13,7 +13,7 @@ mkdir -p ./server/web
 cp -R ./dist/* ./server/web
 
 # create the venv (if it doesnt exists)
-virtualenv manager_cloud_installer_server_venv
+virtualenv --python=python2.7 manager_cloud_installer_server_venv
 
 # activate the venv
 source manager_cloud_installer_server_venv/bin/activate

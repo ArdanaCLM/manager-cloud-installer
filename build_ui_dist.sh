@@ -5,8 +5,7 @@ TARBALL=false
 # if -t is specified, build a tarball of the UI bits
 while getopts t option
 do
-  case "${option}"
-  in
+  case "${option}" in
   t) TARBALL=true;;
   esac
 done
@@ -49,5 +48,4 @@ then
   #create a tarball of the UI dist
   cd dist
   tar -cvf ../day0-install-ui-${SHA}.tar .
-  cd ..
 fi
