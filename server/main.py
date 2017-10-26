@@ -12,7 +12,7 @@ from manager_cloud_installer_svr import ui
 # attempt to set the log file to /var/log/cloudinstaller/mci.log, but if its not writable, still configure
 # default logging level to DEBUG
 try:
-    logging.basicConfig(level=logging.DEBUG, filename='/var/log/cloudinstaller/mci.log')
+    logging.basicConfig(level=logging.DEBUG, filename='/var/log/cloudinstaller/install.log')
 except IOError as e:
     logging.basicConfig(level=logging.DEBUG)
 
