@@ -11,6 +11,7 @@
 /dist
 /public
 /*.tar
+/*.tgz
 /lib
 /server/web
 /manager_cloud_installer_server_venv
