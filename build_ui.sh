@@ -47,5 +47,5 @@ if $TARBALL
 then
   #create a tarball of the UI dist
   cd dist
-  tar -cvf ../day0-install-ui-${SHA}.tar .
+  tar -czvf ../cloudinstaller-webonly-${SHA}.tgz .
 fi

@@ -32,12 +32,12 @@ Build the entire app and create tarball out of the output:
 build_dist.sh -t
 
 build_dist.sh -t will create a cloudinstaller-{SHA}.tar file that can be untarred in another location.
-To run the application from that location, run "python" on lib/python2.7/site-packages/cloudinstaller/main.py
+To run the application from that location, run the venv copy of "python" on lib/python2.7/site-packages/cloudinstaller/main.py
 
 For example:
 cd /tmp
 mkdir cloudinstaller
 cd cloudinstaller
-cp <repo_location>/cloudinstaller-934A34.tar .
-tar -xvf cloudinstaller-934A34.tar
-python lib/python2.7/site-packages/cloudinstaller/main.py
+cp <repo_location>/cloudinstaller-934A34.tgz .
+tar -xvf cloudinstaller-934A34.tgz
+bin/python lib/python2.7/site-packages/cloudinstaller/main.py

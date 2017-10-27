@@ -42,9 +42,9 @@ then
   echo ${SHA} > manager_cloud_installer_server_venv/buildinfo.txt
 
   # if an existing tarball exists, delete it
-  rm cloudinstaller-${SHA}.tar
+  rm cloudinstaller-${SHA}.tgz
 
   # create a tarball of the venv
   cd manager_cloud_installer_server_venv
-  tar -cvf ../cloudinstaller-${SHA}.tar .
+  tar -czvf ../cloudinstaller-${SHA}.tgz .
 fi

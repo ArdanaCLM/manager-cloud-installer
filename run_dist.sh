@@ -7,4 +7,4 @@
 source manager_cloud_installer_server_venv/bin/activate
 
 # start the flask server via main.py
-python ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller/main.py
+./manager_cloud_installer_server_venv/bin/python ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller/main.py
