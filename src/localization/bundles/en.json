@@ -249,7 +249,7 @@
     "provision.server.install": "Install",
     "provision.server.progress.heading": "Server Installation In Progress",
     "provision.server.failure": "Server Installation Failure : {0}",
-    "provision.server.confirm.body": "You've selected to have SLES installed on server(s).\n All existing data on the servers will be overwritten, including any OSes that are already installed.\n\n Are you sure you want to proceed?",
+    "provision.server.confirm.body": "You've selected to have SLES installed on {0} server(s).\n All existing data on the servers will be overwritten, including any OSes that are already installed.\n\n Are you sure you want to proceed?",
 
     "server.role.summary.heading": "Server and Server Role Summary",
 
