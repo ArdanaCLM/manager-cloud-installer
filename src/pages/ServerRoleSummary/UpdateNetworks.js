@@ -37,7 +37,9 @@ class UpdateNetworks extends Component {
   isFormTextInputValid() {
     let isAllValid = true;
     let values = Object.values(this.allInputsStatus);
-    isAllValid = (values.every((val) => {return val === INPUT_STATUS.VALID || val === INPUT_STATUS.UNKNOWN;}));
+    isAllValid =
+      (values.every((val) => {return val === INPUT_STATUS.VALID || val === INPUT_STATUS.UNKNOWN;})) &&
+      this.allInputsStatus['name'] !== INPUT_STATUS.UNKNOWN;
 
     return isAllValid;
   }
@@ -122,7 +124,7 @@ class UpdateNetworks extends Component {
         isRequired={isRequired} inputName={name} inputType={type}
         placeholder={placeholderText} inputValidate={validate}
         inputValue={this.props.mode === MODE.EDIT ? this.data[name] : ''} {...theProps}
-        inputAction={this.handleInputChange} updateFormValidity={this.updateFormValidity}/>
+        inputAction={this.handleInputChange}/>
     );
   }
 
