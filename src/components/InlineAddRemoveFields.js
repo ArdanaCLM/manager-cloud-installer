@@ -134,6 +134,14 @@ class InlineAddRemoveDropdown extends Component {
         if (i != -1) {options.splice(i, 1)}
       });
     }
+    // remove exception values (for self-nestable models, such as server-groups)
+    if (this.props.exceptions) {
+      this.props.exceptions.map((del) => {
+        let i = options.indexOf(del);
+        if (i != -1) {options.splice(i, 1)}
+      });
+    }
+
     options.unshift('');
 
     let lastItem = this.state.items[this.state.items.length - 1];
