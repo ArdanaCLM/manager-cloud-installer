@@ -25,10 +25,12 @@
 
   .details-section {
     min-height: 10em;
+    position: relative;
     .no-options {
       position: absolute;
       top: 50%;
       left: 50%;
+      min-width: 10em;
       transform: translate(-50%, -50%);
       color: @subheadingcolor;
     }
@@ -73,7 +75,7 @@
     }
     .plus-minus-container {
       display: flex;
-      margin-top: 0.8em;   // same as margin-top of '.details-body select'
+      margin-top: 0.8em; // same as margin-top of '.details-body select'
       .left-sign {
         color: @info-link-color;
         margin: auto 9px auto 9px;
@@ -89,8 +91,83 @@
       .btn-container {
         float: right;
       }
+      &.network-more-width {
+        width: 90%;
+      }
+    }
+    &.network-section {
+      width: 100%;
+      margin-left: 1.5em;
     }
   }
+
+  .bottom-action-container{
+    width: 100%;
+    display: inline-flex;
+    cursor: pointer;
+    margin-top: 1em;
+    .bottom-action-row {
+      display: inline-flex;
+      width: 75%;
+      height: 2em;
+      background: @preferredcolor;
+      &.disabled {
+        opacity: 0.65;
+      }
+    }
+    .triangle-right {
+      display: inline-flex;
+      height: 2em;
+      border-top: 1em solid transparent;
+      border-bottom: 1em solid transparent;
+      border-left: 1em solid @preferredcolor;
+      background: transparent;
+      &.disabled {
+        opacity: 0.65;
+      }
+    }
+    &.disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  .network {
+    .network-container {
+      width: 100%;
+      display: inline-flex;
+    }
+    .network-table-container {
+      min-height: 30em;
+      max-height: 40em;
+      overflow: auto;
+      width: 75%;
+      display: inline-flex;
+    }
+    .network-update-container {
+      width: 25%;
+      display: inline-flex;
+    }
+    .tagged {
+      margin: 0.5em 0.5em 1.5em 0;
+    }
+    .tagged-vlan {
+      input {
+        vertical-align: middle;
+        position: relative;
+        top: 4px;
+      }
+      width: 90%;
+    }
+    .server-detail-select select {
+      padding: 4px;
+      width: 90%;
+    }
+    .details-section .details-body .server-input input {
+      padding: 4px;
+      width: 90%;
+    }
+  }
+
   .row-action-container {
     display: flex;
     float: right;

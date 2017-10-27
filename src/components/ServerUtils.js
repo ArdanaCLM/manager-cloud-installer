@@ -167,7 +167,7 @@ export class ServerInput extends Component {
 
   componentDidMount() {
     if(this.props.updateFormValidity) {
-      let isValid = this.validateInput(this.state.inputValue);
+      let isValid = this.validateInput(this.state.inputValue, this.props);
       //callback function from parent to initially check
       //all inputs
       this.props.updateFormValidity(this.props, isValid);
@@ -180,7 +180,7 @@ export class ServerInput extends Component {
     }
   }
 
-  validateInput(val) {
+  validateInput(val, extraProps) {
     let retValid = false;
 
     if(this.props.isRequired) {
@@ -191,7 +191,7 @@ export class ServerInput extends Component {
     }
 
     if(this.props.inputValidate && val !== '' && val !== undefined) {//have a validator and have some values
-      let validateObject = this.props.inputValidate(val);
+      let validateObject = this.props.inputValidate(val, extraProps);
       if (validateObject) {
         if(validateObject.isValid) {
           this.setState({errorMsg: ''});
@@ -217,7 +217,7 @@ export class ServerInput extends Component {
 
   handleInputChange = (e, props) => {
     let val = e.target.value;
-    let valid = this.validateInput(val);
+    let valid = this.validateInput(val, props);
     this.setState({
       inputValue: val
     });
@@ -280,8 +280,8 @@ export class ServerInput extends Component {
 
 export class ServerInputLine extends Component {
   render() {
-    let labelStr = translate(this.props.label);
-    let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
+    let labelStr = this.props.label ? translate(this.props.label) : '';
+    let label = this.props.label ? ((this.props.isRequired) ? labelStr + '*' : labelStr) : '';
     return (
       <div className='detail-line'>
         <div className='detail-heading'>{label}</div>
@@ -350,8 +350,8 @@ export class ServerDropdown extends Component {
 
 export class ServerDropdownLine extends Component {
   render() {
-    let labelStr = translate(this.props.label);
-    let label = (this.props.isRequired) ? labelStr + '*' : labelStr;
+    let labelStr = this.props.label ? translate(this.props.label) : '';
+    let label = this.props.label ? ((this.props.isRequired) ? labelStr + '*' : labelStr ) : '';
     return (
       <div className='detail-line'>
         <div className='detail-heading'>{label}</div>

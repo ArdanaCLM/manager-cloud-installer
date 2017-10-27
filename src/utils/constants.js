@@ -5,3 +5,15 @@ export const STATUS = {
   IN_PROGRESS: 2,
   FAILED: 3
 };
+
+export const INPUT_STATUS = {
+  UNKNOWN: -1,
+  VALID: 1,
+  INVALID: 0
+};
+
+export const MODE = {
+  EDIT: 'edit',
+  ADD: 'add',
+  NONE: 'none'
+};
