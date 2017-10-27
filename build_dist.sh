@@ -19,15 +19,12 @@ done
 virtualenv --python=python2.7 manager_cloud_installer_server_venv
 
 # delete any existing content from the server/web folder
-## rm -rf ./server/web
 rm -rf ./manager_cloud_installer_server_venv/lib/python/site-packages/cloudinstaller
 
 # recreate the server/web folder
-## mkdir -p ./server/web
 mkdir -p ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller/web
 
 # copy UI files from ./dist to ./server/web
-## cp -R ./dist/* ./server/web
 cp -R ./server/* ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller
 cp -R ./dist/* ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller/web
 
