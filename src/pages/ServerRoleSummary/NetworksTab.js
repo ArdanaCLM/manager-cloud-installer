@@ -61,20 +61,16 @@ class NetworksTab extends Component {
   renderActionRow() {
     let addClass = 'material-icons add-button';
     addClass = this.state.mode !== MODE.NONE ? addClass + ' disabled' : addClass;
-    let addContainerClass = 'bottom-action-container';
-    addContainerClass =
-      this.state.mode !== MODE.NONE ? addContainerClass + ' disabled' : addContainerClass;
     let bottomClass = 'bottom-action-row';
-    bottomClass = this.state.mode !== MODE.NONE ? bottomClass + ' disabled' : bottomClass;
+    bottomClass = this.state.mode === MODE.ADD ? bottomClass + ' on' : bottomClass;
     let arrowClass = 'triangle-right';
-    arrowClass = this.state.mode !== MODE.NONE ? arrowClass + ' disabled' : arrowClass;
+    arrowClass = this.state.mode === MODE.ADD ? arrowClass + ' on' : arrowClass;
     return (
-      <div className={addContainerClass}>
-        <div key='networkAction'
-          className={bottomClass} onClick={() => this.handleAddNetwork()}>
-          <span><i className={addClass}>add_circle</i>{translate('add.network')}</span>
-        </div>
-        <div className={arrowClass}></div>
+      <div className='bottom-action-container'>
+        <div key='networkAction' className={bottomClass}>
+          <span><i className={addClass} onClick={() => this.handleAddNetwork()}>add_circle</i>
+            {translate('add.network')}</span>
+        </div><div className={arrowClass}></div>
       </div>
     );
   }

@@ -101,18 +101,18 @@
     }
   }
 
+  //experimental arrow bar
   .bottom-action-container{
     width: 100%;
     display: inline-flex;
-    cursor: pointer;
     margin-top: 1em;
     .bottom-action-row {
       display: inline-flex;
       width: 75%;
       height: 2em;
-      background: @preferredcolor;
-      &.disabled {
-        opacity: 0.65;
+      &.on {
+        background: @preferredcolor;
+        color:white;
       }
     }
     .triangle-right {
@@ -120,14 +120,11 @@
       height: 2em;
       border-top: 1em solid transparent;
       border-bottom: 1em solid transparent;
-      border-left: 1em solid @preferredcolor;
+      border-left: 1em solid transparent;
       background: transparent;
-      &.disabled {
-        opacity: 0.65;
+      &.on {
+        border-left: 1em solid @preferredcolor;
       }
-    }
-    &.disabled {
-      cursor: not-allowed;
     }
   }
 
