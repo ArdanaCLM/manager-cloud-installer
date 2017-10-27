@@ -9,10 +9,9 @@ import {
 import { ErrorMessage, SuccessMessage } from '../../components/Messages.js';
 import { LoadingMask } from '../../components/LoadingMask.js';
 import { isEmpty } from 'lodash';
+import { INPUT_STATUS } from '../../utils/constants.js';
 
-const UNKNOWN = -1;
-const VALID = 1;
-const INVALID = 0;
+const TEST_STATUS = INPUT_STATUS;
 
 const ERROR_MSG = 0;
 const SUCCESS_MSG = 1;
@@ -24,16 +23,16 @@ class ConnectionCredsInfo extends Component {
     //check all inputs are valid
     this.allInputsStatus = {
       'sm': {
-        'host': UNKNOWN,
-        'username': UNKNOWN,
-        'password': UNKNOWN,
-        'port': UNKNOWN
+        'host': INPUT_STATUS.UNKNOWN,
+        'username': INPUT_STATUS.UNKNOWN,
+        'password': INPUT_STATUS.UNKNOWN,
+        'port': INPUT_STATUS.UNKNOWN
       },
       'ov': {
-        'host': UNKNOWN,
-        'username': UNKNOWN,
-        'password': UNKNOWN,
-        'port': UNKNOWN
+        'host': INPUT_STATUS.UNKNOWN,
+        'username': INPUT_STATUS.UNKNOWN,
+        'password': INPUT_STATUS.UNKNOWN,
+        'port': INPUT_STATUS.UNKNOWN
       }
     };
 
@@ -42,8 +41,8 @@ class ConnectionCredsInfo extends Component {
       isSmChecked: !!(this.props.data.sm && this.props.data.sm.checked),
       isOvSecured: !!(this.props.data.ov && this.props.data.ov.secured),
       isSmSecured: !!(this.props.data.sm && this.props.data.sm.secured),
-      smTestStatus: UNKNOWN,
-      ovTestStatus: UNKNOWN,
+      smTestStatus: TEST_STATUS.UNKNOWN,
+      ovTestStatus: TEST_STATUS.UNKNOWN,
       loading: false,
 
       messages: []
@@ -84,27 +83,27 @@ class ConnectionCredsInfo extends Component {
     let isAllValid = true;
     if(this.state.isSmChecked) {
       let values = Object.values(this.allInputsStatus.sm);
-      isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN;}));
+      isAllValid = (values.every((val) => {return val === INPUT_STATUS.VALID || val === INPUT_STATUS.UNKNOWN;}));
     }
 
     //still valid check hpe oneview creds
     if(isAllValid) {
       if(this.state.isOvChecked) {
         let values = Object.values(this.allInputsStatus.ov);
-        isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN;}));
+        isAllValid = (values.every((val) => {return val === INPUT_STATUS.VALID || val === INPUT_STATUS.UNKNOWN;}));
       }
     }
     return isAllValid;
   }
 
   updateFormValidity = (props, isValid, clearTest) => {
-    this.allInputsStatus[props.category][props.inputName] = isValid ? VALID : INVALID;
+    this.allInputsStatus[props.category][props.inputName] = isValid ? INPUT_STATUS.VALID : INPUT_STATUS.INVALID;
     if (clearTest) {
       if (props.category === 'sm') {
-        this.setState({smTestStatus: UNKNOWN});
+        this.setState({smTestStatus: TEST_STATUS.UNKNOWN});
       }
       else {
-        this.setState({ovTestStatus: UNKNOWN});
+        this.setState({ovTestStatus: TEST_STATUS.UNKNOWN});
       }
     }
   }
@@ -113,9 +112,9 @@ class ConnectionCredsInfo extends Component {
     return (
       !this.isFormValid() ||
       (this.state.isSmChecked &&
-        (this.state.smTestStatus === UNKNOWN || this.state.smTestStatus === INVALID)) ||
+        (this.state.smTestStatus === TEST_STATUS.UNKNOWN || this.state.smTestStatus === TEST_STATUS.INVALID)) ||
       (this.state.isOvChecked &&
-        (this.state.ovTestStatus === UNKNOWN || this.state.ovTestStatus === INVALID)) ||
+        (this.state.ovTestStatus === TEST_STATUS.UNKNOWN || this.state.ovTestStatus === TEST_STATUS.INVALID)) ||
       (!this.state.isSmChecked && !this.state.isOvChecked)
     );
   }
@@ -151,7 +150,7 @@ class ConnectionCredsInfo extends Component {
             this.setState(prev => {
               return {
                 messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
-                smTestStatus: VALID
+                smTestStatus: TEST_STATUS.VALID
               };
             });
             Promise.resolve(responseData);
@@ -171,7 +170,7 @@ class ConnectionCredsInfo extends Component {
             }
             this.setState(prev => { return {
               messages: prev.messages.concat([{msg: [msg, responseData.error], messageType: ERROR_MSG}]),
-              smTestStatus: INVALID
+              smTestStatus: TEST_STATUS.INVALID
             };});
             Promise.reject(responseData.error);
           }
@@ -183,7 +182,7 @@ class ConnectionCredsInfo extends Component {
 
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: [msg, error.toString()], messageType: ERROR_MSG}]),
-            smTestStatus: INVALID
+            smTestStatus: TEST_STATUS.INVALID
           };});
           Promise.reject(error);
         })
@@ -208,16 +207,15 @@ class ConnectionCredsInfo extends Component {
             let msg = translate('server.test.ov.success', this.data.ov.creds.host);
             this.setState(prev => { return {
               messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
-              ovTestStatus: VALID
+              ovTestStatus: TEST_STATUS.VALID
             };});
             Promise.resolve(responseData);
           } else {
-            //TODO revisit after ov certificate resolved and more testing
             let error = responseData.error;
             let msg = translate('server.test.ov.error', this.data.ov.creds.host);
             this.setState(prev => { return {
               messages: prev.messages.concat([{msg: [msg, error], messageType: ERROR_MSG}]),
-              ovTestStatus: INVALID
+              ovTestStatus: TEST_STATUS.INVALID
             };});
             Promise.reject(error);
           }
@@ -226,7 +224,7 @@ class ConnectionCredsInfo extends Component {
           let msg = translate('server.test.ov.error', this.data.ov.creds.host, error);
           this.setState(prev => { return {
             messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
-            ovTestStatus: INVALID
+            ovTestStatus: TEST_STATUS.INVALID
           };});
           Promise.reject(error);
         })
