@@ -14,7 +14,7 @@ const PCI_ADDRESS = /^[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$
 const NET_INTERFACE = /^[0-9a-zA-Z.:_]{1,16}$/;
 const CIDR =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[1-2]?[0-9])$/;
-const STRING_WITH_NO_SPACES = /^\s*\S+\s*$/;
+const STRING_WITH_NO_SPACES = /^\S+$/;
 
 export function IpV4AddressValidator(ipAddress) {
   let retValue = {
