@@ -137,12 +137,10 @@ export function UniqueNameValidator(name, props) {
     retValue.isValid = false;
     retValue.errorMsg = translate('input.validator.uniquename.error');
   }
-  else {
-    if(props && props.check_nospace) {
-      if(STRING_WITH_NO_SPACES.exec(name) === null) {
-        retValue.isValid = false;
-        retValue.errorMsg = translate('input.validator.name.spaces.error');
-      }
+  else if(props && props.check_nospace) {
+    if(STRING_WITH_NO_SPACES.exec(name) === null) {
+      retValue.isValid = false;
+      retValue.errorMsg = translate('input.validator.name.spaces.error');
     }
   }
   return retValue;

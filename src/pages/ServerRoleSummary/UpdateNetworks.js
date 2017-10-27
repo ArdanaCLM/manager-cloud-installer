@@ -177,9 +177,4 @@ class UpdateNetworks extends Component {
   }
 }
 
-export function getNetworkIndex(model, name) {
-  return model.getIn(['inputModel','networks']).findIndex(
-    list => list.get('name') === name);
-}
-
 export default UpdateNetworks;
