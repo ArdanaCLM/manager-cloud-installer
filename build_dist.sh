@@ -5,12 +5,14 @@
 
 # check for tarball flag
 TARBALL=false
+DELETEPREV=false
 
 # if -t is specified, build a tarball of the venv 
-while getopts t option
+while getopts td option
 do
   case "${option}" in
   t) TARBALL=true;;
+  d) DELETEPREV=true;;
   esac
 done
 
@@ -41,10 +43,15 @@ then
   SHA=$(git rev-parse HEAD | cut -c1-6)
   echo ${SHA} > manager_cloud_installer_server_venv/buildinfo.txt
 
-  # if an existing tarball exists, delete it
-  rm cloudinstaller-${SHA}.tgz
+  DATE=`date -u +"%Y%m%dT%H%M%SZ"`
+
+  if $DELETEPREV
+  then
+    # if an existing tarball exists for the same commit, delete it
+    rm cloudinstaller-*-${SHA}.tgz
+  fi
 
   # create a tarball of the venv
   cd manager_cloud_installer_server_venv
-  tar -czvf ../cloudinstaller-${SHA}.tgz .
+  tar -czvf ../cloudinstaller-${DATE}-${SHA}.tgz .
 fi
