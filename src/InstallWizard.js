@@ -332,7 +332,8 @@ class InstallWizard extends Component {
             this.state.steps.map((item, index) => {
               let stepClass = 'stepItem';
               let onClickFnct = undefined;
-              if(this.state.currentStep > index) {
+              if(this.state.currentStep > index &&
+                 this.state.currentStep < (this.props.pages.length - 2)) {
                 stepClass = 'stepItem prevstep';
                 onClickFnct = () => {
                   this.stepTo(index);
