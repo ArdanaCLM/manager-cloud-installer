@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import React from 'react';
 import { fromJS } from 'immutable';
 import '../Deployer.css';

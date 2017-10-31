@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import LocalizedStrings from 'react-localization';
 
 var supportedLangs = ['en', 'ja'];

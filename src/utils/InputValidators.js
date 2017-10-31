@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import { translate } from '../localization/localize.js';
 
 const IPV4ADDRESS =

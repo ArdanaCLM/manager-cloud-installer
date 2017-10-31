@@ -1,3 +1,4 @@
+# (c) Copyright 2017 SUSE LLC
 from ConfigParser import SafeConfigParser
 import logging
 import os

@@ -1,4 +1,4 @@
-
+# (c) Copyright 2017 SUSE LLC
 # Requires:
 #   https://pypi.python.org/pypi/websocket-client/
 #   pip install websocket-client

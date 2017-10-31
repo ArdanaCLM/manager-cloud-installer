@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import Papa from 'papaparse';
 import { IpV4AddressValidator, MacAddressValidator } from './InputValidators.js';
 

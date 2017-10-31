@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import React from 'react';
 import { ThreeBounce } from 'better-react-spinkit';
 import '../Deployer.css';

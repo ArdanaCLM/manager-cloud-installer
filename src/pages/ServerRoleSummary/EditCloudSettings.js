@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
 import { Tabs, Tab } from 'react-bootstrap';

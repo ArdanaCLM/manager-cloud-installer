@@ -2,6 +2,8 @@
 # or
 # python -i inspector.py
 
+# (c) Copyright 2017 SUSE LLC
+
 import os
 # import ssl
 import xmlrpclib

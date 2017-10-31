@@ -1,3 +1,4 @@
+# (c) Copyright 2017 SUSE LLC
 from eventlet import monkey_patch as monkey_patch
 from flask_socketio import SocketIO
 # IMPORTANT!

@@ -1,3 +1,4 @@
+# (c) Copyright 2017 SUSE LLC
 import config.config as config
 import requests
 import socket

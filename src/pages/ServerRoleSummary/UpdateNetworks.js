@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import React, { Component } from 'react';
 import { fromJS } from 'immutable';
 import { translate } from '../../localization/localize.js';

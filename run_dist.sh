@@ -1,4 +1,5 @@
 #!/bin/bash
+# (c) Copyright 2017 SUSE LLC
 
 # package the server and UI components into the right folder
 ./build_dist.sh

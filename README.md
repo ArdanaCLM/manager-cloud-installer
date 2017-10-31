@@ -1,3 +1,4 @@
+[//]: <> (\(c\) Copyright 2017 SUSE LLC)
 # SUSE OpenStack Cloud Deployer
 The cloud installer that will reside with SUSE Manager
 
