@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { translate } from '../localization/localize.js';
 import { ServerInput, ServerDropdown } from '../components/ServerUtils.js';
 
 class InlineAddRemoveDropdown extends Component {
@@ -44,12 +43,12 @@ class InlineAddRemoveDropdown extends Component {
   handleSelectedItem = (item) => {
     this.setState({selectedItem: item});
   }
-  
+
   /*
     State 'items' represent the number of items displayed in the group. At the beginning, there is
-    default drop-down box which lists all options available to be selected. The state 'items' at 
-    this point is ['']. Once an option is selected, that option is added to 'items' before ''. The 
-    option shows as a text field above the drop-down box. The state 'items' at this point is 
+    default drop-down box which lists all options available to be selected. The state 'items' at
+    this point is ['']. Once an option is selected, that option is added to 'items' before ''. The
+    option shows as a text field above the drop-down box. The state 'items' at this point is
     ['optA', '']. If another option is selected, the option is added to 'items' before ''. At this
     point, 'items' looks like this: ['optA', 'optB', '']
   */
@@ -114,10 +113,10 @@ class InlineAddRemoveDropdown extends Component {
       textFields.map((item, index) => {
         lines.push(
           <div className='dropdown-plus-minus' key={this.props.name + item + index}>
-            <ServerInput key={this.props.name + item + index} inputType='text' inputValue={item} 
+            <ServerInput key={this.props.name + item + index} inputType='text' inputValue={item}
               disabled='true'/>
             <div className='plus-minus-container'>
-              <span key={this.props.name + item + 'minus' + index} 
+              <span key={this.props.name + item + 'minus' + index}
                 className={'fa fa-minus left-sign'} onClick={() => this.removeItem(index)}/>
             </div>
           </div>
@@ -131,14 +130,14 @@ class InlineAddRemoveDropdown extends Component {
     if (this.state.items.length > 1) {
       textFields.map((del) => {
         let i = options.indexOf(del);
-        if (i != -1) {options.splice(i, 1)}
+        if (i != -1) {options.splice(i, 1);}
       });
     }
     // remove exception values (for self-nestable models, such as server-groups)
     if (this.props.exceptions) {
       this.props.exceptions.map((del) => {
         let i = options.indexOf(del);
-        if (i != -1) {options.splice(i, 1)}
+        if (i != -1) {options.splice(i, 1);}
       });
     }
 

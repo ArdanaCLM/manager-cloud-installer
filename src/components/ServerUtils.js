@@ -351,7 +351,7 @@ export class ServerDropdown extends Component {
 export class ServerDropdownLine extends Component {
   render() {
     let labelStr = this.props.label ? translate(this.props.label) : '';
-    let label = this.props.label ? ((this.props.isRequired) ? labelStr + '*' : labelStr ) : '';
+    let label = this.props.label ? ((this.props.isRequired) ? labelStr + '*' : labelStr) : '';
     return (
       <div className='detail-line'>
         <div className='detail-heading'>{label}</div>
