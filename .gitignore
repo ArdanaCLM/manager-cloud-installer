@@ -12,6 +12,8 @@
 /public
 /*.tar
 /*.tgz
+/*.md5
+/*.sha256
 /lib
 /server/web
 /manager_cloud_installer_server_venv

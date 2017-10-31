@@ -3,16 +3,22 @@
 # build the neccessary UI files
 ./build_ui.sh
 
-# check for tarball flag
+# whether to create a tarball of the dist, set to true with -t
 TARBALL=false
+
+# whether to delete the previous tarballs for the same git revision, set to true with -d
 DELETEPREV=false
 
+# indicates whether to produce a sha256 file of the tarball, no-op if tarball isnt built, set to true with -s
+CREATESHA=false
+
 # if -t is specified, build a tarball of the venv 
-while getopts td option
+while getopts tds option
 do
   case "${option}" in
   t) TARBALL=true;;
   d) DELETEPREV=true;;
+  s) CREATESHA=true;;
   esac
 done
 
@@ -48,10 +54,22 @@ then
   if $DELETEPREV
   then
     # if an existing tarball exists for the same commit, delete it
+    # and any sha256/md5 sums associated with those files
     rm cloudinstaller-*-${SHA}.tgz
+    rm cloudinstaller-*-${SHA}.tgz.sha256
+    rm cloudinstaller-*-${SHA}.tgz.md5
   fi
 
+  FILENAME=cloudinstaller-${DATE}-${SHA}.tgz
   # create a tarball of the venv
   cd manager_cloud_installer_server_venv
-  tar -czvf ../cloudinstaller-${DATE}-${SHA}.tgz .
+  tar -czvf ../${FILENAME} .
+  cd ..
+
+  if $CREATESHA
+  then
+    # create sha256 and md5 checksums of the tgz file
+    sha256sum ${FILENAME} > ${FILENAME}.sha256
+    md5sum ${FILENAME} > ${FILENAME}.md5
+  fi
 fi
