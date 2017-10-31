@@ -15,7 +15,7 @@ class ServerGroupsTab extends Component {
       showViewMode: false,
       showRemoveConfirmation: false,
       serverGroupToRemove: ''
-    }
+    };
   }
 
   addServerGroup = () => {
@@ -125,14 +125,14 @@ class ServerGroupsTab extends Component {
             <td>{numNetworks}</td>
             <td>{numServerGroups}</td>
             <td>
-            <div className='row-action-container'>
-              <span onClick={() => this.viewServerGroup(selected)} className={viewClass}/>
-              <span onClick={() => this.editServerGroup(selected)} className={editClass}/>
-              <span onClick={() => this.confirmRemoveServerGroup(name)} className={removeClass}/>
-            </div>
+              <div className='row-action-container'>
+                <span onClick={() => this.viewServerGroup(selected)} className={viewClass}/>
+                <span onClick={() => this.editServerGroup(selected)} className={editClass}/>
+                <span onClick={() => this.confirmRemoveServerGroup(name)} className={removeClass}/>
+              </div>
             </td>
           </tr>);
-    });
+      });
 
     let addClass = 'material-icons add-button';
     addClass = this.state.showServerGroupDetails ? addClass + ' disabled' : addClass;
@@ -168,7 +168,7 @@ class ServerGroupsTab extends Component {
           noAction={() => this.setState({showRemoveConfirmation: false})}>
           {translate('details.server.group.confirm.remove', this.state.serverGroupToRemove)}
         </YesNoModal>
-      )
+      );
     }
 
     return (

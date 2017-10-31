@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { fromJS } from 'immutable';
 import { translate } from '../../localization/localize.js';
-import { ServerInput, ServerDropdown } from '../../components/ServerUtils.js';
+import { ServerInput } from '../../components/ServerUtils.js';
 import { ActionButton } from '../../components/Buttons.js';
 import { InlineAddRemoveDropdown } from '../../components/InlineAddRemoveFields.js';
 
@@ -46,7 +46,7 @@ class ServerGroupDetails extends Component {
     let serverGroup = {'name': this.state.name};
     if (this.state.networks.length > 0) {
       serverGroup['networks'] = this.state.networks;
-    };
+    }
     if (this.state.serverGroups.length > 0) {
       serverGroup['server-groups'] = this.state.serverGroups;
     }
