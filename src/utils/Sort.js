@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 export function alphabetically(a,b) {
   const x = a.toUpperCase();
   const y = b.toUpperCase();

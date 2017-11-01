@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 /* eslint no-unused-vars: 0 */
 var path = require('path');
 var webpack = require('webpack');

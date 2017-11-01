@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import '../Deployer.css';

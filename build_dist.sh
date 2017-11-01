@@ -1,4 +1,5 @@
 #!/bin/bash
+# (c) Copyright 2017 SUSE LLC
 
 # build the neccessary UI files
 ./build_ui.sh

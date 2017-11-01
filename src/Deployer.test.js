@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 /* global it */
 import React from 'react';
 import ReactDOM from 'react-dom';

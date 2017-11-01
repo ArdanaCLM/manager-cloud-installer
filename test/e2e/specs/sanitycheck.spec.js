@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 /* eslint no-undef: 0 */
 describe('basic sanity tests', function() {
 

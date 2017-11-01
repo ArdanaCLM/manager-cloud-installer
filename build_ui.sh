@@ -1,4 +1,5 @@
 #!/bin/bash
+# (c) Copyright 2017 SUSE LLC
 
 TARBALL=false
 

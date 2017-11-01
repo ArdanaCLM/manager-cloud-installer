@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import CloudModelPicker from '../pages/CloudModelPicker';
 import CloudModelSummary from '../pages/CloudModelSummary';
 import AssignServerRoles from '../pages/AssignServerRoles';

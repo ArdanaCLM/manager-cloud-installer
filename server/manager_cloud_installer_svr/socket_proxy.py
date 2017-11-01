@@ -1,3 +1,4 @@
+# (c) Copyright 2017 SUSE LLC
 from . import socketio
 import config.config as config
 import eventlet

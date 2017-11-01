@@ -1,3 +1,6 @@
+..
+ (c) Copyright 2017 SUSE LLC
+
 ==============================
 Manager Cloud Installer Server
 ==============================

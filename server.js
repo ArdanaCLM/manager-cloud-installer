@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 //dev server for running the mock backend
 //run with "node server.js" in terminal
 

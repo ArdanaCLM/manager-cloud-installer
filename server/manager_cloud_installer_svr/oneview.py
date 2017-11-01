@@ -1,3 +1,4 @@
+# (c) Copyright 2017 SUSE LLC
 import config.config as config
 from flask import abort
 from flask import Blueprint

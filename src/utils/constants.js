@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 export const STATUS = {
   UNKNOWN: -1,
   NOT_STARTED: 0,

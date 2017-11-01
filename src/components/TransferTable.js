@@ -1,3 +1,4 @@
+// (c) Copyright 2017 SUSE LLC
 import React, { Component } from 'react';
 import '../Deployer.css';
 import { AssignmentButton } from '../components/Buttons.js';
