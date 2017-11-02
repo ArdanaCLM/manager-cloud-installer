@@ -4,6 +4,7 @@ import Collapsible from 'react-collapsible';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import ServerTable from './ServerTable.js';
+import { isRoleAssignmentValid } from "../utils/ModelUtils.js";
 
 export class SearchBar extends Component {
   constructor(props) {
@@ -29,24 +30,6 @@ export class SearchBar extends Component {
       </div>
     );
   }
-}
-
-export function isRoleAssignmentValid (role, checkInputs) {
-  let minCount =  role.minCount;
-  let memberCount = role.memberCount;
-  let svrSize = role.servers.length;
-  if (memberCount && svrSize !== memberCount) {
-    return false;
-  }
-  if(minCount && svrSize < minCount) {
-    return false;
-  }
-  if(checkInputs) {
-    return role.servers.every((server) =>
-      checkInputs.every(key => (server[key] ? true : false))
-    );
-  }
-  return true;
 }
 
 export class ServerRolesAccordion extends Component {
@@ -89,8 +72,7 @@ export class ServerRolesAccordion extends Component {
         checkInputs={this.props.checkInputs}
         tableData={serverList}
         editAction={this.props.editAction}
-        viewAction={this.props.viewAction}>
-      </ServerTable>
+        viewAction={this.props.viewAction}/>
     );
   }
 
@@ -121,7 +103,7 @@ export class ServerRolesAccordion extends Component {
         }
       }
       let isOpen = (idx === this.state.accordionPosition);
-      let valid = isRoleAssignmentValid(role, this.props.checkInputs);
+      let valid = isRoleAssignmentValid(role);
       let triggerClass = valid ? '' : 'has-error';
 
       return (
@@ -149,9 +131,7 @@ export class ServerRolesAccordion extends Component {
 
   render() {
     return (
-      <div className='roles-accordion'>
-        {this.renderSections()}
-      </div>
+      <div className='roles-accordion'>{this.renderSections()}</div>
     );
   }
 }
@@ -365,3 +345,4 @@ export class ServerDropdownLine extends Component {
     );
   }
 }
+
