@@ -81,7 +81,7 @@ class EditFile extends Component {
           <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
             value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
         </div>
-        <div className="btn-row">
+        <div className='btn-row'>
           <ActionButton type='default'
             displayLabel={translate('cancel')}
             clickAction={() => this.handleCancel()}/>
@@ -310,24 +310,19 @@ class ConfigForm extends Component {
   // save state on Next
 
   handleWipeDisks = () => {
-    this.setState({wipeDisks: !this.state.wipeDisks}, () => {
-      this.props.updateGlobalState('deployConfig', this.state);
-    });
-  }
+    this.setState({wipeDisks: !this.state.wipeDisks});
+  };
 
   handlePasswordChange = (e) => {
-    this.setState({encryptKey: e.target.value}, () => {
-      this.props.updateGlobalState('deployConfig', this.state);
-    });
-  }
+    this.setState({encryptKey: e.target.value});
+  };
 
   handleDebugChange = (value) => {
-    this.setState({debugLevel: value}, () => {
-      this.props.updateGlobalState('deployConfig', this.state);
-    });
-  }
+    this.setState({debugLevel: value});
+  };
 
   render() {
+    console.log(JSON.stringify(this.state.wipeDisks));
     return (
       <div className='config-form'>
         <div className='wipedisk'>
@@ -364,6 +359,13 @@ class ConfigPage extends BaseWizardPage {
     };
   }
 
+  goBack(e) {
+    e.preventDefault();
+    console.log(JSON.stringify(this.refs.configFormData.state))
+    this.props.updateGlobalState('deployConfig', this.refs.configFormData.state)
+    this.props.back(false);
+  }
+
   render() {
     return (
       <div className='wizard-page'>
@@ -371,7 +373,7 @@ class ConfigPage extends BaseWizardPage {
           {this.renderHeading(translate('validate.config.files.heading'))}
         </div>
         <div className='wizard-content'>
-          <Tabs id='configSettings' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
+          <Tabs id='configTabs' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
             <Tab eventKey={TAB.MODEL_FILES} title={translate('edit.tab.model')}>
               <ValidateConfigFiles/>
             </Tab>
@@ -379,7 +381,7 @@ class ConfigPage extends BaseWizardPage {
               hello
             </Tab>
             <Tab eventKey={TAB.CONFIG_FORM} title={translate('edit.tab.config')}>
-              <ConfigForm updateGlobalState={this.props.updateGlobalState} deployConfig={this.props.deployConfig} />
+              <ConfigForm ref='configFormData' deployConfig={this.props.deployConfig} />
             </Tab>
           </Tabs>
         </div>
