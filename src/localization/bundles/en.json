@@ -239,6 +239,9 @@
     "details.nicmapping.confirm.remove": "You've selected to remove a NIC mapping: {0}.\n\n Are you sure you want to proceed?",
     "network.group.please.select": "Please Select Network Group...",
     "network.confirm.remove": "You've selected to remove a network: {0}.\n\n Are you sure you want to proceed?",
+    "edit.tab.model": "Model",
+    "edit.tab.templates": "Templates and Services",
+    "edit.tab.config": "Deployment",
 
     "details.network.none": "Network - None",
 
@@ -320,5 +323,11 @@
     "model.summary.role.description.SWPAC-ROLE" : "Describe SWPAC Nodes",
     "model.summary.role.description.NEUTRON-ROLE" : "Describe Neutron Nodes",
     "model.summary.role.description.IRONIC-COMPUTE-ROLE" : "Describe Ironic Compute Nodes",
-    "model.summary.role.description.NOT_FOUND" : "Describe the fact that the customer must have created this role"
+    "model.summary.role.description.NOT_FOUND" : "Describe the fact that the customer must have created this role",
+
+    "config.deployment.doWipeDisks": "Wipe Data Disks",
+    "config.deployment.encryptKey": "Encryption Key",
+    "config.deployment.debugLevel": "Debug Level"
+
+
 }

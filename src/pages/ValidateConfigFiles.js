@@ -18,6 +18,8 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
+import { ServerInputLine, ServerDropdownLine} from '../components/ServerUtils.js';
+import { Tabs, Tab } from 'react-bootstrap';
 
 const INVALID = 0;
 const VALID = 1;
@@ -26,7 +28,13 @@ const VALIDATING = 2;
 const VALID_ICON = require('../images/Checked-48.png');
 const INVALID_ICON = require('../images/Cancel-48.png');
 
-class EditFile extends BaseWizardPage {
+const TAB = {
+  MODEL_FILES: 'MODEL_FILES',
+  TEMPLATE_FILES: 'TEMPLATE_FILES',
+  CONFIG_FORM: 'CONFIG_FORM'
+};
+
+class EditFile extends Component {
 
   constructor(props) {
     super(props);
@@ -67,31 +75,26 @@ class EditFile extends BaseWizardPage {
 
   render() {
     return (
-      <div className='wizard-page'>
-        <div className='content-header'>
-          {this.renderHeading(translate('edit.config.files.heading', this.props.file.description,
-            this.props.file.name))}
+
+      <div>
+        <div>
+          <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
+            value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
         </div>
-        <div className='wizard-content'>
-          <div>
-            <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
-              value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
-          </div>
-          <div className="btn-row">
-            <ActionButton type='default'
-              displayLabel={translate('cancel')}
-              clickAction={() => this.handleCancel()}/>
-            <ActionButton
-              displayLabel={translate('save')}
-              clickAction={() => this.handleDone()}/>
-          </div>
+        <div className="btn-row">
+          <ActionButton type='default'
+            displayLabel={translate('cancel')}
+            clickAction={() => this.handleCancel()}/>
+          <ActionButton
+            displayLabel={translate('save')}
+            clickAction={() => this.handleDone()}/>
         </div>
       </div>
     );
   }
 }
 
-class DisplayFileList extends BaseWizardPage {
+class DisplayFileList extends Component {
   getMessage() {
     if (this.props.valid === UNKNOWN) {
       return (<div>{translate('validate.config.files.msg.info')}</div>);
@@ -139,30 +142,24 @@ class DisplayFileList extends BaseWizardPage {
     });
 
     return (
-      <div className='wizard-page'>
-        <div className='content-header'>
-          {this.renderHeading(translate('validate.config.files.heading'))}
-        </div>
-        <div className='wizard-content'>
-          <div className='validate-config-files'>
-            <div className='body'>
-              <div className='col-xs-6 verticalLine'>
-                <ul>{list}</ul>
-              </div>
-              <div className='col-xs-6'>
-                {this.getMessage()}
-              </div>
+      <div>
+        <div className='validate-config-files'>
+          <div className='body'>
+            <div className='col-xs-6 verticalLine'>
+              <ul>{list}</ul>
             </div>
-            <div>
-              <ActionButton
-                className='button-with-icon'
-                displayLabel={translate('validate.config.files.validate')}
-                clickAction={() => this.props.onValidateClick()}/>
-              {this.getIcon()}
+            <div className='col-xs-6'>
+              {this.getMessage()}
             </div>
           </div>
+          <div>
+            <ActionButton
+              className='button-with-icon'
+              displayLabel={translate('validate.config.files.validate')}
+              clickAction={() => this.props.onValidateClick()}/>
+            {this.getIcon()}
+          </div>
         </div>
-        {this.renderNavButtons()}
       </div>
     );
   }
@@ -175,7 +172,8 @@ class ValidateConfigFiles extends Component {
       configFiles: [],
       valid: UNKNOWN,
       editingFile: '',
-      invalidMsg: ''
+      invalidMsg: '',
+      key: TAB.MODEL_FILES
     };
 
     // retrieve a list of yml files
@@ -294,4 +292,101 @@ class ValidateConfigFiles extends Component {
   }
 }
 
-export default ValidateConfigFiles;
+class ConfigForm extends Component {
+  constructor(props) {
+    super(props);
+
+    if (!props.deployConfig) {
+      this.state = {
+        wipeDisks: false,
+        encryptKey: '',
+        debugLevel: 0
+      };
+    } else {
+      this.state = props.deployConfig;
+    }
+  }
+
+  // save state on Next
+
+  handleWipeDisks = () => {
+    this.setState({wipeDisks: !this.state.wipeDisks}, () => {
+      this.props.updateGlobalState('deployConfig', this.state);
+    });
+  }
+
+  handlePasswordChange = (e) => {
+    this.setState({encryptKey: e.target.value}, () => {
+      this.props.updateGlobalState('deployConfig', this.state);
+    });
+  }
+
+  handleDebugChange = (value) => {
+    this.setState({debugLevel: value}, () => {
+      this.props.updateGlobalState('deployConfig', this.state);
+    });
+  }
+
+  render() {
+    return (
+      <div className='config-form'>
+        <div className='wipedisk'>
+          <div className='wipedisk-name'>
+            {translate('config.deployment.doWipeDisks')}
+          </div>
+          <input type='checkbox'
+            className='wipedisk-checkbox'
+            value='wipedisks'
+            checked={this.state.wipeDisks}
+            onChange={this.handleWipeDisks}/>
+        </div>
+        <ServerInputLine
+          label='config.deployment.encryptKey'
+          inputName='encryptKey'
+          inputType='password'
+          inputValue={this.state.encryptKey}
+          inputAction={this.handlePasswordChange}/>
+        <ServerDropdownLine
+          label='config.deployment.debugLevel'
+          value={this.state.debugLevel}
+          optionList={[0,1,2,3,4]}
+          selectAction={this.handleDebugChange}/>
+      </div>
+    );
+  }
+}
+
+class ConfigPage extends BaseWizardPage {
+  constructor(props) {
+    super(props);
+    this.state = {
+      key: TAB.MODEL_FILES
+    };
+  }
+
+  render() {
+    return (
+      <div className='wizard-page'>
+        <div className='content-header'>
+          {this.renderHeading(translate('validate.config.files.heading'))}
+        </div>
+        <div className='wizard-content'>
+          <Tabs id='configSettings' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
+            <Tab eventKey={TAB.MODEL_FILES} title={translate('edit.tab.model')}>
+              <ValidateConfigFiles/>
+            </Tab>
+            <Tab eventKey={TAB.TEMPLATE_FILES} title={translate('edit.tab.templates')}>
+              hello
+            </Tab>
+            <Tab eventKey={TAB.CONFIG_FORM} title={translate('edit.tab.config')}>
+              <ConfigForm updateGlobalState={this.props.updateGlobalState} deployConfig={this.props.deployConfig} />
+            </Tab>
+          </Tabs>
+        </div>
+        {this.renderNavButtons()}
+      </div>
+    );
+  }
+}
+
+export default ConfigPage;

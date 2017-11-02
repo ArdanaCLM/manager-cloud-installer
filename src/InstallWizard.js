@@ -61,14 +61,15 @@ class InstallWizard extends Component {
       sitePlayId: undefined,  // play id of the deployment playbook
       installPlayId: undefined,  // play id of the playbook to provision operating systems
       model: Map(),           // immutable model
-      connectionInfo: undefined,
+      connectionInfo: undefined, // config info for external discovery services
+      deployConfig: undefined, // cloud deployment configuration
     };
 
     // Indicate which of the above state variables are passed to wizard pages and can be set by them
-    this.globalStateVars = ['sitePlayId', 'installPlayId', 'model', 'connectionInfo'];
+    this.globalStateVars = ['sitePlayId', 'installPlayId', 'model', 'connectionInfo', 'deployConfig'];
 
     // Indicate which of the state variables will be persisted to, and loaded from, the progress API
-    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'installPlayId', 'connectionInfo'];
+    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'installPlayId', 'connectionInfo', 'deployConfig'];
 
     // Note: if no progress data can be found, responseData is an empty string
     const forcedReset = window.location.search.indexOf('reset=true') !== -1;
