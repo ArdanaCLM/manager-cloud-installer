@@ -47,10 +47,6 @@ function getCleanedServer(srv) {
   };
 }
 
-// function byServerNameOrId(a,b) {
-//   return alphabetically(a['name'] || a['id'], b['name'] || b['id']);
-// }
-
 // Retrieve summarized server role information from the model
 // Each element in this list is an object containing:
 // - name        : the displayed name, such as "compute"
