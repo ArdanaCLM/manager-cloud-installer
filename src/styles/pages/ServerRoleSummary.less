@@ -197,3 +197,71 @@
   }
 }
 
+/*
+ * EditServerDetails
+ */
+.edit-server-details {
+  min-height: 37em;
+  .input-button-container {
+    position: absolute;
+    margin-top: 1em;
+    right: 2em;
+    bottom: 1em;
+  }
+}
+.edit-details-dialog {
+  min-width: 55em;
+}
+
+/*
+ * CollapsibleTable
+ */
+.collapsible-table {
+  .group-row {
+    border-bottom: 1px solid @box-border-color;
+    td {
+      background: linear-gradient(to bottom, @table-header-gradient-color 0%, @table-header-color 100%);
+      font-weight: bold;
+      line-height: 2.8em;
+      padding-left: 1em;
+    }
+    .group-count-col {
+      float: right;
+      padding-right: 1em;
+      width: 100%;
+      text-align: end;
+    }
+    .expand-collapse-icon {
+      padding-left: 1em;
+      font-size: 0.8em;
+      color: @box-border-color;
+    }
+    &.has-error {
+      color: @errorcolor;
+    }
+  }
+  .group-row:not(:first-child) {
+    border-top: 1px solid @box-border-color;
+  }
+  .member-row {
+    line-height: 3.5em;
+    td {
+      padding-left: 1em;
+    }
+    &.required-update {
+      color: @errorcolor;
+    }
+  }
+  .show-row td span,
+  .show-row td div {
+    max-height: 40em;
+    transition: max-height 0.2s;
+  }
+  .hide-row td span,
+  .hide-row td div {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.2s;
+  }
+}
+

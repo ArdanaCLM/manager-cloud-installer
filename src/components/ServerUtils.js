@@ -4,6 +4,7 @@ import Collapsible from 'react-collapsible';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import ServerTable from './ServerTable.js';
+import { alphabetically } from '../utils/Sort.js';
 
 export class SearchBar extends Component {
   constructor(props) {
@@ -89,8 +90,7 @@ export class ServerRolesAccordion extends Component {
         checkInputs={this.props.checkInputs}
         tableData={serverList}
         editAction={this.props.editAction}
-        viewAction={this.props.viewAction}>
-      </ServerTable>
+        viewAction={this.props.viewAction}/>
     );
   }
 
@@ -121,7 +121,9 @@ export class ServerRolesAccordion extends Component {
         }
       }
       let isOpen = (idx === this.state.accordionPosition);
-      let valid = isRoleAssignmentValid(role, this.props.checkInputs);
+      //gloria
+      //let valid = isRoleAssignmentValid(role, this.props.checkInputs);
+      let valid = isRoleAssignmentValid(role);
       let triggerClass = valid ? '' : 'has-error';
 
       return (
@@ -149,9 +151,7 @@ export class ServerRolesAccordion extends Component {
 
   render() {
     return (
-      <div className='roles-accordion'>
-        {this.renderSections()}
-      </div>
+      <div className='roles-accordion'>{this.renderSections()}</div>
     );
   }
 }
@@ -365,3 +365,19 @@ export class ServerDropdownLine extends Component {
     );
   }
 }
+
+// export function getServerGroups(model) {
+//   // the input model's server-groups section is a list, each of which may optionally
+//   //    in contain a list of server-groups.  Gather them altogether into
+//   //    a single list (using map and reduce), and sort by name
+//   return model.getIn(['inputModel', 'server-groups']).map(e => e.get('server-groups') || [])
+//     .reduce((a,b) => a.concat(b))   // Reduce array of arrays to a single flattened array
+//     .toJS()                         // Convert from immutable to standard JS object
+//     .sort(alphabetically);
+// }
+//
+// export function getNicMappings(model) {
+//   return model.getIn(['inputModel','nic-mappings']).map(e => e.get('name'))
+//     .toJS()                         // Convert from immutable to standard JS object
+//     .sort(alphabetically);
+// }
