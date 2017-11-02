@@ -66,6 +66,12 @@
     "validate.config.files.msg.valid": "The configuration processor completed successfully. Data model is valid.",
     "validate.config.files.msg.invalid": "The configuration processor failed with the following message: ",
     "validate.config.files.msg.validating": "Validating...",
+    "validate.deployment.doWipeDisks": "Wipe Data Disks",
+    "validate.deployment.encryptKey": "Encryption Key",
+    "validate.deployment.verbosity": "Verbosity Level",
+    "validate.tab.model": "Model",
+    "validate.tab.templates": "Templates and Services",
+    "validate.tab.config": "Deployment",
 
     "edit.config.files.heading": "Update Configuration File: {0} ({1})",
 
@@ -239,9 +245,6 @@
     "details.nicmapping.confirm.remove": "You've selected to remove a NIC mapping: {0}.\n\n Are you sure you want to proceed?",
     "network.group.please.select": "Please Select Network Group...",
     "network.confirm.remove": "You've selected to remove a network: {0}.\n\n Are you sure you want to proceed?",
-    "edit.tab.model": "Model",
-    "edit.tab.templates": "Templates and Services",
-    "edit.tab.config": "Deployment",
 
     "details.network.none": "Network - None",
 
@@ -288,6 +291,7 @@
     "input.validator.uniquename.error": "Name exists, please specify a different name",
     "input.validator.name.spaces.error": "Name should not contain spaces",
 
+    "clouddeploy.installsteps.ConfigPage": "Deployment Configuration",
     "clouddeploy.installsteps.InstallIntro": "Introduction",
     "clouddeploy.installsteps.CloudModelPicker": "Select Cloud Model",
     "clouddeploy.installsteps.CloudModelSummary": "Model Summary",
@@ -323,11 +327,5 @@
     "model.summary.role.description.SWPAC-ROLE" : "Describe SWPAC Nodes",
     "model.summary.role.description.NEUTRON-ROLE" : "Describe Neutron Nodes",
     "model.summary.role.description.IRONIC-COMPUTE-ROLE" : "Describe Ironic Compute Nodes",
-    "model.summary.role.description.NOT_FOUND" : "Describe the fact that the customer must have created this role",
-
-    "config.deployment.doWipeDisks": "Wipe Data Disks",
-    "config.deployment.encryptKey": "Encryption Key",
-    "config.deployment.debugLevel": "Debug Level"
-
-
+    "model.summary.role.description.NOT_FOUND" : "Describe the fact that the customer must have created this role"
 }

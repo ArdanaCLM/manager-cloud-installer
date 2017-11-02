@@ -69,7 +69,7 @@ class InstallWizard extends Component {
     this.globalStateVars = ['sitePlayId', 'installPlayId', 'model', 'connectionInfo', 'deployConfig'];
 
     // Indicate which of the state variables will be persisted to, and loaded from, the progress API
-    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'installPlayId', 'connectionInfo', 'deployConfig'];
+    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'installPlayId', 'connectionInfo'];
 
     // Note: if no progress data can be found, responseData is an empty string
     const forcedReset = window.location.search.indexOf('reset=true') !== -1;
