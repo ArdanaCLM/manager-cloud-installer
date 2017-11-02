@@ -32,6 +32,9 @@
       font-size: 0.8em;
       color: @box-border-color;
     }
+    &.has-error {
+      color: @errorcolor;
+    }
   }
   .group-row:not(:first-child) {
     border-top: 1px solid @box-border-color;
@@ -42,10 +45,12 @@
       padding-left: 1em;
     }
   }
+  .show-row td span,
   .show-row td div {
     max-height: 40em;
     transition: max-height 0.2s;
   }
+  .hide-row td span,
   .hide-row td div {
     overflow: hidden;
     max-height: 0;

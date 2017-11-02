@@ -15,55 +15,21 @@
 import React from 'react';
 import { translate } from '../localization/localize.js';
 import BaseWizardPage from './BaseWizardPage.js';
-import CollapsibleTable from '../components/CollapsibleTable.js';
+import CollapsibleTable from './ServerRoleSummary/CollapsibleTable.js';
 import { ActionButton } from '../components/Buttons.js';
 import { EditCloudSettings } from './ServerRoleSummary/EditCloudSettings.js';
-import { List, Map } from 'immutable';
-import { alphabetically } from '../utils/Sort.js';
+import { fromJS } from 'immutable';
+import { getServerRoles, isRoleAssignmentValid } from "../utils/ModelUtils.js";
 
 class ServerRoleSummary extends BaseWizardPage {
 
   constructor(props) {
     super(props);
 
+    this.checkInputs = ['nic-mapping', 'server-group'];
     this.state = {
       expandedGroup: [],
     };
-  }
-
-  byServerNameOrId = (a,b) => {
-    return alphabetically(a.get('name') || a.get('id'), b.get('name') || b.get('id'));
-  }
-
-  formatServerObjects = () => {
-
-    const servers = this.props.model.getIn(['inputModel','servers']);
-
-    // Create a map of role names to list of servers in each, e.g.
-    //   { 'COMPUTE':[{name:'one',...},{name:'two',...},  'CONTROLLER': [...]}
-    let groupMap = Map();
-    servers.sort((a,b) => this.byServerNameOrId(a,b)).forEach(server => {
-      groupMap = groupMap.update(server.get('role'),
-        new List(),           // create a new list if role is not in groupMap
-        list => list.push(    // append this server to the role's list
-          new Map({
-            'name': server.get('name') || server.get('id'),
-            'ipAddr': server.get('ip-addr'),
-            'nicMapping': server.get('nic-mapping'),
-            'serverGroup': server.get('server-group')
-          })
-        ));
-    });
-
-    // Convert the map to a list of objects and return it, e.g.
-    //  [ {groupName:'COMPUTE', members:[{name:'one',...},{name:'two',...},
-    //    {groupName:'CONTROLLER', members:[..]}... ]
-    return groupMap.keySeq().sort()         // get a sorted list of keys
-      .map(g => new Map({
-        'groupName': g,
-        'members': groupMap.get(g),
-        'isExpanded': this.state.expandedGroup.includes(g)}))
-      .toJS();                              // return as JavaScript objects
   }
 
   expandAll() {
@@ -85,6 +51,59 @@ class ServerRoleSummary extends BaseWizardPage {
     this.setState((prevState) => {
       return {'expandedGroup': prevState.expandedGroup.concat(groupName)};
     });
+  }
+
+  saveEditServer = (server) =>  {
+    let model = this.props.model;
+    let index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') === server.id);
+    if (index >= 0) {
+      const update_svr = {
+        //fields from edit server
+        'ip-addr': server['ip-addr'],
+        'mac-addr': server['mac-addr'],
+        'server-group': server['server-group'],
+        'nic-mapping': server['nic-mapping'],
+        'ilo-ip': server['ilo-ip'],
+        'ilo-user': server['ilo-user'],
+        'ilo-password': server['ilo-password']
+      };
+      model = model.mergeIn(['inputModel', 'servers', index], update_svr);
+    } else {
+      model = model.updateIn(['inputModel', 'servers'], list => list.push(fromJS(server)));
+    }
+
+    this.props.updateGlobalState('model', model);
+  }
+
+  isPageValid = () => {
+    return getServerRoles(this.props.model).every(role => {
+      return isRoleAssignmentValid(role, this.checkInputs);
+    });
+  }
+
+  setNextButtonDisabled = () => !this.isPageValid();
+
+  renderCollapsibleTable() {
+    let tableConfig = {
+      columns: [
+        {name: 'name'},
+        {name: 'ip-addr',},
+        {name: 'server-group'},
+        {name: 'nic-mapping'},
+        {name: 'mac-addr'},
+        {name: 'id', hidden: true},
+        {name: 'ilo-ip', hidden: true},
+        {name: 'ilo-user', hidden: true},
+        {name: 'ilo-password', hidden: true},
+        {name: 'role', hidden: true}
+      ]
+    };
+    return (
+      <CollapsibleTable
+        addExpandedGroup={this.addExpandedGroup} removeExpandedGroup={this.removeExpandedGroup}
+        model={this.props.model} tableConfig={tableConfig} expandedGroup={this.state.expandedGroup}
+        saveEditServer={this.saveEditServer} checkInputs={this.checkInputs}/>
+    );
   }
 
   render() {
@@ -110,12 +129,7 @@ class ServerRoleSummary extends BaseWizardPage {
             </div>
           </div>
         </div>
-        <div className='wizard-content'>
-          <CollapsibleTable
-            addExpandedGroup={this.addExpandedGroup}
-            removeExpandedGroup={this.removeExpandedGroup}
-            data={this.formatServerObjects()}/>
-        </div>
+        <div className='wizard-content'>{this.renderCollapsibleTable()}</div>
         {this.renderNavButtons()}
       </div>
     );
