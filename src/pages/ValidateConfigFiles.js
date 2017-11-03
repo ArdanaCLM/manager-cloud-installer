@@ -264,6 +264,8 @@ class ValidateConfigFiles extends Component {
   }
 
   setChanged() {
+    this.props.enableNextButton(false);
+
     if (this.state.valid === VALID) {
       this.setState({valid: UNKNOWN});
     }
