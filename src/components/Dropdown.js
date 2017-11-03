@@ -17,6 +17,24 @@ import React from 'react';
 /*
  * Custom Dropdown that provides the ability to add an extra option, emptyOption, at the beginning of the
  * list when no option has yet been selected, and which uses the same styling as ServerDropdown
+ *
+ * Other than the addition of emptyOption, it behaves identially to the standard html select.  See
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select  for a description of all of its
+ * supported options.
+ *
+ * Example usage:
+ *
+ * render() {
+ *    <Dropdown
+ *      value={this.state.value}
+ *      onChange={(e) => { let val=e.target.value; this.setState('value',val);}}
+ *      emptyOption='Select your favorite number'>
+ *
+ *        <option key="1" value="1">One</option>
+ *        <option key="2" value="2">Two</option>
+ *        <option key="3" value="3">Three</option>
+ *
+ *    </Dropdown>
  */
 export default function Dropdown(props) {
 
