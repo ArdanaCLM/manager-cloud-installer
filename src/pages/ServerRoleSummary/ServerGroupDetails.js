@@ -18,6 +18,8 @@ import { translate } from '../../localization/localize.js';
 import { ServerInput } from '../../components/ServerUtils.js';
 import { ActionButton } from '../../components/Buttons.js';
 import { InlineAddRemoveDropdown } from '../../components/InlineAddRemoveFields.js';
+import { getModelIndexByName } from '../../components/ServerUtils.js';
+import { UniqueNameValidator } from '../../utils/InputValidators.js';
 
 class ServerGroupDetails extends Component {
   constructor(props) {
@@ -72,7 +74,7 @@ class ServerGroupDetails extends Component {
         list => list.push(fromJS(serverGroup)));
     } else {
       // edit mode
-      const index = getServerGroupIndex(this.props.model, this.origName);
+      const index = getModelIndexByName(this.props.model, 'server-groups', this.origName);
       if (index !== -1) {
         model = model.updateIn(['inputModel', 'server-groups'],
           list => list.splice(index, 1, fromJS(serverGroup)));
@@ -107,47 +109,51 @@ class ServerGroupDetails extends Component {
       label: translate('details.server.group.none'),
       value: ''
     };
-    let networkModel = this.props.model.getIn(['inputModel','networks'])
+    const networks = this.props.model.getIn(['inputModel','networks'])
       .map((network) => {return network.get('name');}).sort().toJS();
-    let serverGroupModel = this.props.model.getIn(['inputModel','server-groups'])
+    const serverGroups = this.props.model.getIn(['inputModel','server-groups'])
       .map((group) => {return group.get('name');}).sort().toJS();
-    let header = (this.props.value === '') ? translate('add.server.group') :
+    const header = (this.props.value === '') ? translate('add.server.group') :
       translate('edit.server.group');
+
     let exceptions = [];
+    let extraProps = {names: serverGroups, check_nospace: true};
     if (this.props.value !== '') {
       exceptions.push(this.state.name);
+      // remove orig name from the list to check for uniqueness in edit mode
+      if (serverGroups.indexOf(this.origName) !== -1) {
+        extraProps.names.splice(serverGroups.indexOf(this.origName), 1);
+      }
     }
 
     return (
-      <div className='details-section'>
-        <div className='details-header'>{header}</div>
-        <div className='details-body'>
-          <ServerInput isRequired={true} placeholder={translate('server.group.name') + '*'}
-            inputValue={this.state.name} inputName='name' inputType='text'
-            inputAction={this.handleInputLine}/>
-          <InlineAddRemoveDropdown name='networks' options={networkModel}
-            values={this.state.networks} defaultOption={networkDefaultOption}
-            sendSelectedList={this.getSelectedNetworks}/>
-          <InlineAddRemoveDropdown name='serverGroups' options={serverGroupModel}
-            values={this.state.serverGroups} defaultOption={serverGroupDefaultOption}
-            sendSelectedList={this.getSelectedServerGroups} exceptions={exceptions}/>
-          <div className='btn-row details-btn'>
-            <div className='btn-container'>
-              <ActionButton key='cancel' type='default' clickAction={this.props.closeAction}
-                displayLabel={translate('cancel')}/>
-              <ActionButton key='save' clickAction={this.saveServerGroup}
-                displayLabel={translate('save')} isDisabled={!this.checkDataToSave()}/>
+      <div className='col-xs-4'>
+        <div className='details-section'>
+          <div className='details-header'>{header}</div>
+          <div className='details-body'>
+            <ServerInput isRequired={true} placeholder={translate('server.group.name') + '*'}
+              inputValue={this.state.name} inputName='name' inputType='text' {...extraProps}
+              inputAction={this.handleInputLine} inputValidate={UniqueNameValidator}
+              autoFocus={true}/>
+            <InlineAddRemoveDropdown name='networks' options={networks}
+              values={this.state.networks} defaultOption={networkDefaultOption}
+              sendSelectedList={this.getSelectedNetworks}/>
+            <InlineAddRemoveDropdown name='serverGroups' options={serverGroups}
+              values={this.state.serverGroups} defaultOption={serverGroupDefaultOption}
+              sendSelectedList={this.getSelectedServerGroups} exceptions={exceptions}/>
+            <div className='btn-row details-btn'>
+              <div className='btn-container'>
+                <ActionButton key='cancel' type='default' clickAction={this.props.closeAction}
+                  displayLabel={translate('cancel')}/>
+                <ActionButton key='save' clickAction={this.saveServerGroup}
+                  displayLabel={translate('save')} isDisabled={!this.checkDataToSave()}/>
+              </div>
             </div>
           </div>
         </div>
       </div>
     );
   }
-}
-
-export function getServerGroupIndex(model, name) {
-  return model.getIn(['inputModel','server-groups']).findIndex(
-    serverGroup => serverGroup.get('name') === name);
 }
 
 export default ServerGroupDetails;

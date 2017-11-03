@@ -283,6 +283,7 @@ export class ServerInput extends Component {
           onChange={(e) => this.handleInputChange(e, this.props)}
           placeholder={this.props.placeholder}
           disabled={this.props.disabled}
+          autoFocus={this.props.autoFocus}
           {...props}>
         </input>
         {togglePassword}
@@ -377,4 +378,8 @@ export class ServerDropdownLine extends Component {
       </div>
     );
   }
+}
+
+export function getModelIndexByName(model, key, name) {
+  return model.getIn(['inputModel', key]).findIndex(e => e.get('name') === name);
 }
