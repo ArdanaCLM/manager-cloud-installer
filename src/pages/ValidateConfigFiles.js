@@ -362,13 +362,13 @@ class ConfigPage extends BaseWizardPage {
 
   goBack(e) {
     e.preventDefault();
-    this.props.updateGlobalState('deployConfig', this.refs.configFormData.state)
+    this.props.updateGlobalState('deployConfig', this.refs.configFormData.state);
     this.props.back(false);
   }
 
   goForward(e) {
     e.preventDefault();
-    this.props.updateGlobalState('deployConfig', this.refs.configFormData.state)
+    this.props.updateGlobalState('deployConfig', this.refs.configFormData.state);
     this.props.next(this.isError());
   }
 
