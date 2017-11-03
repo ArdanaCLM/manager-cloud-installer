@@ -217,38 +217,46 @@ class InlineAddRemoveInput extends Component {
   }
 
   addItem = () => {
-    this.setState(prevState => {
-      let newItems = prevState.items.slice();
-      newItems.splice(newItems.length - 1, 0, prevState.selectedItem);
-      return {items: newItems, selectedItem: ''};
-    });
-  }
-
-  removeItem = (index) => {
-    if (index === -1) {
+    if (!this.props.disabled) {
       this.setState(prevState => {
-        let newItems = prevState.items.slice();
-        if (newItems.length === 1) {
-          newItems.splice(prevState.items.length - 1, 1, '');
-          return {items: newItems, selectedItem: ''};
-        } else {
-          newItems.splice(prevState.items.length - 1, 1);
-          return {items: newItems, selectedItem: newItems[newItems.length - 1]};
-        }
-      });
-    } else {
-      this.setState(prevState => {
-        let newItems = prevState.items.slice();
         if (prevState.selectedItem !== '') {
-          newItems.splice(prevState.items.length - 1, 1, this.state.selectedItem);
+          let newItems = prevState.items.slice();
+          newItems.splice(newItems.length - 1, 0, prevState.selectedItem);
+          return {items: newItems, selectedItem: ''};
         }
-        newItems.splice(index, 1);
-        return {items: newItems, selectedItem: newItems[newItems.length - 1]};
       });
     }
   }
 
+  removeItem = (index) => {
+    if (!this.props.disabled) {
+      if (index === -1) {
+        this.setState(prevState => {
+          let newItems = prevState.items.slice();
+          if (newItems.length === 1) {
+            newItems.splice(prevState.items.length - 1, 1, '');
+            return {items: newItems, selectedItem: ''};
+          } else {
+            newItems.splice(prevState.items.length - 1, 1);
+            return {items: newItems, selectedItem: newItems[newItems.length - 1]};
+          }
+        });
+      } else {
+        this.setState(prevState => {
+          let newItems = prevState.items.slice();
+          if (prevState.selectedItem !== '') {
+            newItems.splice(prevState.items.length - 1, 1, this.state.selectedItem);
+          }
+          newItems.splice(index, 1);
+          return {items: newItems, selectedItem: newItems[newItems.length - 1]};
+        });
+      }
+    }
+  }
+
   render() {
+    const addClass = this.props.disabled ? 'fa fa-plus right-sign disabled' : 'fa fa-plus right-sign';
+    const removeClass = this.props.disabled ? 'fa fa-minus left-sign disabled' : 'fa fa-minus left-sign';
     let lines = [];
     let textFields = this.state.items.slice();
     textFields.splice(textFields.length - 1, 1);
@@ -259,7 +267,7 @@ class InlineAddRemoveInput extends Component {
             disabled='true'/>
           <div className='plus-minus-container'>
             <span key={this.props.name + item + 'minus' + index}
-              className={'fa fa-minus left-sign'} onClick={() => this.removeItem(index)}/>
+              className={removeClass} onClick={() => this.removeItem(index)}/>
           </div>
         </div>
       );
@@ -271,11 +279,11 @@ class InlineAddRemoveInput extends Component {
         <div className='dropdown-plus-minus'>
           <ServerInput key={this.props.name + 'start'} inputValue={this.state.selectedItem}
             inputType='text' inputAction={this.handleInputLine} placeholder={this.props.placeholder}
-            isRequired={true}/>
+            isRequired={true} disabled={this.props.disabled}/>
           <div className='plus-minus-container'>
-            <span key={this.props.name + 'minus'} className={'fa fa-minus left-sign'}
+            <span key={this.props.name + 'minus'} className={removeClass}
               onClick={() => this.removeItem(-1)}/>
-            <span key={this.props.name + 'plus'} className={'fa fa-plus right-sign'}
+            <span key={this.props.name + 'plus'} className={addClass}
               onClick={this.addItem}/>
           </div>
         </div>

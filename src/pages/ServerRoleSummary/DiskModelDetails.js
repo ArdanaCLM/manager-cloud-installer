@@ -115,8 +115,10 @@ class DiskModelDetails extends Component {
   }
 
   addVolumeGroup = () => {
-    this.setState({secondDetails: 'vg'});
-    this.props.extendAction(2);
+    if (this.state.secondDetails === '') {
+      this.setState({secondDetails: 'vg'});
+      this.props.extendAction(2);
+    }
   }
 
   renderVolumeGroup = () => {
@@ -140,7 +142,8 @@ class DiskModelDetails extends Component {
     return (
       <div>
         <InlineAddRemoveInput name='pv' placeholder={translate('physical.volume') + '*'}
-          values={this.state.physicalVolumes} sendSelectedList={this.getSelectedPhysicalVolumes}/>
+          values={this.state.physicalVolumes} sendSelectedList={this.getSelectedPhysicalVolumes}
+          disabled={this.state.showThirdDetails}/>
         {logicalVolumeLines}
         <div className='action-column' key='addLV'>
           <i className={addClass} onClick={this.addLogicalVolume}>add_circle</i>
@@ -219,8 +222,10 @@ class DiskModelDetails extends Component {
   }
 
   addDeviceGroup = () => {
-    this.setState({secondDetails: 'dg'});
-    this.props.extendAction(2);
+    if (this.state.secondDetails === '') {
+      this.setState({secondDetails: 'dg'});
+      this.props.extendAction(2);
+    }
   }
 
   renderDeviceGroup = () => {
@@ -311,6 +316,7 @@ class DiskModelDetails extends Component {
       }
       const detailsClass = !this.state.showThirdDetails ? 'col-xs-6 details-section second-details'
         : 'col-xs-4 details-section verticalLine second-details';
+      const buttonClass = this.state.showThirdDetails ? 'btn-container hide' : 'btn-container';
 
       return (
         <div className={detailsClass}>
@@ -321,7 +327,7 @@ class DiskModelDetails extends Component {
               inputAction={this.handleInputLine} disabled={this.state.showThirdDetails}/>
             {secondDetailsLines}
             <div className='btn-row details-btn'>
-              <div className='btn-container'>
+              <div className={buttonClass}>
                 <ActionButton key='cancel' type='default' clickAction={this.closeSecondDetails}
                   isDisabled={this.state.showThirdDetails} displayLabel={translate('cancel')}/>
                 <ActionButton key='save' clickAction={this.saveSecondDetails}
@@ -336,19 +342,23 @@ class DiskModelDetails extends Component {
   }
 
   removeVolumeGroup = (index) => {
-    this.setState(prevState => {
-      let newVGs = prevState.volumeGroups.slice();
-      newVGs.splice(index, 1);
-      return {volumeGroups: newVGs};
-    });
+    if (this.state.secondDetails !== '') {
+      this.setState(prevState => {
+        let newVGs = prevState.volumeGroups.slice();
+        newVGs.splice(index, 1);
+        return {volumeGroups: newVGs};
+      });
+    }
   }
 
   removeDeviceGroup = (index) => {
-    this.setState(prevState => {
-      let newDGs = prevState.deviceGroups.slice();
-      newDGs.splice(index, 1);
-      return {deviceGroups: newDGs};
-    });
+    if (this.state.secondDetails !== '') {
+      this.setState(prevState => {
+        let newDGs = prevState.deviceGroups.slice();
+        newDGs.splice(index, 1);
+        return {deviceGroups: newDGs};
+      });
+    }
   }
 
   saveDiskModel = () => {
@@ -384,10 +394,12 @@ class DiskModelDetails extends Component {
         'col-xs-6 details-section second-details verticalLine';
     const widthClass = (this.state.secondDetails === '') ? 'col-xs-4' :
       (this.state.showThirdDetails) ? 'col-xs-7 multiple-details' : 'col-xs-6 multiple-details';
+    const addClass = this.state.secondDetails === '' ? 'material-icons add-button' :
+      'material-icons add-button disabled';
+    const removeClass = this.state.secondDetails === '' ? 'fa fa-minus left-sign' :
+      'fa fa-minus left-sign disabled';
 
     let firstDetailsLines = [];
-    let addClass = 'material-icons add-button';
-    addClass = this.state.secondDetails !== '' ? addClass + ' disabled' : addClass;
     if (this.props.diskModel === '') {
       // show volume groups
       this.state.volumeGroups.map((vg, index) => {
@@ -397,7 +409,7 @@ class DiskModelDetails extends Component {
               disabled='true'/>
             <div className='plus-minus-container'>
               <span key={vg.name + 'minus' + index}
-                className={'fa fa-minus left-sign'} onClick={() => this.removeVolumeGroup(index)}/>
+                className={removeClass} onClick={() => this.removeVolumeGroup(index)}/>
             </div>
           </div>
         );
@@ -416,7 +428,7 @@ class DiskModelDetails extends Component {
               disabled='true'/>
             <div className='plus-minus-container'>
               <span key={dv.name + 'minus' + index}
-                className={'fa fa-minus left-sign'} onClick={() => this.removeDeviceGroup(index)}/>
+                className={removeClass} onClick={() => this.removeDeviceGroup(index)}/>
             </div>
           </div>
         );
@@ -436,6 +448,7 @@ class DiskModelDetails extends Component {
         extraProps.names.splice(diskModels.indexOf(this.origName), 1);
       }
     }
+    const buttonClass = (this.state.secondDetails === '') ? 'btn-container' : 'btn-container hide';
 
     return (
       <div className={widthClass}>
@@ -448,7 +461,7 @@ class DiskModelDetails extends Component {
               autoFocus={true} disabled={this.state.secondDetails !== ''}/>
             {firstDetailsLines}
             <div className='btn-row details-btn'>
-              <div className='btn-container'>
+              <div className={buttonClass}>
                 <ActionButton key='cancel' type='default' clickAction={this.props.closeAction}
                   isDisabled={this.state.secondDetails !== ''}
                   displayLabel={translate('cancel')}/>
