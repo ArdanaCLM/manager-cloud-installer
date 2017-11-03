@@ -180,6 +180,7 @@ class ValidateConfigFiles extends Component {
 
   editFile(file) {
     this.setState({editingFile: file});
+    this.props.showNavButtons(false);
   }
 
   validateModel = () => {
@@ -259,6 +260,7 @@ class ValidateConfigFiles extends Component {
 
   doneEditingFile() {
     this.setState({editingFile: ''});
+    this.props.showNavButtons(true);
   }
 
   setChanged() {
@@ -344,7 +346,8 @@ class ConfigPage extends BaseWizardPage {
     super(props);
     this.state = {
       key: TAB.MODEL_FILES,
-      isNextable: false
+      isNextable: false,
+      showNavButtons: true
     };
   }
 
@@ -372,6 +375,10 @@ class ConfigPage extends BaseWizardPage {
     this.props.next(this.isError());
   }
 
+  showNavButtons = (enable) => {
+    this.setState({showNavButtons: enable});
+  };
+
   enableNextButton = (enable) => {
     this.setState({isNextable: enable});
   };
@@ -385,17 +392,19 @@ class ConfigPage extends BaseWizardPage {
         <div className='wizard-content'>
           <Tabs id='configTabs' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
             <Tab eventKey={TAB.MODEL_FILES} title={translate('validate.tab.model')}>
-              <ValidateConfigFiles enableNextButton={this.enableNextButton}/>
+              <ValidateConfigFiles enableNextButton={this.enableNextButton} showNavButtons={this.showNavButtons}/>
             </Tab>
+            {/*
             <Tab eventKey={TAB.TEMPLATE_FILES} title={translate('validate.tab.templates')}>
               SCRD-1434 work here
             </Tab>
+            */}
             <Tab eventKey={TAB.CONFIG_FORM} title={translate('validate.tab.config')}>
               <ConfigForm ref='configFormData' deployConfig={this.props.deployConfig} />
             </Tab>
           </Tabs>
         </div>
-        {this.renderNavButtons()}
+        {this.state.showNavButtons ? this.renderNavButtons() : ''};
       </div>
     );
   }
