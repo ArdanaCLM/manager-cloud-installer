@@ -115,30 +115,33 @@
     }
   }
 
-  //experimental arrow bar
   .bottom-action-container{
     width: 100%;
     display: inline-flex;
     margin-top: 1em;
     .bottom-action-row {
       display: inline-flex;
+      position:relative;
       width: 75%;
-      height: 2em;
+      height: 2.6em;
       &.on {
         background: @preferredcolor;
         color:white;
       }
     }
-    .triangle-right {
-      display: inline-flex;
-      height: 2em;
-      border-top: 1em solid transparent;
-      border-bottom: 1em solid transparent;
-      border-left: 1em solid transparent;
+    .bottom-action-row.on::after {
+      content: ' ';
+      height: 0px;
+      width: 0px;
+      border-top: 1.3em solid transparent;
+      border-bottom: 1.3em solid transparent;
       background: transparent;
-      &.on {
-        border-left: 1em solid @preferredcolor;
-      }
+      border-left: 1.3em solid @preferredcolor;
+      position: absolute;
+      right: -17px;
+    }
+    .add-content {
+      margin-top: 0.5em;
     }
   }
 
@@ -153,6 +156,9 @@
       overflow: auto;
       width: 75%;
       display: inline-flex;
+      &.full-table {
+        width: 100%;
+      }
     }
     .network-update-container {
       width: 25%;
@@ -176,6 +182,22 @@
     .details-section .details-body .server-input input {
       padding: 4px;
       width: 90%;
+    }
+    //row highlight
+    .table tbody > tr.edit-selected {
+      position:relative;
+      background-color: @preferredcolor;
+      color: white;
+    }
+    .table tbody > tr.edit-selected::after {
+      content: ' ';
+      height: 0px;
+      width: 0px;
+      border-top: 1.3em solid transparent;
+      border-bottom: 1.3em solid transparent;
+      background: transparent;
+      border-left: 1.3em solid @preferredcolor;
+      position:absolute;
     }
   }
 
