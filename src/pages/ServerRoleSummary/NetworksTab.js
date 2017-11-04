@@ -78,12 +78,10 @@ class NetworksTab extends Component {
     addClass = this.state.mode !== MODE.NONE ? addClass + ' disabled' : addClass;
     let bottomClass = 'bottom-action-row';
     bottomClass = this.state.mode === MODE.ADD ? bottomClass + ' on' : bottomClass;
-    //let arrowClass = 'triangle-right';
-    //arrowClass = this.state.mode === MODE.ADD ? arrowClass + ' on' : arrowClass;
     return (
       <div className='bottom-action-container'>
         <div key='networkAction' className={bottomClass}>
-          <span><i className={addClass} onClick={() => this.handleAddNetwork()}>add_circle</i>
+          <span className='add-content'><i className={addClass} onClick={() => this.handleAddNetwork()}>add_circle</i>
             {translate('add.network')}</span>
         </div>
       </div>
@@ -133,7 +131,7 @@ class NetworksTab extends Component {
             <td>{network.get('tagged-vlan') ? trueStr : falseStr}</td>
             <td {...theProps}>
               <div className='row-action-container'>
-                <span onClick={(e) => this.handleEditNetwork(idx, network)} className={editClass} />
+                <span onClick={() => this.handleEditNetwork(idx, network)} className={editClass} />
                 <span onClick={() => this.handleConfirmDeleteNetwork(network)} className={removeClass}/>
               </div>
             </td>
