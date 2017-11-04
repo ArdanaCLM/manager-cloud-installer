@@ -36,6 +36,8 @@ import React from 'react';
  *
  *    </Dropdown>
  */
+const UNSET = 'unset';
+
 export default function Dropdown(props) {
 
   // Make a copy of props that can be modified to remove emptyOption and children
@@ -43,8 +45,10 @@ export default function Dropdown(props) {
   let myProps = Object.assign({}, props);
 
   let emptyItem;
-  if (props.emptyOption && props.value === undefined) {
-    emptyItem = <option key='undefined' value='undefined'>{props.emptyOption}</option>;
+  if (props.emptyOption && (props.value === undefined)) {
+    emptyItem = <option key={UNSET} value={UNSET}>{props.emptyOption}</option>;
+    // explicitly choose the row with emptyOption with props.value is undefined
+    myProps.value = UNSET;
   }
 
   const children = myProps.children;
