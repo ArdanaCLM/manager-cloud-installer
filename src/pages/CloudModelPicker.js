@@ -45,6 +45,8 @@ class CloudModelPicker extends BaseWizardPage {
       errorContent: undefined,
       loading: false
     };
+
+    this.saveRequired = false;
   }
 
   componentWillMount() {
@@ -71,26 +73,32 @@ class CloudModelPicker extends BaseWizardPage {
 
   handlePickModel = (e) => {
     this.setState({selectedModelName: e.target.getAttribute('name')});
+    this.saveRequired = true;
   }
 
   goForward = (e) => {
     e.preventDefault();
 
-    this.setState({loading: true});
-    // Load the full template, update the global model, and save it
-    fetchJson('/api/v1/clm/templates/' + this.state.selectedModelName)
-      .then(model => this.props.updateGlobalState('model', fromJS(model), this.props.next))
-      .catch(error => {
-        this.setState({
-          errorContent: {
-            title: translate('model.picker.save.model.error.title'),
-            messages: [
-              translate('model.picker.save.model.error', this.state.selectedModelName),
-              error.toString()]
-          },
-          loading: false
+    if(this.saveRequired) {
+      this.setState({loading: true});
+      // Load the full template, update the global model, and save it
+      fetchJson('/api/v1/clm/templates/' + this.state.selectedModelName)
+        .then(model => this.props.updateGlobalState('model', fromJS(model), this.props.next))
+        .catch(error => {
+          this.setState({
+            errorContent: {
+              title: translate('model.picker.save.model.error.title'),
+              messages: [
+                translate('model.picker.save.model.error', this.state.selectedModelName),
+                error.toString()]
+            },
+            loading: false
+          });
         });
-      });
+      this.saveRequired = false;
+    } else {
+      this.props.next();
+    }
   }
 
   handleSelectTemplate = (e) => {

@@ -31,7 +31,7 @@ import ViewServerDetails from './AssignServerRoles/ViewServerDetails';
 import { importCSV } from '../utils/CsvImporter.js';
 import { fromJS } from 'immutable';
 import { isEmpty } from 'lodash';
-import { getServerRoles, isRoleAssignmentValid,  getNicMappings, getServerGroups } from "../utils/ModelUtils.js";
+import { getServerRoles, isRoleAssignmentValid,  getNicMappings, getServerGroups } from '../utils/ModelUtils.js';
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
