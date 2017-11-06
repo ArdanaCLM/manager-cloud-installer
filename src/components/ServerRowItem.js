@@ -68,44 +68,41 @@ class ServerRowItem extends Component {
     return cols;
   }
 
+  renderInfoRow() {
+    return (
+      <InfoForTableRow
+        clickAction={(e) => this.handleViewAction(this.props.data, this.props.tableId)}/>
+    );
+  }
+
+  renderEditRow() {
+    return (
+      <EditPencilForTableRow
+        clickAction={(e) => this.handleEditAction(this.props.data)}/>
+    );
+  }
+
   render() {
     let cName = 'draggable';
-    if(this.props.tableId === 'rightTableId') {
-      let requiredUpdate = false;
-      let badInput = undefined;
-      if(this.props.checkInputs) {
-        badInput = this.props.checkInputs.find((key) => {
-          return (this.props.data[key] === undefined || this.props.data[key] === '');
-        });
-      }
-      if(badInput) {
-        requiredUpdate = true;
-      }
-      cName = requiredUpdate ? cName + ' required-update' : cName;
-      return (
-        <tr className={cName}
-          draggable="true" onDragStart={(event) => this.drag(event, this.props.data)}>
-          {this.renderServerColumns()}
-          <InfoForTableRow
-            clickAction={(e) => this.handleViewAction(this.props.data, this.props.tableId)}>
-          </InfoForTableRow>
-          <EditPencilForTableRow
-            clickAction={(e) => this.handleEditAction(this.props.data)}>
-          </EditPencilForTableRow>
-        </tr>
-      );
+    let requiredUpdate = false;
+    let badInput = undefined;
+    if(this.props.checkInputs) {
+      badInput = this.props.checkInputs.find((key) => {
+        return (this.props.data[key] === undefined || this.props.data[key] === '');
+      });
     }
-    else {
-      return (
-        <tr className={cName}
-          draggable="true" onDragStart={(event) => this.drag(event, this.props.data)}>
-          {this.renderServerColumns()}
-          <InfoForTableRow
-            clickAction={(e) => this.handleViewAction(this.props.data, this.props.tableId)}>
-          </InfoForTableRow>
-        </tr>
-      );
+    if(badInput) {
+      requiredUpdate = true;
     }
+    cName = requiredUpdate ? cName + ' required-update' : cName;
+    return (
+      <tr className={cName}
+        draggable="true" onDragStart={(event) => this.drag(event, this.props.data)}>
+        {this.renderServerColumns()}
+        {this.props.viewAction && this.renderInfoRow()}
+        {this.props.editAction && this.renderEditRow()}
+      </tr>
+    );
   }
 }
 
