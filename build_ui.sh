@@ -26,7 +26,10 @@ done
 #erase the previous dist
 rm -rf dist
 
-#first build a bundle version of the javascript
+#compile the css/less files
+npm run less
+
+#build a bundle version of the javascript
 npm run dist
 
 #copy the production index.html to the dist folder
