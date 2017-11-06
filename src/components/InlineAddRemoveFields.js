@@ -177,4 +177,119 @@ class InlineAddRemoveDropdown extends Component {
   }
 }
 
-export { InlineAddRemoveDropdown };
+class InlineAddRemoveInput extends Component {
+  constructor(props) {
+    super(props);
+    if (props.values && props.values.length > 0) {
+      this.state = {
+        items: props.values,
+        selectedItem: props.values[props.values.length - 1]
+      };
+    } else {
+      this.state = {
+        items: [''],
+        selectedItem: ''
+      };
+    }
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    // send selected items out to the parent as soon as value entered
+    if (nextState.items === this.state.items) {
+      if (nextState.selectedItem !== this.state.selectedItem) {
+        let sentItems = nextState.items.slice();
+        sentItems.splice(nextState.items.length - 1, 1, nextState.selectedItem);
+        this.props.sendSelectedList(sentItems);
+      }
+    } else {
+      let sentItems = nextState.items.slice();
+      // remove the default line when sending out
+      if (sentItems.indexOf('') !== -1) {
+        sentItems.splice(sentItems.indexOf(''), 1);
+      }
+      this.props.sendSelectedList(sentItems);
+    }
+  }
+
+  handleInputLine = (e, valid, props) => {
+    let value = e.target.value;
+    this.setState({selectedItem: value});
+  }
+
+  addItem = () => {
+    if (!this.props.disabled) {
+      this.setState(prevState => {
+        if (prevState.selectedItem !== '') {
+          let newItems = prevState.items.slice();
+          newItems.splice(newItems.length - 1, 0, prevState.selectedItem);
+          return {items: newItems, selectedItem: ''};
+        }
+      });
+    }
+  }
+
+  removeItem = (index) => {
+    if (!this.props.disabled) {
+      if (index === -1) {
+        this.setState(prevState => {
+          let newItems = prevState.items.slice();
+          if (newItems.length === 1) {
+            newItems.splice(prevState.items.length - 1, 1, '');
+            return {items: newItems, selectedItem: ''};
+          } else {
+            newItems.splice(prevState.items.length - 1, 1);
+            return {items: newItems, selectedItem: newItems[newItems.length - 1]};
+          }
+        });
+      } else {
+        this.setState(prevState => {
+          let newItems = prevState.items.slice();
+          if (prevState.selectedItem !== '') {
+            newItems.splice(prevState.items.length - 1, 1, this.state.selectedItem);
+          }
+          newItems.splice(index, 1);
+          return {items: newItems, selectedItem: newItems[newItems.length - 1]};
+        });
+      }
+    }
+  }
+
+  render() {
+    const addClass = this.props.disabled ? 'fa fa-plus right-sign disabled' : 'fa fa-plus right-sign';
+    const removeClass = this.props.disabled ? 'fa fa-minus left-sign disabled' : 'fa fa-minus left-sign';
+    let lines = [];
+    let textFields = this.state.items.slice();
+    textFields.splice(textFields.length - 1, 1);
+    textFields.map((item, index) => {
+      lines.push(
+        <div className='dropdown-plus-minus' key={this.props.name + item + index}>
+          <ServerInput key={this.props.name + item + index} inputType='text' inputValue={item}
+            disabled='true'/>
+          <div className='plus-minus-container'>
+            <span key={this.props.name + item + 'minus' + index}
+              className={removeClass} onClick={() => this.removeItem(index)}/>
+          </div>
+        </div>
+      );
+    });
+
+    return (
+      <div>
+        {lines}
+        <div className='dropdown-plus-minus'>
+          <ServerInput key={this.props.name + 'start'} inputValue={this.state.selectedItem}
+            inputType='text' inputAction={this.handleInputLine} placeholder={this.props.placeholder}
+            isRequired={true} disabled={this.props.disabled}/>
+          <div className='plus-minus-container'>
+            <span key={this.props.name + 'minus'} className={removeClass}
+              onClick={() => this.removeItem(-1)}/>
+            <span key={this.props.name + 'plus'} className={addClass}
+              onClick={this.addItem}/>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export { InlineAddRemoveDropdown, InlineAddRemoveInput };

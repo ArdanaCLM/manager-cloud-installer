@@ -17,7 +17,8 @@ import { translate } from '../../localization/localize.js';
 import { ActionButton } from '../../components/Buttons.js';
 import { alphabetically } from '../../utils/Sort.js';
 import { YesNoModal } from '../../components/Modals.js';
-import ServerGroupDetails, { getServerGroupIndex } from './ServerGroupDetails.js';
+import ServerGroupDetails from './ServerGroupDetails.js';
+import { getModelIndexByName } from '../../components/ServerUtils.js';
 
 class ServerGroupsTab extends Component {
 
@@ -52,7 +53,7 @@ class ServerGroupsTab extends Component {
 
   removeServerGroup = (name) => {
     this.setState({showRemoveConfirmation: false, serverGroupToRemove: ''});
-    const index = getServerGroupIndex(this.props.model, name);
+    const index = getModelIndexByName(this.props.model, 'server-groups', name);
     if (index !== -1) {
       const model = this.props.model.removeIn(['inputModel','server-groups', index]);
       this.props.updateGlobalState('model', model);
@@ -81,17 +82,19 @@ class ServerGroupsTab extends Component {
     }
 
     return (
-      <div className='details-section'>
-        <div className='details-header'>{header}</div>
-        <div className='details-body'>
-          <div className='details-title'>{translate('edit.networks') + ':'}</div>
-          {networks}
-          <div className='details-title'>{translate('edit.server.groups') + ':'}</div>
-          {serverGroups}
-          <div className='btn-row details-btn'>
-            <div className='btn-container'>
-              <ActionButton key='ok' displayLabel={translate('ok')}
-                clickAction={this.hideServerGroupDetails}/>
+      <div className='col-xs-4'>
+        <div className='details-section'>
+          <div className='details-header'>{header}</div>
+          <div className='details-body'>
+            <div className='details-title'>{translate('edit.networks') + ':'}</div>
+            {networks}
+            <div className='details-title'>{translate('edit.server.groups') + ':'}</div>
+            {serverGroups}
+            <div className='btn-row details-btn'>
+              <div className='btn-container'>
+                <ActionButton key='ok' displayLabel={translate('ok')}
+                  clickAction={this.hideServerGroupDetails}/>
+              </div>
             </div>
           </div>
         </div>
@@ -160,10 +163,7 @@ class ServerGroupsTab extends Component {
       </tr>
     );
 
-    let detailsSection = (
-      <div className='details-section'>
-        <div className='no-options'>{translate('no.options.available')}</div>
-      </div>);
+    let detailsSection = '';
     if (this.state.showServerGroupDetails) {
       if (this.state.showViewMode) {
         detailsSection = this.renderViewDetails();
@@ -187,7 +187,7 @@ class ServerGroupsTab extends Component {
 
     return (
       <div>
-        <div className='col-xs-8 verticalLine'>
+        <div className={this.state.showServerGroupDetails ? 'col-xs-8 verticalLine' : 'col-xs-12'}>
           <table className='table'>
             <thead>
               <tr>
@@ -203,9 +203,7 @@ class ServerGroupsTab extends Component {
             </tbody>
           </table>
         </div>
-        <div className='col-xs-4'>
-          {detailsSection}
-        </div>
+        {detailsSection}
         {confirmRemoveSection}
       </div>
     );

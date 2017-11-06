@@ -37,6 +37,25 @@
     }
   }
 
+  .multiple-details {
+    display: inline-flex;
+    padding-left: 0;
+    padding-right: 0;
+    .second-details {
+      margin-bottom: 1em;
+    }
+  }
+
+  .extended-one {
+    width: 100%;
+  }
+  .extended-two {
+    width: 133%;
+  }
+  .extended-three {
+    width: 165%;
+  }
+
   .details-section {
     min-height: 10em;
     position: relative;
@@ -93,10 +112,18 @@
       .left-sign {
         color: @info-link-color;
         margin: auto 9px auto 9px;
+        &.disabled {
+          color: @inactivecolor;
+          cursor: default;
+        }
       }
       .right-sign {
         color: @info-link-color;
         margin: auto 0 auto 0;
+        &.disabled {
+          color: @inactivecolor;
+          cursor: default;
+        }
       }
     }
     .details-btn {
@@ -210,6 +237,12 @@
         cursor: default;
       }
     }
+  }
+  .action-column {
+    margin-top: 1em;
+  }
+  .action-column:last-child {
+    margin-bottom: 2em;
   }
 }
 
