@@ -115,13 +115,13 @@
     }
   }
 
-  //experimental arrow bar
   .bottom-action-container{
     width: 100%;
     display: inline-flex;
     margin-top: 1em;
     .bottom-action-row {
       display: inline-flex;
+      position:relative;
       width: 75%;
       height: 2em;
       &.on {
@@ -129,16 +129,16 @@
         color:white;
       }
     }
-    .triangle-right {
-      display: inline-flex;
-      height: 2em;
+    .bottom-action-row.on::after {
+      content: ' ';
+      height: 0px;
+      width: 0px;
       border-top: 1em solid transparent;
       border-bottom: 1em solid transparent;
-      border-left: 1em solid transparent;
       background: transparent;
-      &.on {
-        border-left: 1em solid @preferredcolor;
-      }
+      border-left: 1em solid @preferredcolor;
+      position: absolute;
+      right: -13px;
     }
   }
 
@@ -153,6 +153,9 @@
       overflow: auto;
       width: 75%;
       display: inline-flex;
+      &.full-table {
+        width: 100%;
+      }
     }
     .network-update-container {
       width: 25%;
