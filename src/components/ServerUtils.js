@@ -17,7 +17,7 @@ import Collapsible from 'react-collapsible';
 import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import ServerTable from './ServerTable.js';
-import { isRoleAssignmentValid } from "../utils/ModelUtils.js";
+import { isRoleAssignmentValid } from '../utils/ModelUtils.js';
 
 export class SearchBar extends Component {
   constructor(props) {
