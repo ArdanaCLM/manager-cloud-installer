@@ -88,14 +88,14 @@ class NetworksTab extends Component {
   }
 
   renderUpdateNetworkSection() {
-    let theProps = {};
+    let extraProps = {};
     if(this.state.mode === MODE.EDIT) {
-      theProps.networkName = this.state.networkName;
+      extraProps.networkName = this.state.networkName;
     }
     return (
       <div className='network-update-container'>
         <UpdateNetworks ref={'updateNetwork' + this.state.mode}
-          model={this.props.model} mode={this.state.mode} {...theProps}
+          model={this.props.model} mode={this.state.mode} {...extraProps}
           updateGlobalState={this.props.updateGlobalState}
           closeAction={this.handleCancelUpdateNetwork}/>
       </div>
