@@ -16,13 +16,8 @@ import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
 import { ActionButton } from '../../components/Buttons.js';
 import { ServerInputLine, ServerDropdownLine} from '../../components/ServerUtils.js';
-import {
-  IpV4AddressValidator, MacAddressValidator
-} from '../../utils/InputValidators.js';
-
-const UNKNOWN = -1;
-const VALID = 1;
-const INVALID = 0;
+import { IpV4AddressValidator, MacAddressValidator } from '../../utils/InputValidators.js';
+import { INPUT_STATUS } from '../../utils/constants.js';
 
 class EditServerDetails extends Component {
   constructor(props) {
@@ -31,11 +26,11 @@ class EditServerDetails extends Component {
     this.nicMappings = this.props.nicMappings;
     this.serverGroups = this.props.serverGroups;
     this.allInputsStatus = {
-      'ip-addr': UNKNOWN,
-      'ilo-user': UNKNOWN,
-      'ilo-password': UNKNOWN,
-      'ilo-ip': UNKNOWN,
-      'mac-addr': UNKNOWN
+      'ip-addr': INPUT_STATUS.UNKNOWN,
+      'ilo-user': INPUT_STATUS.UNKNOWN,
+      'ilo-password': INPUT_STATUS.UNKNOWN,
+      'ilo-ip': INPUT_STATUS.UNKNOWN,
+      'mac-addr': INPUT_STATUS.UNKNOWN
     };
 
     this.data = this.makeDeepCopy(this.props.data);
@@ -49,7 +44,8 @@ class EditServerDetails extends Component {
   isFormTextInputValid() {
     let isAllValid = true;
     let values = Object.values(this.allInputsStatus);
-    isAllValid = (values.every((val) => {return val === VALID || val === UNKNOWN;}));
+    isAllValid =
+      (values.every((val) => {return val === INPUT_STATUS.VALID || val === INPUT_STATUS.UNKNOWN;}));
 
     return isAllValid;
   }
@@ -73,7 +69,7 @@ class EditServerDetails extends Component {
   }
 
   updateFormValidity = (props, isValid) => {
-    this.allInputsStatus[props.inputName] = isValid ? VALID : INVALID;
+    this.allInputsStatus[props.inputName] = isValid ? INPUT_STATUS.VALID : INPUT_STATUS.INVALID;
     this.setState({isFormValid: this.isFormTextInputValid() && this.isFormDropdownValid()});
   }
 
