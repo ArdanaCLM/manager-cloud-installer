@@ -57,7 +57,7 @@ class NetworksTab extends Component {
   }
 
   handleCancelUpdateNetwork = () => {
-    this.setState({mode : MODE.NONE, editIdx: undefined, networkName: ''});
+    this.setState({mode : MODE.NONE, networkName: ''});
   }
 
   renderRemoveConfirmation() {
