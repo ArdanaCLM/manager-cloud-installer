@@ -14,7 +14,6 @@
 **/
 import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
-import { ActionButton } from '../../components/Buttons.js';
 import { alphabetically } from '../../utils/Sort.js';
 import { YesNoModal } from '../../components/Modals.js';
 import ServerGroupDetails from './ServerGroupDetails.js';
