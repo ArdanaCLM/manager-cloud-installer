@@ -27,7 +27,6 @@ class ServerGroupsTab extends Component {
     this.state = {
       value: '',
       showServerGroupDetails: false,
-      showViewMode: false,
       showRemoveConfirmation: false,
       serverGroupToRemove: ''
     };
@@ -60,50 +59,8 @@ class ServerGroupsTab extends Component {
     }
   }
 
-  viewServerGroup = (selected) => {
-    if (!this.state.showServerGroupDetails) {
-      this.setState({showServerGroupDetails: true, showViewMode: true, value: selected});
-    }
-  }
-
-  renderViewDetails = () => {
-    const header = translate('details.server.group.view') + ': ' + this.state.value.name;
-    let networks = <div className='details-line'>-</div>;
-    if (this.state.value.networks.length > 0) {
-      networks = this.state.value.networks.map((network, index) => {
-        return (<div className='details-line' key={index}>{network}</div>);
-      });
-    }
-    let serverGroups = <div className='details-line'>-</div>;
-    if (this.state.value.serverGroups.length > 0) {
-      serverGroups = this.state.value.serverGroups.map((serverGroup, index) => {
-        return (<div className='details-line' key={index}>{serverGroup}</div>);
-      });
-    }
-
-    return (
-      <div className='col-xs-4'>
-        <div className='details-section'>
-          <div className='details-header'>{header}</div>
-          <div className='details-body'>
-            <div className='details-title'>{translate('edit.networks') + ':'}</div>
-            {networks}
-            <div className='details-title'>{translate('edit.server.groups') + ':'}</div>
-            {serverGroups}
-            <div className='btn-row details-btn'>
-              <div className='btn-container'>
-                <ActionButton key='ok' displayLabel={translate('ok')}
-                  clickAction={this.hideServerGroupDetails}/>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   hideServerGroupDetails = () => {
-    this.setState({showServerGroupDetails: false, showViewMode: false, value: ''});
+    this.setState({showServerGroupDetails: false, value: ''});
   }
 
   render() {
@@ -127,11 +84,9 @@ class ServerGroupsTab extends Component {
           serverGroups: m.has('server-groups') ? m.get('server-groups').toJS() : [],
         };
 
-        let viewClass = 'glyphicon glyphicon-info-sign view-button';
         let editClass = 'glyphicon glyphicon-pencil edit-button';
-        let removeClass = 'fa fa-minus remove-button';
+        let removeClass = 'glyphicon glyphicon-trash remove-button';
         if (this.state.showServerGroupDetails) {
-          viewClass = viewClass + ' disabled';
           editClass = editClass + ' disabled';
           removeClass = removeClass + ' disabled';
         }
@@ -143,7 +98,6 @@ class ServerGroupsTab extends Component {
             <td>{numServerGroups}</td>
             <td>
               <div className='row-action-container'>
-                <span onClick={() => this.viewServerGroup(selected)} className={viewClass}/>
                 <span onClick={() => this.editServerGroup(selected)} className={editClass}/>
                 <span onClick={() => this.confirmRemoveServerGroup(name)} className={removeClass}/>
               </div>
@@ -165,13 +119,9 @@ class ServerGroupsTab extends Component {
 
     let detailsSection = '';
     if (this.state.showServerGroupDetails) {
-      if (this.state.showViewMode) {
-        detailsSection = this.renderViewDetails();
-      } else {
-        detailsSection = (<ServerGroupDetails model={this.props.model}
-          value={this.state.value} updateGlobalState={this.props.updateGlobalState}
-          closeAction={this.hideServerGroupDetails}/>);
-      }
+      detailsSection = (<ServerGroupDetails model={this.props.model}
+        value={this.state.value} updateGlobalState={this.props.updateGlobalState}
+        closeAction={this.hideServerGroupDetails}/>);
     }
 
     let confirmRemoveSection = '';
