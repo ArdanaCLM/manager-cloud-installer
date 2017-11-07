@@ -255,10 +255,14 @@ class PlaybookProgress extends Component {
     } else {
 
       // Build the payload from the deployment configuration page options
-      let payload = {'verbose': this.props.deployConfig['verbosity']};
-      if (this.props.deployConfig['encryptKey']) {
-        payload['extraVars'] = {};
-        payload['extraVars']['encryptKey'] = this.props.deployConfig['encryptKey'];
+      //let payload = {'verbose': this.props.deployConfig['verbosity']}
+      let payload = {};
+      if (this.props.deployConfig) {
+        payload['verbose'] = this.props.deployConfig['verbosity'];
+        if (this.props.deployConfig['encryptKey']) {
+          payload['extraVars'] = {};
+          payload['extraVars']['encryptKey'] = this.props.deployConfig['encryptKey'];
+        }
       }
 
       // Launch the playbook

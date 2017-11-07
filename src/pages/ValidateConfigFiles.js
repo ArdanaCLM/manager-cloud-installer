@@ -164,8 +164,7 @@ class ValidateConfigFiles extends Component {
       configFiles: [],
       valid: UNKNOWN,
       editingFile: '',
-      invalidMsg: '',
-      key: TAB.MODEL_FILES
+      invalidMsg: ''
     };
 
     // retrieve a list of yml files
