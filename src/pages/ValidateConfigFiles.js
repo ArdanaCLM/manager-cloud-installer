@@ -18,7 +18,7 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
-import { ServerInputLine, ServerDropdownLine} from '../components/ServerUtils.js';
+import { ServerInputLine, ServerDropdownLine } from '../components/ServerUtils.js';
 import { Tabs, Tab } from 'react-bootstrap';
 
 const INVALID = 0;
