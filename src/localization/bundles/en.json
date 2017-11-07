@@ -10,6 +10,7 @@
     "common.close": "Close",
     "common.nodata": "No Data",
     "done" : "Done",
+    "none" : "None",
     "yes": "Yes",
     "no": "No",
     "ok": "OK",
@@ -206,8 +207,6 @@
     "server.group.name": "Server Group Name",
     "add.server.group": "Add Server Group",
     "edit.server.group": "Edit Server Group",
-    "details.server.group.none": "Server Group - None",
-    "details.server.group.view": "Server Group Details",
     "details.server.group.confirm.remove": "You've selected to remove a server group: {0}.\n\n Are you sure you want to proceed?",
 
     "disk.model": "Disk Model",
@@ -239,8 +238,6 @@
     "details.nicmapping.confirm.remove": "You've selected to remove a NIC mapping: {0}.\n\n Are you sure you want to proceed?",
     "network.group.please.select": "Please Select Network Group...",
     "network.confirm.remove": "You've selected to remove a network: {0}.\n\n Are you sure you want to proceed?",
-
-    "details.network.none": "Network - None",
 
     "complete.heading": "Cloud Deployment Successful",
     "complete.message.body": "Some post deploy instruction contents here...",

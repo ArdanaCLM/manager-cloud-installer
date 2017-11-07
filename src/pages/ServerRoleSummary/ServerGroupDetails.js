@@ -102,11 +102,11 @@ class ServerGroupDetails extends Component {
 
   render() {
     const networkDefaultOption = {
-      label: translate('details.network.none'),
+      label: translate('none'),
       value: ''
     };
     const serverGroupDefaultOption = {
-      label: translate('details.server.group.none'),
+      label: translate('none'),
       value: ''
     };
     const networks = this.props.model.getIn(['inputModel','networks'])
