@@ -102,11 +102,11 @@ class ServerGroupDetails extends Component {
 
   render() {
     const networkDefaultOption = {
-      label: translate('details.network.none'),
+      label: translate('none'),
       value: ''
     };
     const serverGroupDefaultOption = {
-      label: translate('details.server.group.none'),
+      label: translate('none'),
       value: ''
     };
     const networks = this.props.model.getIn(['inputModel','networks'])
@@ -135,9 +135,11 @@ class ServerGroupDetails extends Component {
               inputValue={this.state.name} inputName='name' inputType='text' {...extraProps}
               inputAction={this.handleInputLine} inputValidate={UniqueNameValidator}
               autoFocus={true}/>
+            <div className='details-group-title'>{translate('edit.networks') + ':'}</div>
             <InlineAddRemoveDropdown name='networks' options={networks}
               values={this.state.networks} defaultOption={networkDefaultOption}
               sendSelectedList={this.getSelectedNetworks}/>
+            <div className='details-group-title'>{translate('edit.server.groups') + ':'}</div>
             <InlineAddRemoveDropdown name='serverGroups' options={serverGroups}
               values={this.state.serverGroups} defaultOption={serverGroupDefaultOption}
               sendSelectedList={this.getSelectedServerGroups} exceptions={exceptions}/>
