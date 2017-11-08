@@ -17,7 +17,7 @@ import CloudModelSummary from '../pages/CloudModelSummary';
 import AssignServerRoles from '../pages/AssignServerRoles';
 import Complete from '../pages/Complete';
 import InstallIntro from '../pages/InstallIntro';
-import ValidateConfigFiles from '../pages/ValidateConfigFiles';
+import ConfigPage from '../pages/ValidateConfigFiles';
 import CloudDeployProgress from '../pages/CloudDeployProgress';
 import SelectServersToProvision from '../pages/SelectServersToProvision';
 import ServerRoleSummary from '../pages/ServerRoleSummary';
@@ -47,8 +47,8 @@ export const pages = [{
   name: 'ServerRoleSummary',
   component: ServerRoleSummary
 }, {
-  name: 'ValidateConfigFiles',
-  component: ValidateConfigFiles
+  name: 'ConfigPage',
+  component: ConfigPage
 }, {
   name: 'CloudDeployProgress',
   component: CloudDeployProgress

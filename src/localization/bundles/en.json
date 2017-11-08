@@ -39,7 +39,7 @@
     "install.intro.message.step5": "Validate configuration files",
     "install.intro.message.step6": "Deploy your cloud",
 
-    "model.picker.entry-scale-esx-kvm-vsa": "Entry Scale ESX KVM VSA",
+    "model.picker.entry-scale-kvm-vsa": "Entry Scale KVM VSA",
     "model.picker.entry-scale-ironic-flat-network": "Entry Scale Ironic Flat Network",
     "model.picker.entry-scale-kvm-ceph": "Entry Scale KVM CEPH",
     "model.picker.entry-scale-swift": "Entry Scale Swift",
@@ -67,6 +67,12 @@
     "validate.config.files.msg.valid": "The configuration processor completed successfully. Data model is valid.",
     "validate.config.files.msg.invalid": "The configuration processor failed with the following message: ",
     "validate.config.files.msg.validating": "Validating...",
+    "validate.deployment.doWipeDisks": "Wipe Data Disks",
+    "validate.deployment.encryptKey": "Encryption Key",
+    "validate.deployment.verbosity": "Verbosity Level",
+    "validate.tab.model": "Model",
+    "validate.tab.templates": "Templates and Services",
+    "validate.tab.config": "Deployment",
 
     "edit.config.files.heading": "Update Configuration File: {0} ({1})",
 
@@ -293,6 +299,7 @@
     "input.validator.name.spaces.error": "Name should not contain spaces",
     "input.validator.yaml.error": "Invalid YAML",
 
+    "clouddeploy.installsteps.ConfigPage": "Deployment Configuration",
     "clouddeploy.installsteps.InstallIntro": "Introduction",
     "clouddeploy.installsteps.CloudModelPicker": "Select Cloud Model",
     "clouddeploy.installsteps.CloudModelSummary": "Model Summary",
