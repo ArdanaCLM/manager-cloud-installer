@@ -31,9 +31,9 @@ class CloudModelPicker extends BaseWizardPage {
 
     this.templates = [];
     this.simpleModels = [ //add more items when user select it from complete templates
-      'entry-scale-esx-kvm-vsa',
-      'entry-scale-ironic-flat-network',
       'entry-scale-kvm-vsa',
+      'entry-scale-ironic-flat-network',
+      'entry-scale-kvm-ceph',
       'entry-scale-swift',
       'mid-scale-kvm-vsa'
     ];

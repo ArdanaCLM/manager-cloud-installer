@@ -254,22 +254,11 @@ class PlaybookProgress extends Component {
 
     } else {
 
-      // Build the payload from the deployment configuration page options
-      //let payload = {'verbose': this.props.deployConfig['verbosity']}
-      let payload = {};
-      if (this.props.deployConfig) {
-        payload['verbose'] = this.props.deployConfig['verbosity'];
-        if (this.props.deployConfig['encryptKey']) {
-          payload['extraVars'] = {};
-          payload['extraVars']['encryptKey'] = this.props.deployConfig['encryptKey'];
-        }
-      }
-
       // Launch the playbook
       this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/playbooks/' + this.props.playbook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(this.props.payload || '')
       })
         .then(response => {
           const playId = response['id'];
@@ -421,6 +410,17 @@ class CloudDeployProgress extends BaseWizardPage {
       sitePlaybook = 'dayzero-site';
     }
 
+    // Build the payload from the deployment configuration page options
+    //let payload = {'verbose': this.props.deployConfig['verbosity']}
+    let payload = {};
+    if (this.props.deployConfig) {
+      payload['verbose'] = this.props.deployConfig['verbosity'];
+      if (this.props.deployConfig['encryptKey']) {
+        payload['extraVars'] = {};
+        payload['extraVars']['encryptKey'] = this.props.deployConfig['encryptKey'];
+      }
+    }
+
     return (
       <div className='wizard-page'>
         <div className='content-header'>
@@ -434,7 +434,9 @@ class CloudDeployProgress extends BaseWizardPage {
             updatePlayId = {this.updatePlayId}
             steps = {SITE_STEPS}
             deployConfig = {this.props.deployConfig}
-            playbook = {sitePlaybook} />
+            playbook = {sitePlaybook}
+            payload = {payload}
+          />
         </div>
         {this.renderNavButtons()}
       </div>
