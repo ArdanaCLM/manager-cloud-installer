@@ -31,15 +31,29 @@ rm -rf dist
 
 #compile the css/less files
 npm run less
+EXITCHECK=$?
+
+if [ $EXITCHECK -ne 0 ]
+then
+  echo "npm less compilation failed"
+  exit 1
+fi
 
 #build a bundle version of the javascript
 npm run dist
+EXITCHECK=$?
+
+if [ $EXITCHECK -ne 0 ]
+then
+  echo "npm dist failed"
+  exit 1
+fi
 
 #copy the production index.html to the dist folder
 cp index.production dist/index.html
 
 #copy the config file to the dist folder
-cp config.json dist
+cp config.production dist/config.json
 
 #copy non-bundled third-party dependencies into dist
 # bootstrap

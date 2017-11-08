@@ -40,6 +40,7 @@ done
 virtualenv --python=python2.7 manager_cloud_installer_server_venv
 
 # delete any existing content from the server/web folder
+rm -rf ./server/web
 rm -rf ./manager_cloud_installer_server_venv/lib/python/site-packages/cloudinstaller
 
 # recreate the server/web folder
