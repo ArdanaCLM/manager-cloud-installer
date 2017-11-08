@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# install npm dependencies to run the build
+npm install
+
 TARBALL=false
 
 # if -t is specified, build a tarball of the UI bits
