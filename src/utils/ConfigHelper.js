@@ -13,8 +13,7 @@
 * limitations under the License.
 **/
 var appConfigs = {
-  'shimurl': 'http://localhost:8081',
-  'deployserviceurl': 'http://localhost:9085',
+  'shimurl': window.location.protocol + '//' + window.location.hostname + ':' + window.location.port,
   //remove this when release
   'dev': true
 };
