@@ -13,6 +13,7 @@
 * limitations under the License.
 **/
 import { translate } from '../localization/localize.js';
+import { safeLoad } from 'js-yaml';
 
 const IPV4ADDRESS =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -160,3 +161,11 @@ export function UniqueNameValidator(name, props) {
   return retValue;
 }
 
+export function YamlValidator(text) {
+  try {
+    safeLoad(text);
+    return { isValid: true, errorMsg: '' };
+  } catch (e) {
+    return { isValid: false, errorMsg: translate('input.validator.yaml.error')};
+  }
+}
