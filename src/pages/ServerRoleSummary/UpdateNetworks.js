@@ -37,6 +37,7 @@ class UpdateNetworks extends Component {
 
     this.state = {
       isFormValid: false,
+      isFormChanged: false,
       isTaggedChecked:
         this.data['tagged-vlan'] !== '' && this.data['tagged-vlan'] !== undefined ?  this.data['tagged-vlan'] : false,
     };
@@ -73,6 +74,9 @@ class UpdateNetworks extends Component {
 
   handleSelectNetworkGroup = (groupName) => {
     this.data['network-group'] = groupName;
+    if(!this.state.isFormChanged) {
+      this.setState({isFormChanged: true});
+    }
     this.setState({isFormValid: this.isFormTextInputValid() && this.isFormDropdownValid()});
   }
 
@@ -80,6 +84,12 @@ class UpdateNetworks extends Component {
     let value = e.target.value;
     this.updateFormValidity(props, isValid);
     if (isValid) {
+      if(!this.state.isFormChanged) {
+        this.setState({isFormChanged: true});
+      }
+      if(props.inputName === 'vlanid') {
+        value = parseInt(value);
+      }
       this.data[props.inputName] = value;
     }
   }
@@ -103,6 +113,9 @@ class UpdateNetworks extends Component {
 
   handleTaggedVLANChange = () => {
     this.data['tagged-vlan'] = !this.state.isTaggedChecked;
+    if(!this.state.isFormChanged) {
+      this.setState({isFormChanged: true});
+    }
     this.setState({isTaggedChecked: !this.state.isTaggedChecked});
   }
 
@@ -113,31 +126,35 @@ class UpdateNetworks extends Component {
   }
 
   renderNetworkInput(name, type, isRequired, placeholderText, validate) {
-    let theProps = {};
+    let extraProps = {};
     //for vlanid
     if(type === 'number') {
-      theProps.min = 1;
-      theProps.max = 4094;
+      extraProps.min = 1;
+      extraProps.max = 4094;
     }
 
     if(name === 'name') {
-      theProps.names =
+      extraProps.names =
         this.props.model.getIn(['inputModel','networks']).map(e => e.get('name'))
           .toJS();
       if(this.props.mode === MODE.EDIT) {
         //remove current name so won't check against it
         let idx = this.props.model.getIn(['inputModel','networks']).findIndex(
           net => net.get('name') === this.props.networkName);
-        theProps.names.splice(idx, 1);
+        extraProps.names.splice(idx, 1);
       }
-      theProps.check_nospace=true;
+      extraProps.check_nospace=true;
+    }
+
+    if(this.props.mode === MODE.EDIT) {
+      extraProps.updateFormValidity = this.updateFormValidity;
     }
 
     return (
       <ServerInputLine
         isRequired={isRequired} inputName={name} inputType={type}
         placeholder={placeholderText} inputValidate={validate}
-        inputValue={this.props.mode === MODE.EDIT ? this.data[name] : ''} {...theProps}
+        inputValue={this.props.mode === MODE.EDIT ? this.data[name] : ''} {...extraProps}
         inputAction={this.handleInputChange}/>
     );
   }
@@ -184,7 +201,7 @@ class UpdateNetworks extends Component {
               <ActionButton key='networkCancel' type='default' clickAction={this.props.closeAction}
                 displayLabel={translate('cancel')}/>
               <ActionButton key='networkSave' clickAction={this.handleUpdateNetwork}
-                displayLabel={translate('save')} isDisabled={!this.state.isFormValid}/>
+                displayLabel={translate('save')} isDisabled={!this.state.isFormValid || !this.state.isFormChanged}/>
             </div>
           </div>
         </div>
