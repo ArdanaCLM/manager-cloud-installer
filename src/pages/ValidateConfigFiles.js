@@ -310,7 +310,11 @@ class ConfigForm extends Component {
   };
 
   handleDebugChange = (value) => {
-    this.setState({verbosity: value});
+    if (isNaN(value)) {
+      this.setState({verbosity: value.substring(0,1)});
+    } else {
+      this.setState({verbosity: value});
+    }
   };
 
   render() {
@@ -335,7 +339,7 @@ class ConfigForm extends Component {
         <ServerDropdownLine
           label='validate.deployment.verbosity'
           value={this.state.verbosity}
-          optionList={[0,1,2,3,4]}
+          optionList={['0-None',1,2,3,'4-Verbose']}
           selectAction={this.handleDebugChange}/>
       </div>
     );
