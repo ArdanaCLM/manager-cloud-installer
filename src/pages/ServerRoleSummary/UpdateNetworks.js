@@ -87,6 +87,9 @@ class UpdateNetworks extends Component {
       if(!this.state.isFormChanged) {
         this.setState({isFormChanged: true});
       }
+      if(props.inputName === 'vlanid') {
+        value = parseInt(value);
+      }
       this.data[props.inputName] = value;
     }
   }
