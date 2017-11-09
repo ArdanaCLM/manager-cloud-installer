@@ -148,7 +148,9 @@ class SelectServersToProvision extends BaseWizardPage {
 
       const payload = {
         'extra-vars': {
-          'nodelist': serversToProvision.map(e => e.id).join(',')
+          'nodelist': serversToProvision.map(e => e.id).join(','),
+          // TODO: Password should be set by the UI in SCRD-1711
+          'ardanauser_password': 'stack'
         }};
 
       return (

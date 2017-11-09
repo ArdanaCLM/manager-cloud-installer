@@ -271,7 +271,7 @@ class PlaybookProgress extends Component {
           this.setState({errorMsg: List(error.message)});
         });
     }
-  }
+  };
 
   renderShowLogButton() {
     const logButtonLabel = translate('progress.show.log');
@@ -404,6 +404,23 @@ class CloudDeployProgress extends BaseWizardPage {
   updatePlayId = (playId) => {this.props.updateGlobalState('sitePlayId', playId);}
 
   render() {
+    // choose between site or site with wipedisks (dayzero-site)
+    let sitePlaybook = 'site';
+    if (this.props.deployConfig['wipeDisks']) {
+      sitePlaybook = 'dayzero-site';
+    }
+
+    // Build the payload from the deployment configuration page options
+    //let payload = {'verbose': this.props.deployConfig['verbosity']}
+    let payload = {};
+    if (this.props.deployConfig) {
+      payload['verbose'] = this.props.deployConfig['verbosity'];
+      if (this.props.deployConfig['encryptKey']) {
+        payload['extraVars'] = {};
+        payload['extraVars']['encryptKey'] = this.props.deployConfig['encryptKey'];
+      }
+    }
+
     return (
       <div className='wizard-page'>
         <div className='content-header'>
@@ -411,12 +428,15 @@ class CloudDeployProgress extends BaseWizardPage {
         </div>
         <div className='wizard-content'>
           <PlaybookProgress
-            overallStatus={this.state.overallStatus}
-            updateStatus={this.updateStatus}
-            playId={this.props.sitePlayId}
-            updatePlayId={this.updatePlayId}
-            steps={SITE_STEPS}
-            playbook="site" />
+            overallStatus = {this.state.overallStatus}
+            updateStatus = {this.updateStatus}
+            playId = {this.props.sitePlayId}
+            updatePlayId = {this.updatePlayId}
+            steps = {SITE_STEPS}
+            deployConfig = {this.props.deployConfig}
+            playbook = {sitePlaybook}
+            payload = {payload}
+          />
         </div>
         {this.renderNavButtons()}
       </div>

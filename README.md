@@ -10,6 +10,10 @@ Install `json-server` globally with `sudo npm install json-server -g`
 
 Install tox via pip:  `pip install tox`
 
+If you're not running minified (see below), you will need to update your config.json to point to the
+default url for the shim layer, do this by adding the following line to config.json:
+"shimurl" : "http://localhost:8081"
+
 After that, run `npm start` which will bundle the react app and start the express server
 
 You will get the express server (UI) running on `localhost:3000` and the json-server (API Mock) on `localhost:8080`

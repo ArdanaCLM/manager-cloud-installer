@@ -43,3 +43,51 @@
   min-width: 40em;
   margin-bottom: 1em;
 }
+
+.config-form {
+  max-width: 31em;
+  margin-left: 4em;
+  .detail-line {
+    width: 100%;
+    margin-bottom: 0.7em;
+    display: flex;
+    .detail-heading {
+      width: 35%;
+      min-width: 10em;
+      display: inline-block;
+      text-align: right;
+      padding-right: 2em;
+    }
+    .input-body {
+      width: 80%;
+      min-width: 30em;
+      display: inline-block;
+      position: relative;
+      top: -4px;
+    }
+  }
+
+  .wipedisk {
+    .wipedisk-name {
+      text-align: right;
+      width: 35%;
+      padding-right: 3em;
+    }
+    display: flex;
+  }
+
+  .wipedisk-checkbox {
+    margin: 0.25em 0.5em 1.5em -0.5em;
+  }
+
+
+
+  .server-detail-select select {
+    padding: 4px;
+    width: 80%;
+  }
+}
+
+#configTabs ul.nav.nav-tabs li.active a {
+  background: transparent;
+}

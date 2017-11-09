@@ -19,6 +19,8 @@ import { translate } from '../localization/localize.js';
 import ServerTable from './ServerTable.js';
 import { isRoleAssignmentValid } from '../utils/ModelUtils.js';
 
+const TRUTHY = [true, 'true', 'True', 'yes', 'Yes'];
+
 export class SearchBar extends Component {
   constructor(props) {
     super(props);
@@ -174,10 +176,12 @@ export class ServerInput extends Component {
     }
   }
 
+  isRequired = () => TRUTHY.includes(this.props.isRequired) || TRUTHY.includes(this.props.required)
+
   validateInput(val, extraProps) {
     let retValid = false;
 
-    if(this.props.isRequired) {
+    if(this.isRequired()) {
       if(val === undefined || val.length === 0) {
         this.setState({errorMsg: translate('server.input.required.error')});
         return retValid;
@@ -222,8 +226,8 @@ export class ServerInput extends Component {
     this.props.inputAction(e, valid, props);
   }
 
-  toggleShowHidePassword(inputFieldId) {
-    let passwordField = document.getElementById(inputFieldId);
+  toggleShowHidePassword(e) {
+    let passwordField = e.target.previousSibling;
     passwordField.type = this.state.showMask ? 'text' : 'password';
     this.setState((prevState) => {return {showMask: !prevState.showMask};});
   }
@@ -233,43 +237,79 @@ export class ServerInput extends Component {
     if(this.props.inputType) {
       inputType = this.props.inputType;
     }
-    let props = {};
+    let myprops = {};
     if (inputType === 'number') {
-      props.min = this.props.min;
-      props.max = this.props.max;
+      myprops.min = this.props.min;
+      myprops.max = this.props.max;
     }
 
+    let placeholder = this.props.placeholder;
+
     let togglePassword = '';
-    let inputId = 'serverInputField';
     if (inputType === 'password') {
-      inputId = 'serverPasswordField'  + (Math.random(0,1) * 100000) + '';
       if (this.state.showMask) {
         togglePassword = <i className='material-icons password-icon'
-          onClick={() => this.toggleShowHidePassword(inputId)}>visibility</i>;
+          onClick={(e) => this.toggleShowHidePassword(e)}>visibility</i>;
       } else {
         togglePassword = <i className='material-icons password-icon'
-          onClick={() => this.toggleShowHidePassword(inputId)}>visibility_off</i>;
+          onClick={(e) => this.toggleShowHidePassword(e)}>visibility_off</i>;
       }
     }
 
-    return (
-      <div className='server-input'>
-        <input
-          id={inputId}
-          className='rounded-corner'
-          required={this.props.isRequired}
-          type={inputType} name={this.props.inputName}
-          value={this.state.inputValue}
-          onChange={(e) => this.handleInputChange(e, this.props)}
-          placeholder={this.props.placeholder}
-          disabled={this.props.disabled}
-          autoFocus={this.props.autoFocus}
-          {...props}>
-        </input>
-        {togglePassword}
-        <div className='error-message'>{this.state.errorMsg}</div>
-      </div>
-    );
+    if (TRUTHY.includes(this.props.disabled)) {
+      myprops.disabled = true;
+    }
+
+    if (TRUTHY.includes(this.props.autoFocus)) {
+      myprops.autoFocus = true;
+    }
+
+    if (this.isRequired()) {
+      myprops.required = true;
+
+      // append a '*' to the placeholder string
+      if (typeof(placeholder) === 'string' && !placeholder.endsWith('*')) {
+        placeholder += '*';
+      }
+    }
+
+    if (this.props.inputType === 'textarea') {
+      return (
+        <div className='server-input'>
+          <textarea
+            id={this.props.id}
+            className='rounded-corner'
+            name={this.props.inputName}
+            value={this.state.inputValue}
+            onChange={(e) => this.handleInputChange(e, this.props)}
+            placeholder={placeholder}
+            disabled={this.props.disabled}
+            autoFocus={this.props.autoFocus}
+            {...myprops}>
+          </textarea>
+          <div className='error-message'>{this.state.errorMsg}</div>
+        </div>
+      );
+    } else {
+      return (
+        <div className='server-input'>
+          <input
+            id={this.props.id}
+            className='rounded-corner'
+            type={inputType}
+            name={this.props.inputName}
+            value={this.state.inputValue}
+            onChange={(e) => this.handleInputChange(e, this.props)}
+            placeholder={placeholder}
+            disabled={this.props.disabled}
+            autoFocus={this.props.autoFocus}
+            {...myprops}>
+          </input>
+          {togglePassword}
+          <div className='error-message'>{this.state.errorMsg}</div>
+        </div>
+      );
+    }
   }
 }
 

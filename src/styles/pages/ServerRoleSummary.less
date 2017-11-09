@@ -71,15 +71,23 @@
       font-weight: bold;
       line-height: 2.8em;
     }
-    .details-body .server-input input {
-      width: 85%;
+    .details-body .server-input {
+      input, textarea {
+        width: 85%;
+      }
     }
 
-    .details-body select,
-    .details-body input {
-      height: 28px;
-      margin-top: 0.8em;
+    .details-body { 
+        select, input, textarea {
+        height: 28px;
+        margin-top: 0.8em;
+      }
     }
+    .details-body textarea {
+      font-family: monospace;
+      min-height: 5em;
+    }
+
     .details-title {
       font-weight: bold;
       margin: 0.8em 0 2px 1em;
