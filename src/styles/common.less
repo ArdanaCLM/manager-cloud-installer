@@ -181,6 +181,15 @@ p {
   }
 }
 
+.glyphicon, .fa-minus, .fa-plus {
+  cursor: pointer;
+  &.disabled {
+    color: @inactivecolor;
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+}
+
 .modal-backdrop {
   z-index: 1050;
 }
