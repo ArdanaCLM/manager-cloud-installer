@@ -13,8 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+die() {
+   echo "$@" >&2
+   exit 1
+}
+
 # build the neccessary UI files
-./build_ui.sh
+./build_ui.sh || die "building UI files failed, exiting"
 
 # whether to create a tarball of the dist, set to true with -t
 TARBALL=false

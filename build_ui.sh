@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+die() {
+   echo "$@" >&2
+   exit 1
+}
+
 # install npm dependencies to run the build
 npm install
 
@@ -30,24 +35,10 @@ done
 rm -rf dist
 
 #compile the css/less files
-npm run less
-EXITCHECK=$?
-
-if [ $EXITCHECK -ne 0 ]
-then
-  echo "npm less compilation failed"
-  exit 1
-fi
+npm run less || die "npm less compilation failed"
 
 #build a bundle version of the javascript
-npm run dist
-EXITCHECK=$?
-
-if [ $EXITCHECK -ne 0 ]
-then
-  echo "npm dist failed"
-  exit 1
-fi
+npm run dist || die "npm dist failed"
 
 #copy the production index.html to the dist folder
 cp index.production dist/index.html
