@@ -15,18 +15,12 @@
 import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
 import { alphabetically } from '../../utils/Sort.js';
+import { MODE } from '../../utils/constants.js';
 import { ServerInput } from '../../components/ServerUtils.js';
 import { ActionButton } from '../../components/Buttons.js';
 import { List, Map } from 'immutable';
 import { NetworkInterfaceValidator, PCIAddressValidator } from '../../utils/InputValidators.js';
 import { YesNoModal } from '../../components/Modals.js';
-
-// The mode in which the details window is shown
-const MODE = {
-  EDIT: 'edit',
-  ADD: 'add',
-  NONE: 'none'
-};
 
 class NicMappingTab extends Component {
 
@@ -40,9 +34,8 @@ class NicMappingTab extends Component {
       nicMappingName: '',
 
       isNameValid: true,
-      isBusAddressValid: true,
-      isLogicalNameValid: true,
-
+      // Since many fields on the form can be edited at the same time, the validity of
+      // each field is tracked separately within the detail row entry
       detailRows: undefined,
     };
   }
@@ -68,8 +61,6 @@ class NicMappingTab extends Component {
     this.setState({
       mode: MODE.ADD,
       isNameValid: false,
-      isBusAddressValid: false,
-      isLogicalNameValid: false,
       nicMappingName: '',
       detailRows: List().push(this.newDetailRow())
     });
@@ -86,10 +77,9 @@ class NicMappingTab extends Component {
       mode: MODE.EDIT,
       activeRow: idx,
       isNameValid: true,
-      isBusAddressValid: true,
-      isLogicalNameValid: true,
       nicMappingName: this.getRows().getIn([idx, 'name']),
-      detailRows: this.getRows().getIn([idx, 'physical-ports'])
+      detailRows: this.getRows().getIn([idx, 'physical-ports']).map(e =>
+        e.set('isBusAddressValid', true).set('isLogicalNameValid', true))
     });
   }
 
@@ -110,70 +100,55 @@ class NicMappingTab extends Component {
     });
   }
 
-  isFormValid = () => this.state.isNameValid && this.state.isBusAddressValid && this.state.isLogicalNameValid
+  isFormValid = () => this.state.isNameValid && this.state.detailRows.every(e =>
+    e.get('isBusAddressValid') && e.get('isLogicalNameValid'))
 
   newDetailRow = () => Map({
     'logical-name':'',
     'bus-address':'',
+    isLogicalNameValid: false,
+    isBusAddressValid: false,
+  });
+
+  newValidityRow = () => Map({
+    'logical-name': false,
+    'bus-address': false,
   });
 
   addDetailRow = () => {
-    if (this.state.isBusAddressValid && this.state.isLogicalNameValid) {
-      this.setState(prev => ({
-        detailRows: prev.detailRows.push(this.newDetailRow()),
-        isBusAddressValid: false,
-        isLogicalNameValid: false
-      }));
-    }
+    this.setState(prev => ({detailRows: prev.detailRows.push(this.newDetailRow())}));
   }
 
   removeDetailRow = (idx) => {
     // Remove the row. If it was the last row, add a new empty one
     this.setState(prev => {
-
-      let newState = {
-      };
-
       let rows = prev.detailRows.delete(idx);
-
-      if (rows.size >= 1) {
-        // Remove the last detail row and show a row
-        //  that was previously entered and thus valid
-        newState.isLogicalNameValid = true;
-        newState.isBusAddressValid = true;
-      } else {
+      if (rows.size === 0) {
         rows = rows.push(this.newDetailRow());
-
-        // Start a new detail row, which is initially invalid
-        newState.isBusAddressValid = false;
-        newState.isLogicalNameValid = false;
       }
-
-      newState.detailRows = rows;
-      return newState;
+      return {detailRows: rows};
     });
   }
 
   updateDetailRow = (idx, field, value, valid) => {
     this.setState(prev => {
 
-      var newState = {
-        detailRows: prev.detailRows.setIn([idx, field], value)
-      };
+      let validityField;
+      if (field === 'logical-name') {
+        validityField = 'isLogicalNameValid';
+      } else {
+        validityField = 'isBusAddressValid';
+      }
 
-      if (field === 'logical-name')
-        newState.isLogicalNameValid = valid;
-      else
-        newState.isBusAddressValid = valid;
-
-      return newState;
+      return {detailRows: prev.detailRows.setIn([idx, field], value).setIn([idx, validityField], valid)};
     });
   }
 
   saveDetails = () => {
     let nicMap = Map({
       'name': this.state.nicMappingName,
-      'physical-ports': this.state.detailRows.map(e => e.set('type','simple-port'))
+      'physical-ports': this.state.detailRows.map(e => e.set('type','simple-port')
+        .delete('isLogicalNameValid').delete('isBusAddressValid'))
     });
 
     let model;
@@ -189,35 +164,35 @@ class NicMappingTab extends Component {
   }
 
   renderDetailRows() {
-    return this.state.detailRows.map((row,idx, arr) => {
+    return this.state.detailRows.map((row, idx, arr) => {
       const lastRow = (idx === arr.size-1);
 
       return (
         <div key={idx} className='dropdown-plus-minus'>
           <div className="field-container">
             <ServerInput
-              disabled={!lastRow}
               inputAction={(e, valid) => this.updateDetailRow(idx, 'logical-name', e.target.value, valid)}
               inputType='text'
               inputValue={row.get('logical-name')}
               inputValidate={NetworkInterfaceValidator}
-              isRequired={true}
+              isRequired='true'
               placeholder={translate('port.logical.name') + '*'} />
 
             <ServerInput
-              disabled={!lastRow}
               inputAction={(e, valid) => this.updateDetailRow(idx, 'bus-address', e.target.value, valid)}
               inputType='text'
               inputValue={row.get('bus-address')}
               inputValidate={PCIAddressValidator}
-              isRequired={true}
+              isRequired='true'
               placeholder={translate('pci.address') + '*'} />
           </div>
 
           <div className='plus-minus-container'>
-            <span key={this.props.name + 'minus'} className={'fa fa-minus left-sign'}
-              onClick={() => this.removeDetailRow(idx)}/>
-            {lastRow ?
+            {(idx > 0 || row.get('logical-name') || row.get('bus-address')) ?
+              <span key={this.props.name + 'minus'} className={'fa fa-minus left-sign'}
+                onClick={() => this.removeDetailRow(idx)}/>
+              : null}
+            {(lastRow && row.get('isBusAddressValid') && row.get('isLogicalNameValid')) ?
               <span key={this.props.name + 'plus'} className={'fa fa-plus right-sign'}
                 onClick={this.addDetailRow}/>
               : null}
@@ -244,10 +219,9 @@ class NicMappingTab extends Component {
             <div className='details-header'>{title}</div>
             <div className='details-body'>
 
-              <ServerInput isRequired={true} placeholder={translate('nic.mapping.name') + '*'}
+              <ServerInput isRequired='true' placeholder={translate('nic.mapping.name') + '*'}
                 inputValue={this.state.nicMappingName} inputName='name' inputType='text'
-                inputAction={this.handleNameChange}
-                disabled={this.state.mode === MODE.EDIT} />
+                inputAction={this.handleNameChange} />
 
               {this.renderDetailRows()}
 
@@ -290,7 +264,7 @@ class NicMappingTab extends Component {
 
     let addClass = 'material-icons add-button';
     let editClass = 'glyphicon glyphicon-pencil edit-button';
-    let removeClass = 'fa fa-minus remove-button';
+    let removeClass = 'glyphicon glyphicon-trash remove-button';
     if (this.state.mode != MODE.NONE) {
       addClass += ' disabled';
       editClass += ' disabled';

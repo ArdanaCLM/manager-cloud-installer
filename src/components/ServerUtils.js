@@ -173,6 +173,7 @@ export class ServerInput extends Component {
   componentWillReceiveProps(newProps) {
     if (this.props.inputValue !== newProps.inputValue) {
       this.setState({inputValue : newProps.inputValue});
+      this.validateInput(newProps.inputValue);
     }
   }
 
