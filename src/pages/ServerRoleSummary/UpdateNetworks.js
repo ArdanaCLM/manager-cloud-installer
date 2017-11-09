@@ -54,7 +54,8 @@ class UpdateNetworks extends Component {
     let values = Object.values(this.allInputsStatus);
     isAllValid =
       (values.every((val) => {return val === INPUT_STATUS.VALID || val === INPUT_STATUS.UNKNOWN;})) &&
-      this.allInputsStatus['name'] !== INPUT_STATUS.UNKNOWN;
+      this.allInputsStatus['name'] !== INPUT_STATUS.UNKNOWN &&
+      this.allInputsStatus['vlanid'] !== INPUT_STATUS.UNKNOWN;
 
     return isAllValid;
   }
@@ -96,6 +97,12 @@ class UpdateNetworks extends Component {
 
   handleUpdateNetwork = () => {
     let model = this.props.model;
+    for (let key in this.data) {
+      if(this.data[key] === undefined || this.data[key] === '') {
+        delete this.data[key];
+      }
+    }
+
     if(this.props.mode === MODE.ADD) {
       model = model.updateIn(
         ['inputModel', 'networks'], net => net.push(fromJS(this.data)));
@@ -191,7 +198,7 @@ class UpdateNetworks extends Component {
         <div className='details-header'>{title}</div>
         <div className='details-body'>
           {this.renderNetworkInput('name', 'text', true, translate('network.name') + '*', UniqueNameValidator)}
-          {this.renderNetworkInput('vlanid', 'number', false, translate('vlanid'), VLANIDValidator)}
+          {this.renderNetworkInput('vlanid', 'number', true, translate('vlanid'), VLANIDValidator)}
           {this.renderNetworkInput('cidr', 'text', false, translate('cidr'), CidrValidator)}
           {this.renderNetworkInput('gateway-ip', 'text', false, translate('network.gateway'), IpV4AddressValidator)}
           {this.renderNetworkGroup()}
