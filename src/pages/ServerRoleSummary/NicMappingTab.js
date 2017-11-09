@@ -34,9 +34,8 @@ class NicMappingTab extends Component {
       nicMappingName: '',
 
       isNameValid: true,
-      isBusAddressValid: true,
-      isLogicalNameValid: true,
-
+      // Since many fields on the form can be edited at the same time, the validity of
+      // each field is tracked separately within the detail row entry
       detailRows: undefined,
     };
   }
@@ -62,8 +61,6 @@ class NicMappingTab extends Component {
     this.setState({
       mode: MODE.ADD,
       isNameValid: false,
-      isBusAddressValid: false,
-      isLogicalNameValid: false,
       nicMappingName: '',
       detailRows: List().push(this.newDetailRow())
     });
@@ -80,10 +77,9 @@ class NicMappingTab extends Component {
       mode: MODE.EDIT,
       activeRow: idx,
       isNameValid: true,
-      isBusAddressValid: true,
-      isLogicalNameValid: true,
       nicMappingName: this.getRows().getIn([idx, 'name']),
-      detailRows: this.getRows().getIn([idx, 'physical-ports'])
+      detailRows: this.getRows().getIn([idx, 'physical-ports']).map(e =>
+        e.set('isBusAddressValid', true).set('isLogicalNameValid', true))
     });
   }
 
@@ -104,72 +100,55 @@ class NicMappingTab extends Component {
     });
   }
 
-  isFormValid = () => this.state.isNameValid && this.state.isBusAddressValid && this.state.isLogicalNameValid
+  isFormValid = () => this.state.isNameValid && this.state.detailRows.every(e =>
+    e.get('isBusAddressValid') && e.get('isLogicalNameValid'))
 
   newDetailRow = () => Map({
     'logical-name':'',
     'bus-address':'',
+    isLogicalNameValid: false,
+    isBusAddressValid: false,
+  });
+
+  newValidityRow = () => Map({
+    'logical-name': false,
+    'bus-address': false,
   });
 
   addDetailRow = () => {
-    if (this.state.isBusAddressValid && this.state.isLogicalNameValid) {
-      this.setState(prev => ({
-        detailRows: prev.detailRows.push(this.newDetailRow()),
-        isBusAddressValid: false,
-        isLogicalNameValid: false
-      }));
-    }
+    this.setState(prev => ({detailRows: prev.detailRows.push(this.newDetailRow())}));
   }
 
   removeDetailRow = (idx) => {
     // Remove the row. If it was the last row, add a new empty one
     this.setState(prev => {
-
-      let newState = {};
-
-      if (idx === prev.detailRows.size - 1)
-      {
-        // Deleting the last row, so revealing the next-to-last
-        // entry, which was already validated
-        newState.isBusAddressValid = true;
-        newState.isLogicalNameValid = true;
-      }
-
       let rows = prev.detailRows.delete(idx);
-
       if (rows.size === 0) {
         rows = rows.push(this.newDetailRow());
-
-        // Start a new detail row, which is initially invalid
-        newState.isBusAddressValid = false;
-        newState.isLogicalNameValid = false;
       }
-
-      newState.detailRows = rows;
-      return newState;
+      return {detailRows: rows};
     });
   }
 
   updateDetailRow = (idx, field, value, valid) => {
     this.setState(prev => {
 
-      var newState = {
-        detailRows: prev.detailRows.setIn([idx, field], value)
-      };
+      let validityField;
+      if (field === 'logical-name') {
+        validityField = 'isLogicalNameValid';
+      } else {
+        validityField = 'isBusAddressValid';
+      }
 
-      if (field === 'logical-name')
-        newState.isLogicalNameValid = valid;
-      else
-        newState.isBusAddressValid = valid;
-
-      return newState;
+      return {detailRows: prev.detailRows.setIn([idx, field], value).setIn([idx, validityField], valid)};
     });
   }
 
   saveDetails = () => {
     let nicMap = Map({
       'name': this.state.nicMappingName,
-      'physical-ports': this.state.detailRows.map(e => e.set('type','simple-port'))
+      'physical-ports': this.state.detailRows.map(e => e.set('type','simple-port')
+        .delete('isLogicalNameValid').delete('isBusAddressValid'))
     });
 
     let model;
@@ -185,7 +164,7 @@ class NicMappingTab extends Component {
   }
 
   renderDetailRows() {
-    return this.state.detailRows.map((row,idx, arr) => {
+    return this.state.detailRows.map((row, idx, arr) => {
       const lastRow = (idx === arr.size-1);
 
       return (
@@ -213,7 +192,7 @@ class NicMappingTab extends Component {
               <span key={this.props.name + 'minus'} className={'fa fa-minus left-sign'}
                 onClick={() => this.removeDetailRow(idx)}/>
               : null}
-            {(lastRow && this.state.isBusAddressValid && this.state.isLogicalNameValid) ?
+            {(lastRow && row.get('isBusAddressValid') && row.get('isLogicalNameValid')) ?
               <span key={this.props.name + 'plus'} className={'fa fa-plus right-sign'}
                 onClick={this.addDetailRow}/>
               : null}
