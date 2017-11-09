@@ -415,8 +415,10 @@ class CloudDeployProgress extends BaseWizardPage {
     let payload = {};
     if (this.props.deployConfig) {
       payload['verbose'] = this.props.deployConfig['verbosity'];
+      payload['extraVars'] = {};
+      // don't prompt "Are you sure?" questions for wipedisks
+      payload['extraVars']['automate'] = 'true';
       if (this.props.deployConfig['encryptKey']) {
-        payload['extraVars'] = {};
         payload['extraVars']['encryptKey'] = this.props.deployConfig['encryptKey'];
       }
     }
