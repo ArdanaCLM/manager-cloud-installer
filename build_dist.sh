@@ -13,8 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+die() {
+   echo "$@" >&2
+   exit 1
+}
+
 # build the neccessary UI files
-./build_ui.sh
+./build_ui.sh || die "building UI files failed, exiting"
 
 # whether to create a tarball of the dist, set to true with -t
 TARBALL=false
@@ -40,6 +45,7 @@ done
 virtualenv --python=python2.7 manager_cloud_installer_server_venv
 
 # delete any existing content from the server/web folder
+rm -rf ./server/web
 rm -rf ./manager_cloud_installer_server_venv/lib/python/site-packages/cloudinstaller
 
 # recreate the server/web folder

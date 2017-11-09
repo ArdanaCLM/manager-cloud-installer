@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+die() {
+   echo "$@" >&2
+   exit 1
+}
+
 # install npm dependencies to run the build
 npm install
 
@@ -30,16 +35,16 @@ done
 rm -rf dist
 
 #compile the css/less files
-npm run less
+npm run less || die "npm less compilation failed"
 
 #build a bundle version of the javascript
-npm run dist
+npm run dist || die "npm dist failed"
 
 #copy the production index.html to the dist folder
 cp index.production dist/index.html
 
 #copy the config file to the dist folder
-cp config.json dist
+cp config.production dist/config.json
 
 #copy non-bundled third-party dependencies into dist
 # bootstrap
