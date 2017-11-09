@@ -411,7 +411,6 @@ class CloudDeployProgress extends BaseWizardPage {
     }
 
     // Build the payload from the deployment configuration page options
-    //let payload = {'verbose': this.props.deployConfig['verbosity']}
     let payload = {};
     if (this.props.deployConfig) {
       payload['verbose'] = this.props.deployConfig['verbosity'];
