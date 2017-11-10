@@ -16,6 +16,7 @@ import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
 import { alphabetically } from '../../utils/Sort.js';
 import { YesNoModal } from '../../components/Modals.js';
+import { getModelIndexByName } from '../../components/ServerUtils.js';
 import DiskModelDetails from './DiskModelDetails.js';
 
 class DiskModelsTab extends Component {
@@ -25,7 +26,6 @@ class DiskModelsTab extends Component {
     this.state = {
       diskModel: '',
       showDiskModelDetails: false,
-      showViewMode: false,
       showRemoveConfirmation: false,
       diskModelToRemove: '',
       extendedDetails: 0
@@ -43,7 +43,7 @@ class DiskModelsTab extends Component {
   }
   editDiskModel = (selected) => {
     if (!this.state.showDiskModelDetails) {
-      this.setState({showDiskModelDetails: true, diskModel: selected});
+      this.setState({showDiskModelDetails: true, diskModel: selected, extendedDetails: 1});
     }
   }
 
@@ -53,18 +53,9 @@ class DiskModelsTab extends Component {
     }
   }
 
-  viewDiskModel = (selected) => {
-    if (!this.state.showDiskModelDetails) {
-      this.setState({showDiskModelDetails: true, showViewMode: true, diskModel: selected});
-    }
-  }
-
-  renderViewDetails = () => {
-  }
-
   removeDiskModel = (name) => {
     this.setState({showRemoveConfirmation: false, diskModelToRemove: ''});
-    const index = getIndex(this.props.model, name);
+    const index = getModelIndexByName(this.props.model, 'disk-models', name);
     if (index !== -1) {
       const model = this.props.model.removeIn(['inputModel','disk-models', index]);
       this.props.updateGlobalState('model', model);
@@ -72,7 +63,7 @@ class DiskModelsTab extends Component {
   }
 
   hideDiskModelDetails = () => {
-    this.setState({showDiskModelDetails: false, showViewMode: false, diskModel: ''});
+    this.setState({showDiskModelDetails: false, diskModel: ''});
   }
 
   render() {
@@ -95,11 +86,9 @@ class DiskModelsTab extends Component {
           deviceGroups: m.has('device-groups') ? m.get('device-groups').toJS() : []
         };
 
-        let viewClass = 'glyphicon glyphicon-info-sign view-button';
         let editClass = 'glyphicon glyphicon-pencil edit-button';
-        let removeClass = 'fa fa-minus remove-button';
+        let removeClass = 'glyphicon glyphicon-trash remove-button';
         if (this.state.showDiskModelDetails) {
-          viewClass = viewClass + ' disabled';
           editClass = editClass + ' disabled';
           removeClass = removeClass + ' disabled';
         }
@@ -111,7 +100,6 @@ class DiskModelsTab extends Component {
             <td>{numDeviceGroups}</td>
             <td>
               <div className='row-action-container'>
-                <span onClick={() => this.viewDiskModel(selected)} className={viewClass}/>
                 <span onClick={() => this.editDiskModel(selected)} className={editClass}/>
                 <span onClick={() => this.confirmRemoveDiskModel(name)} className={removeClass}/>
               </div>
@@ -133,13 +121,9 @@ class DiskModelsTab extends Component {
 
     let detailsSection = '';
     if (this.state.showDiskModelDetails) {
-      if (this.state.showViewMode) {
-        detailsSection = this.renderViewDetails();
-      } else {
-        detailsSection = (<DiskModelDetails model={this.props.model}
-          diskModel={this.state.diskModel} updateGlobalState={this.props.updateGlobalState}
-          closeAction={this.hideDiskModelDetails} extendAction={this.setExtendedDetails}/>);
-      }
+      detailsSection = (<DiskModelDetails model={this.props.model}
+        diskModel={this.state.diskModel} updateGlobalState={this.props.updateGlobalState}
+        closeAction={this.hideDiskModelDetails} extendAction={this.setExtendedDetails}/>);
     }
 
     let confirmRemoveSection = '';
@@ -190,12 +174,6 @@ class DiskModelsTab extends Component {
       </div>
     );
   }
-}
-
-
-export function getIndex(model, name) {
-  return model.getIn(['inputModel', 'disk-models']).findIndex(
-    diskModel => diskModel.get('name') === name);
 }
 
 export default DiskModelsTab;
