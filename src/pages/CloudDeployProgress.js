@@ -406,13 +406,13 @@ class CloudDeployProgress extends BaseWizardPage {
   render() {
     // choose between site or site with wipedisks (dayzero-site)
     let sitePlaybook = 'site';
-    if (this.props.deployConfig['wipeDisks']) {
-      sitePlaybook = 'dayzero-site';
-    }
 
     // Build the payload from the deployment configuration page options
     let payload = {};
     if (this.props.deployConfig) {
+      if (this.props.deployConfig['wipeDisks']) {
+        sitePlaybook = 'dayzero-site';
+      }
       payload['verbose'] = this.props.deployConfig['verbosity'];
       payload['extraVars'] = {};
       // don't prompt "Are you sure?" questions for wipedisks
