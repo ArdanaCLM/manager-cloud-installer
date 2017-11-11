@@ -28,6 +28,7 @@ import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
 import ServerTable from '../components/ServerTable.js';
 import ViewServerDetails from './AssignServerRoles/ViewServerDetails';
+import EditServerDetails from '../components/EditServerDetails.js';
 import { importCSV } from '../utils/CsvImporter.js';
 import { fromJS } from 'immutable';
 import { isEmpty } from 'lodash';
@@ -96,6 +97,9 @@ class AssignServerRoles extends BaseWizardPage {
 
       //show server details modal
       showServerDetailsModal: false,
+
+      // show edit server details modal
+      showEditServerModal: false,
 
       // active row data to pass into details modal
       activeRowData: undefined
@@ -551,7 +555,6 @@ class AssignServerRoles extends BaseWizardPage {
     return conn;
   }
 
-
   handleDoneCredsInput = (credsData) => {
     this.setState({showCredsModal: false,});
     // need to update saved connections
@@ -593,6 +596,24 @@ class AssignServerRoles extends BaseWizardPage {
   handleCloseServerDetails = () => {
     this.setState({showServerDetailsModal: false, activeRowData: undefined});
     this.activeTableId = undefined;
+  }
+
+  handleDoneEditServer = (server) => {
+    //update model and save on the spot
+    this.updateModelObjectForEditServer(server);
+
+    //update servers and save to the backend
+    this.updateServerForEditServer(server);
+
+    this.setState({showEditServerModal: false, activeRowData: undefined});
+  }
+
+  handleCancelEditServer = () => {
+    this.setState({showEditServerModal: false, activeRowData: undefined});
+  }
+
+  handleShowEditServer = (rowData) => {
+    this.setState({showEditServerModal: true, activeRowData: rowData});
   }
 
   handleCloseMessage = (ind) => {
@@ -978,6 +999,63 @@ class AssignServerRoles extends BaseWizardPage {
     }
   }
 
+  /**
+   * When a server is edited (which is only possible in from the assigned servers page
+   * on the right), update the details of the matching entry in the list that backs
+   * the available servers (on the left).  This ensures that the correct information
+   * is persisted to the discovered server store, and also ensures that no information
+   * is dropped when unassigning and reassigning servers to roles.
+   */
+  updateServerForEditServer = (server) => {
+    for (let list of ['rawDiscoveredServers', 'serversAddedManually']) {
+      let idx = this.state[list].findIndex(s => server.id === s.id);
+      if (idx >= 0) {
+        let updated_server;
+        this.setState(prev => {
+          let tempList = prev[list].slice();
+          updated_server = this.getMergedServer(tempList[idx], server);
+          tempList.splice(idx, 1, updated_server);
+          return {[list]: tempList};
+        }, () => {
+          this.updateDiscoveredServer(updated_server)
+            .then((response) => {})
+            .catch((error) => {
+              let msg = translate('server.discover.update.error', updated_server.name);
+              this.setState(prev => { return {
+                messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+              };});
+            });
+        });
+        break;
+      }
+    }
+  }
+
+  updateModelObjectForEditServer = (server) => {
+    //update model
+    let model = this.props.model;
+
+    let index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') === server.id);
+    if (index >= 0) {
+      const update_svr = {
+        //fields from edit server
+        'ip-addr': server['ip-addr'],
+        'mac-addr': server['mac-addr'],
+        'server-group': server['server-group'],
+        'nic-mapping': server['nic-mapping'],
+        'ilo-ip': server['ilo-ip'],
+        'ilo-user': server['ilo-user'],
+        'ilo-password': server['ilo-password']
+      };
+      model = model.mergeIn(['inputModel', 'servers', index], update_svr);
+    } else {
+      model = model.updateIn(['inputModel', 'servers'], list => list.push(fromJS(server)));
+    }
+
+    this.props.updateGlobalState('model', model);
+  }
+
+
   //check if we have enough servers roles for the model
   isValid = () => {
     return getServerRoles(this.props.model).every(role => {
@@ -1212,6 +1290,7 @@ class AssignServerRoles extends BaseWizardPage {
         allowDropFunct={this.allowDrop}
         serverRoles={getServerRoles(this.props.model)}
         tableId='rightTableId'
+        editAction={this.handleShowEditServer}
         viewAction={this.handleShowServerDetails}>
       </ServerRolesAccordion>
     );
@@ -1284,6 +1363,24 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
+  renderEditServerDetailsModal() {
+    return (
+      <BaseInputModal
+        show={this.state.showEditServerModal}
+        className='edit-details-dialog'
+        onHide={this.handleCancelEditServer}
+        title={translate('edit.server.details.heading')}>
+
+        <EditServerDetails
+          cancelAction={this.handleCancelEditServer}
+          doneAction={this.handleDoneEditServer}
+          serverGroups={getServerGroups(this.props.model)} nicMappings={getNicMappings(this.props.model)}
+          data={this.state.activeRowData}>
+        </EditServerDetails>
+      </BaseInputModal>
+    );
+  }
+
   render() {
     return (
       <div className='wizard-page'>
@@ -1295,6 +1392,7 @@ class AssignServerRoles extends BaseWizardPage {
           {this.renderCredsInputModal()}
           {this.renderAddServerManuallyModal()}
           {this.renderServerDetailsModal()}
+          {this.renderEditServerDetailsModal()}
           {this.renderLoadingMask()}
           {this.renderErrorMessage()}
         </div>

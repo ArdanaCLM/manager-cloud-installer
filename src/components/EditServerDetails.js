@@ -13,11 +13,11 @@
 * limitations under the License.
 **/
 import React, { Component } from 'react';
-import { translate } from '../../localization/localize.js';
-import { ActionButton } from '../../components/Buttons.js';
-import { ServerInputLine, ServerDropdownLine} from '../../components/ServerUtils.js';
-import { IpV4AddressValidator, MacAddressValidator } from '../../utils/InputValidators.js';
-import { INPUT_STATUS } from '../../utils/constants.js';
+import { translate } from '../localization/localize.js';
+import { ActionButton } from '../components/Buttons.js';
+import { ServerInputLine, ServerDropdownLine} from '../components/ServerUtils.js';
+import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
+import { INPUT_STATUS } from '../utils/constants.js';
 
 class EditServerDetails extends Component {
   constructor(props) {
