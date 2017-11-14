@@ -28,7 +28,7 @@ class ServerRoleSummary extends BaseWizardPage {
 
     this.checkInputs = ['nic-mapping', 'server-group'];
     this.state = {
-      expandedGroup: [],
+      expandedGroup: ['COMPUTE-ROLE'],
     };
   }
 

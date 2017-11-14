@@ -45,6 +45,7 @@ class EditCloudSettings extends Component {
         show={this.props.show}
         title={translate('edit.cloud.settings')}
         className={'cloud-settings'}
+        hideFooter='true'
         onHide={this.props.onHide}>
 
         <Tabs id='editCloudSettings' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>

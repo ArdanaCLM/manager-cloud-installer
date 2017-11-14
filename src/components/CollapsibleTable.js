@@ -67,6 +67,12 @@ class CollapsibleTable extends Component {
   }
 
   render() {
+    for (let name in this.props.expandedGroup) {
+      let index = this.props.data.findIndex(e => e.get('groupName') === name);
+      if (index !== -1) {
+        this.props.data[index].isExpanded = 'true';
+      }
+    }
     let rows = this.props.data.map((group) => {return this.renderGroup(group);});
     return (
       <div className='collapsible-table'>
