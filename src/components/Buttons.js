@@ -40,7 +40,7 @@ class ActionButton extends Component {
   render() {
     let buttonClass = 'btn ' + (this.props.type ? 'btn-' + this.props.type : 'btn-primary ') +
       (this.props.isDisabled ? ' disabled' : '');
-
+    buttonClass += (this.props.lastButton) ? 'last-button' : '';
     return (
       <button
         className={buttonClass}
@@ -103,6 +103,7 @@ class LoadFileButton extends Component {
           clickAction={this.onClickShownButton}
           displayLabel={this.props.displayLabel}
           isDisabled={this.props.isDisabled || false}
+          lastButton='true'
         />
         <form ref={(form) => { this.form = form; }} >
           <input type="file"
