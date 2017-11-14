@@ -390,8 +390,8 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   renderAddServerManuallyModal = () => {
-    const serverGroups = getServerGroups(this.props.model);
-    const nicMappings = getNicMappings(this.props.model);
+    const serverGroups = getServerGroups(this.props.model).toJS();
+    const nicMappings = getNicMappings(this.props.model).toJS();
     let roles = getServerRoles(this.props.model).map(e => e['serverRole']);
     roles.unshift('');
     if (!this.newServer.role) {
