@@ -35,14 +35,14 @@ export function isRoleAssignmentValid (role, checkInputs) {
 export function getServerGroups(model) {
   let groups = model.getIn(['inputModel','server-groups'])
     .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
-    .map(group => group.get('name'));
+    .map(group => group.get('name')).toJS();
   return groups;
 }
 
 export function getNicMappings(model) {
   return model.getIn(['inputModel','nic-mappings'])
     .sort((a,b) => alphabetically(a.get('name'), b.get('name')))
-    .map(nic => nic.get('name'));
+    .map(nic => nic.get('name')).toJS();
 }
 
 function getCleanedServer(srv) {
