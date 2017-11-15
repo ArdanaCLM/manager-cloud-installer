@@ -364,9 +364,11 @@ class DiskModelDetails extends Component {
   checkSecondDetailsDataToSave = () => {
     if (this.secondDetails === 'vg') {
       if (this.vgMode === MODE.ADD) {
+        // in add mode - check if all fields have values
         return this.state.volumeGroup.name && this.state.volumeGroup.name !== '' &&
           this.state.physicalVolumes.length > 0 && this.state.logicalVolumes.length > 0;
       } else {
+        // in edit mode - check if value in each field has changed
         const pvs = this.state.physicalVolumes.slice().sort();
         return (this.state.volumeGroup.name && this.state.volumeGroup.name !== '' &&
           this.state.physicalVolumes.length > 0 && this.state.logicalVolumes.length > 0) &&
@@ -376,12 +378,14 @@ class DiskModelDetails extends Component {
       }
     } else {
       if (this.dgMode === MODE.ADD) {
+        // in add mode - check if name and one of consumer usage or attributes is provided
         return this.state.deviceGroup.name && this.state.deviceGroup.name !== '' &&
           this.state.deviceGroupConsumer.name && this.state.deviceGroupConsumer.name !== '' &&
           this.state.deviceGroupDevices.length > 0 &&
           ((this.state.deviceGroupConsumer.usage && this.state.deviceGroupConsumer.usage !== '') ||
            (this.state.deviceGroupConsumer.attrs && this.state.deviceGroupConsumer.attrs !== ''));
       } else {
+        // in edit mode - check if value in each field has changed
         const devices = this.state.deviceGroupDevices.slice().sort();
         return (this.state.deviceGroup.name && this.state.deviceGroup.name !== '' &&
           this.state.deviceGroupConsumer.name && this.state.deviceGroupConsumer.name !== '' &&

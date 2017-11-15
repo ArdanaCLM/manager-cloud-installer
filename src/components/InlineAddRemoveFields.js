@@ -259,6 +259,7 @@ class InlineAddRemoveInput extends Component {
     const addClass = this.state.selectedItem === '' ? 'fa fa-plus hide' :
       this.props.disabled ? 'fa fa-plus right-sign disabled' : 'fa fa-plus right-sign';
     const removeClass = this.props.disabled ? 'fa fa-minus left-sign disabled' : 'fa fa-minus left-sign';
+    const selectedRemoveClass = this.state.selectedItem === '' ? removeClass + ' hide' : removeClass;
     let lines = [];
     let textFields = this.state.items.slice();
     textFields.splice(textFields.length - 1, 1);
@@ -281,9 +282,9 @@ class InlineAddRemoveInput extends Component {
         <div className='dropdown-plus-minus'>
           <ServerInput key={this.props.name + 'start'} inputValue={this.state.selectedItem}
             inputType='text' inputAction={this.handleInputLine} placeholder={this.props.placeholder}
-            disabled={this.props.disabled}/>
+            isRequired='true' disabled={this.props.disabled}/>
           <div className='plus-minus-container'>
-            <span key={this.props.name + 'minus'} className={removeClass}
+            <span key={this.props.name + 'minus'} className={selectedRemoveClass}
               onClick={() => this.removeItem(-1)}/>
             <span key={this.props.name + 'plus'} className={addClass}
               onClick={this.addItem}/>
