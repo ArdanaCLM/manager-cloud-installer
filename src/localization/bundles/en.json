@@ -199,7 +199,7 @@
     "number.networks": "Number of Networks",
     "number.server.groups": "Number of Server Groups",
     "network.name": "Network Name",
-    "network.update": "Update Network",
+    "network.update": "Edit Network",
     "network.add": "Add Network",
     "network.gateway": "Gateway IP",
     "network": "Network",
