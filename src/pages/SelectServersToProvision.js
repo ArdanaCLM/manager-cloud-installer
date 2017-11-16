@@ -20,6 +20,7 @@ import { ActionButton } from '../components/Buttons.js';
 import { YesNoModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import TransferTable from '../components/TransferTable.js';
+import { ServerInputLine } from '../components/ServerUtils.js';
 import { PlaybookProgress } from './CloudDeployProgress.js';
 import { fetchJson } from '../utils/RestUtils.js';
 
@@ -48,11 +49,12 @@ class SelectServersToProvision extends BaseWizardPage {
   constructor(props) {
     super(props);
     this.state = {
-
       allServers: [],
       leftList: [],
       rightList: [],
 
+      osInstallUsername: 'stack',
+      osInstallPassword: '',
       installing: false,
       showModal: false,
       overallStatus: STATUS.UNKNOWN, // overall status of install playbook
@@ -108,6 +110,11 @@ class SelectServersToProvision extends BaseWizardPage {
     }
   }
 
+  handleOsInstallPassword = (e, valid, props) => {
+    const password = e.target.value;
+    this.setState({osInstallPassword: password});
+  }
+
   renderTransferTable() {
     return (
       <div>
@@ -116,6 +123,20 @@ class SelectServersToProvision extends BaseWizardPage {
         </div>
         <div className='wizard-content'>
           <div className='server-provision'>
+            <div className='password-container'>
+              <div className='detail-line'>
+                <div className='detail-heading'>{translate('server.user.prompt')}</div>
+                <div>{this.state.osInstallUsername}</div>
+              </div>
+              <ServerInputLine
+                isRequired='true'
+                label='server.pass.prompt'
+                inputName='osInstallPassword'
+                inputType='password'
+                inputValue={this.state.osInstallPassword}
+                inputAction={this.handleOsInstallPassword}/>
+            </div>
+
             <TransferTable
               leftList={this.state.leftList}
               rightList={this.state.rightList}
@@ -127,7 +148,7 @@ class SelectServersToProvision extends BaseWizardPage {
               <ActionButton
                 displayLabel={translate('provision.server.install')}
                 clickAction={() => this.setState({showModal: true})}
-                isDisabled={this.state.rightList.length == 0}/>
+                isDisabled={this.state.rightList.length == 0 || this.state.osInstallPassword === ''}/>
             </div>
             <YesNoModal show={this.state.showModal}
               title={translate('warning')}
@@ -149,8 +170,7 @@ class SelectServersToProvision extends BaseWizardPage {
       const payload = {
         'extra-vars': {
           'nodelist': serversToProvision.map(e => e.id).join(','),
-          // TODO: Password should be set by the UI in SCRD-1711
-          'ardanauser_password': 'stack'
+          'ardanauser_password': this.state.osInstallPassword
         }};
 
       return (
