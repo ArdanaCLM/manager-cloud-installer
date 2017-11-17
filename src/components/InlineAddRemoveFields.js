@@ -158,6 +158,7 @@ class InlineAddRemoveDropdown extends Component {
     options.unshift('');
 
     let lastItem = this.state.items[this.state.items.length - 1];
+    const addClass = lastItem === '' ? 'fa fa-plus hide' : 'fa fa-plus right-sign';
     return (
       <div>
         {lines}
@@ -168,7 +169,7 @@ class InlineAddRemoveDropdown extends Component {
           <div className='plus-minus-container'>
             <span key={this.props.name + 'minus'} className={'fa fa-minus left-sign'}
               onClick={() => this.removeItem(-1)}/>
-            <span key={this.props.name + 'plus'} className={'fa fa-plus right-sign'}
+            <span key={this.props.name + 'plus'} className={addClass}
               onClick={this.addItem}/>
           </div>
         </div>
@@ -255,8 +256,10 @@ class InlineAddRemoveInput extends Component {
   }
 
   render() {
-    const addClass = this.props.disabled ? 'fa fa-plus right-sign disabled' : 'fa fa-plus right-sign';
+    const addClass = this.state.selectedItem === '' ? 'fa fa-plus hide' :
+      this.props.disabled ? 'fa fa-plus right-sign disabled' : 'fa fa-plus right-sign';
     const removeClass = this.props.disabled ? 'fa fa-minus left-sign disabled' : 'fa fa-minus left-sign';
+    const selectedRemoveClass = this.state.selectedItem === '' ? removeClass + ' hide' : removeClass;
     let lines = [];
     let textFields = this.state.items.slice();
     textFields.splice(textFields.length - 1, 1);
@@ -279,9 +282,9 @@ class InlineAddRemoveInput extends Component {
         <div className='dropdown-plus-minus'>
           <ServerInput key={this.props.name + 'start'} inputValue={this.state.selectedItem}
             inputType='text' inputAction={this.handleInputLine} placeholder={this.props.placeholder}
-            isRequired={true} disabled={this.props.disabled}/>
+            isRequired='true' disabled={this.props.disabled}/>
           <div className='plus-minus-container'>
-            <span key={this.props.name + 'minus'} className={removeClass}
+            <span key={this.props.name + 'minus'} className={selectedRemoveClass}
               onClick={() => this.removeItem(-1)}/>
             <span key={this.props.name + 'plus'} className={addClass}
               onClick={this.addItem}/>
