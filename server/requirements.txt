@@ -6,3 +6,4 @@ PyYAML>=3.10.0   # MIT
 requests         # APACHE2
 socketIO-client>=0.7.0 # MIT
 tinydb>=3.5.0    # MIT
+datetime         # PSF
