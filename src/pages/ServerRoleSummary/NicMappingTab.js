@@ -300,7 +300,7 @@ class NicMappingTab extends Component {
 
     return (
       <div>
-        <div className={this.state.mode !== MODE.NONE ? 'col-xs-8 verticalLine' : ''}>
+        <div className={this.state.mode !== MODE.NONE ? 'col-xs-8 verticalLine' : 'col-xs-12'}>
           <table className='table'>
             <thead>
               <tr>

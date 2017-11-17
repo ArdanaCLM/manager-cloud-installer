@@ -93,7 +93,7 @@ class NetworksTab extends Component {
       extraProps.networkName = this.state.networkName;
     }
     return (
-      <div className='network-update-container'>
+      <div className='network-update-container col-xs-3'>
         <UpdateNetworks ref={'updateNetwork' + this.state.mode}
           model={this.props.model} mode={this.state.mode} {...extraProps}
           updateGlobalState={this.props.updateGlobalState}
@@ -134,7 +134,8 @@ class NetworksTab extends Component {
         );
       });
     let netClass = 'network-table-container ';
-    netClass = this.state.mode === MODE.NONE ? netClass + 'full-table' : netClass + 'verticalLine';
+    netClass = this.state.mode === MODE.NONE ? netClass + 'col-xs-12' :
+      netClass + 'col-xs-9 verticalLine';
 
     return (
       <div className={netClass}>

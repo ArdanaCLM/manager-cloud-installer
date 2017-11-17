@@ -33,7 +33,7 @@ function ConfirmModal(props) {
       <Modal.Body>
         {props.children}
       </Modal.Body>
-      <Modal.Footer>
+      <Modal.Footer className={props.hideFooter ? 'hide' : ''}>
         {props.footer ||
           <ActionButton clickAction={props.onHide} displayLabel={translate('ok')}/>}
       </Modal.Footer>
@@ -50,7 +50,8 @@ function YesNoModal(props) {
   );
 
   return (
-    <ConfirmModal show={props.show} title={props.title} onHide={props.noAction} footer={footer}>
+    <ConfirmModal show={props.show} title={props.title} onHide={props.noAction} footer={footer}
+      hideFooter={props.hideFooter}>
       {props.children}
     </ConfirmModal>
   );
