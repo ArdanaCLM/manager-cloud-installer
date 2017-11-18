@@ -32,7 +32,10 @@ import EditServerDetails from '../components/EditServerDetails.js';
 import { importCSV } from '../utils/CsvImporter.js';
 import { fromJS } from 'immutable';
 import { isEmpty } from 'lodash';
-import { getServerRoles, isRoleAssignmentValid,  getNicMappings, getServerGroups } from '../utils/ModelUtils.js';
+import {
+  getServerRoles, isRoleAssignmentValid,  getNicMappings, getServerGroups, getMergedServer, updateServersInModel
+} from '../utils/ModelUtils.js';
+import { MODEL_SERVER_PROPS, MODEL_SERVER_PROPS_ALL } from "../utils/constants.js";
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
@@ -809,21 +812,6 @@ class AssignServerRoles extends BaseWizardPage {
     return retData;
   }
 
-
-  // Merges the relevant properties of destination server into the src and returns the merged version.  Neither
-  // src or dest are modified
-  getMergedServer = (src, dest) => {
-    let result = Object.assign({}, src);
-    const props = ['name', 'ip-addr', 'mac-addr' ,'server-group' ,'nic-mapping' ,'ilo-ip' ,'ilo-user' ,'ilo-password'];
-
-    props.forEach(p => {
-      if (p in dest)
-        result[p] = dest[p];
-    });
-
-    return result;
-  }
-
   // Create a sanitized version of the a server entry, with empty strings instead of undefined values
   getCleanedServer(srv) {
     const strId = srv['id'].toString();
@@ -1013,7 +1001,7 @@ class AssignServerRoles extends BaseWizardPage {
         let updated_server;
         this.setState(prev => {
           let tempList = prev[list].slice();
-          updated_server = this.getMergedServer(tempList[idx], server);
+          updated_server = getMergedServer(tempList[idx], server, MODEL_SERVER_PROPS);
           tempList.splice(idx, 1, updated_server);
           return {[list]: tempList};
         }, () => {
@@ -1032,26 +1020,8 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   updateModelObjectForEditServer = (server) => {
-    //update model
-    let model = this.props.model;
 
-    let index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') === server.id);
-    if (index >= 0) {
-      const update_svr = {
-        //fields from edit server
-        'ip-addr': server['ip-addr'],
-        'mac-addr': server['mac-addr'],
-        'server-group': server['server-group'],
-        'nic-mapping': server['nic-mapping'],
-        'ilo-ip': server['ilo-ip'],
-        'ilo-user': server['ilo-user'],
-        'ilo-password': server['ilo-password']
-      };
-      model = model.mergeIn(['inputModel', 'servers', index], update_svr);
-    } else {
-      model = model.updateIn(['inputModel', 'servers'], list => list.push(fromJS(server)));
-    }
-
+    let model = updateServersInModel(server, this.props.model, MODEL_SERVER_PROPS_ALL);
     this.props.updateGlobalState('model', model);
   }
 

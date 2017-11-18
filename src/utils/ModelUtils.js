@@ -12,6 +12,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 **/
+import { Map } from 'immutable';
 import { alphabetically, byServerNameOrId } from './Sort.js';
 
 export function isRoleAssignmentValid (role, checkInputs) {
@@ -98,4 +99,32 @@ export function getServerRoles (model) {
   // Sort the role list by role name
   return results.sort((a,b) => alphabetically(a['name'],b['name']));
 }
+
+// Merges the relevant properties of destination server into the src and returns the merged version.  Neither
+// src or dest are modified
+export function  getMergedServer (src, dest, props)  {
+  let result = Object.assign({}, src);
+
+  props.forEach(p => {
+    if (p in dest)
+      result[p] = dest[p];
+  });
+
+  return result;
+}
+
+export function updateServersInModel(server, model, props) {
+  let retModel = model.updateIn(['inputModel','servers'], list => list.map(svr => {
+    if (svr.get('id') === server.id) {
+      let update_server = new Map(getMergedServer(svr, server, props));
+      return update_server;
+    }
+    else {
+      return svr;
+    }
+  }));
+
+  return retModel;
+}
+
 
