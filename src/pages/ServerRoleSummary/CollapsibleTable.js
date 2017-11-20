@@ -14,7 +14,7 @@
 **/
 import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
-import EditServerDetails from './EditServerDetails.js';
+import EditServerDetails from '../../components/EditServerDetails.js';
 import ViewServerDetails from '../AssignServerRoles/ViewServerDetails.js';
 import { getNicMappings, getServerGroups } from '../../utils/ModelUtils.js';
 import { BaseInputModal } from '../../components/Modals.js';

@@ -12,28 +12,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 **/
-export const STATUS = {
-  UNKNOWN: -1,
-  NOT_STARTED: 0,
-  COMPLETE: 1,
-  IN_PROGRESS: 2,
-  FAILED: 3
-};
-
-export const INPUT_STATUS = {
-  UNKNOWN: -1,
-  VALID: 1,
-  INVALID: 0
-};
-
-export const MODE = {
-  EDIT: 'edit',
-  ADD: 'add',
-  NONE: 'none'
-};
-
-export const MODEL_SERVER_PROPS =  [
-  'name', 'ip-addr', 'mac-addr' ,'server-group' ,'nic-mapping' ,'ilo-ip' ,'ilo-user', 'ilo-password'
-];
-
-export const MODEL_SERVER_PROPS_ALL = MODEL_SERVER_PROPS.concat(['role','id']);
+.edit-server-details {
+  min-height: 37em;
+  .input-button-container {
+    position: absolute;
+    margin-top: 1em;
+    right: 2em;
+    bottom: 1em;
+  }
+}
+.edit-details-dialog {
+  min-width: 55em;
+}

@@ -28,10 +28,14 @@ import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
 import ServerTable from '../components/ServerTable.js';
 import ViewServerDetails from './AssignServerRoles/ViewServerDetails';
+import EditServerDetails from '../components/EditServerDetails.js';
 import { importCSV } from '../utils/CsvImporter.js';
 import { fromJS } from 'immutable';
 import { isEmpty } from 'lodash';
-import { getServerRoles, isRoleAssignmentValid,  getNicMappings, getServerGroups } from '../utils/ModelUtils.js';
+import {
+  getServerRoles, isRoleAssignmentValid,  getNicMappings, getServerGroups, getMergedServer, updateServersInModel
+} from '../utils/ModelUtils.js';
+import { MODEL_SERVER_PROPS, MODEL_SERVER_PROPS_ALL } from "../utils/constants.js";
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
@@ -96,6 +100,9 @@ class AssignServerRoles extends BaseWizardPage {
 
       //show server details modal
       showServerDetailsModal: false,
+
+      // show edit server details modal
+      showEditServerModal: false,
 
       // active row data to pass into details modal
       activeRowData: undefined
@@ -551,7 +558,6 @@ class AssignServerRoles extends BaseWizardPage {
     return conn;
   }
 
-
   handleDoneCredsInput = (credsData) => {
     this.setState({showCredsModal: false,});
     // need to update saved connections
@@ -593,6 +599,24 @@ class AssignServerRoles extends BaseWizardPage {
   handleCloseServerDetails = () => {
     this.setState({showServerDetailsModal: false, activeRowData: undefined});
     this.activeTableId = undefined;
+  }
+
+  handleDoneEditServer = (server) => {
+    //update model and save on the spot
+    this.updateModelObjectForEditServer(server);
+
+    //update servers and save to the backend
+    this.updateServerForEditServer(server);
+
+    this.setState({showEditServerModal: false, activeRowData: undefined});
+  }
+
+  handleCancelEditServer = () => {
+    this.setState({showEditServerModal: false, activeRowData: undefined});
+  }
+
+  handleShowEditServer = (rowData) => {
+    this.setState({showEditServerModal: true, activeRowData: rowData});
   }
 
   handleCloseMessage = (ind) => {
@@ -788,21 +812,6 @@ class AssignServerRoles extends BaseWizardPage {
     return retData;
   }
 
-
-  // Merges the relevant properties of destination server into the src and returns the merged version.  Neither
-  // src or dest are modified
-  getMergedServer = (src, dest) => {
-    let result = Object.assign({}, src);
-    const props = ['name', 'ip-addr', 'mac-addr' ,'server-group' ,'nic-mapping' ,'ilo-ip' ,'ilo-user' ,'ilo-password'];
-
-    props.forEach(p => {
-      if (p in dest)
-        result[p] = dest[p];
-    });
-
-    return result;
-  }
-
   // Create a sanitized version of the a server entry, with empty strings instead of undefined values
   getCleanedServer(srv) {
     const strId = srv['id'].toString();
@@ -977,6 +986,45 @@ class AssignServerRoles extends BaseWizardPage {
       element.css('margin', element.css('prevmargin') || '');
     }
   }
+
+  /**
+   * When a server is edited (which is only possible in from the assigned servers page
+   * on the right), update the details of the matching entry in the list that backs
+   * the available servers (on the left).  This ensures that the correct information
+   * is persisted to the discovered server store, and also ensures that no information
+   * is dropped when unassigning and reassigning servers to roles.
+   */
+  updateServerForEditServer = (server) => {
+    for (let list of ['rawDiscoveredServers', 'serversAddedManually']) {
+      let idx = this.state[list].findIndex(s => server.id === s.id);
+      if (idx >= 0) {
+        let updated_server;
+        this.setState(prev => {
+          let tempList = prev[list].slice();
+          updated_server = getMergedServer(tempList[idx], server, MODEL_SERVER_PROPS);
+          tempList.splice(idx, 1, updated_server);
+          return {[list]: tempList};
+        }, () => {
+          this.updateDiscoveredServer(updated_server)
+            .then((response) => {})
+            .catch((error) => {
+              let msg = translate('server.discover.update.error', updated_server.name);
+              this.setState(prev => { return {
+                messages: prev.messages.concat([{msg: [msg, error.toString()]}])
+              };});
+            });
+        });
+        break;
+      }
+    }
+  }
+
+  updateModelObjectForEditServer = (server) => {
+
+    let model = updateServersInModel(server, this.props.model, MODEL_SERVER_PROPS_ALL);
+    this.props.updateGlobalState('model', model);
+  }
+
 
   //check if we have enough servers roles for the model
   isValid = () => {
@@ -1212,6 +1260,7 @@ class AssignServerRoles extends BaseWizardPage {
         allowDropFunct={this.allowDrop}
         serverRoles={getServerRoles(this.props.model)}
         tableId='rightTableId'
+        editAction={this.handleShowEditServer}
         viewAction={this.handleShowServerDetails}>
       </ServerRolesAccordion>
     );
@@ -1284,6 +1333,24 @@ class AssignServerRoles extends BaseWizardPage {
     );
   }
 
+  renderEditServerDetailsModal() {
+    return (
+      <BaseInputModal
+        show={this.state.showEditServerModal}
+        className='edit-details-dialog'
+        onHide={this.handleCancelEditServer}
+        title={translate('edit.server.details.heading')}>
+
+        <EditServerDetails
+          cancelAction={this.handleCancelEditServer}
+          doneAction={this.handleDoneEditServer}
+          serverGroups={getServerGroups(this.props.model)} nicMappings={getNicMappings(this.props.model)}
+          data={this.state.activeRowData}>
+        </EditServerDetails>
+      </BaseInputModal>
+    );
+  }
+
   render() {
     return (
       <div className='wizard-page'>
@@ -1295,6 +1362,7 @@ class AssignServerRoles extends BaseWizardPage {
           {this.renderCredsInputModal()}
           {this.renderAddServerManuallyModal()}
           {this.renderServerDetailsModal()}
+          {this.renderEditServerDetailsModal()}
           {this.renderLoadingMask()}
           {this.renderErrorMessage()}
         </div>

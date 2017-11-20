@@ -18,8 +18,8 @@ import BaseWizardPage from './BaseWizardPage.js';
 import CollapsibleTable from './ServerRoleSummary/CollapsibleTable.js';
 import { ActionButton } from '../components/Buttons.js';
 import { EditCloudSettings } from './ServerRoleSummary/EditCloudSettings.js';
-import { fromJS } from 'immutable';
-import { getServerRoles, isRoleAssignmentValid } from '../utils/ModelUtils.js';
+import { getServerRoles, isRoleAssignmentValid, updateServersInModel } from '../utils/ModelUtils.js';
+import { MODEL_SERVER_PROPS_ALL } from "../utils/constants.js";
 
 class ServerRoleSummary extends BaseWizardPage {
 
@@ -54,24 +54,8 @@ class ServerRoleSummary extends BaseWizardPage {
   }
 
   saveEditServer = (server) =>  {
-    let model = this.props.model;
-    let index = model.getIn(['inputModel', 'servers']).findIndex(e => e.get('id') === server.id);
-    if (index >= 0) {
-      const update_svr = {
-        //fields from edit server
-        'ip-addr': server['ip-addr'],
-        'mac-addr': server['mac-addr'],
-        'server-group': server['server-group'],
-        'nic-mapping': server['nic-mapping'],
-        'ilo-ip': server['ilo-ip'],
-        'ilo-user': server['ilo-user'],
-        'ilo-password': server['ilo-password']
-      };
-      model = model.mergeIn(['inputModel', 'servers', index], update_svr);
-    } else {
-      model = model.updateIn(['inputModel', 'servers'], list => list.push(fromJS(server)));
-    }
-
+    let model =
+      updateServersInModel(server, this.props.model, MODEL_SERVER_PROPS_ALL);
     this.props.updateGlobalState('model', model);
   }
 
