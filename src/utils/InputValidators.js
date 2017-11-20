@@ -18,7 +18,7 @@ import { safeLoad } from 'js-yaml';
 const IPV4ADDRESS =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 const MACADDRESS =
-  /^[0-9a-fA-F]{1,2}([:-])(?:[0-9a-fA-F]{1,2}\1){4}[0-9a-fA-F]{1,2}$/;
+  /^[0-9a-fA-F]{2}([:])(?:[0-9a-fA-F]{2}\1){4}[0-9a-fA-F]{2}$/;
 const HOST = /^(?=^.{1,254}$)(^(?:(?!\d+\.)[a-zA-Z0-9_-]{1,63}\.?)+(?:[a-zA-Z]{2,})$)/;
 const IPV4ADDRESS_HOST = new RegExp(
   IPV4ADDRESS.toString().slice(1, IPV4ADDRESS.toString().length-1) + '|' +
