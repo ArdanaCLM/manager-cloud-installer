@@ -105,9 +105,8 @@ export function getServerRoles (model) {
 export function  getMergedServer (src, dest, props)  {
   let result = Object.assign({}, src);
   props.forEach(p => {
-    if (p in dest) {
+    if (p in dest)
       result[p] = dest[p];
-    }
   });
 
   return result;
@@ -120,10 +119,10 @@ export function updateServersInModel(server, model, props) {
       //clean up unwanted entries
       let update_server = {};
       for (let key in object_server) {
+        // only pick up the properties for server
         if (props.indexOf(key) !== -1) {
-          update_server[key] = object_server[key];
-          if(update_server[key] === undefined || update_server[key] === '') {
-            delete update_server[key];
+          if(object_server[key] !== undefined && object_server[key] !== '') {
+            update_server[key] = object_server[key];
           }
         }
       }
