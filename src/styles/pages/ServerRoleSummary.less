@@ -27,14 +27,8 @@
   .add-button {
     padding-right: 5px;
     font-size: 16px;
-    color: @info-link-color;
     position: relative;
     top: 3px;
-    cursor: pointer;
-    &.disabled {
-      color: @inactivecolor;
-      cursor: default;
-    }
   }
 
   .multiple-details {
@@ -47,12 +41,15 @@
   }
 
   .extended-one {
+    display: flex;
     width: 100%;
   }
   .extended-two {
+    display: flex;
     width: 133%;
   }
   .extended-three {
+    display: flex;
     width: 165%;
   }
 
@@ -76,7 +73,9 @@
         width: 85%;
       }
     }
-
+    .details-body .field-title-container {
+      display: flex;
+    }
     .details-body { 
         select, input, textarea {
         height: 28px;
@@ -98,6 +97,10 @@
     .details-group-title {
       margin-top: 2em;
       font-weight: bold;
+      &.column-title {
+        width: 11em;
+        margin-right: 0.7em;
+      }
     }
 
     .dropdown-plus-minus {
@@ -123,11 +126,9 @@
       display: flex;
       margin-top: 0.8em; // same as margin-top of '.details-body select'
       .left-sign {
-        color: @info-link-color;
         margin: auto 9px auto 9px;
       }
       .right-sign {
-        color: @info-link-color;
         margin: auto 0 auto 0;
       }
     }
@@ -221,20 +222,10 @@
       }
     }
     .edit-button {
-      color: @info-link-color;
       margin: auto 12px auto 12px;
-      &.disabled {
-        color: @inactivecolor;
-        cursor: default;
-      }
     }
     .remove-button {
-      color: @info-link-color;
       margin: auto 0 auto 0;
-      &.disabled {
-        color: @inactivecolor;
-        cursor: default;
-      }
     }
   }
   .action-column {

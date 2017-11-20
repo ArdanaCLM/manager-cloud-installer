@@ -34,7 +34,7 @@ class InterfaceModelsTab extends Component {
       overallMode: MODE.NONE,
       detailMode: MODE.NONE,
 
-      // iindex of the row in the main table being edited (interface model)
+      // index of the row in the main table being edited (interface model)
       activeOverallRow: undefined,
       // index of the row in the detail table being edited (interface)
       activeDetailRow: undefined,
@@ -333,38 +333,43 @@ class InterfaceModelsTab extends Component {
 
         let minus, edit;
         //if (idx === arr.size-1 && this.state.deviceList.get(idx).get('name')) {
-        edit = (<span key='edit' className={'glyphicon glyphicon-pencil edit-button left-sign'}
+        let editClass = 'glyphicon glyphicon-pencil edit-button left-sign';
+        let minusClass = 'fa fa-minus right-sign';
+        if (this.state.detailMode !== MODE.NONE) {
+          editClass += ' disabled';
+          minusClass += ' disabled';
+        }
+        edit = (<span key='edit' className={editClass}
           onClick={(e) => this.editInterface(e, idx)}/>);
         //}
         //if (idx > 0 || this.state.deviceList.get(idx).get('name')) {
-        minus = (<span key='remove' className={'fa fa-minus right-sign'}
+        minus = (<span key='remove' className={minusClass}
           onClick={(e) => this.removeInterface(e, idx)}/>);
         //}
 
         return (
           <div key={idx} className='dropdown-plus-minus'>
-            <div className="field-container">
-              <ServerInput isRequired='true' placeholder={translate('interface.name') + '*'}
-                inputValue={e.get('name')} inputType='text' disabled='true' />
-            </div>
+            <ServerInput isRequired='true' placeholder={translate('interface.name') + '*'}
+              inputValue={e.get('name')} inputType='text' disabled='true' />
             <div className='plus-minus-container'> {edit} {minus} </div>
           </div>
         );
       });
 
+      let addClass = 'material-icons add-button';
       let widthClass = '';
+      let buttonClass = 'btn-container';
       if (this.state.detailMode !== MODE.NONE) {
+        addClass += ' disabled';
         widthClass = 'col-xs-6 verticalLine';
+        buttonClass += ' hide';
       }
 
-      let addButton;
-      if (this.state.isInterfaceModelNameValid) {
-        addButton = (
-          <div>
-            <i className='material-icons add-button' onClick={this.addInterface}>add_circle</i>
-            {translate('add.network.interface')}
-          </div>);
-      }
+      const addButton = (
+        <div className='action-column'>
+          <i className={addClass} onClick={this.addInterface}>add_circle</i>
+          {translate('add.network.interface')}
+        </div>);
 
       return (
         <div className={widthClass}>
@@ -373,15 +378,15 @@ class InterfaceModelsTab extends Component {
             <div className='details-body'>
 
               <ServerInput isRequired='true' placeholder={translate('interface.model.name') + '*'}
-                inputValue={this.state.interfaceModel.get('name')} inputName='modelname' inputType='text'
-                inputAction={this.handleInterfaceModelNameChange} />
-
+                inputValue={this.state.interfaceModel.get('name')} inputName='modelname'
+                inputType='text' inputAction={this.handleInterfaceModelNameChange}
+                disabled={this.state.detailMode !== MODE.NONE}/>
+              <div className='details-group-title'>{translate('network.interfaces') + ':'}</div>
               {interfaces}
               {addButton}
 
               <div className='btn-row details-btn'>
-                <div className='btn-container'>
-
+                <div className={buttonClass}>
                   <ActionButton key='cancel' type='default'
                     clickAction={(e) => this.setState({overallMode: MODE.NONE})}
                     displayLabel={translate('cancel')}
@@ -492,24 +497,31 @@ class InterfaceModelsTab extends Component {
                 inputValue={this.state.networkInterface.get('name')} inputName='interfacename'
                 inputAction={this.handleInterfaceNameChange}
                 autoFocus="true" />
-
+              <div className='details-group-title'>{translate('network.device') + ':'}</div>
               {this.renderDevices()}
+              <div className='details-group-title'>{translate('network.group') + ':'}</div>
               {this.renderNetworkGroups()}
 
               {this.state.networkInterface.has('bond-data') ?
-                <ServerInput required='true' placeholder={translate('bond.device.name')}
-                  inputValue={this.state.bondDeviceName} inputName='bonddevicename'
-                  inputAction={(e, valid) => this.handleBondDeviceNameChange(e.target.value, valid)}
-                />
+                <div>
+                  <div className='details-group-title'>{translate('bond.device.name') + '* :'}</div>
+                  <ServerInput required='true' placeholder={translate('bond.device.name')}
+                    inputValue={this.state.bondDeviceName} inputName='bonddevicename'
+                    inputAction={(e, valid) => this.handleBondDeviceNameChange(e.target.value, valid)}
+                  />
+                </div>
                 : undefined}
 
               {this.state.networkInterface.has('bond-data') ?
-                <ServerInput placeholder={translate('bond.options')}
-                  inputValue={this.state.bondOptions} inputName='bondoptions'
-                  inputType='textarea'
-                  inputValidate={YamlValidator}
-                  inputAction={(e, valid) => this.handleBondOptionsChange(e.target.value, valid)}
-                />
+                <div>
+                  <div className='details-group-title'>{translate('bond.options') + ':'}</div>
+                  <ServerInput placeholder={translate('bond.options')}
+                    inputValue={this.state.bondOptions} inputName='bondoptions'
+                    inputType='textarea'
+                    inputValidate={YamlValidator}
+                    inputAction={(e, valid) => this.handleBondOptionsChange(e.target.value, valid)}
+                  />
+                </div>
                 : undefined}
 
               <div className='btn-row details-btn'>
@@ -605,16 +617,14 @@ class InterfaceModelsTab extends Component {
 
       return (
         <div key={idx} className='dropdown-plus-minus'>
-          <div className="field-container">
-            <Dropdown
-              value={this.state.deviceList.get(idx).get('name')}
-              onChange={(e) => this.updateDevice(e.target.value, idx)}
-              emptyOption={translate('network.device.none')}>
+          <Dropdown
+            value={this.state.deviceList.get(idx).get('name')}
+            onChange={(e) => this.updateDevice(e.target.value, idx)}
+            emptyOption={translate('none')}>
 
-              {options}
+            {options}
 
-            </Dropdown>
-          </div>
+          </Dropdown>
           <div className='plus-minus-container'> {minus} {plus} </div>
         </div>
       );
@@ -683,17 +693,14 @@ class InterfaceModelsTab extends Component {
 
       return (
         <div key={idx} className='dropdown-plus-minus'>
-          <div className="field-container">
-            <Dropdown
-              value={this.state.networkInterface.getIn(['network-groups', idx])}
-              onChange={(e) => this.updateNetworkGroup(e.target.value, idx)}
-              emptyOption={translate('network.group.none')}>
+          <Dropdown
+            value={this.state.networkInterface.getIn(['network-groups', idx])}
+            onChange={(e) => this.updateNetworkGroup(e.target.value, idx)}
+            emptyOption={translate('none')}>
 
-              {options}
+            {options}
 
-            </Dropdown>
-          </div>
-
+          </Dropdown>
           <div className='plus-minus-container'> {minus} {plus} </div>
         </div>
       );
