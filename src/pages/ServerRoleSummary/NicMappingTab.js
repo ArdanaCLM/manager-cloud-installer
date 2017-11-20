@@ -222,7 +222,12 @@ class NicMappingTab extends Component {
               <ServerInput isRequired='true' placeholder={translate('nic.mapping.name') + '*'}
                 inputValue={this.state.nicMappingName} inputName='name' inputType='text'
                 inputAction={this.handleNameChange} />
-
+              <div className="field-title-container">
+                <div className='details-group-title column-title'>
+                  {translate('port.logical.name') + '* :'}</div>
+                <div className='details-group-title column-title'>
+                  {translate('pci.address') + '* :'}</div>
+              </div>
               {this.renderDetailRows()}
 
               <div className='btn-row details-btn'>
@@ -299,7 +304,7 @@ class NicMappingTab extends Component {
     );
 
     return (
-      <div>
+      <div className='extended-one'>
         <div className={this.state.mode !== MODE.NONE ? 'col-xs-8 verticalLine' : 'col-xs-12'}>
           <table className='table'>
             <thead>

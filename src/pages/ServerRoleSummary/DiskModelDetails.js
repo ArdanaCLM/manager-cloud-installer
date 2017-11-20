@@ -175,11 +175,11 @@ class DiskModelDetails extends Component {
     addClass = this.state.showThirdDetails ? addClass + ' disabled' : addClass;
     return (
       <div>
-        <div className='details-group-title'>{translate('physical.volume') + '*:'}</div>
+        <div className='details-group-title'>{translate('physical.volume') + '* :'}</div>
         <InlineAddRemoveInput name='pv' placeholder={translate('physical.volume')}
           values={this.state.physicalVolumes} sendSelectedList={this.getSelectedPhysicalVolumes}
           disabled={this.state.showThirdDetails}/>
-        <div className='details-group-title'>{translate('logical.volume') + '*:'}</div>
+        <div className='details-group-title'>{translate('logical.volume') + '* :'}</div>
         {logicalVolumeLines}
         <div className='action-column' key='addLV'>
           <i className={addClass} onClick={this.addLogicalVolume}>add_circle</i>
@@ -238,15 +238,19 @@ class DiskModelDetails extends Component {
             <ServerInput isRequired={true} placeholder={translate('logical.volume.name') + '*'}
               inputValue={this.state.logicalVolume.name || ''} inputName='lvName' inputType='text'
               inputAction={this.handleInputLine} autoFocus={true}/>
+            <div className='details-group-title'>{translate('logical.volume.size') + '* :'}</div>
             <ServerInput isRequired={true} placeholder={translate('logical.volume.size')}
               inputValue={this.state.logicalVolume.size || ''} inputName='lvSize' inputType='number'
               inputAction={this.handleInputLine} {...{min: 0, max: 100}}/>
+            <div className='details-group-title'>{translate('logical.volume.mount') + ':'}</div>
             <ServerInput placeholder={translate('logical.volume.mount')} inputType='text'
               inputValue={this.state.logicalVolume.mount || ''} inputName='lvMount'
               inputAction={this.handleInputLine}/>
+            <div className='details-group-title'>{translate('logical.volume.fstype') + ':'}</div>
             <ServerInput placeholder={translate('logical.volume.fstype')} inputType='text'
               inputValue={this.state.logicalVolume.fstype || ''} inputName='lvFstype'
               inputAction={this.handleInputLine}/>
+            <div className='details-group-title'>{translate('logical.volume.mkfs') + ':'}</div>
             <ServerInput placeholder={translate('logical.volume.mkfs')} inputType='text'
               inputValue={this.state.logicalVolume['mkfs-opts'] || ''} inputName='lvMkfs'
               inputAction={this.handleInputLine}/>
@@ -347,9 +351,11 @@ class DiskModelDetails extends Component {
         <ServerInput isRequired={true} placeholder={translate('device.group.consumer.name') + '*'}
           inputValue={this.state.deviceGroupConsumer.name || ''} inputName='dgConsumerName'
           inputType='text' inputAction={this.handleInputLine}/>
+        <div className='details-group-title'>{translate('device.group.consumer.usage') + ':'}</div>
         <ServerInput placeholder={translate('device.group.consumer.usage')}
           inputValue={this.state.deviceGroupConsumer.usage || ''} inputName='dgConsumerUsage'
           inputType='text' inputAction={this.handleInputLine}/>
+        <div className='details-group-title'>{translate('device.group.consumer.attrs') + ':'}</div>
         <ServerInput placeholder={translate('device.group.consumer.attrs')}
           inputValue={this.state.deviceGroupConsumer.attrs || ''} inputName='dgConsumerAttrs'
           inputType='text' inputAction={this.handleInputLine}/>
@@ -584,7 +590,7 @@ class DiskModelDetails extends Component {
     let firstDetailsLines = [];
     // show volume groups
     firstDetailsLines.push(
-      <div className='details-group-title' key='vg-title'>{translate('volume.groups') + '*:'}</div>
+      <div className='details-group-title' key='vg-title'>{translate('volume.groups') + '* :'}</div>
     );
 
     this.state.volumeGroups.map((vg, index) => {

@@ -67,8 +67,6 @@ class InlineAddRemoveDropdown extends Component {
     point, 'items' looks like this: ['optA', 'optB', '']
   */
   addItem = () => {
-    let selected = this.state.selectedItem;  // save value to prevent race condition
-
     // there's a selected item that is not added to the list
     if (this.state.selectedItem !== '') {
       // if the default line was deleted
@@ -76,23 +74,22 @@ class InlineAddRemoveDropdown extends Component {
         this.setState(prevState => {
           // replace last item with the selected item and add default drop-down
           let newItems = prevState.items.slice();
-          newItems[newItems.length - 1] = selected;
+          newItems[newItems.length - 1] = this.state.selectedItem;
           newItems.push('');
-          return {items: newItems};
+          return {items: newItems, selectedItem: ''};
         });
       } else {
         this.setState(prevState => {
           // add selected item before default drop-down
           let newItems = prevState.items.slice();
-          newItems.splice(newItems.length - 1, 0, selected);
-          return {items: newItems};
+          newItems.splice(newItems.length - 1, 0, this.state.selectedItem);
+          return {items: newItems, selectedItem: ''};
         });
       }
-      this.setState({selectedItem: ''});
     } else {
-      if (this.state.items.indexOf('') === -1) {
+      // if all options were selected, do not offer default drop-down anymore
+      if (this.state.items.length !== this.props.options.length) {
         this.setState(prevState => {
-          // add default drop-down
           let newItems = prevState.items.slice();
           newItems.push('');
           return {items: newItems};
@@ -158,7 +155,8 @@ class InlineAddRemoveDropdown extends Component {
     options.unshift('');
 
     let lastItem = this.state.items[this.state.items.length - 1];
-    const addClass = lastItem === '' ? 'fa fa-plus hide' : 'fa fa-plus right-sign';
+    const addClass = lastItem === '' || this.state.items.length === this.props.options.length ?
+      'fa fa-plus hide' : 'fa fa-plus right-sign';
     return (
       <div>
         {lines}
