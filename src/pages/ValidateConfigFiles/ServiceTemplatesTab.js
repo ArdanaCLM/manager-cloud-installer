@@ -158,35 +158,19 @@ class ServiceTemplatesTab extends Component {
       );
     }
     else {
-      return (<div>{translate(('validate.config.service.info'))}</div>);
+      return (<div className='col-xs-8'>{translate(('validate.config.service.info'))}</div>);
     }
   }
 
   renderFileList(index, item) {
-    // when service expanded
-    let extraServiceColorProps = {};
-    if(this.state.editServiceName === item.service) {
-      extraServiceColorProps.className = 'in-edit';
-    }
-
     if(item.expanded) {
       let fileList = [];
       item.files
         .sort((a, b) => alphabetically(a, b))
         .map((file, idx) => {
-          let extraProps = {};
-          // don't allow click when one file is in editing mode
-          if(this.state.editFile) {
-            extraProps.disabled = true;
-          }
-          // make the editing file is more obvious
-          if(this.state.editFile === file && this.state.editServiceName === item.service) {
-            extraProps.className = 'in-edit';
-          }
           fileList.push(
             <li key={idx}>
-              <a {...extraProps}
-                href="#" onClick={() => this.handleEditFile(item.service, file)}>{file}</a>
+              <a href="#" onClick={() => this.handleEditFile(item.service, file)}>{file}</a>
             </li>
           );
         });
@@ -195,7 +179,7 @@ class ServiceTemplatesTab extends Component {
           <span className='service-heading'>
             <i className='material-icons folder'
               onClick={() => this.handleToggleService(item)}>keyboard_arrow_down</i>
-            <h4 {...extraServiceColorProps}>{item.service}</h4></span>
+            <h4>{item.service}</h4></span>
           <ul className='file-list'>{fileList}</ul>
         </li>
       );
@@ -206,7 +190,7 @@ class ServiceTemplatesTab extends Component {
           <span className='service-heading'>
             <i className='material-icons folder'
               onClick={() => this.handleToggleService(item)}>keyboard_arrow_right</i>
-            <h4 {...extraServiceColorProps}>{item.service}</h4></span>
+            <h4>{item.service}</h4></span>
         </li>
       );
     }
@@ -224,17 +208,20 @@ class ServiceTemplatesTab extends Component {
           serviceList.push(this.renderFileList(index, item));
         }
       });
-    return serviceList;
+
+    return (
+      <div className='col-xs-4 verticalLine'>
+        <ul className='all-service-list'>{serviceList}</ul>
+      </div>
+    );
   }
 
   render() {
     return (
       <div className='template-service-files'>
         <div className='body'>
-          <div className='col-xs-4 verticalLine'>
-            {<ul className='all-service-list'>{this.renderServiceList()}</ul>}
-          </div>
-          <div className='col-xs-8'>{this.renderFileSection()}</div>
+          {!this.state.editFile && this.renderServiceList()}
+          {this.renderFileSection()}
         </div>
         {this.renderErrorMessage()}
       </div>
