@@ -57,6 +57,7 @@ cp third_party/jquery/* dist/lib/jquery
 #copy resources (images, fonts) into dist
 mkdir dist/images
 cp src/images/* dist/images
+mv dist/images/favicon.ico dist/favicon.ico
 
 mkdir -p dist/node_modules/material-design-icons/iconfont
 cp node_modules/material-design-icons/iconfont/* dist/node_modules/material-design-icons/iconfont
