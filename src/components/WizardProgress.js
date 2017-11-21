@@ -45,9 +45,7 @@ class WizardProgress extends Component {
 
     return(
       <div className="wizard-progress-container">
-        <span>
-          {stateBubbles}
-        </span>
+        {stateBubbles}
       </div>
     );
   }
