@@ -22,6 +22,7 @@ import BaseWizardPage from './BaseWizardPage.js';
 import io from 'socket.io-client';
 import { List } from 'immutable';
 import debounce from 'lodash/debounce';
+import { postJson } from '../utils/RestUtils.js';
 
 /*
   Navigation rules:
@@ -125,7 +126,20 @@ class PlaybookProgress extends Component {
       displayedLogs: List()          // log messages to display in the log viewer
     };
 
-    this.startPlaybook();
+    // commit the changes before run playbook
+    const commitMessage = {'message' : 'Committed via Ardana DayZero Installer'};
+    postJson('/api/v1/clm/model/commit', commitMessage)
+      .then((response) => {
+        if(response === 'Success') {
+          this.startPlaybook();
+        }
+        else {
+          this.setState({errorMsg: translate('deploy.commit.failure'), response});
+        }
+      })
+      .catch((error) => {
+        this.setState({errorMsg: translate('deploy.commit.failure', error.toString())});
+      });
   }
 
   getError() {
