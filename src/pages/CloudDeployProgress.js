@@ -135,10 +135,12 @@ class PlaybookProgress extends Component {
         }
         else {
           this.setState({errorMsg: translate('deploy.commit.failure'), response});
+          this.props.updateStatus(STATUS.FAILED);
         }
       })
       .catch((error) => {
         this.setState({errorMsg: translate('deploy.commit.failure', error.toString())});
+        this.props.updateStatus(STATUS.FAILED);
       });
   }
 
