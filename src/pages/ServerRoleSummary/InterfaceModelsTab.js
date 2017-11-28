@@ -66,6 +66,9 @@ class InterfaceModelsTab extends Component {
       isInterfaceNameValid: undefined,
       isBondDeviceNameValid: undefined,
       isBondOptionsValid: undefined,
+
+      showRemoveInterfaceConfirmation: false,
+      interfaceToRemoveIndex: undefined
     };
   }
 
@@ -286,19 +289,30 @@ class InterfaceModelsTab extends Component {
     });
   }
 
-  removeInterface = (e, idx) => {
-    e.preventDefault();
-
+  confirmRemoveInterface = (idx) => {
     // Prevent adding while editing is in progress
     if (this.state.detailMode !== MODE.NONE)
       return;
 
-    this.setState(prev => {
-      return {
-        networkInterface: undefined,
-        interfaceModel: prev.interfaceModel.deleteIn(['network-interfaces', idx])
-      };
-    });
+    this.setState({showRemoveInterfaceConfirmation: true, interfaceToRemoveIndex: idx});
+  }
+
+  removeInterface = () => {
+    // Prevent adding while editing is in progress
+    if (this.state.detailMode !== MODE.NONE)
+      return;
+
+    if (!isNaN(this.state.interfaceToRemoveIndex)) {
+      this.setState(prev => {
+        return {
+          networkInterface: undefined,
+          interfaceModel: prev.interfaceModel.deleteIn(['network-interfaces',
+            this.state.interfaceToRemoveIndex]),
+          interfaceToRemoveIndex: undefined,
+          showRemoveInterfaceConfirmation: false
+        };
+      });
+    }
   }
 
 
@@ -334,7 +348,7 @@ class InterfaceModelsTab extends Component {
         let minus, edit;
         //if (idx === arr.size-1 && this.state.deviceList.get(idx).get('name')) {
         let editClass = 'glyphicon glyphicon-pencil edit-button left-sign';
-        let minusClass = 'fa fa-minus right-sign';
+        let minusClass = 'glyphicon glyphicon-trash right-sign';
         if (this.state.detailMode !== MODE.NONE) {
           editClass += ' disabled';
           minusClass += ' disabled';
@@ -344,7 +358,7 @@ class InterfaceModelsTab extends Component {
         //}
         //if (idx > 0 || this.state.deviceList.get(idx).get('name')) {
         minus = (<span key='remove' className={minusClass}
-          onClick={(e) => this.removeInterface(e, idx)}/>);
+          onClick={(e) => this.confirmRemoveInterface(idx)}/>);
         //}
 
         return (
@@ -721,6 +735,19 @@ class InterfaceModelsTab extends Component {
           {translate('details.interfacemodel.confirm.remove', name)}
         </YesNoModal>
 
+      );
+    } else if (this.state.showRemoveInterfaceConfirmation) {
+      const name = this.state.interfaceModel.get('network-interfaces')
+        .get(this.state.interfaceToRemoveIndex).get('name');
+
+      return (
+        <YesNoModal show={true}
+          title={translate('warning')}
+          yesAction={(e) => this.removeInterface()}
+          noAction={() => this.setState({showRemoveInterfaceConfirmation: false,
+            interfaceToRemoveIndex: undefined})}>
+          {translate('details.interface.confirm.remove', name)}
+        </YesNoModal>
       );
     }
   }
