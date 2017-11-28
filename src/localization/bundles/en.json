@@ -277,6 +277,8 @@
     "deploy.progress.step5": "Quick health check",
     "deploy.progress.step6": "Additional Setup and Configuration",
     "deploy.progress.step7": "n/a",
+    "deploy.progress.commit": "Commit Input Model",
+    "deploy.commit.failure": "Failed to commit Ardana DayZero Installer changes. {0}",
 
     "install.progress.heading": "SLES Installation In Progress",
     "install.progress.step1": "Verify IPMI Connectivity",

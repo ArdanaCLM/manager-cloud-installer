@@ -22,6 +22,7 @@ import BaseWizardPage from './BaseWizardPage.js';
 import io from 'socket.io-client';
 import { List } from 'immutable';
 import debounce from 'lodash/debounce';
+import { postJson } from '../utils/RestUtils.js';
 
 /*
   Navigation rules:
@@ -121,6 +122,7 @@ class PlaybookProgress extends Component {
       playbooksStarted: [],          // list of playbooks that have started
       playbooksComplete: [],         // list of playbooks that have completed
       playbooksError: [],            // list of playbooks that have errored
+      commit: 'notstarted',          // keep track of the commit
 
       displayedLogs: List()          // log messages to display in the log viewer
     };
@@ -132,6 +134,10 @@ class PlaybookProgress extends Component {
     if (this.state.errorMsg)
       return (<div>{translate('progress.failure')}<br/>
         <pre className='log'>{this.state.errorMsg}</pre></div>);
+  }
+
+  getCommitStatus() {
+    return (<li key='commit' className={this.state.commit}>{translate('deploy.progress.commit')}</li>);
   }
 
   getProgress() {
@@ -253,25 +259,45 @@ class PlaybookProgress extends Component {
         });
 
     } else {
-
-      // Launch the playbook
-      this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/playbooks/' + this.props.playbook, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.props.payload || '')
-      })
-        .then(response => {
-          const playId = response['id'];
-          this.monitorSocket(playId);
-          this.props.updateStatus(STATUS.IN_PROGRESS);
-          this.props.updatePlayId(playId);
+      //commit before launchPlayBook
+      const commitMessage = {'message': 'Committed via Ardana DayZero Installer'};
+      postJson('/api/v1/clm/model/commit', commitMessage)
+        .then((response) => {
+          if (response === 'Success') {
+            this.setState({commit: 'succeed'});
+            this.launchPlaybook();
+          }
+          else {
+            this.setState({errorMsg: translate('deploy.commit.failure'), response});
+            this.props.updateStatus(STATUS.FAILED);
+            this.setState({commit: 'fail'});
+          }
         })
         .catch((error) => {
+          this.setState({errorMsg: translate('deploy.commit.failure', error.toString())});
           this.props.updateStatus(STATUS.FAILED);
-          this.setState({errorMsg: List(error.message)});
+          this.setState({commit: 'fail'});
         });
     }
   };
+
+  launchPlaybook = () => {
+    this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/playbooks/' + this.props.playbook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(this.props.payload || '')
+    })
+      .then(response => {
+        const playId = response['id'];
+        this.monitorSocket(playId);
+        this.props.updateStatus(STATUS.IN_PROGRESS);
+        this.props.updatePlayId(playId);
+      })
+      .catch((error) => {
+        this.props.updateStatus(STATUS.FAILED);
+        this.setState({errorMsg: List(error.message)});
+      });
+  }
 
   renderShowLogButton() {
     const logButtonLabel = translate('progress.show.log');
@@ -300,7 +326,7 @@ class PlaybookProgress extends Component {
       <div className='playbook-progress'>
         <div className='progress-body'>
           <div className='col-xs-4'>
-            <ul>{this.getProgress()}</ul>
+            <ul>{this.getCommitStatus()}{this.getProgress()}</ul>
             <div>
               {!this.state.showLog && this.renderShowLogButton()}
             </div>
