@@ -198,9 +198,13 @@ class UpdateNetworks extends Component {
         <div className='details-header'>{title}</div>
         <div className='details-body'>
           {this.renderNetworkInput('name', 'text', true, translate('network.name') + '*', UniqueNameValidator)}
+          <div className='details-group-title'>{translate('vlanid') + '* :'}</div>
           {this.renderNetworkInput('vlanid', 'number', true, translate('vlanid'), VLANIDValidator)}
+          <div className='details-group-title'>{translate('cidr') + ':'}</div>
           {this.renderNetworkInput('cidr', 'text', false, translate('cidr'), CidrValidator)}
+          <div className='details-group-title'>{translate('network.gateway') + ':'}</div>
           {this.renderNetworkInput('gateway-ip', 'text', false, translate('network.gateway'), IpV4AddressValidator)}
+          <div className='details-group-title'>{translate('network.group') + ':'}</div>
           {this.renderNetworkGroup()}
           {this.renderTaggedVLAN()}
           <div className='btn-row details-btn network-more-width'>
