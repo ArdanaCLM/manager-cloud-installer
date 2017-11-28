@@ -18,8 +18,9 @@ import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
-import { ServerInputLine, ServerDropdownLine } from '../components/ServerUtils.js';
+import { ServerInputLine } from '../components/ServerUtils.js';
 import { Tabs, Tab } from 'react-bootstrap';
+import Dropdown from '../components/Dropdown.js';
 
 const INVALID = 0;
 const VALID = 1;
@@ -309,10 +310,6 @@ class ConfigForm extends Component {
     this.setState({encryptKey: e.target.value});
   };
 
-  handleDebugChange = (value) => {
-    this.setState({verbosity: value});
-  };
-
   render() {
     return (
       <div className='config-form'>
@@ -332,11 +329,21 @@ class ConfigForm extends Component {
           inputType='password'
           inputValue={this.state.encryptKey}
           inputAction={this.handlePasswordChange}/>
-        <ServerDropdownLine
-          label='validate.deployment.verbosity'
-          value={this.state.verbosity}
-          optionList={[0,1,2,3,4]}
-          selectAction={this.handleDebugChange}/>
+        <div className='detail-line'>
+          <div className='detail-heading'>{translate('validate.deployment.verbosity')}</div>
+          <div className='input-body'>
+            <Dropdown
+              value={this.state.verbosity}
+              onChange={(e) => this.setState({verbosity: e.target.value})}
+              emptyOption={translate('none')}>
+              <option key="0" value="0">{translate('validate.deployment.verbosity.lowest')}</option>
+              <option key="1" value="1">1</option>
+              <option key="2" value="2">2</option>
+              <option key="3" value="3">3</option>
+              <option key="4" value="4">{translate('validate.deployment.verbosity.highest')}</option>
+            </Dropdown>
+          </div>
+        </div>
       </div>
     );
   }
