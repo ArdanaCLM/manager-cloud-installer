@@ -21,6 +21,7 @@ import { UniqueNameValidator } from '../../utils/InputValidators.js';
 import { InlineAddRemoveInput } from '../../components/InlineAddRemoveFields.js';
 import { alphabetically } from '../../utils/Sort.js';
 import { MODE } from '../../utils/constants.js';
+import { YesNoModal } from '../../components/Modals.js';
 
 class DiskModelDetails extends Component {
   constructor(props) {
@@ -38,7 +39,11 @@ class DiskModelDetails extends Component {
         deviceGroup: {},
         deviceGroupDevices: [],
         deviceGroupConsumer: {},
-        showThirdDetails: false
+        showThirdDetails: false,
+        showRemoveVGConfirmation: false,
+        showRemoveDGConfirmation: false,
+        showRemoveLVConfirmation: false,
+        selectedRow: undefined
       };
       this.dmMode = MODE.ADD;
     } else {
@@ -54,7 +59,11 @@ class DiskModelDetails extends Component {
         deviceGroup: {},
         deviceGroupDevices: [],
         deviceGroupConsumer: {},
-        showThirdDetails: false
+        showThirdDetails: false,
+        showRemoveVGConfirmation: false,
+        showRemoveDGConfirmation: false,
+        showRemoveLVConfirmation: false,
+        selectedRow: undefined
       };
       this.dmMode = MODE.EDIT;
       this.origDKName = props.diskModel.name;
@@ -165,7 +174,7 @@ class DiskModelDetails extends Component {
             <span key={lv.name + 'edit' + index} className={editClass}
               onClick={() => this.editLogicalVolume(lv)}/>
             <span key={lv + 'minus' + index} className={removeClass}
-              onClick={() => this.removeLogicalVolume(index)}/>
+              onClick={() => this.confirmRemoveLogicalVolume(index)}/>
           </div>
         </div>
       );
@@ -178,7 +187,7 @@ class DiskModelDetails extends Component {
         <div className='details-group-title'>{translate('physical.volume') + '* :'}</div>
         <InlineAddRemoveInput name='pv' placeholder={translate('physical.volume')}
           values={this.state.physicalVolumes} sendSelectedList={this.getSelectedPhysicalVolumes}
-          disabled={this.state.showThirdDetails}/>
+          disabled={this.state.showThirdDetails} editable='true'/>
         <div className='details-group-title'>{translate('logical.volume') + '* :'}</div>
         {logicalVolumeLines}
         <div className='action-column' key='addLV'>
@@ -307,12 +316,18 @@ class DiskModelDetails extends Component {
     });
   }
 
+  confirmRemoveLogicalVolume = (index) => {
+    if (!this.state.showThirdDetails) {
+      this.setState({showRemoveLVConfirmation: true, selectedRow: index});
+    }
+  }
+
   removeLogicalVolume = (index) => {
     if (!this.state.showThirdDetails) {
       this.setState(prevState => {
         let newLVs = prevState.logicalVolumes.slice();
         newLVs.splice(index, 1);
-        return {logicalVolumes: newLVs};
+        return {logicalVolumes: newLVs, showRemoveLVConfirmation: false};
       });
     }
   }
@@ -513,13 +528,25 @@ class DiskModelDetails extends Component {
     }
   }
 
+  confirmRemoveVolumeGroup = (index) => {
+    if (this.secondDetails === '' && !this.state.showThirdDetails) {
+      this.setState({showRemoveVGConfirmation: true, selectedRow: index});
+    }
+  }
+
   removeVolumeGroup = (index) => {
     if (this.secondDetails === '' && !this.state.showThirdDetails) {
       this.setState(prevState => {
         let newVGs = prevState.volumeGroups.slice();
         newVGs.splice(index, 1);
-        return {volumeGroups: newVGs};
+        return {volumeGroups: newVGs, showRemoveVGConfirmation: false};
       });
+    }
+  }
+
+  confirmRemoveDeviceGroup = (index) => {
+    if (this.secondDetails === '' && !this.state.showThirdDetails) {
+      this.setState({showRemoveDGConfirmation: true, selectedRow: index});
     }
   }
 
@@ -528,7 +555,7 @@ class DiskModelDetails extends Component {
       this.setState(prevState => {
         let newDGs = prevState.deviceGroups.slice();
         newDGs.splice(index, 1);
-        return {deviceGroups: newDGs};
+        return {deviceGroups: newDGs, showRemoveDGConfirmation: false};
       });
     }
   }
@@ -602,7 +629,7 @@ class DiskModelDetails extends Component {
             <span key={vg.name + 'edit' + index} className={editClass}
               onClick={() => this.editVolumeGroup(vg)}/>
             <span key={vg.name + 'minus' + index} className={removeClass}
-              onClick={() => this.removeVolumeGroup(index)}/>
+              onClick={() => this.confirmRemoveVolumeGroup(index)}/>
           </div>
         </div>
       );
@@ -626,7 +653,7 @@ class DiskModelDetails extends Component {
             <span key={dg.name + 'edit' + index} className={editClass}
               onClick={() => this.editDeviceGroup(dg)}/>
             <span key={dg.name + 'minus' + index} className={removeClass}
-              onClick={() => this.removeDeviceGroup(index)}/>
+              onClick={() => this.confirmRemoveDeviceGroup(index)}/>
           </div>
         </div>
       );
@@ -646,6 +673,38 @@ class DiskModelDetails extends Component {
       }
     }
     const buttonClass = (this.secondDetails === '') ? 'btn-container' : 'btn-container hide';
+
+    let confirmRemoveSection = '';
+    if (this.state.showRemoveVGConfirmation) {
+      confirmRemoveSection = (
+        <YesNoModal show={this.state.showRemoveVGConfirmation} title={translate('warning')}
+          yesAction={() => this.removeVolumeGroup(this.state.selectedRow) }
+          noAction={() => this.setState({showRemoveVGConfirmation: false})}>
+          {translate('details.volume.group.confirm.remove',
+            this.state.volumeGroups[this.state.selectedRow].name)}
+        </YesNoModal>
+      );
+    }
+    if (this.state.showRemoveDGConfirmation) {
+      confirmRemoveSection = (
+        <YesNoModal show={this.state.showRemoveDGConfirmation} title={translate('warning')}
+          yesAction={() => this.removeDeviceGroup(this.state.selectedRow) }
+          noAction={() => this.setState({showRemoveDGConfirmation: false})}>
+          {translate('details.device.group.confirm.remove',
+            this.state.deviceGroups[this.state.selectedRow].name)}
+        </YesNoModal>
+      );
+    }
+    if (this.state.showRemoveLVConfirmation) {
+      confirmRemoveSection = (
+        <YesNoModal show={this.state.showRemoveLVConfirmation} title={translate('warning')}
+          yesAction={() => this.removeLogicalVolume(this.state.selectedRow) }
+          noAction={() => this.setState({showRemoveLVConfirmation: false})}>
+          {translate('details.logical.volume.confirm.remove',
+            this.state.logicalVolumes[this.state.selectedRow].name)}
+        </YesNoModal>
+      );
+    }
 
     return (
       <div className={widthClass}>
@@ -671,6 +730,7 @@ class DiskModelDetails extends Component {
         </div>
         {this.renderSecondDetails()}
         {this.renderLogicalVolume()}
+        {confirmRemoveSection}
       </div>
     );
   }

@@ -210,9 +210,18 @@ class InlineAddRemoveInput extends Component {
     }
   }
 
-  handleInputLine = (e, valid, props) => {
+  handleInputLine = (e) => {
     let value = e.target.value;
     this.setState({selectedItem: value});
+  }
+
+  updateRow = (e, index) => {
+    let value = e.target.value;
+    this.setState(prevState => {
+      let newItems = prevState.items.slice();
+      newItems[index] = value;
+      return {items: newItems};
+    });
   }
 
   addItem = () => {
@@ -263,11 +272,12 @@ class InlineAddRemoveInput extends Component {
     textFields.splice(textFields.length - 1, 1);
     textFields.map((item, index) => {
       lines.push(
-        <div className='dropdown-plus-minus' key={this.props.name + item + index}>
-          <ServerInput key={this.props.name + item + index} inputType='text' inputValue={item}
-            disabled='true'/>
+        <div className='dropdown-plus-minus' key={this.props.name + index}>
+          <ServerInput key={this.props.name + index} inputType='text' inputValue={item}
+            inputAction={(e) => this.updateRow(e, index)}
+            disabled={this.props.disabled || !this.props.editable}/>
           <div className='plus-minus-container'>
-            <span key={this.props.name + item + 'minus' + index}
+            <span key={this.props.name + 'minus' + index}
               className={removeClass} onClick={() => this.removeItem(index)}/>
           </div>
         </div>
