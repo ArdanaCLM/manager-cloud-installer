@@ -20,6 +20,7 @@ import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ServerInputLine } from '../components/ServerUtils.js';
 import { Tabs, Tab } from 'react-bootstrap';
+import ServiceTemplatesTab from './ValidateConfigFiles/ServiceTemplatesTab.js';
 import Dropdown from '../components/Dropdown.js';
 
 const INVALID = 0;
@@ -402,11 +403,10 @@ class ConfigPage extends BaseWizardPage {
             <Tab eventKey={TAB.MODEL_FILES} title={translate('validate.tab.model')}>
               <ValidateConfigFiles enableNextButton={this.enableNextButton} showNavButtons={this.showNavButtons}/>
             </Tab>
-            {/*
             <Tab eventKey={TAB.TEMPLATE_FILES} title={translate('validate.tab.templates')}>
-              SCRD-1434 work here
+              <ServiceTemplatesTab
+                updateGlobalState={this.props.updateGlobalState} showNavButtons={this.showNavButtons}/>
             </Tab>
-            */}
             <Tab eventKey={TAB.CONFIG_FORM} title={translate('validate.tab.config')}>
               <ConfigForm ref='configFormData' deployConfig={this.props.deployConfig} />
             </Tab>

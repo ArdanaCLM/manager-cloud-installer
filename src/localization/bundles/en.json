@@ -76,6 +76,8 @@
     "validate.tab.model": "Model",
     "validate.tab.templates": "Templates and Services",
     "validate.tab.config": "Deployment",
+    "validate.config.service.info": "Click a service to show or hide the files and click a file to update...",
+    "validate.config.service.getfiles.error": "Failed to get service template files",
 
     "edit.config.files.heading": "Update Configuration File: {0} ({1})",
 
