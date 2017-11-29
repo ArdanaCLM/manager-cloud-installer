@@ -53,7 +53,7 @@ class SelectServersToProvision extends BaseWizardPage {
       leftList: [],
       rightList: [],
 
-      osInstallUsername: 'stack',
+      osInstallUsername: '',
       osInstallPassword: '',
       installing: false,
       showModal: false,
