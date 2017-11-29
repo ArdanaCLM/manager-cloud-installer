@@ -412,7 +412,7 @@ class ConfigPage extends BaseWizardPage {
             </Tab>
           </Tabs>
         </div>
-        {this.state.showNavButtons ? this.renderNavButtons() : ''};
+        {this.state.showNavButtons ? this.renderNavButtons() : ''}
       </div>
     );
   }

@@ -19,7 +19,7 @@ import CollapsibleTable from './ServerRoleSummary/CollapsibleTable.js';
 import { ActionButton } from '../components/Buttons.js';
 import { EditCloudSettings } from './ServerRoleSummary/EditCloudSettings.js';
 import { getServerRoles, isRoleAssignmentValid, updateServersInModel } from '../utils/ModelUtils.js';
-import { MODEL_SERVER_PROPS_ALL } from "../utils/constants.js";
+import { MODEL_SERVER_PROPS_ALL } from '../utils/constants.js';
 
 class ServerRoleSummary extends BaseWizardPage {
 
