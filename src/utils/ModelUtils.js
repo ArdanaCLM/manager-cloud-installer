@@ -104,7 +104,6 @@ export function getServerRoles (model) {
 // src or dest are modified
 export function  getMergedServer (src, dest, props)  {
   let result = Object.assign({}, src);
-
   props.forEach(p => {
     if (p in dest)
       result[p] = dest[p];
@@ -113,10 +112,21 @@ export function  getMergedServer (src, dest, props)  {
   return result;
 }
 
+function getMergedServerMap (src, dest, props) {
+  let result = getMergedServer(src.toJS(), dest, props);
+  //clean up empty value entries to pass model validator
+  for (let key in result) {
+    if (result[key] === undefined || result[key] === '') {
+      delete result[key];
+    }
+  }
+  return Map(result);
+}
+
 export function updateServersInModel(server, model, props) {
   let retModel = model.updateIn(['inputModel','servers'], list => list.map(svr => {
     if (svr.get('id') === server.id) {
-      let update_server = new Map(getMergedServer(svr, server, props));
+      let update_server = getMergedServerMap(svr, server, props);
       return update_server;
     }
     else {
