@@ -16,9 +16,10 @@ import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
 import { fetchJson, postJson } from '../utils/RestUtils.js';
+import { YamlValidator } from '../utils/InputValidators.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
-import { ServerInputLine } from '../components/ServerUtils.js';
+import { ServerInputLine, ServerInput } from '../components/ServerUtils.js';
 import { Tabs, Tab } from 'react-bootstrap';
 import ServiceTemplatesTab from './ValidateConfigFiles/ServiceTemplatesTab.js';
 import Dropdown from '../components/Dropdown.js';
@@ -41,7 +42,8 @@ class EditFile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      contents : ''
+      contents : '',
+      isValid: true
     };
   }
 
@@ -52,28 +54,39 @@ class EditFile extends Component {
       });
   }
 
-  handleDone() {
+  handleDone = () => {
     this.props.setChanged();
     this.props.doneEditingFile();
 
-    postJson('/api/v1/clm/model/files/' + this.props.file.name, JSON.stringify(this.state.contents));
+    postJson('/api/v1/clm/model/files/' + this.props.file.name, JSON.stringify(this.state.contents))
+      .then(() => this.props.loadModel());
   }
 
   handleCancel() {
     this.props.doneEditingFile();
   }
 
-  handleChange(event) {
-    this.setState({contents: event.target.value});
+  handleChange = (e, valid) => {
+    const value = e.target.value;
+    this.setState({
+      contents: value,
+      isValid: valid
+    });
   }
 
   render() {
     return (
 
       <div>
-        <div>
-          <textarea name='fileContents' className='config-file-editor rounded-corner' wrap='off'
-            value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
+        <h3>{this.props.file.name}</h3>
+        <div className="file-editor">
+          <ServerInput
+            inputValue={this.state.contents}
+            inputName='fileContents'
+            inputType='textarea'
+            inputValidate={YamlValidator}
+            inputAction={this.handleChange}
+          />
         </div>
         <div className='btn-row'>
           <ActionButton type='default'
@@ -81,6 +94,7 @@ class EditFile extends Component {
             clickAction={() => this.handleCancel()}/>
           <ActionButton
             displayLabel={translate('save')}
+            isDisabled={!this.state.isValid}
             clickAction={() => this.handleDone()}/>
         </div>
       </div>
@@ -210,6 +224,7 @@ class ValidateConfigFiles extends Component {
           doneEditingFile={() => this.doneEditingFile()}
           valid={this.state.valid}
           setChanged={() => this.setChanged()}
+          loadModel={this.props.loadModel}
         />
       );
     }
@@ -365,7 +380,8 @@ class ConfigPage extends BaseWizardPage {
         <div className='wizard-content'>
           <Tabs id='configTabs' activeKey={this.state.key} onSelect={(tabKey) => {this.setState({key: tabKey});}}>
             <Tab eventKey={TAB.MODEL_FILES} title={translate('validate.tab.model')}>
-              <ValidateConfigFiles enableNextButton={this.enableNextButton} showNavButtons={this.showNavButtons}/>
+              <ValidateConfigFiles enableNextButton={this.enableNextButton} showNavButtons={this.showNavButtons}
+                loadModel={this.props.loadModel} />
             </Tab>
             <Tab eventKey={TAB.TEMPLATE_FILES} title={translate('validate.tab.templates')}>
               <ServiceTemplatesTab

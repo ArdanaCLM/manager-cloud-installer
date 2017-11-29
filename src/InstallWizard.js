@@ -156,8 +156,9 @@ class InstallWizard extends Component {
     //Pass the update function as a property
     props.updateGlobalState = this.updateGlobalState;
 
-    //Pass a function to force a model save
+    //Pass functions to force a model save and reload
     props.saveModel = this.saveModel;
+    props.loadModel = this.loadModel;
 
     return React.createElement(this.props.pages[this.state.currentStep].component, props);
   }
@@ -285,6 +286,17 @@ class InstallWizard extends Component {
       return updatedState;
     }, mycallback);
   }
+
+  // Pages within the installer may request that the model be forceably loaded
+  // from disk, espcially when a change is made to directly to the model files
+  // to the model.  Returns a promise
+  loadModel = () => fetchJson('/api/v1/clm/model')
+    .then(responseData => {
+      this.setState({'model': fromJS(responseData)});
+    })
+    .catch((error) => {
+      console.log('Unable to retrieve saved model');// eslint-disable-line no-console
+    })
 
   // Pages within the installer may request that the model be saved to disk,
   // which is especially important when some significant change has been made
