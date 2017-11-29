@@ -23,10 +23,6 @@ import socket
 
 bp = Blueprint('suse-manager', __name__)
 
-SUSE_MANAGER_URL = config.get("suse-manager", "url")
-SUSE_MANAGER_USERNAME = config.get("suse-manager", "username")
-SUSE_MANAGER_PASSWORD = config.get("suse-manager", "password")
-INSECURE = config.get("suse-manager", "insecure", False)
 TIMEOUT = 2
 
 """
@@ -35,8 +31,6 @@ Calls to SUSE Manager
 
 def get_client(url):
     context = None
-    if INSECURE:
-        context = ssl._create_unverified_context()
     client = xmlrpclib.Server(url, verbose=0, context=context)
     return client
 
@@ -79,9 +73,6 @@ def connection_test():
 
 @bp.route("/api/v1/sm/servers")
 def sm_server_list():
-    if util.USE_JSON_SERVER_ONLY:
-        return util.forward(util.build_url(None, '/servers'), request)
-
     try:
         key = request.headers.get('Auth-Token')
         url = request.headers.get('Suse-Manager-Url')
@@ -100,10 +91,6 @@ def sm_server_list():
 
 @bp.route("/api/v1/sm/servers/<id>")
 def sm_server_details(id):
-
-    if util.USE_JSON_SERVER_ONLY:
-        return util.forward(util.build_url(None, '/servers' + id), request)
-
     try:
         key = request.headers.get('Auth-Token')
         url = request.headers.get('Suse-Manager-Url')
