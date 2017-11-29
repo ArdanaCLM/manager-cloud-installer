@@ -15,7 +15,7 @@
 import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
-import { getAppConfig } from '../utils/ConfigHelper.js';
+import { fetchJson, postJson } from '../utils/RestUtils.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ServerInputLine } from '../components/ServerUtils.js';
@@ -46,8 +46,7 @@ class EditFile extends Component {
   }
 
   componentWillMount() {
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/files/' + this.props.file.name)
-      .then(response => response.json())
+    fetchJson('/api/v1/clm/model/files/' + this.props.file.name)
       .then((response) => {
         this.setState({contents: response});
       });
@@ -57,14 +56,7 @@ class EditFile extends Component {
     this.props.setChanged();
     this.props.doneEditingFile();
 
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/files/' + this.props.file.name, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.state.contents)
-    });
+    postJson('/api/v1/clm/model/files/' + this.props.file.name, JSON.stringify(this.state.contents));
   }
 
   handleCancel() {
@@ -170,8 +162,7 @@ class ValidateConfigFiles extends Component {
     };
 
     // retrieve a list of yml files
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/model/files')
-      .then(response => response.json())
+    fetchJson('/api/v1/clm/model/files')
       .then((responseData) => {
         this.setState({
           configFiles: responseData
@@ -186,44 +177,17 @@ class ValidateConfigFiles extends Component {
 
   validateModel = () => {
     this.setState({valid: VALIDATING, invalidMsg: ''});
-    // for testing purposes, set dev = true
-    // to switch between valid and invalid results
-    var dev = false;
-    var bodyStr = '';
-    if (dev) {
-      bodyStr = (this.state.valid !== INVALID) ? {'want_fail': true} : {'want_pass': true};
-    }
 
-    fetch(getAppConfig('shimurl') + '/api/v1/clm/config_processor', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(bodyStr)
-    })
-      .then(response => {
-        if (response.ok) {
-          this.setState({valid: VALID}, () => {
-            this.props.enableNextButton(true);
-          });
-          this.clearAllChangeMarkers();
-          return JSON.stringify('');  // success call do not return any json
-        } else {
-          this.setState({valid: INVALID}, () => {
-            this.props.enableNextButton(false);
-          });
-          return response.json();
-        }
+    postJson('/api/v1/clm/config_processor')
+      .then(() => {
+        this.setState({valid: VALID}, () => {
+          this.props.enableNextButton(true);
+        });
+        this.clearAllChangeMarkers();
       })
-      .then(responseData => {
-        if (responseData.log) {
-          if (dev) {
-            var msg = 'ERR: Server role \'HLM-ROLE2\' used by server deployer is not defined';
-            this.setState({invalidMsg: msg});
-          } else {
-            this.setState({invalidMsg: responseData.log});
-          }
-        }
+      .catch(error => {
+        this.props.enableNextButton(false);
+        this.setState({valid: INVALID, invalidMsg: error.value.log});
       });
   }
 

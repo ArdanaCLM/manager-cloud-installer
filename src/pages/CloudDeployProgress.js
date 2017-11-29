@@ -16,13 +16,13 @@ import React, { Component } from 'react';
 
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
+import { fetchJson, postJson } from '../utils/RestUtils.js';
 import { STATUS } from '../utils/constants.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import io from 'socket.io-client';
 import { List } from 'immutable';
 import debounce from 'lodash/debounce';
-import { postJson } from '../utils/RestUtils.js';
 
 /*
   Navigation rules:
@@ -184,21 +184,10 @@ class PlaybookProgress extends Component {
     });
   }
 
-  /**
-   * Perform a fetch, check for errors, and return a json promise upon success
-   */
-  fetchJson = (input, init) => {
-    return fetch(input, init)
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          return Promise.reject(new Error(res.statusText));
-        }
-      });
-  }
-
   monitorSocket = (playId) => {
+    // Note that this function is only called after a fetch has completed, and thus
+    // the application config has already completed loading, so getAppConfig can
+    // be safely used here
     this.socket = io(getAppConfig('shimurl'));
     this.socket.on('playbook-start', this.playbookStarted);
     this.socket.on('playbook-stop', this.playbookStopped);
@@ -217,7 +206,7 @@ class PlaybookProgress extends Component {
     if (this.props.playId) {
       // Get the output of the play that has already been launched
 
-      this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/plays/' + this.props.playId, {
+      fetchJson('/api/v1/clm/plays/' + this.props.playId, {
         // Note: Use no-cache in order to get an up-to-date response
         headers: {
           'pragma': 'no-cache',
@@ -229,15 +218,14 @@ class PlaybookProgress extends Component {
             // The play has already ended, and is either complete or failed
             this.props.updateStatus(response['code'] == 0 ? STATUS.COMPLETE : STATUS.FAILED);
 
-            fetch(getAppConfig('shimurl') + '/api/v1/clm/plays/' + this.props.playId + '/log')
-              .then(response => response.text())
+            fetchJson('/api/v1/clm/plays/' + this.props.playId + '/log')
               .then(response => {
                 const message = response.trimRight('\n');
                 this.logsReceived = List(message);
                 this.setState({displayedLogs: this.logsReceived});
               });
 
-            this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/plays/' + this.props.playId + '/events')
+            fetchJson('/api/v1/clm/plays/' + this.props.playId + '/events')
               .then(response => {
                 for (let evt of response) {
                   if (evt.event === 'playbook-stop')
@@ -263,15 +251,8 @@ class PlaybookProgress extends Component {
       const commitMessage = {'message': 'Committed via Ardana DayZero Installer'};
       postJson('/api/v1/clm/model/commit', commitMessage)
         .then((response) => {
-          if (response === 'Success') {
-            this.setState({commit: 'succeed'});
-            this.launchPlaybook();
-          }
-          else {
-            this.setState({errorMsg: translate('deploy.commit.failure'), response});
-            this.props.updateStatus(STATUS.FAILED);
-            this.setState({commit: 'fail'});
-          }
+          this.setState({commit: 'succeed'});
+          this.launchPlaybook();
         })
         .catch((error) => {
           this.setState({errorMsg: translate('deploy.commit.failure', error.toString())});
@@ -282,11 +263,8 @@ class PlaybookProgress extends Component {
   };
 
   launchPlaybook = () => {
-    this.fetchJson(getAppConfig('shimurl') + '/api/v1/clm/playbooks/' + this.props.playbook, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(this.props.payload || '')
-    })
+    postJson('/api/v1/clm/playbooks/' + this.props.playbook,
+      JSON.stringify(this.props.payload || ''))
       .then(response => {
         const playId = response['id'];
         this.monitorSocket(playId);

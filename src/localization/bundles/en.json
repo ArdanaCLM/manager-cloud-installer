@@ -169,7 +169,7 @@
     "server.test.sm.error.hostport": "Testing connection to SUSE Manager failed. {0} is not found.",
     "server.test.sm.error.userpass": "Testing connection to SUSE Manager {0} failed for user {1}.",
     "server.test.sm.error": "Testing connection for SUSE Manager {0}.",
-    "server.test.sm.error.secured": "Testing connection to SUSE Manager {0} failed. Have a certificate error.",
+    "server.test.sm.error.secured": "Testing connection to SUSE Manager {0} failed with a certificate error.",
     "server.discover.sm.error": "Failed to get SUSE Manager servers.",
     "server.discover.ov.error": "Failed to get HPE Oneview servers.",
     "server.discover.save.error": "Failed to save discovered servers",

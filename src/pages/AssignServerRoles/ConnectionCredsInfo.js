@@ -16,7 +16,7 @@ import React, { Component } from 'react';
 import { translate } from '../../localization/localize.js';
 import { ServerInputLine } from '../../components/ServerUtils.js';
 import { ActionButton, ItemHelpButton } from '../../components/Buttons.js';
-import { getAppConfig } from '../../utils/ConfigHelper.js';
+import { postJson } from '../../utils/RestUtils.js';
 import {
   IpV4AddressHostValidator, PortValidator
 } from '../../utils/InputValidators.js';
@@ -142,63 +142,46 @@ class ConnectionCredsInfo extends Component {
 
   testSm = () => {
     this.data.sm.sessionKey = undefined;
-    let status = 200;
     return (
-      fetch(getAppConfig('shimurl') + '/api/v1/sm/connection_test', {
-        method: 'POST',
+      postJson('/api/v1/sm/connection_test', JSON.stringify(this.data.sm.creds), {
         headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
           'Secured': this.state.isSmSecured
         },
-        body: JSON.stringify(this.data.sm.creds)
       })
-        .then((response) => {status = response.status; return response.json();})
         .then((responseData) => {
-          if(!responseData.error) {
-            this.data.sm.sessionKey = responseData;
-            let hostport = this.data.sm.creds.host +
-              (this.data.sm.creds.port > 0 ? ':' + this.data.sm.creds.port : '');
-            let msg = translate('server.test.sm.success', hostport);
+          this.data.sm.sessionKey = responseData;
+          let hostport = this.data.sm.creds.host +
+            (this.data.sm.creds.port > 0 ? ':' + this.data.sm.creds.port : '');
+          let msg = translate('server.test.sm.success', hostport);
 
-            this.setState(prev => {
-              return {
-                messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
-                smTestStatus: TEST_STATUS.VALID
-              };
-            });
-            Promise.resolve(responseData);
-          }
-          else {
-            let hostport = this.data.sm.creds.host +
-                (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
-            let msg = translate('server.test.sm.error', hostport);
-            if(status === 404) {
-              msg = translate('server.test.sm.error.hostport', hostport);
-            }
-            else if(status === 401) {
-              msg = translate('server.test.sm.error.userpass', hostport, this.data.sm.creds.username);
-            }
-            else if(status === 403) {
-              msg = translate('server.test.sm.error.secured', hostport);
-            }
-            this.setState(prev => { return {
-              messages: prev.messages.concat([{msg: [msg, responseData.error], messageType: ERROR_MSG}]),
-              smTestStatus: TEST_STATUS.INVALID
-            };});
-            Promise.reject(responseData.error);
-          }
+          this.setState(prev => {
+            return {
+              messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
+              smTestStatus: TEST_STATUS.VALID
+            };
+          });
         })
         .catch((error) => {
-          let hostport = this.data.sm.creds.host +
-                (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
-          let msg = translate('server.test.sm.error', hostport);
 
-          this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: [msg, error.toString()], messageType: ERROR_MSG}]),
-            smTestStatus: TEST_STATUS.INVALID
-          };});
-          Promise.reject(error);
+          let hostport = this.data.sm.creds.host +
+              (this.data.sm.creds.port > 0 ? ':'  + this.data.sm.creds.port : '');
+
+          let msg = translate('server.test.sm.error', hostport);
+          if(error.status === 404) {
+            msg = translate('server.test.sm.error.hostport', hostport);
+          }
+          else if(error.status === 401) {
+            msg = translate('server.test.sm.error.userpass', hostport, this.data.sm.creds.username);
+          }
+          else if(error.status === 403) {
+            msg = translate('server.test.sm.error.secured', hostport);
+          }
+          this.setState(prev => {
+            return {
+              messages: prev.messages.concat([{msg: [msg, error.value.error], messageType: ERROR_MSG}]),
+              smTestStatus: TEST_STATUS.INVALID
+            };
+          });
         })
     );
   }
@@ -206,41 +189,29 @@ class ConnectionCredsInfo extends Component {
   testOv = () => {
     this.data.ov.sessionKey = undefined;
     return (
-      fetch(getAppConfig('shimurl') + '/api/v1/ov/connection_test', {
-        method: 'POST',
+      postJson('/api/v1/ov/connection_test', JSON.stringify(this.data.ov.creds), {
         headers: {
-          'Content-Type': 'application/json',
           'Secured': this.state.isOvSecured
-        },
-        body: JSON.stringify(this.data.ov.creds)
+        }
       })
-        .then(response => response.json())
         .then((responseData) => {
-          if (responseData.sessionID) {
-            this.data.ov.sessionKey = responseData.sessionID;
-            let msg = translate('server.test.ov.success', this.data.ov.creds.host);
-            this.setState(prev => { return {
+          this.data.ov.sessionKey = responseData.sessionID;
+          let msg = translate('server.test.ov.success', this.data.ov.creds.host);
+          this.setState(prev => {
+            return {
               messages: prev.messages.concat([{msg: msg, messageType: SUCCESS_MSG}]),
               ovTestStatus: TEST_STATUS.VALID
-            };});
-            Promise.resolve(responseData);
-          } else {
-            let error = responseData.error;
-            let msg = translate('server.test.ov.error', this.data.ov.creds.host);
-            this.setState(prev => { return {
-              messages: prev.messages.concat([{msg: [msg, error], messageType: ERROR_MSG}]),
-              ovTestStatus: TEST_STATUS.INVALID
-            };});
-            Promise.reject(error);
-          }
+            };
+          });
         })
         .catch((error) => {
-          let msg = translate('server.test.ov.error', this.data.ov.creds.host, error);
-          this.setState(prev => { return {
-            messages: prev.messages.concat([{msg: msg, messageType: ERROR_MSG}]),
-            ovTestStatus: TEST_STATUS.INVALID
-          };});
-          Promise.reject(error);
+          let msg = translate('server.test.ov.error', this.data.ov.creds.host);
+          this.setState(prev => {
+            return {
+              messages: prev.messages.concat([{msg: [msg, error.value.error], messageType: ERROR_MSG}]),
+              ovTestStatus: TEST_STATUS.INVALID
+            };
+          });
         })
     );
   }
@@ -260,17 +231,8 @@ class ConnectionCredsInfo extends Component {
       tests.push(this.testOv());
     }
 
-    this.doAllTest(tests)
-      .then((tokenKeys) => {
-        this.setState({loading: false});
-      })
-      .catch((error) => {
-        this.setState({loading: false});
-      });
-  }
-
-  doAllTest(tests) {
-    return Promise.all(tests);
+    // Perform all tests and turn off the loading mask when all have completed
+    Promise.all(tests).then(() => this.setState({loading: false}));
   }
 
   handleInputChange = (e, isValid, props) => {
