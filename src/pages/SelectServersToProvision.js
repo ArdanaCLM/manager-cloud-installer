@@ -53,7 +53,7 @@ class SelectServersToProvision extends BaseWizardPage {
       leftList: [],
       rightList: [],
 
-      osInstallUsername: 'stack',
+      osInstallUsername: '',
       osInstallPassword: '',
       installing: false,
       showModal: false,
@@ -94,6 +94,13 @@ class SelectServersToProvision extends BaseWizardPage {
       })
       .then(() => fetchJson('/api/v1/ips'))
       .then(data => {this.ips = data;});
+
+    fetchJson('/api/v1/clm/user')
+      .then(responseData => {
+        this.setState({
+          osInstallUsername: responseData['username']
+        });
+      });
   }
 
   setBackButtonDisabled = () => {
