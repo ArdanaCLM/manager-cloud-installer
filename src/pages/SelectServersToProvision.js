@@ -21,7 +21,7 @@ import { YesNoModal } from '../components/Modals.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import TransferTable from '../components/TransferTable.js';
 import { ServerInputLine } from '../components/ServerUtils.js';
-import { PlaybookProgress } from './CloudDeployProgress.js';
+import { PlaybookProgress } from '../components/PlaybookProcess.js';
 import { fetchJson } from '../utils/RestUtils.js';
 
 
