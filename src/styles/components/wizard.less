@@ -15,42 +15,58 @@
 @import "./../palette.less";
 
 .wizard-progress-container {
-  background: #000;
-  height: 1px;
-  margin-top: 3em;
+  height: 2em;
+  margin: 3.5em 0 2.5em;
+  background-image: url(/src/images/dot.png);
+  display: flex;
+  justify-content: space-between;
 
-  > span{
-    background: transparent;
-    padding: 0px;
-    position: relative;
-    top: -26px;
+  > span:before {
+    font-weight: bold;
+    color: white;
+    vertical-align: middle;
   }
 
   .progress {
-    border-radius: 16px;
+    border-radius: 26px;
     display: inline-block;
-    height: 24px;
-    width: 24px;
-    margin: 15px 37px 10px 35px;
-    border: 1px solid black;
+    height: 26px;
+    width: 26px;
+    border: 2px solid @progress-icon-border;
+    box-shadow: 0px 0px 1px 0px @page-font-color;
 
-    &.done{
-      background-color: @productprimarycolor;
-      border-color: @productprimarycolor;
+    &.done {
+      background-color: @preferredcolor;
+    }
+    &.done:before {
+      font-family: Material Icons;
+      content: "\e86c";
+      padding-left: 4px;
     }
 
-    &.not-done{
-      background-color: @inactivecolor;
+    &.not-done {
+      background-color: @progress-icon-not-done;
+    }
+    &.not-done:before {
+      content: attr(value);
+      padding-left: 7px;
     }
 
-    &.in-progress{
+    &.in-progress {
       background-color: @selectedcolor;
-      border-color: @selectedcolor;
+    }
+    &.in-progress:before {
+      content: attr(value);
+      padding-left: 7px;
     }
 
-    &.error{
+    &.error {
       background-color: @errorcolor;
-      border-color: @errorcolor;
+    }
+    &.error:before {
+      font-family: FontAwesome;
+      content: "\f12a";
+      padding-left: 8px;
     }
   }
 }
@@ -58,7 +74,6 @@
 .wizard-header {
   margin: 0px;
   padding: 0px 20px;
-  height: 80px;
 }
 
 @button-height: 34px;   // the height of all buttons is 34px
@@ -119,11 +134,14 @@
     margin-bottom: 10px;
   }
 
-  // 195px is calculated as:
-  //   20px for margin top for the h1 header (controlled by bootstrap)
-  //   80px for .wizard-header height
-  //   + value from above calculation
-  height: calc(~"100vh - 239px");//subtract the height of the footer & header & content-header
+  // 291px is calculated as:
+  //   20px for top margin for h1 header (controlled by bootstrap)
+  //   28px for h1 header
+  //   104px for wizard-progress-container
+  //   44px for content-header and top margin
+  //   40px for wizard-content top and bottom margins
+  //   55px for footer-container
+  height: calc(~"100vh - 291px");
 
   overflow-y: auto;
 }
