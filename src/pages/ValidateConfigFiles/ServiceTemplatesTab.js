@@ -57,7 +57,7 @@ class EditTemplateFile extends Component {
           inputType='textarea'
           inputAction={this.handleChange}
         />
-        <div className='button-container btn-row'>
+        <div className='btn-row'>
           <ActionButton type='default'
             displayLabel={translate('cancel')}
             clickAction={() => this.handleCancel()}/>
@@ -180,9 +180,9 @@ class ServiceTemplatesTab extends Component {
       return (
         <li key={index}>
           <span className='service-heading'>
-            <i className='material-icons folder'
+            <i className='material-icons'
               onClick={() => this.handleToggleService(item)}>keyboard_arrow_down</i>
-            <h4>{item.service}</h4></span>
+            {item.service}</span>
           <ul className='file-list'>{fileList}</ul>
         </li>
       );
@@ -191,9 +191,9 @@ class ServiceTemplatesTab extends Component {
       return (
         <li key={index}>
           <span className='service-heading'>
-            <i className='material-icons folder'
+            <i className='material-icons'
               onClick={() => this.handleToggleService(item)}>keyboard_arrow_right</i>
-            <h4>{item.service}</h4></span>
+            {item.service}</span>
         </li>
       );
     }
