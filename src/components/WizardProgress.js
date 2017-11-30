@@ -30,7 +30,7 @@ class WizardProgress extends Component {
         );
       } else if(item.stepProgress === STATUS.IN_PROGRESS) {
         return (
-          <span key={index} className="progress in-progress"/>
+          <span key={index}  value={index + 1} className="progress in-progress"/>
         );
       } else if(item.stepProgress === STATUS.FAILED) {
         return (
@@ -38,7 +38,7 @@ class WizardProgress extends Component {
         );
       } else {
         return (
-          <span key={index} className="progress not-done"/>
+          <span key={index}  value={index + 1} className="progress not-done"/>
         );
       }
     });
