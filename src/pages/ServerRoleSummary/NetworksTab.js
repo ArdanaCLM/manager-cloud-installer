@@ -75,15 +75,12 @@ class NetworksTab extends Component {
   renderActionRow() {
     let addClass = 'material-icons add-button';
     addClass = this.state.mode !== MODE.NONE ? addClass + ' disabled' : addClass;
-    let bottomClass = 'bottom-action-row';
-    bottomClass = this.state.mode === MODE.ADD ? bottomClass + ' on' : bottomClass;
     return (
-      <div className='bottom-action-container'>
-        <div key='networkAction' className={bottomClass}>
-          <span><i className={addClass} onClick={() => this.handleAddNetwork()}>add_circle</i>
-            {translate('add.network')}</span>
-        </div>
-      </div>
+      <tr key='networkAction' className='action-row'>
+        <td><i className={addClass} onClick={this.handleAddNetwork}>add_circle</i>
+          {translate('add.network')}</td>
+        <td colSpan="5"/>
+      </tr>
     );
   }
 
@@ -104,8 +101,7 @@ class NetworksTab extends Component {
   }
 
   renderNetworkTable() {
-    let trueStr = translate('true');
-    let falseStr = translate('false');
+    const checkMark = <i className='material-icons data-icon'>check</i>;
     let editClass = 'glyphicon glyphicon-pencil edit-button';
     let removeClass = 'glyphicon glyphicon-trash remove-button';
     if (this.state.mode !== MODE.NONE) {
@@ -123,7 +119,7 @@ class NetworksTab extends Component {
             <td>{network.get('cidr')}</td>
             <td>{network.get('gateway-ip')}</td>
             <td>{network.get('network-group')}</td>
-            <td>{network.get('tagged-vlan') ? trueStr : falseStr}</td>
+            <td>{network.get('tagged-vlan') ? checkMark : ''}</td>
             <td>
               <div className='row-action-container'>
                 <span onClick={() => this.handleEditNetwork(network)} className={editClass} />
@@ -151,7 +147,10 @@ class NetworksTab extends Component {
               <th></th>
             </tr>
           </thead>
-          <tbody>{rows}</tbody>
+          <tbody>
+            {rows}
+            {this.renderActionRow()}
+          </tbody>
         </table>
       </div>
     );
@@ -164,7 +163,6 @@ class NetworksTab extends Component {
           {this.renderNetworkTable()}
           {this.state.mode !== MODE.NONE && this.renderUpdateNetworkSection()}
         </div>
-        {this.renderActionRow()}
         {this.renderRemoveConfirmation()}
       </div>
     );
