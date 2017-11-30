@@ -112,14 +112,9 @@ export function  getMergedServer (src, dest, props)  {
   return result;
 }
 
+// private function for merging Map before save to the model
 function getMergedServerMap (src, dest, props) {
   let result = getMergedServer(src.toJS(), dest, props);
-  //clean up empty value entries to pass model validator
-  for (let key in result) {
-    if (result[key] === undefined || result[key] === '') {
-      delete result[key];
-    }
-  }
   return Map(result);
 }
 
@@ -127,6 +122,11 @@ export function updateServersInModel(server, model, props) {
   let retModel = model.updateIn(['inputModel','servers'], list => list.map(svr => {
     if (svr.get('id') === server.id) {
       let update_server = getMergedServerMap(svr, server, props);
+      // clean up unwanted entries before save to the model so it
+      // can pass model validator
+      update_server = update_server.filter((value, key) => {
+        return value !== undefined && value !== '';
+      });
       return update_server;
     }
     else {
