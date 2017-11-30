@@ -23,7 +23,6 @@ from tinydb import Query
 from tinydb import TinyDB
 
 bp = Blueprint('ui', __name__)
-JSON_SERVER = config.get("general", "json_server")
 SUCCESS = {"success": True}
 
 progress_file = config.get("general", "progress_file")

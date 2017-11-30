@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import config.config as config
 from flask import abort
 from flask import Blueprint
 from flask import request
@@ -23,8 +22,6 @@ import json
 
 
 bp = Blueprint('oneview', __name__)
-
-INSECURE = config.get("suse-manager", "insecure", False)
 
 """
 Calls to HPE OneView
@@ -63,9 +60,6 @@ def connection_test():
 
 @bp.route("/api/v1/ov/servers")
 def ov_server_list():
-    if util.USE_JSON_SERVER_ONLY:
-        return util.forward(util.build_url(None, '/servers'), request)
-
     verify = True
     secured = request.headers.get('Secured')
     if secured == 'false':
@@ -84,9 +78,6 @@ def ov_server_list():
 
 @bp.route("/api/v1/ov/servers/<id>")
 def ov_server_details(id):
-    if util.USE_JSON_SERVER_ONLY:
-        return util.forward(util.build_url(None, '/servers' + id), request)
-
     verify = True
     secured = request.headers.get('Secured')
     if secured == 'false':
