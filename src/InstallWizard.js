@@ -15,12 +15,11 @@
 import React, { Component } from 'react';
 import './Deployer.css';
 import { translate } from './localization/localize.js';
-import { getAppConfig } from './utils/ConfigHelper.js';
 import { STATUS } from './utils/constants.js';
 import WizardProgress from './components/WizardProgress';
 import { LoadingMask } from './components/LoadingMask.js';
 import { Map, fromJS } from 'immutable';
-import { fetchJson, postJson } from './utils/RestUtils.js';
+import { fetchJson, postJson, deleteJson } from './utils/RestUtils.js';
 
 
 
@@ -101,9 +100,7 @@ class InstallWizard extends Component {
         }})
       .then(() => {
         if (forcedReset) {
-          return fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov,manual', {
-            method: 'DELETE'
-          });
+          return deleteJson('/api/v1/server?source=sm,ov,manual');
         }
       })
       .catch((error) => {

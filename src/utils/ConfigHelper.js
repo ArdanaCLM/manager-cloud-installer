@@ -14,18 +14,38 @@
 **/
 var appConfigs = {
   'shimurl': window.location.protocol + '//' + window.location.hostname + ':' + 8081,
-  //remove this when release
-  'dev': true
 };
 
 // check for a config file, if present, overwrite the defaults
-fetch('config.json')
-  .then(response => response.json())
-  .then((responseData) =>
-  {
-    Object.assign(appConfigs, responseData);
-  });
+function loadConfig() {
+  return fetch('config.json')
+    .then(response => response.json())
+    .then((responseData) =>
+    {
+      return Object.assign(appConfigs, responseData);
+    });
+}
 
+// IMPORTANT:
+//   This function accesses appConfigs, which is populated
+// asynchronously.  This function will introduce a race condition
+// if called before that function has completed.
 export function getAppConfig(key) {
   return appConfigs[key];
 }
+
+
+var cfgPromise;
+
+// Return a promise whose value is the key being requested.  When
+// called the first time, there will be a slight delay in order to
+// actually load the config file, which in turn is done by loadConfig
+// in a promise.  Subsequent calls to this function will not trigger
+// re-loading the file since we are storing and reusing the result
+// of the loadConfig promise.
+//
+export function getConfig(key) {
+  cfgPromise = cfgPromise || loadConfig();
+  return cfgPromise.then(cfg => cfg[key]);
+}
+

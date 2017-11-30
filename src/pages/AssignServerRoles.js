@@ -18,6 +18,7 @@ import Cookies from 'universal-cookie';
 import { Tabs, Tab } from 'react-bootstrap';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
+import { fetchJson, postJson, putJson, deleteJson } from '../utils/RestUtils.js';
 import { ActionButton, LoadFileButton } from '../components/Buttons.js';
 import { IpV4AddressValidator, MacAddressValidator } from '../utils/InputValidators.js';
 import { SearchBar, ServerRolesAccordion, ServerInputLine, ServerDropdownLine } from '../components/ServerUtils.js';
@@ -35,7 +36,7 @@ import { isEmpty } from 'lodash';
 import {
   getServerRoles, isRoleAssignmentValid,  getNicMappings, getServerGroups, getMergedServer, updateServersInModel
 } from '../utils/ModelUtils.js';
-import { MODEL_SERVER_PROPS, MODEL_SERVER_PROPS_ALL } from "../utils/constants.js";
+import { MODEL_SERVER_PROPS, MODEL_SERVER_PROPS_ALL } from '../utils/constants.js';
 
 const AUTODISCOVER_TAB = 1;
 const MANUALADD_TAB = 2;
@@ -110,34 +111,22 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   getSmServersData(tokenKey, smUrl) {
-    return (
-      fetch(getAppConfig('shimurl') + '/api/v1/sm/servers', {
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
-          'Auth-Token': tokenKey,
-          'Suse-Manager-Url': smUrl
-        }
-      })
-        .then((response) => this.checkResponse(response))
-        .then(response => response.json())
-    );
+    return fetchJson('/api/v1/sm/servers', {
+      headers: {
+        'Auth-Token': tokenKey,
+        'Suse-Manager-Url': smUrl
+      }
+    });
   }
 
   getOvServersData(tokenKey, ovUrl) {
-    return (
-      fetch(getAppConfig('shimurl') + '/api/v1/ov/servers', {
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
-          'Auth-Token': tokenKey,
-          'Ov-Url': ovUrl,
-          'Secured': this.connections.ov.secured
-        }
-      })
-        .then((response) => this.checkResponse(response))
-        .then(response => response.json())
-    );
+    return fetchJson('/api/v1/ov/servers', {
+      headers: {
+        'Auth-Token': tokenKey,
+        'Ov-Url': ovUrl,
+        'Secured': this.connections.ov.secured
+      }
+    });
   }
 
   discoverSmServers(tokenKey, smUrl) {
@@ -213,17 +202,10 @@ class AssignServerRoles extends BaseWizardPage {
     return Promise.all(tasks);
   }
 
-  checkResponse(response) {
-    if (!response.ok) {
-      throw Error(response.url + ': ' + response.statusText);
-    }
-    return response;
-  }
-
   saveAllDiscoveredServers(servers) {
     this.deleteDiscoveredServers()
       .then((response) => {
-        this.saveDiscoveredServers(servers)
+        postJson('/api/v1/server', JSON.stringify(servers))
           .then((response) => {})
           .catch((error) => {
             let msg = translate('server.discover.save.error');
@@ -355,14 +337,7 @@ class AssignServerRoles extends BaseWizardPage {
     });
     this.props.updateGlobalState('model', model);
 
-    fetch(getAppConfig('shimurl') + '/api/v1/server', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(serverList)
-    });
+    postJson('/api/v1/server', JSON.stringify(serverList));
 
     // add server to the left table and the server API
     this.setState((prevState) => {
@@ -635,7 +610,7 @@ class AssignServerRoles extends BaseWizardPage {
       //pass
     }
 
-    this.getSavedDiscoveredServers()
+    fetchJson('/api/v1/server?source=sm,ov')
       .then((rawServerData) => {
         if(rawServerData) {
           this.setState({rawDiscoveredServers : rawServerData});
@@ -652,8 +627,7 @@ class AssignServerRoles extends BaseWizardPage {
       });
 
     // get manually added servers
-    fetch(getAppConfig('shimurl') + '/api/v1/server?source=manual')
-      .then(response => response.json())
+    fetchJson('/api/v1/server?source=manual')
       .then((responseData) => {
         if (responseData.length > 0) {
           this.setState({serversAddedManually: responseData});
@@ -661,49 +635,8 @@ class AssignServerRoles extends BaseWizardPage {
       });
   }
 
-  getSavedDiscoveredServers() {
-    return (
-      fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov')
-        .then((response) => this.checkResponse(response))
-        .then(response => response.json())
-    );
-  }
-
-  saveDiscoveredServers(resultServers) {
-    return (
-      fetch(getAppConfig('shimurl') + '/api/v1/server', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(resultServers)
-      })
-        .then((response) => this.checkResponse(response))
-    );
-  }
-
-  updateDiscoveredServer(server) {
-    return (
-      fetch(getAppConfig('shimurl') + '/api/v1/server', {
-        method: 'PUT',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(server)
-      })
-        .then((response) => this.checkResponse(response))
-    );
-  }
-
   deleteDiscoveredServers() {
-    return (
-      fetch(getAppConfig('shimurl') + '/api/v1/server?source=sm,ov', {
-        method: 'DELETE'
-      })
-        .then((response) => this.checkResponse(response))
-    );
+    return deleteJson('/api/v1/server?source=sm,ov');
   }
 
   updateSmServerDataWithDetails = (details, servers) => {
@@ -830,17 +763,14 @@ class AssignServerRoles extends BaseWizardPage {
   }
 
   //prototype query suse manager for details
-  getSmOneServerDetailData = (shimUrl, smTokenKey, smUrl) => {
+  getSmOneServerDetailData = (shimUrlPath, smTokenKey, smUrl) => {
     let promise = new Promise((resolve, reject) => {
-      fetch(shimUrl, {
+      fetchJson(shimUrlPath, {
         headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
           'Auth-Token': smTokenKey,
           'Suse-Manager-Url': smUrl
         }
       })
-        .then(response => response.json())
         .then((responseData) => {
           resolve(responseData);
         })
@@ -854,8 +784,8 @@ class AssignServerRoles extends BaseWizardPage {
   getSmAllServerDetailsData = (serverIds, smTokenKey, smUrl) => {
     let tasks = [];
     serverIds.forEach((id) => {
-      let shimUrl = getAppConfig('shimurl') + '/api/v1/sm/servers/' + id;
-      tasks.push(this.getSmOneServerDetailData(shimUrl, smTokenKey, smUrl));
+      let shimUrlPath = '/api/v1/sm/servers/' + id;
+      tasks.push(this.getSmOneServerDetailData(shimUrlPath, smTokenKey, smUrl));
     });
 
     return Promise.all(tasks);
@@ -1005,8 +935,7 @@ class AssignServerRoles extends BaseWizardPage {
           tempList.splice(idx, 1, updated_server);
           return {[list]: tempList};
         }, () => {
-          this.updateDiscoveredServer(updated_server)
-            .then((response) => {})
+          putJson('/api/v1/server', JSON.stringify(updated_server))
             .catch((error) => {
               let msg = translate('server.discover.update.error', updated_server.name);
               this.setState(prev => { return {
