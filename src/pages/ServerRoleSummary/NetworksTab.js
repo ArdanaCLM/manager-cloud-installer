@@ -79,11 +79,7 @@ class NetworksTab extends Component {
       <tr key='networkAction' className='action-row'>
         <td><i className={addClass} onClick={this.handleAddNetwork}>add_circle</i>
           {translate('add.network')}</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td colSpan="5"/>
       </tr>
     );
   }
