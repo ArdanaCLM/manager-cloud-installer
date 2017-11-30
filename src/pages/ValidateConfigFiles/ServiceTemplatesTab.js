@@ -18,6 +18,7 @@ import { ActionButton } from '../../components/Buttons.js';
 import { alphabetically } from '../../utils/Sort.js';
 import { fetchJson, postJson } from '../../utils/RestUtils.js';
 import { ErrorMessage } from '../../components/Messages.js';
+import { ServerInput } from '../../components/ServerUtils.js';
 
 class EditTemplateFile extends Component {
   constructor(props) {
@@ -39,7 +40,7 @@ class EditTemplateFile extends Component {
     this.props.closeAction(this.props.editFile);
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     this.setState({contents: event.target.value});
   }
 
@@ -49,12 +50,14 @@ class EditTemplateFile extends Component {
 
   render() {
     return (
-      <div className='edit-container'>
-        <div>
-          <textarea name='fileContents' className='service-file-editor rounded-corner' wrap='off'
-            value={this.state.contents} onChange={(e) => this.handleChange(e)}/>
-        </div>
-        <div className='button-container btn-row'>
+      <div className='edit-container file-editor'>
+        <ServerInput
+          inputValue={this.state.contents}
+          inputName='fileContents'
+          inputType='textarea'
+          inputAction={this.handleChange}
+        />
+        <div className='btn-row'>
           <ActionButton type='default'
             displayLabel={translate('cancel')}
             clickAction={() => this.handleCancel()}/>
@@ -158,7 +161,7 @@ class ServiceTemplatesTab extends Component {
       );
     }
     else {
-      return (<div className='col-xs-8'>{translate(('validate.config.service.info'))}</div>);
+      return (<div className='col-xs-6'>{translate(('validate.config.service.info'))}</div>);
     }
   }
 
@@ -177,9 +180,9 @@ class ServiceTemplatesTab extends Component {
       return (
         <li key={index}>
           <span className='service-heading'>
-            <i className='material-icons folder'
+            <i className='material-icons'
               onClick={() => this.handleToggleService(item)}>keyboard_arrow_down</i>
-            <h4>{item.service}</h4></span>
+            {item.service}</span>
           <ul className='file-list'>{fileList}</ul>
         </li>
       );
@@ -188,9 +191,9 @@ class ServiceTemplatesTab extends Component {
       return (
         <li key={index}>
           <span className='service-heading'>
-            <i className='material-icons folder'
+            <i className='material-icons'
               onClick={() => this.handleToggleService(item)}>keyboard_arrow_right</i>
-            <h4>{item.service}</h4></span>
+            {item.service}</span>
         </li>
       );
     }
@@ -210,7 +213,7 @@ class ServiceTemplatesTab extends Component {
       });
 
     return (
-      <div className='col-xs-4 verticalLine'>
+      <div className='col-xs-6 verticalLine'>
         <ul className='all-service-list'>{serviceList}</ul>
       </div>
     );
@@ -219,7 +222,7 @@ class ServiceTemplatesTab extends Component {
   render() {
     return (
       <div className='template-service-files'>
-        <div className='body'>
+        <div>
           {!this.state.editFile && this.renderServiceList()}
           {this.renderFileSection()}
         </div>
