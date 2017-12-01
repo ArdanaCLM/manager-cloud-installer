@@ -68,8 +68,11 @@
     "validate.config.files.msg.invalid": "The configuration processor failed with the following message: ",
     "validate.config.files.msg.validating": "Validating...",
     "validate.deployment.doWipeDisks": "Wipe Data Disks",
+    "validate.deployment.doWipeDisks.tooltip": "Wipes the GPT(MBR) on the disks' partitions before cloud deployment.",
     "validate.deployment.encryptKey": "Encryption Key",
+    "validate.deployment.encryptKey.tooltip": "Password used to encrypt sensitive data and service passwords.",
     "validate.deployment.verbosity": "Verbosity Level",
+    "validate.deployment.verbosity.tooltip": "The amount of debug messages to provide during cloud deployment.",
     "validate.deployment.verbosity.lowest": "0-No debug messages",
     "validate.deployment.verbosity.highest": "4-Extremely verbose",
 

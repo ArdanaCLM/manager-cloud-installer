@@ -19,10 +19,11 @@ import { fetchJson, postJson } from '../utils/RestUtils.js';
 import { YamlValidator } from '../utils/InputValidators.js';
 import { ActionButton } from '../components/Buttons.js';
 import BaseWizardPage from './BaseWizardPage.js';
-import { ServerInputLine, ServerInput } from '../components/ServerUtils.js';
+import { ServerInput } from '../components/ServerUtils.js';
 import { Tabs, Tab } from 'react-bootstrap';
 import ServiceTemplatesTab from './ValidateConfigFiles/ServiceTemplatesTab.js';
 import Dropdown from '../components/Dropdown.js';
+import HelpText from '../components/HelpText.js';
 
 const INVALID = 0;
 const VALID = 1;
@@ -293,25 +294,39 @@ class ConfigForm extends Component {
   render() {
     return (
       <div className='config-form'>
-        <div className='wipedisk'>
-          <div className='wipedisk-name'>
-            {translate('validate.deployment.doWipeDisks')}
-          </div>
-          <input type='checkbox'
-            className='wipedisk-checkbox'
-            value='wipedisks'
-            checked={this.state.wipeDisks}
-            onChange={this.handleWipeDisks}/>
-        </div>
-        <ServerInputLine
-          label='validate.deployment.encryptKey'
-          inputName='encryptKey'
-          inputType='password'
-          inputValue={this.state.encryptKey}
-          inputAction={this.handlePasswordChange}/>
         <div className='detail-line'>
-          <div className='detail-heading'>{translate('validate.deployment.verbosity')}</div>
-          <div className='input-body'>
+          <div className='col-xs-4 label-container'>
+            {translate('validate.deployment.doWipeDisks')}
+            <HelpText tooltipText={translate('validate.deployment.doWipeDisks.tooltip')}/>
+          </div>
+          <div className='col-xs-8 checkbox-line'>
+            <input type='checkbox'
+              value='wipedisks'
+              checked={this.state.wipeDisks}
+              onChange={this.handleWipeDisks}/>
+          </div>
+        </div>
+
+        <div className='detail-line'>
+          <div className='col-xs-4 label-container'>
+            {translate('validate.deployment.encryptKey')}
+            <HelpText tooltipText={translate('validate.deployment.encryptKey.tooltip')}/>
+          </div>
+          <div className='col-xs-8'>
+            <ServerInput
+              inputName='encryptKey'
+              inputType='password'
+              inputValue={this.state.encryptKey}
+              inputAction={this.handlePasswordChange}/>
+          </div>
+        </div>
+
+        <div className='detail-line'>
+          <div className='col-xs-4 label-container'>
+            {translate('validate.deployment.verbosity')}
+            <HelpText tooltipText={translate('validate.deployment.verbosity.tooltip')}/>
+          </div>
+          <div className='col-xs-8'>
             <Dropdown
               value={this.state.verbosity}
               onChange={(e) => this.setState({verbosity: e.target.value})}
