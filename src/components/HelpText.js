@@ -17,7 +17,7 @@ import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 
 export default function HelpText(props) {
   const tooltip = (
-    <Tooltip id="helptext" className='tooltip-text'>{props.tooltipText}</Tooltip>
+    <Tooltip id="helptext">{props.tooltipText}</Tooltip>
   );
 
   return (
