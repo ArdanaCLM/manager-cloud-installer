@@ -495,11 +495,8 @@ class AssignServerRoles extends BaseWizardPage {
     let expTime = new Date(now);
     expTime.setMinutes(now.getMinutes() + minutes);
 
-    let retOp = {path: '/', expires: expTime, secure: true, sameSite: true};
-    //allow http for development
-    if(getAppConfig('dev')) {
-      retOp.secure = false;
-    }
+    // if later decide to always run installer with https, add secure: true
+    let retOp = {path: '/', expires: expTime, sameSite: true};
     return retOp;
   }
 
