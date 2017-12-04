@@ -233,3 +233,30 @@ def get_ips():
         pass
 
     return jsonify(ips)
+
+@bp.route("/api/v1/external_urls", methods=['GET'])
+def get_external_urls():
+    """Returns list of external URLs the customer can access via the browser
+       once cloud deployment is complete
+
+    **Example Request**:
+
+    .. sourcecode:: http
+
+    GET /api/v1/external_urls HTTP/1.1
+
+    **Example Response**:
+
+    .. sourcecode:: http
+    HTTP/1.1 200 OK
+
+    {
+        TODO FILL THIS IN - JACK
+    }
+    """
+    config.reload_config()
+
+    UI_URLs = config.get_all("UI_URLs")
+
+    return jsonify(UI_URLs)
+
