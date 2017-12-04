@@ -251,7 +251,8 @@ def get_external_urls():
     HTTP/1.1 200 OK
 
     {
-        TODO FILL THIS IN - JACK
+        "horizon": "https://192.168.245.6:443", 
+        "opsconsole": "https://192.168.245.5:9095"
     }
     """
     config.reload_config()
