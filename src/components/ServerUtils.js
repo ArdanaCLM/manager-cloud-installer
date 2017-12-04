@@ -94,28 +94,19 @@ export class ServerRolesAccordion extends Component {
   renderSections() {
     let sections = this.props.serverRoles.map((role, idx) => {
       let optionDisplay = '';
-      if(role.minCount === 0) {
+      if(role.minCount !== undefined) {
         optionDisplay =
           translate(
-            'add.server.role.no.min.display',
-            role.name, role.serverRole, role.servers.length
+            'add.server.role.min.count.display',
+            role.name, role.serverRole, role.servers.length, role.minCount
           );
       }
       else {
-        if(role.minCount !== undefined) {
-          optionDisplay =
-            translate(
-              'add.server.role.min.count.display',
-              role.name, role.serverRole, role.servers.length, role.minCount
-            );
-        }
-        else {
-          optionDisplay =
-            translate(
-              'add.server.role.member.count.display',
-              role.name, role.serverRole, role.servers.length, role.memberCount
-            );
-        }
+        optionDisplay =
+          translate(
+            'add.server.role.member.count.display',
+            role.name, role.serverRole, role.servers.length, role.memberCount
+          );
       }
       let isOpen = (idx === this.state.accordionPosition);
       let valid = isRoleAssignmentValid(role);
