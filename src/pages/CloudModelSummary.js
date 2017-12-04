@@ -136,7 +136,7 @@ class CloudModelSummary extends BaseWizardPage {
     return filtered.map((item, key) => {
 
       var count_type = item.has('member-count') ? 'member-count' : 'min-count';
-      var value = item.get(count_type);
+      var value = count_type === 'min-count' ? '>= ' + item.get(count_type) : item.get(count_type);
 
       // Build the id, which will be used as the activeItem
       var id = [section, key, count_type].join('.');
@@ -158,6 +158,10 @@ class CloudModelSummary extends BaseWizardPage {
     var mandatoryItems = this.state.controlPlane ? this.renderItems('clusters') : [];
     var additionalItems = this.state.controlPlane ? this.renderItems('resources') : [];
     var number = this.state.activeItem ? this.state.controlPlane.getIn(this.getKey()) : 0;
+    let editNodesLabel = translate('model.summary.edit.nodes');
+    if (this.state.activeItem && this.state.activeItem.indexOf('min-count') !== -1) {
+      editNodesLabel = translate('model.summary.edit.min.nodes');
+    }
     var additionalLabel = (additionalItems.size > 0) ?
       <div><h4>{translate('model.summary.additional')}</h4></div> : <div/>;
 
@@ -182,7 +186,7 @@ class CloudModelSummary extends BaseWizardPage {
             <p />
             {this.state.activeItem
               ? <div className='margin-top-80'>
-                <h4>{translate('model.summary.edit.machines')}</h4>
+                <h4>{editNodesLabel}</h4>
                 <form className='form-inline'>
                   <div className='form-group'>
                     <input type='number'

@@ -58,7 +58,8 @@
     "model.summary.heading": "Cloud Model to Deploy: {0}",
     "model.summary.mandatory": "Mandatory Components",
     "model.summary.additional": "Additional Components",
-    "model.summary.edit.machines": "Edit number of machines",
+    "model.summary.edit.nodes": "Edit number of nodes",
+    "model.summary.edit.min.nodes": "Edit minimum number of nodes",
 
     "validate.config.files.heading": "Review Configuration Files",
     "validate.config.files.validate": "Validate",
