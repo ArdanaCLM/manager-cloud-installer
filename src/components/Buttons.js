@@ -153,7 +153,6 @@ class ActivePickerButton extends Component {
           className='card rounded-corner shadowed-border'
           onClick={this.handleClick}
           value={this.props.value} >
-          <p className='glyphicon glyphicon-pencil edit-icon pull-right'></p>
           <p className='card-text-unit' id={this.props.id}>
             {this.props.value}
           </p>
