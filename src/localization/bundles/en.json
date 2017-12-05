@@ -276,6 +276,9 @@
     "complete.message.body": "Some post deploy instruction contents here...",
 
     "deploy.progress.heading": "Cloud Deployment In Progress",
+    "deploy.progress.config-processor-run": "Config Processor Run",
+    "deploy.progress.ready-deployment": "Ready Deployment",
+    "deploy.progress.predeployment": "Pre-Deployment",
     "deploy.progress.step1": "Network Configuration",
     "deploy.progress.step2": "Compute nodes deployed",
     "deploy.progress.step3": "Monitoring nodes deployed",

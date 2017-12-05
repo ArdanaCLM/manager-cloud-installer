@@ -18,6 +18,7 @@ import { translate } from '../localization/localize.js';
 import { STATUS } from '../utils/constants.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { PlaybookProgress } from '../components/PlaybookProcess.js';
+import { PLAYBOOK_PROGRESS_UI_STATUS } from '../utils/constants.js';
 
 /*
   Navigation rules:
@@ -28,8 +29,23 @@ import { PlaybookProgress } from '../components/PlaybookProcess.js';
   The play id is kept in the global state, and its absence indicates
   that the playbook should be launched.
 */
+const PRE_DEPLOYMENT_PLAYBOOK = 'dayzero-pre-deployment';
+const DAYZERO_SITE_PLAYBOOK = 'dayzero-site';
+const SITE_PLAYBOOK = 'site';
 
-const SITE_STEPS = [
+const PLAYBOOK_STEPS = [
+  {
+    label: translate('deploy.progress.config-processor-run'),
+    playbooks: ['config-processor-run.yml']
+  },
+  {
+    label: translate('deploy.progress.ready-deployment'),
+    playbooks: ['ready-deployment.yml']
+  },
+  {
+    label: translate('deploy.progress.predeployment'),
+    playbooks: ['dayzero-pre-deployment.yml', ]
+  },
   {
     label: translate('deploy.progress.step1'),
     playbooks: ['network_interface-deploy.yml']
@@ -53,7 +69,7 @@ const SITE_STEPS = [
   },
   {
     label: translate('deploy.progress.step6'),
-    playbooks: ['site.yml']
+    playbooks: ['site.yml', 'dayzero-site.yml'] //either site.yml or dayzero-site.yml
   }
 ];
 
@@ -69,18 +85,19 @@ class CloudDeployProgress extends BaseWizardPage {
   setNextButtonDisabled = () => this.state.overallStatus != STATUS.COMPLETE;
   setBackButtonDisabled = () => this.state.overallStatus != STATUS.FAILED;
 
-  updateStatus = (status) => {this.setState({overallStatus: status});}
-  updatePlayId = (playId) => {this.props.updateGlobalState('sitePlayId', playId);}
+  updatePageStatus = (status) => {
+    this.setState({overallStatus: status});
+  }
 
   render() {
     // choose between site or site with wipedisks (dayzero-site)
-    let sitePlaybook = 'site';
+    let sitePlaybook = SITE_PLAYBOOK;
 
     // Build the payload from the deployment configuration page options
     let payload = {};
     if (this.props.deployConfig) {
       if (this.props.deployConfig['wipeDisks']) {
-        sitePlaybook = 'dayzero-site';
+        sitePlaybook = DAYZERO_SITE_PLAYBOOK;
       }
       payload['verbose'] = this.props.deployConfig['verbosity'];
       payload['extraVars'] = {};
@@ -91,6 +108,12 @@ class CloudDeployProgress extends BaseWizardPage {
       }
     }
 
+    let commit = this.props.commitStatus; //global saved state
+    if(!commit) {
+      commit = PLAYBOOK_PROGRESS_UI_STATUS.NOTSTARTED;
+      this.props.updateGlobalState('commitStatus', commit);
+    }
+
     return (
       <div className='wizard-page'>
         <div className='content-header'>
@@ -98,15 +121,10 @@ class CloudDeployProgress extends BaseWizardPage {
         </div>
         <div className='wizard-content'>
           <PlaybookProgress
-            overallStatus = {this.state.overallStatus}
-            updateStatus = {this.updateStatus}
-            playId = {this.props.sitePlayId}
-            updatePlayId = {this.updatePlayId}
-            steps = {SITE_STEPS}
-            deployConfig = {this.props.deployConfig}
-            playbook = {sitePlaybook}
-            payload = {payload}
-          />
+            updateStatus = {this.updatePageStatus} updateGlobalState = {this.props.updateGlobalState}
+            playbookStatus = {this.props.playbookStatus} commitStatus = {commit}
+            steps = {PLAYBOOK_STEPS} deployConfig = {this.props.deployConfig}
+            playbooks = {[PRE_DEPLOYMENT_PLAYBOOK, sitePlaybook]} payload = {payload}/>
         </div>
         {this.renderNavButtons()}
       </div>

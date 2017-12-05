@@ -24,6 +24,7 @@ import { ServerInputLine } from '../components/ServerUtils.js';
 import { PlaybookProgress } from '../components/PlaybookProcess.js';
 import { fetchJson } from '../utils/RestUtils.js';
 
+const INSTALL_PLAYBOOK = 'dayzero-os-provision';
 
 const OS_INSTALL_STEPS = [
   {
@@ -66,7 +67,7 @@ class SelectServersToProvision extends BaseWizardPage {
   goForward = (e) => {
     e.preventDefault();
 
-    // Clear out the installPlayId when going to the next screen,
+    // Clear out the installPlayId when going to the next screen,overallStatus
     // which permits running the installer multiple times
     this.props.updateGlobalState('installPlayId', undefined);
 
@@ -122,6 +123,10 @@ class SelectServersToProvision extends BaseWizardPage {
     this.setState({osInstallPassword: password});
   }
 
+  updatePageStatus = (status) => {
+    this.setState({overallStatus: status});
+  }
+
   renderTransferTable() {
     return (
       <div>
@@ -170,7 +175,11 @@ class SelectServersToProvision extends BaseWizardPage {
   }
 
   renderBody() {
-    if (this.state.installing || this.props.installPlayId) {
+    let play = this.props.playbookStatus ? this.props.playbookStatus.find((play) => {
+      return (play.name === INSTALL_PLAYBOOK);
+    }) : undefined;
+
+    if (this.state.installing || play) {
       const serversToProvision = this.state.allServers.filter(e =>
         this.state.rightList.includes(e.name || e.id) && ! this.ips.includes(e['ip-addr']));
 
@@ -187,13 +196,9 @@ class SelectServersToProvision extends BaseWizardPage {
           </div>
           <div className='wizard-content'>
             <PlaybookProgress
-              overallStatus={this.state.overallStatus}
-              updateStatus={(status) => this.setState({overallStatus: status}) }
-              playId={this.props.installPlayId}
-              updatePlayId={(playId) => this.props.updateGlobalState('installPlayId', playId) }
-              steps={OS_INSTALL_STEPS}
-              playbook="dayzero-os-provision"
-              payload={payload} />
+              updateStatus = {this.updatePageStatus} updateGlobalState = {this.props.updateGlobalState}
+              playbookStatus = {this.props.playbookStatus} steps={OS_INSTALL_STEPS}
+              playbooks={[INSTALL_PLAYBOOK]} payload={payload} />
           </div>
         </div>);
     } else {
