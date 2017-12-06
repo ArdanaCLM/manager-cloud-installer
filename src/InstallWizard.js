@@ -52,11 +52,11 @@ class InstallWizard extends Component {
       //   not be duplicated here since it is already being persisted in the model
       // playbookStatus structure example is like
       // [{
-      //  name: 'dayzero-os-provision', status: '', idx: 0, id: ''
+      //  name: 'dayzero-os-provision', status: '', playId: ''
       // }, {
-      //  name: 'dayzero-pre-deployment', status: '', idx: 0, id: ''
+      //  name: 'dayzero-pre-deployment', status: '', playId: ''
       // }, {
-      //  name: 'dayzero-site', status: '', idx: 1, id: ''
+      //  name: 'dayzero-site', status: '', playId: ''
       // }]
       //
       playbookStatus: undefined,
@@ -69,12 +69,10 @@ class InstallWizard extends Component {
 
     // Indicate which of the above state variables are passed to wizard pages and can be set by them
     this.globalStateVars = ['commitStatus', 'playbookStatus', 'model', 'connectionInfo', 'deployConfig'];
-    //this.globalStateVars = ['sitePlayId', 'installPlayId', 'model', 'connectionInfo', 'deployConfig'];
 
 
     // Indicate which of the state variables will be persisted to, and loaded from, the progress API
     this.persistedStateVars = ['currentStep', 'steps', 'commitStatus', 'playbookStatus', 'connectionInfo'];
-    //this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'installPlayId', 'connectionInfo'];
 
     // Note: if no progress data can be found, responseData is an empty string
     const forcedReset = window.location.search.indexOf('reset=true') !== -1;

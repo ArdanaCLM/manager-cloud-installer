@@ -104,14 +104,23 @@ class SelectServersToProvision extends BaseWizardPage {
       });
   }
 
+  getPlaybook = () => {
+    let playbook =
+      this.props.playbookStatus ? this.props.playbookStatus.find(play => play.name === INSTALL_PLAYBOOK) : undefined;
+      return playbook;
+  }
+
+  //TODO: when click back button, reset the playbook status for playbooks to allow
+  //rerun
+
   setBackButtonDisabled = () => {
-    return this.props.installPlayId && !(
+    return this.getPlaybook() && !(
       this.state.overallStatus == STATUS.COMPLETE ||
       this.state.overallStatus == STATUS.FAILED);
   }
 
   setNextButtonDisabled = () => {
-    if (this.props.installPlayId) {
+    if (this.getPlaybook()) {
       return this.state.overallStatus != STATUS.COMPLETE;
     } else {
       return this.state.rightList.length > 0;
@@ -175,11 +184,8 @@ class SelectServersToProvision extends BaseWizardPage {
   }
 
   renderBody() {
-    let play = this.props.playbookStatus ? this.props.playbookStatus.find((play) => {
-      return (play.name === INSTALL_PLAYBOOK);
-    }) : undefined;
-
-    if (this.state.installing || play) {
+    // To show PlaybookProgress or not to show
+    if (this.state.installing || this.getPlaybook()) {
       const serversToProvision = this.state.allServers.filter(e =>
         this.state.rightList.includes(e.name || e.id) && ! this.ips.includes(e['ip-addr']));
 

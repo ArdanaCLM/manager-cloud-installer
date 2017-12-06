@@ -39,8 +39,8 @@ export const MODEL_SERVER_PROPS =  [
 export const MODEL_SERVER_PROPS_ALL = MODEL_SERVER_PROPS.concat(['role','id']);
 
 export const PLAYBOOK_PROGRESS_UI_STATUS = {
-  NOTSTARTED: 'notstarted',
-  FAIL: 'fail',
-  SUCCEED: 'succeed',
-  PROCESSING: 'progressing'
+  NOT_STARTED: 'notstarted',
+  FAILED: 'fail',
+  COMPLETE: 'succeed',
+  IN_PROGRESS: 'progressing'
 };

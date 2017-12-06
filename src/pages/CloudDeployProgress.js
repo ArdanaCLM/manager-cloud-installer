@@ -85,6 +85,9 @@ class CloudDeployProgress extends BaseWizardPage {
   setNextButtonDisabled = () => this.state.overallStatus != STATUS.COMPLETE;
   setBackButtonDisabled = () => this.state.overallStatus != STATUS.FAILED;
 
+  //TODO: when click back button, reset the playbook status for playbooks to allow
+  //rerun
+
   updatePageStatus = (status) => {
     this.setState({overallStatus: status});
   }
@@ -110,7 +113,7 @@ class CloudDeployProgress extends BaseWizardPage {
 
     let commit = this.props.commitStatus; //global saved state
     if(!commit) {
-      commit = PLAYBOOK_PROGRESS_UI_STATUS.NOTSTARTED;
+      commit = PLAYBOOK_PROGRESS_UI_STATUS.NOT_STARTED;
       this.props.updateGlobalState('commitStatus', commit);
     }
 
