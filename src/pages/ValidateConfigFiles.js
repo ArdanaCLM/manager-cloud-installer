@@ -29,8 +29,6 @@ const INVALID = 0;
 const VALID = 1;
 const UNKNOWN = -1;
 const VALIDATING = 2;
-const VALID_ICON = require('../images/Checked-48.png');
-const INVALID_ICON = require('../images/Cancel-48.png');
 
 const TAB = {
   MODEL_FILES: 'MODEL_FILES',
@@ -118,13 +116,11 @@ class DisplayFileList extends Component {
   }
 
   getIcon() {
-    var icon;
     if (this.props.valid === VALID) {
-      icon = VALID_ICON;
+      return (<i className='material-icons validate-result-icon valid'>check_circle</i>);
     } else if (this.props.valid === INVALID) {
-      icon = INVALID_ICON;
+      return (<i className='material-icons validate-result-icon invalid'>cancel</i>);
     }
-    return (<img className='validate-result-icon' src={icon}/>);
   }
 
   render() {
