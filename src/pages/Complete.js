@@ -23,13 +23,18 @@ class Complete extends BaseWizardPage {
   constructor() {
     super();
     this.state = {
-      horizon: '#',
-      opsconsole: '#'
+      horizon: '',
+      opsconsole: ''
     };
 
     fetchJson('/api/v1/external_urls')
       .then(responseData => {
-        this.setState({horizon: responseData.horizon, opsconsole: responseData.opsconsole});
+        if (responseData.horizon) {
+          this.setState({horizon: responseData.horizon});
+        }
+        if (responseData.opsconsole) {
+          this.setState({opsconsole: responseData.opsconsole});
+        }
       })
       .catch((error) => {
         console.log('Unable to retrieve external URLs');// eslint-disable-line no-console
@@ -38,6 +43,26 @@ class Complete extends BaseWizardPage {
 
   render() {
     const modelName = translate('model.picker.' + this.props.model.get('name'));
+
+    let linkSection = '';
+    if (this.state.horizon !== '' || this.state.opsconsole !== '') {
+      let links = [];
+      if (this.state.horizon !== '') {
+        links.push(<li><a href={this.state.horizon}>{translate('complete.message.link1')}</a></li>);
+      }
+      if (this.state.opsconsole !== '') {
+        links.push(<li><a href={this.state.opsconsole}>{translate('complete.message.link2')}</a></li>);
+      }
+      linkSection = (
+        <div className='col-xs-4'>
+          <h5>{translate('complete.message.link.heading')}</h5>
+          <ul>
+          {links}
+          </ul>
+        </div>
+      );
+    }
+
     return (
       <div className='wizard-page'>
         <div className='content-header'>
@@ -51,13 +76,7 @@ class Complete extends BaseWizardPage {
               <div className='indent'>{translate('complete.message.body3', modelName)}</div>
             </div>
             <div className='col-xs-1'></div>
-            <div className='col-xs-4'>
-              <h5>{translate('complete.message.link.heading')}</h5>
-              <ul>
-                <li><a href={this.state.horizon}>{translate('complete.message.link1')}</a></li>
-                <li><a href={this.state.opsconsole}>{translate('complete.message.link2')}</a></li>
-              </ul>
-            </div>
+            {linkSection}
           </div>
         </div>
       </div>
