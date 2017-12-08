@@ -257,7 +257,7 @@ def get_external_urls():
     """
     config.reload_config()
 
-    UI_URLs = config.get_all("UI_URLs")
+    urls = config.get_all("urls")
 
-    return jsonify(UI_URLs)
+    return jsonify(urls)
 
