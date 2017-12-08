@@ -133,7 +133,7 @@ class SelectServersToProvision extends BaseWizardPage {
             <div className='password-container'>
               <div className='detail-line'>
                 <div className='detail-heading'>{translate('server.user.prompt')}</div>
-                <div>{this.state.osInstallUsername}</div>
+                <div className='detail-field'>{this.state.osInstallUsername}</div>
               </div>
               <ServerInputLine
                 isRequired='true'

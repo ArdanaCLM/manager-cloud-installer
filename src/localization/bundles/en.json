@@ -273,7 +273,12 @@
     "network.group": "Network Group",
 
     "complete.heading": "Cloud Deployment Successful",
-    "complete.message.body": "Some post deploy instruction contents here...",
+    "complete.message.body1": "Congratulations! You've successfully deploy your cloud.",
+    "complete.message.body2": "This is the information about your cloud:",
+    "complete.message.body3": "Cloud Model - {0}",
+    "complete.message.link.heading": "Useful links:",
+    "complete.message.link1": "Openstack Horizon UI",
+    "complete.message.link2": "Ops Console UI",
 
     "deploy.progress.heading": "Cloud Deployment In Progress",
     "deploy.progress.step1": "Network Configuration",
