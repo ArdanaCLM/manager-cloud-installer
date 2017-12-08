@@ -52,26 +52,19 @@ def normalize(val):
     return val
 
 
-def get_flask_config():
-    """Return all items in the [flask] section.
-
-    The keys are converted to upercase as required by flask.  Since
-    SafeConfigParser returns all values as strings
-    """
-    return {k.upper(): normalize(v) for k, v in parser.items('flask')}
-
-
 def get(*args, **argv):
     return normalize(parser.get(*args, **argv))
 
 
-def get_dir(dir_name):
-    path = parser.get('paths', dir_name)
+def get_all(section, caps=False):
+    if caps:
+        return {k.upper(): normalize(v) for k, v in parser.items(section)}
+    else:
+        return {k: normalize(v) for k, v in parser.items(section)}
 
-    # Relative paths are resolved relative to the top-level directory
-    if not path.startswith('/'):
-        top_dir = os.path.normpath(os.path.join(os.path.dirname(__file__),
-                                                ".."))
-        path = os.path.abspath(os.path.join(top_dir, path))
 
-    return path
+def reload_config():
+    """
+    Reloads config files
+    """
+    parser.read(config_files)

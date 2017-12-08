@@ -46,11 +46,11 @@ def root():
 
 if __name__ == "__main__":
 
-    flask_config = config.get_flask_config()
+    flask_config = config.get_all('flask', caps=True)
     port = flask_config.pop('PORT', 8081)
     host = flask_config.pop('HOST', '127.0.0.1')
 
-    app.config.from_mapping(config.get_flask_config())
+    app.config.from_mapping(config.get_all('flask', caps=True))
 
     # app.run(debug=True)
     socketio.init_app(app)
