@@ -20,9 +20,15 @@ import { fetchJson } from '../utils/RestUtils.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ErrorMessage } from '../components/Messages.js';
 import { LoadingMask } from '../components/LoadingMask.js';
-import {
-  PickerButton, ActionButton, ItemHelpButton
-} from '../components/Buttons.js';
+import { PickerButton } from '../components/Buttons.js';
+import Dropdown from '../components/Dropdown.js';
+
+const FILTERS = [
+  {name: 'node-count', options: ['none', '30', '40']},
+  {name: 'hypervisor-type', options: ['none', 'kvm', 'esx', 'ironic']},
+  {name: 'storage-type', options: ['none', 'vsa', 'swift', 'ceph']},
+  {name: 'network-type', options: ['none', 'flat', 'multi-tenant']}
+];
 
 class CloudModelPicker extends BaseWizardPage {
 
@@ -30,20 +36,19 @@ class CloudModelPicker extends BaseWizardPage {
     super(props);
 
     this.templates = [];
-    this.simpleModels = [ //add more items when user select it from complete templates
-      'entry-scale-kvm-vsa',
-      'entry-scale-ironic-flat-network',
-      'entry-scale-kvm-ceph',
-      'entry-scale-swift',
-      'mid-scale-kvm-vsa'
-    ];
 
     this.state = {
       // Capture the name of the selected model
       selectedModelName: this.props.model.get('name'),
 
       errorContent: undefined,
-      loading: false
+      loading: false,
+
+      // filters
+      filterNodeCount: 'none',
+      filterHypervisorType: 'none',
+      filterStorageType: 'none',
+      filterNetworkType: 'none'
     };
 
     this.saveRequired = false;
@@ -101,26 +106,6 @@ class CloudModelPicker extends BaseWizardPage {
     }
   }
 
-  handleSelectTemplate = (e) => {
-    e.preventDefault();
-    //TODO
-  }
-
-  handleHelpChoose = (e) => {
-    e.preventDefault();
-    //TODO
-  }
-
-  handleShowSelectTemplateHelp = (e) => {
-    e.preventDefault();
-    //TODO
-  }
-
-  handleShowHelpChooseHelp = (e) => {
-    e.preventDefault();
-    //TODO
-  }
-
   setNextButtonDisabled() {
     return ! this.state.selectedModelName;
   }
@@ -145,21 +130,137 @@ class CloudModelPicker extends BaseWizardPage {
     }
   }
 
-  render() {
-    let details = '';
-    const template = this.templates.find(template => template.name === this.state.selectedModelName);
-    if(template) {
-      // details is the html help content read from model template fetched from the backend server.
-      // It should be safe to be rendered as the raw html content in the details view.
-      details = template['overview'];
+  getFilterValue = (filterName) => {
+    if (filterName === 'node-count') {
+      return this.state.filterNodeCount;
+    } else if (filterName === 'hypervisor-type') {
+      return this.state.filterHypervisorType;
+    } else if (filterName === 'storage-type') {
+      return this.state.filterStorageType;
+    } else if (filterName === 'network-type') {
+      return this.state.filterNetworkType;
     }
+  }
 
-    const btns = this.simpleModels.map((name,idx) =>
+  handleFilter = (filterName, value) => {
+    if (filterName === 'node-count') {
+      this.setState({filterNodeCount: value});
+    } else if (filterName === 'hypervisor-type') {
+      this.setState({filterHypervisorType: value});
+    } else if (filterName === 'storage-type') {
+      this.setState({filterStorageType: value});
+    } else if (filterName === 'network-type') {
+      this.setState({filterNetworkType: value});
+    }
+  }
+
+  filterTemplates = () => {
+    return this.templates.filter((template) => {
+      return (this.state.filterNodeCount === 'none' ||
+          template.metadata.nodeCount === this.state.filterNodeCount) &&
+        (this.state.filterHypervisorType === 'none' ||
+          template.metadata.hypervisor.includes(this.state.filterHypervisorType)) &&
+        (this.state.filterStorageType === 'none' ||
+          template.metadata.storage === this.state.filterStorageType) &&
+        (this.state.filterNetworkType === 'none' ||
+          template.metadata.network === this.state.filterNetworkType);
+    });
+  }
+
+  // util to find unique values from array of arrays
+  getUniqueValues(inputArray) {
+    let uniques = [];
+    inputArray.forEach((input) => {
+      input.forEach((inp) => {
+        if (!uniques.includes(inp)) {
+          uniques.push(inp);
+        }
+      });
+    });
+    return uniques;
+  }
+
+  processFilters = (templates) => {
+    // 'newFilters' keeps track of ALL filter options which changes every time the user makes a new
+    // selection by looking at metadata of all templates and sorting out the available values by
+    // filter type then displaying those values as filter options
+    let newFilters = JSON.parse(JSON.stringify(FILTERS));
+    if (templates.length < this.templates.length) {
+      for (let i=0; i<newFilters.length; i++) {
+        const newFilter = newFilters[i];
+        let uniques = [];
+        if (newFilter.name === 'node-count') {
+          const nodeCounts = templates.map((template) => {return template.metadata.nodeCount;});
+          uniques = [...new Set(nodeCounts)];   // get array of unique values from templates
+        }
+
+        if (newFilter.name === 'hypervisor-type') {
+          const hypervisors = templates.map((template) => {return template.metadata.hypervisor;});
+          uniques = this.getUniqueValues(hypervisors);
+        }
+
+        if (newFilter.name === 'storage-type') {
+          const storages = templates.map((template) => {return template.metadata.storage || '';});
+          uniques = [...new Set(storages)];
+        }
+
+        if (newFilter.name === 'network-type') {
+          const networks = templates.map((template) => {return template.metadata.network || '';});
+          uniques = [...new Set(networks)];
+        }
+
+        let newOptions = ['none'];
+        uniques.forEach((option) => {if (option !== '') {newOptions.push(option);}});
+        newFilter.options = newOptions;
+      }
+    }
+    return newFilters;
+  }
+
+  renderFilterBar = (templates) => {
+    const filters = this.processFilters(templates);
+    const filterDropdowns = filters.map((filter) => {
+      const options = filter.options.map((option) => {
+        const displayText = option === 'none' ? translate('model.picker.filter.' + filter.name) :
+          translate('model.picker.filter.' + filter.name + '.option.' + option);
+        return (
+          <option key={filter.name + option} value={option} className=''>{displayText}</option>
+        );
+      });
+
+      return (
+        <div key={filter.name} className='filter-box'>
+          <Dropdown
+            value={this.getFilterValue(filter.name)}
+            onChange={(e) => this.handleFilter(filter.name, e.target.value)}>
+            {options}
+          </Dropdown>
+        </div>
+      );
+    });
+
+    return (
+      <div className='filter-bar-container'>
+        <h4 className='filter-line-header'>{translate('model.picker.filter.line.header')}</h4>
+        {filterDropdowns}
+      </div>
+    );
+  }
+
+  render() {
+    const filteredTemplates = this.filterTemplates();
+    const selectedTemplate = filteredTemplates.find((template) => {
+      return template.name === this.state.selectedModelName;});
+
+    // details is the html help content read from model template fetched from the backend server.
+    // It should be safe to be rendered as the raw html content in the details view.
+    let details = selectedTemplate ? selectedTemplate.overview : '';
+    const btns = filteredTemplates.map((template, idx) =>
       <PickerButton
         key={idx}
-        keyName={name}
-        isSelected={name === this.state.selectedModelName}
-        displayLabel={translate('model.picker.' + name)}
+        keyName={template.name}
+        isSelected={template.name === this.state.selectedModelName}
+        displayLabel={translate('model.picker.' + template.name)}
         clickAction={this.handlePickModel}/>);
 
     return (
@@ -169,30 +270,12 @@ class CloudModelPicker extends BaseWizardPage {
         </div>
         <div className='wizard-content'>
           {this.renderLoadingMask()}
+          {this.renderFilterBar(filteredTemplates)}
           <div className='picker-container'>
             {btns}
           </div>
           <div className='details-container'>
             <div className='model-details' dangerouslySetInnerHTML={{__html: details}}/>
-          </div>
-          <div className='action-btn-container'>
-            <div className='action-btn-with-info'>
-              <div className='info-heading'>
-                {translate('model.picker.select-template-heading')}
-                <ItemHelpButton clickAction={this.showSelectTemplateHelp}/>
-              </div>
-              <ActionButton
-                displayLabel={translate('model.picker.select-template')}
-                clickAction={this.handleSelectTemplate}/>
-            </div>
-            <div className='action-btn-with-info'>
-              <div className='info-heading'>{translate('model.picker.help-choose-heading')}
-                <ItemHelpButton clickAction={this.handleShowHelpChooseHelp}/>
-              </div>
-              <ActionButton
-                displayLabel={translate('model.picker.help-choose')}
-                clickAction={this.handleHelpChoose}/>
-            </div>
           </div>
           {this.renderErrorMessage()}
         </div>

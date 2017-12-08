@@ -57,7 +57,7 @@ class Complete extends BaseWizardPage {
         <div className='col-xs-4'>
           <h5>{translate('complete.message.link.heading')}</h5>
           <ul>
-          {links}
+            {links}
           </ul>
         </div>
       );
