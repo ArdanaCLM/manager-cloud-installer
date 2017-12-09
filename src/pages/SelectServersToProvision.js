@@ -64,23 +64,30 @@ class SelectServersToProvision extends BaseWizardPage {
     this.ips = [];
   }
 
+  // Clear out the global playbookStatus entry for INSTALL_PLAYBOOK,
+  // which permits running the installer multiple times
+  resetPlaybookStatus = () => {
+    if (this.props.playbookStatus) {
+      let playStatus = this.props.playbookStatus.slice();
+      playStatus.forEach((play) => {
+        if (play.name === INSTALL_PLAYBOOK) {
+          play.playId = '';
+          play.status = '';
+        }
+      });
+      this.props.updateGlobalState('playbookStatus', playStatus);
+    }
+  }
+
   goForward = (e) => {
     e.preventDefault();
-
-    // Clear out the installPlayId when going to the next screen,overallStatus
-    // which permits running the installer multiple times
-    this.props.updateGlobalState('installPlayId', undefined);
-
+    this.resetPlaybookStatus();
     super.goForward(e);
   }
 
   goBack = (e) => {
     e.preventDefault();
-
-    // Clear out the installPlayId when going to the next screen,
-    // which permits running the installer multiple times
-    this.props.updateGlobalState('installPlayId', undefined);
-
+    this.resetPlaybookStatus();
     super.goBack(e);
   }
 
@@ -107,11 +114,8 @@ class SelectServersToProvision extends BaseWizardPage {
   getPlaybook = () => {
     let playbook =
       this.props.playbookStatus ? this.props.playbookStatus.find(play => play.name === INSTALL_PLAYBOOK) : undefined;
-      return playbook;
+    return playbook;
   }
-
-  //TODO: when click back button, reset the playbook status for playbooks to allow
-  //rerun
 
   setBackButtonDisabled = () => {
     return this.getPlaybook() && !(

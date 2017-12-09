@@ -17,11 +17,18 @@ import React, { Component } from 'react';
 import { translate } from '../localization/localize.js';
 import { getAppConfig } from '../utils/ConfigHelper.js';
 import { fetchJson, postJson } from '../utils/RestUtils.js';
-import { STATUS , PLAYBOOK_PROGRESS_UI_STATUS } from '../utils/constants.js';
+import { STATUS } from '../utils/constants.js';
 import { ActionButton } from '../components/Buttons.js';
 import io from 'socket.io-client';
 import { List } from 'immutable';
 import debounce from 'lodash/debounce';
+
+const PROGRESS_UI_CLASS = {
+  NOT_STARTED: 'notstarted',
+  FAILED: 'fail',
+  COMPLETE: 'succeed',
+  IN_PROGRESS: 'progressing'
+};
 
 class LogViewer extends Component {
 
@@ -93,23 +100,45 @@ class PlaybookProgress extends Component {
         <pre className='log'>{this.state.errorMsg}</pre></div>);
   }
 
+  getStatusClass = (status) => {
+    let retClass = '';
+    switch (status) {
+      case  STATUS.IN_PROGRESS:
+        retClass = PROGRESS_UI_CLASS.IN_PROGRESS;
+        break;
+      case STATUS.COMPLETE:
+        retClass = PROGRESS_UI_CLASS.COMPLETE;
+        break;
+      case STATUS.FAILED:
+        retClass = PROGRESS_UI_CLASS.FAILED;
+        break;
+      default:
+        retClass = PROGRESS_UI_CLASS.NOT_STARTED;
+        break;
+    }
+    return retClass;
+  }
+
   getCommitStatus() {
-    return (<li key='commit' className={this.state.commit}>{translate('deploy.progress.commit')}</li>);
+    if(this.state.commit !== undefined) {
+      const stClass = this.getStatusClass(this.state.commit);
+      return (<li key='commit' className={stClass}>{translate('deploy.progress.commit')}</li>);
+    }
   }
 
   getProgress() {
-    return this.props.steps.map((step, index) => {
-      var status = PLAYBOOK_PROGRESS_UI_STATUS.NOT_STARTED, i = 0;
+    let progresses =  this.props.steps.map((step, index) => {
+      let status = STATUS.NOT_STARTED, i = 0;
 
       //for each step, check if any playbooks failed
-      for(i = 0; i < step.playbooks.length; i++) {
+      for (i = 0; i < step.playbooks.length; i++) {
         if (this.state.playbooksError.indexOf(step.playbooks[i]) !== -1) {
-          status = PLAYBOOK_PROGRESS_UI_STATUS.FAILED;//there is at least 1 ERROR playbook
+          status = STATUS.FAILED ;//there is at least 1 ERROR playbook
         }
       }
 
       //check if all playbooks have finished
-      if(status === PLAYBOOK_PROGRESS_UI_STATUS.NOT_STARTED) {
+      if (status === STATUS.NOT_STARTED) {
         let complete = true;
         for (i = 0; i < step.playbooks.length; i++) {
           if(this.state.playbooksComplete.indexOf(step.playbooks[i]) === -1) {
@@ -119,26 +148,29 @@ class PlaybookProgress extends Component {
         }
 
         //if all playbooks were complete, set the status to succeed
-        if(complete) {
-          status = PLAYBOOK_PROGRESS_UI_STATUS.COMPLETE;
+        if (complete) {
+          status = STATUS.COMPLETE;
         }
       }
 
       //if the status has not previously been set to fail or complete,
       // check if any of the playbooks have started
-      if(status === PLAYBOOK_PROGRESS_UI_STATUS.NOT_STARTED) {
+      if (status === STATUS.NOT_STARTED) {
         //for each step, check if all needed playbooks are done
         //if any are not done, check if at least 1 has started
         for (i = 0; i < step.playbooks.length; i++) {
           if (this.state.playbooksStarted.indexOf(step.playbooks[i]) !== -1) {
-            status = PLAYBOOK_PROGRESS_UI_STATUS.IN_PROGRESS;
+            status = STATUS.IN_PROGRESS;
             break;//theres at least 1 started playbook
           }
         }
       }
 
-      return (<li key={index} className={status}>{step.label}</li>);
+      const statusClass = this.getStatusClass(status);
+      return (<li key={index} className={statusClass}>{step.label}</li>);
     });
+
+    return progresses;
   }
 
   monitorSocket = (playbookName, playId) => {
@@ -192,6 +224,9 @@ class PlaybookProgress extends Component {
       let nextPlaybookName = this.findNextPlaybook([thisPlaybook.name]);
       if (nextPlaybookName) {
         this.launchPlaybook(nextPlaybookName);
+      }
+      else {
+        this.props.updateStatus(STATUS.COMPLETE); //set the caller page status
       }
     }
   }
@@ -256,18 +291,18 @@ class PlaybookProgress extends Component {
     return postJson('/api/v1/clm/model/commit', commitMessage)
       .then((response) => {
         // update commit step status
-        this.setState({commit: PLAYBOOK_PROGRESS_UI_STATUS.COMPLETE});
+        this.setState({commit: STATUS.COMPLETE});
         // update global commitStatus state
-        this.props.updateGlobalState('commitStatus', PLAYBOOK_PROGRESS_UI_STATUS.COMPLETE);
+        this.props.updateGlobalState('commitStatus', STATUS.COMPLETE);
       })
       .catch((error) => {
         this.setState({errorMsg: translate('deploy.commit.failure', error.toString())});
         // set caller page status
         this.props.updateStatus(STATUS.FAILED);
         // update commit step status
-        this.setState({commit: PLAYBOOK_PROGRESS_UI_STATUS.FAILED});
+        this.setState({commit: STATUS.FAILED});
         // update global commitStatus state
-        this.props.updateGlobalState('commitStatus', PLAYBOOK_PROGRESS_UI_STATUS.FAILED);
+        this.props.updateGlobalState('commitStatus', STATUS.FAILED);
       });
   }
 
@@ -375,23 +410,23 @@ class PlaybookProgress extends Component {
         }
       }
       else {//don't have any inprogress, failed or complete books , very fresh start
-        if(this.state.commit) {
-          if(this.state.commit === PLAYBOOK_PROGRESS_UI_STATUS.NOT_STARTED) {
+        if(this.state.commit !== undefined) {
+          if(this.state.commit === STATUS.NOT_STARTED) {
             this.commitChanges().then(() => {
               //do not launch playbook if we can not commit
-              if (this.state.commit === PLAYBOOK_PROGRESS_UI_STATUS.COMPLETE) {
+              if (this.state.commit === STATUS.COMPLETE) {
                 this.launchPlaybook(this.props.playbooks[0]);
               }
             });
           }
-          else if (this.state.commit === PLAYBOOK_PROGRESS_UI_STATUS.COMPLETE) {
+          else if (this.state.commit === STATUS.COMPLETE) {
             // recorded commit succeeded, but haven't start anything yet
             this.launchPlaybook(this.props.playbooks[0]);
           }
           else { //recorded commit failed, try to recommit
             this.commitChanges().then(() => {
               //do not launch playbook if we can not commit
-              if (this.state.commit === PLAYBOOK_PROGRESS_UI_STATUS.COMPLETE) {
+              if (this.state.commit === STATUS.COMPLETE) {
                 this.launchPlaybook(this.props.playbooks[0]);
               }
             });
@@ -452,9 +487,9 @@ class PlaybookProgress extends Component {
       <div className='playbook-progress'>
         <div className='progress-body'>
           <div className='col-xs-4'>
-            <ul>{this.state.commit && this.getCommitStatus()}{this.getProgress()}</ul>
+            <ul>{this.getCommitStatus()}{this.getProgress()}</ul>
             <div>
-              {!this.state.showLog && this.renderShowLogButton()}
+              {!this.state.errorMsg && !this.state.showLog && this.renderShowLogButton()}
             </div>
           </div>
           <div className='col-xs-8'>
@@ -467,6 +502,9 @@ class PlaybookProgress extends Component {
   }
 
   componentDidMount() {
+    console.log(JSON.stringify(this.props.playbooks));
+    console.log(JSON.stringify(this.props.deployConfig));
+    console.log(JSON.stringify(this.props.payload));
     this.globalPlaybookStatus = this.getGlobalPlaybookStatus();
     this.processPlaybooks();
   }
@@ -490,7 +528,7 @@ class PlaybookProgress extends Component {
    * @param {String} the playbook filename
    */
   playbookStarted = (stepPlaybook) => {
-     console.log(' step playbook started ' + stepPlaybook);
+    console.log(' step playbook started ' + stepPlaybook);
 
     this.setState((prevState) => {
       return {'playbooksStarted': prevState.playbooksStarted.concat(stepPlaybook)};
@@ -549,6 +587,7 @@ class PlaybookProgress extends Component {
         console.log(' playbook failed ' + playbookName);
         this.updateGlobalPlaybookStatus(playbookName, playId, STATUS.FAILED);
       }
+      // if failed update caller page immediately
       this.props.updateStatus(STATUS.FAILED);
     }
   }

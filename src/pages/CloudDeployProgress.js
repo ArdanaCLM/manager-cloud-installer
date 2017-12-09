@@ -18,7 +18,6 @@ import { translate } from '../localization/localize.js';
 import { STATUS } from '../utils/constants.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { PlaybookProgress } from '../components/PlaybookProcess.js';
-import { PLAYBOOK_PROGRESS_UI_STATUS } from '../utils/constants.js';
 
 /*
   Navigation rules:
@@ -85,11 +84,34 @@ class CloudDeployProgress extends BaseWizardPage {
   setNextButtonDisabled = () => this.state.overallStatus != STATUS.COMPLETE;
   setBackButtonDisabled = () => this.state.overallStatus != STATUS.FAILED;
 
-  //TODO: when click back button, reset the playbook status for playbooks to allow
-  //rerun
-
   updatePageStatus = (status) => {
     this.setState({overallStatus: status});
+  }
+
+  // Clear out the global playbookStatus entry for PRE_DEPLOYMENT_PLAYBOOK,
+  // DAYZERO_SITE_PLAYBOOK or SITE_PLAYBOOK and commitStatus
+  // which permits running the deploy multiple times when have errors and
+  // need to go back
+  resetPlaybookStatus = () => {
+    this.props.updateGlobalState('commitStatus', '');
+    if (this.props.playbookStatus) {
+      let playStatus = this.props.playbookStatus.slice();
+      playStatus.forEach((play, idx) => {
+        // remove the exist one
+        if (play.name === PRE_DEPLOYMENT_PLAYBOOK ||
+          play.name === DAYZERO_SITE_PLAYBOOK || play.name === SITE_PLAYBOOK) {
+          play.playId = '';
+          play.status = '';
+        }
+      });
+      this.props.updateGlobalState('playbookStatus', playStatus);
+    }
+  }
+
+  goBack(e) {
+    e.preventDefault();
+    this.resetPlaybookStatus();
+    super.goBack(e);
   }
 
   render() {
@@ -98,6 +120,7 @@ class CloudDeployProgress extends BaseWizardPage {
 
     // Build the payload from the deployment configuration page options
     let payload = {};
+    //TODO this is saved for reload...what to do with encryptKey
     if (this.props.deployConfig) {
       if (this.props.deployConfig['wipeDisks']) {
         sitePlaybook = DAYZERO_SITE_PLAYBOOK;
@@ -112,8 +135,8 @@ class CloudDeployProgress extends BaseWizardPage {
     }
 
     let commit = this.props.commitStatus; //global saved state
-    if(!commit) {
-      commit = PLAYBOOK_PROGRESS_UI_STATUS.NOT_STARTED;
+    if(commit === undefined || commit === '') {
+      commit = STATUS.NOT_STARTED;
       this.props.updateGlobalState('commitStatus', commit);
     }
 
