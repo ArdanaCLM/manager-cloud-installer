@@ -23,12 +23,9 @@ import { LoadingMask } from '../components/LoadingMask.js';
 import { PickerButton } from '../components/Buttons.js';
 import Dropdown from '../components/Dropdown.js';
 
-const FILTERS = [
-  {name: 'node-count', options: ['none', '30', '40']},
-  {name: 'hypervisor-type', options: ['none', 'kvm', 'esx', 'ironic']},
-  {name: 'storage-type', options: ['none', 'vsa', 'swift', 'ceph']},
-  {name: 'network-type', options: ['none', 'flat', 'multi-tenant']}
-];
+const NODE_COUNT_THRESHOLD = 30;
+const NODE_COUNT_OPT1 = '1';
+const NODE_COUNT_OPT2 = '2';
 
 class CloudModelPicker extends BaseWizardPage {
 
@@ -154,10 +151,15 @@ class CloudModelPicker extends BaseWizardPage {
     }
   }
 
+  checkNodeCounts = (templateNodeCount) => {
+    const ncAlt = templateNodeCount > NODE_COUNT_THRESHOLD ? NODE_COUNT_OPT2 : NODE_COUNT_OPT1;
+    return ncAlt === this.state.filterNodeCount;
+  }
+
   filterTemplates = () => {
     return this.templates.filter((template) => {
       return (this.state.filterNodeCount === 'none' ||
-          template.metadata.nodeCount === this.state.filterNodeCount) &&
+          this.checkNodeCounts(template.metadata.nodeCount)) &&
         (this.state.filterHypervisorType === 'none' ||
           template.metadata.hypervisor.includes(this.state.filterHypervisorType)) &&
         (this.state.filterStorageType === 'none' ||
@@ -184,36 +186,36 @@ class CloudModelPicker extends BaseWizardPage {
     // 'newFilters' keeps track of ALL filter options which changes every time the user makes a new
     // selection by looking at metadata of all templates and sorting out the available values by
     // filter type then displaying those values as filter options
-    let newFilters = JSON.parse(JSON.stringify(FILTERS));
-    if (templates.length < this.templates.length) {
-      for (let i=0; i<newFilters.length; i++) {
-        const newFilter = newFilters[i];
-        let uniques = [];
-        if (newFilter.name === 'node-count') {
-          const nodeCounts = templates.map((template) => {return template.metadata.nodeCount;});
-          uniques = [...new Set(nodeCounts)];   // get array of unique values from templates
-        }
+    let newFilters = [];
 
-        if (newFilter.name === 'hypervisor-type') {
-          const hypervisors = templates.map((template) => {return template.metadata.hypervisor;});
-          uniques = this.getUniqueValues(hypervisors);
-        }
+    const nodeCounts = templates.map((template) => {
+      return template.metadata.nodeCount > NODE_COUNT_THRESHOLD ? NODE_COUNT_OPT2 : NODE_COUNT_OPT1;
+    });
+    const uniqueNodeCounts = [...new Set(nodeCounts)].sort((a, b) => {return a-b;});
+    const ncOptions = uniqueNodeCounts.length > 0 ? ['none'].concat(uniqueNodeCounts) : ['none'];
+    const nodeCountFilter = {name: 'node-count', options: ncOptions};
+    newFilters.push(nodeCountFilter);
 
-        if (newFilter.name === 'storage-type') {
-          const storages = templates.map((template) => {return template.metadata.storage || '';});
-          uniques = [...new Set(storages)];
-        }
+    const hypervisors = templates.map((template) => {return template.metadata.hypervisor;});
+    const uniqueHypervisors = this.getUniqueValues(hypervisors).sort();
+    const hOptions = uniqueHypervisors.length > 0 ? ['none'].concat(uniqueHypervisors) : ['none'];
+    const hypervisorFilter = {name: 'hypervisor-type', options: hOptions};
+    newFilters.push(hypervisorFilter);
 
-        if (newFilter.name === 'network-type') {
-          const networks = templates.map((template) => {return template.metadata.network || '';});
-          uniques = [...new Set(networks)];
-        }
+    let storages = templates.map((template) => {return template.metadata.storage;});
+    storages = storages.filter((storage) => {return storage !== undefined;});
+    const uniqueStorages = [...new Set(storages)].sort();
+    const sOptions = uniqueStorages.length > 0 ? ['none'].concat(uniqueStorages) : ['none'];
+    const storageFilter = {name: 'storage-type', options: sOptions};
+    newFilters.push(storageFilter);
 
-        let newOptions = ['none'];
-        uniques.forEach((option) => {if (option !== '') {newOptions.push(option);}});
-        newFilter.options = newOptions;
-      }
-    }
+    let networks = templates.map((template) => {return template.metadata.network;});
+    networks = networks.filter((network) => {return network !== undefined;});
+    const uniqueNetworks = [...new Set(networks)].sort();
+    const nOptions = uniqueNetworks.length ? ['none'].concat(uniqueNetworks) : ['none'];
+    const networkFilter = {name: 'network-type', options: nOptions};
+    newFilters.push(networkFilter);
+
     return newFilters;
   }
 
