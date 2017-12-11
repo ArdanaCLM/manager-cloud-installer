@@ -50,18 +50,31 @@ class InstallWizard extends Component {
       //   like credentials for remote systems, and so on.  Information that is already stored
       //   in the model, such as its name or which servers are assigned to which roles, should
       //   not be duplicated here since it is already being persisted in the model
-      sitePlayId: undefined,  // play id of the deployment playbook
-      installPlayId: undefined,  // play id of the playbook to provision operating systems
+      // playbookStatus structure example is like
+      // [{
+      //  name: 'dayzero-os-provision', status: '', playId: ''
+      // }, {
+      //  name: 'dayzero-pre-deployment', status: '', playId: ''
+      // }, {
+      //  name: 'dayzero-site', status: '', playId: ''
+      // }]
+      //
+      playbookStatus: undefined,
+      commitStatus: undefined, // to make it simple, we only have one to commit
       model: Map(),           // immutable model
       connectionInfo: undefined, // config info for external discovery services
       deployConfig: undefined, // cloud deployment configuration
     };
 
+
     // Indicate which of the above state variables are passed to wizard pages and can be set by them
-    this.globalStateVars = ['sitePlayId', 'installPlayId', 'model', 'connectionInfo', 'deployConfig'];
+    this.globalStateVars = ['commitStatus', 'playbookStatus', 'model', 'connectionInfo', 'deployConfig'];
+
 
     // Indicate which of the state variables will be persisted to, and loaded from, the progress API
-    this.persistedStateVars = ['currentStep', 'steps', 'sitePlayId', 'installPlayId', 'connectionInfo'];
+    this.persistedStateVars = [
+      'currentStep', 'steps', 'commitStatus', 'playbookStatus', 'connectionInfo', 'deployConfig'
+    ];
 
     // Note: if no progress data can be found, responseData is an empty string
     const forcedReset = window.location.search.indexOf('reset=true') !== -1;
