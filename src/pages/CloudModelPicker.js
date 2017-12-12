@@ -45,10 +45,12 @@ class CloudModelPicker extends BaseWizardPage {
       filterNodeCount: 'none',
       filterHypervisorType: 'none',
       filterStorageType: 'none',
-      filterNetworkType: 'none'
+      filterNetworkType: 'none',
+      currentFilter: 'none'
     };
 
     this.saveRequired = false;
+    this.filteredTemplates = [];
   }
 
   componentWillMount() {
@@ -71,6 +73,17 @@ class CloudModelPicker extends BaseWizardPage {
           loading: false
         });
       });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // clear model selection if the filtered templates do not contain the selected model
+    if (prevState.selectedModelName) {
+      const selectedModel = this.filteredTemplates.find((template) => {
+        return template.name === prevState.selectedModelName;});
+      if (this.filteredTemplates.length > 0 && selectedModel === undefined) {
+        this.setState((prevState) => {return {selectedModelName: undefined};});
+      }
+    }
   }
 
   handlePickModel = (e) => {
@@ -141,13 +154,13 @@ class CloudModelPicker extends BaseWizardPage {
 
   handleFilter = (filterName, value) => {
     if (filterName === 'node-count') {
-      this.setState({filterNodeCount: value});
+      this.setState({filterNodeCount: value, currentFilter: 'node-count'});
     } else if (filterName === 'hypervisor-type') {
-      this.setState({filterHypervisorType: value});
+      this.setState({filterHypervisorType: value, currentFilter: 'hypervisor-type'});
     } else if (filterName === 'storage-type') {
-      this.setState({filterStorageType: value});
+      this.setState({filterStorageType: value, currentFilter: 'storage-type'});
     } else if (filterName === 'network-type') {
-      this.setState({filterNetworkType: value});
+      this.setState({filterNetworkType: value, currentFilter: 'network-type'});
     }
   }
 
@@ -183,12 +196,14 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   processFilters = (templates) => {
-    // 'newFilters' keeps track of ALL filter options which changes every time the user makes a new
-    // selection by looking at metadata of all templates and sorting out the available values by
-    // filter type then displaying those values as filter options
+    // 'newFilters' calculates options for each filter, which changes every time the user makes a
+    // new selection, by looking at template metadata and sorting out the metadata by filter type
+    // then displaying those values as filter options. Only the current filter displays all possible
+    // values for filter options while the other filters only display available values.
     let newFilters = [];
 
-    const nodeCounts = templates.map((template) => {
+    const ncSource = this.state.currentFilter === 'node-count' ? this.templates : templates;
+    const nodeCounts = ncSource.map((template) => {
       return template.metadata.nodeCount > NODE_COUNT_THRESHOLD ? NODE_COUNT_OPT2 : NODE_COUNT_OPT1;
     });
     const uniqueNodeCounts = [...new Set(nodeCounts)].sort((a, b) => {return a-b;});
@@ -196,20 +211,23 @@ class CloudModelPicker extends BaseWizardPage {
     const nodeCountFilter = {name: 'node-count', options: ncOptions};
     newFilters.push(nodeCountFilter);
 
-    const hypervisors = templates.map((template) => {return template.metadata.hypervisor;});
+    const hSource = this.state.currentFilter === 'hypervisor-type' ? this.templates : templates;
+    const hypervisors = hSource.map((template) => {return template.metadata.hypervisor;});
     const uniqueHypervisors = this.getUniqueValues(hypervisors).sort();
     const hOptions = uniqueHypervisors.length > 0 ? ['none'].concat(uniqueHypervisors) : ['none'];
     const hypervisorFilter = {name: 'hypervisor-type', options: hOptions};
     newFilters.push(hypervisorFilter);
 
-    let storages = templates.map((template) => {return template.metadata.storage;});
+    const sSource = this.state.currentFilter === 'storage-type' ? this.templates : templates;
+    let storages = sSource.map((template) => {return template.metadata.storage;});
     storages = storages.filter((storage) => {return storage !== undefined;});
     const uniqueStorages = [...new Set(storages)].sort();
     const sOptions = uniqueStorages.length > 0 ? ['none'].concat(uniqueStorages) : ['none'];
     const storageFilter = {name: 'storage-type', options: sOptions};
     newFilters.push(storageFilter);
 
-    let networks = templates.map((template) => {return template.metadata.network;});
+    const nSource = this.state.currentFilter === 'network-type' ? this.templates : templates;
+    let networks = nSource.map((template) => {return template.metadata.network;});
     networks = networks.filter((network) => {return network !== undefined;});
     const uniqueNetworks = [...new Set(networks)].sort();
     const nOptions = uniqueNetworks.length ? ['none'].concat(uniqueNetworks) : ['none'];
@@ -250,14 +268,14 @@ class CloudModelPicker extends BaseWizardPage {
   }
 
   render() {
-    const filteredTemplates = this.filterTemplates();
-    const selectedTemplate = filteredTemplates.find((template) => {
+    this.filteredTemplates = this.filterTemplates();
+    const selectedTemplate = this.filteredTemplates.find((template) => {
       return template.name === this.state.selectedModelName;});
 
     // details is the html help content read from model template fetched from the backend server.
     // It should be safe to be rendered as the raw html content in the details view.
     let details = selectedTemplate ? selectedTemplate.overview : '';
-    const btns = filteredTemplates.map((template, idx) =>
+    const btns = this.filteredTemplates.map((template, idx) =>
       <PickerButton
         key={idx}
         keyName={template.name}
@@ -272,7 +290,7 @@ class CloudModelPicker extends BaseWizardPage {
         </div>
         <div className='wizard-content'>
           {this.renderLoadingMask()}
-          {this.renderFilterBar(filteredTemplates)}
+          {this.renderFilterBar(this.filteredTemplates)}
           <div className='picker-container'>
             {btns}
           </div>
