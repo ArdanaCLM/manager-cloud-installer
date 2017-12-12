@@ -40,33 +40,12 @@ do
   esac
 done
 
-
-# create the venv (if it doesnt exists)
-virtualenv --python=python2.7 manager_cloud_installer_server_venv
-
-# delete any existing content from the server/web folder
-rm -rf ./server/web
-rm -rf ./manager_cloud_installer_server_venv/lib/python/site-packages/cloudinstaller
-
-# recreate the server/web folder
-mkdir -p ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller/web
-
-# copy UI files from ./dist to ./server/web
-cp -R ./server/* ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller
-cp -R ./dist/* ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller/web
-
-# activate the venv
-source manager_cloud_installer_server_venv/bin/activate
-
-# pip install the requirements
-pip install -r server/requirements.txt
-
 # if the tarball flag is true, build the tarball
 if $TARBALL
 then
   # create a version variable using the commit hash
   SHA=$(git rev-parse HEAD | cut -c1-6)
-  echo ${SHA} > manager_cloud_installer_server_venv/buildinfo.txt
+  echo ${SHA} > dist/buildinfo.txt
 
   DATE=`date -u +"%Y%m%dT%H%M%SZ"`
 
@@ -74,14 +53,14 @@ then
   then
     # if an existing tarball exists for the same commit, delete it
     # and any sha256/md5 sums associated with those files
-    rm cloudinstaller-*-${SHA}.tgz
-    rm cloudinstaller-*-${SHA}.tgz.sha256
-    rm cloudinstaller-*-${SHA}.tgz.md5
+    rm -f cloudinstaller-*-${SHA}.tgz
+    rm -f cloudinstaller-*-${SHA}.tgz.sha256
+    rm -f cloudinstaller-*-${SHA}.tgz.md5
   fi
 
   FILENAME=cloudinstaller-${DATE}-${SHA}.tgz
   # create a tarball of the venv
-  cd manager_cloud_installer_server_venv
+  cd dist
   tar -czvf ../${FILENAME} .
   cd ..
 

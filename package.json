@@ -49,8 +49,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prestart": "npm run less | webpack",
-    "start-noshim": "npm run jsonserv | npm run webdev | npm run watchless",
-    "start": "npm run jsonserv | npm run webdev | npm run watchless | npm run shim",
+    "start": "npm run jsonserv | npm run webdev | npm run watchless",
     "lints": "eslint .",
     "protractor-setup": "./node_modules/protractor/bin/webdriver-manager update",
     "protractor": "./node_modules/protractor/bin/protractor protractor.conf.js",
@@ -58,7 +57,6 @@
     "webdev": " webpack-dev-server --port 3000 --hot --host 0.0.0.0",
     "jsonserv": "json-server --port 8080 api/api.json --watch",
     "watchless": "watch-run -p '**/*.less' npm run less",
-    "shim": "tox -c server -e runserver",
     "dist": "webpack -p"
   },
   "description": "The cloud installer that will reside with SUSE Manager",
