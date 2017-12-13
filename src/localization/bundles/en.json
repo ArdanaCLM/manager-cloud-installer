@@ -281,6 +281,9 @@
     "complete.message.link2": "Ops Console UI",
 
     "deploy.progress.heading": "Cloud Deployment In Progress",
+    "deploy.progress.config-processor-run": "Config Processor Run",
+    "deploy.progress.ready-deployment": "Ready Deployment",
+    "deploy.progress.predeployment": "Pre-Deployment",
     "deploy.progress.step1": "Network Configuration",
     "deploy.progress.step2": "Compute nodes deployed",
     "deploy.progress.step3": "Monitoring nodes deployed",
