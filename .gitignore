@@ -15,8 +15,7 @@
 /*.md5
 /*.sha256
 /lib
-/server/web
-/manager_cloud_installer_server_venv
+/run
 
 # generated files
 src/Deployer.css
