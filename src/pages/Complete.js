@@ -39,10 +39,30 @@ class Complete extends BaseWizardPage {
       .catch((error) => {
         console.log('Unable to retrieve external URLs');// eslint-disable-line no-console
       });
+
+    fetchJson('/api/v1/clm/user')
+      .then(responseData => {
+        if (responseData.username) {
+          this.setState({userName: responseData.username});
+        }
+      })
+      .catch((error) => {
+        console.log('Unable to retrieve user name');// eslint-disable-line no-console
+      });
   }
 
   render() {
     const modelName = translate('model.picker.' + this.props.model.get('name'));
+
+    let commandLines = [];
+    if (this.state.userName) {
+      commandLines.push(<div className='paragraph-start' key='commandLine1'>
+        {translate('complete.message.body4', this.state.userName)}</div>);
+      commandLines.push(<div className='indent' key='commandLine2'>
+        {translate('complete.message.body5')}</div>);
+      commandLines.push(<div className='indent' key='commandLine3'>
+        {translate('complete.message.body6')}</div>);
+    }
 
     let linkSection = '';
     if (this.state.horizon !== '' || this.state.opsconsole !== '') {
@@ -71,9 +91,10 @@ class Complete extends BaseWizardPage {
         <div className='wizard-content'>
           <div className='installIntro'>
             <div className='col-xs-7'>
-              <div className='topLine'>{translate('complete.message.body1')}</div>
+              <div>{translate('complete.message.body1')}</div>
               <div className='paragraph-start'>{translate('complete.message.body2')}</div>
               <div className='indent'>{translate('complete.message.body3', modelName)}</div>
+              {commandLines}
             </div>
             <div className='col-xs-1'></div>
             {linkSection}
