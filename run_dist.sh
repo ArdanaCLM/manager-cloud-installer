@@ -13,11 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# package the server and UI components into the right folder
+# Make sure we are starting in the correct dir
+SCRIPTDIR=$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")
+cd $SCRIPTDIR
+
+# package the server and UI components into the dist folder
 ./build_dist.sh
 
-# activate the venv
-source manager_cloud_installer_server_venv/bin/activate
+# Check out a local copy of the installer server
+if [ ! -d run ] ; then
+    git clone https://github.com/ArdanaCLM/manager-cloud-installer-svr run
+fi
 
-# start the flask server via main.py
-./manager_cloud_installer_server_venv/bin/python ./manager_cloud_installer_server_venv/lib/python2.7/site-packages/cloudinstaller/main.py
+cd run
+
+main_dir=$(dirname $(git ls-files | grep main.py))
+
+# Create a link named web to point to the ui build dir
+ln -sf $SCRIPTDIR/dist $main_dir/web
+
+# Start the server
+tox -e runserver
