@@ -75,11 +75,13 @@ class NetworksTab extends Component {
   renderActionRow() {
     let addClass = 'material-icons add-button';
     addClass = this.state.mode !== MODE.NONE ? addClass + ' disabled' : addClass;
+    let addTextClass = 'add-text';
+    addTextClass = this.state.mode !== MODE.NONE ? addTextClass + ' disabled' : addTextClass;
     return (
       <tr key='networkAction' className='action-row'>
         <td><i className={addClass} onClick={this.handleAddNetwork}>add_circle</i>
-          {translate('add.network')}</td>
-        <td colSpan="5"/>
+          <span className={addTextClass} onClick={this.handleAddNetwork}>{translate('add.network')}</span></td>
+        <td colSpan='5'/>
       </tr>
     );
   }

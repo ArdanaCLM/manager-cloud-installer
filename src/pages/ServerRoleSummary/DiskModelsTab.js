@@ -109,13 +109,13 @@ class DiskModelsTab extends Component {
 
     let addClass = 'material-icons add-button';
     addClass = this.state.showDiskModelDetails ? addClass + ' disabled' : addClass;
+    let addTextClass = 'add-text';
+    addTextClass = this.state.showDiskModelDetails ? addTextClass + ' disabled' : addTextClass;
     let actionRow = (
       <tr key='diskModelAction' className='action-row'>
-        <td><i className={addClass} onClick={this.addDiskModel}>
-          add_circle</i>{translate('add.disk.model')}</td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><i className={addClass} onClick={this.addDiskModel}>add_circle</i>
+          <span className={addTextClass} onClick={this.addDiskModel}>{translate('add.disk.model')}</span></td>
+        <td colSpan='3'/>
       </tr>
     );
 

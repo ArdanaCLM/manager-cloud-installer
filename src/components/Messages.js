@@ -64,7 +64,15 @@ function SuccessMessage(props) {
   );
 }
 
+function InfoBanner(props) {
+  return (
+    <Alert><span className='info-banner'>
+      <i className='material-icons info-icon'>info</i>{props.message}</span></Alert>
+  );
+}
+
 module.exports = {
   ErrorMessage: ErrorMessage,
-  SuccessMessage: SuccessMessage
+  SuccessMessage: SuccessMessage,
+  InfoBanner: InfoBanner
 };

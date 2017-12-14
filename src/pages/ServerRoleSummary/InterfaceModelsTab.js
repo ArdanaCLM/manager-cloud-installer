@@ -132,10 +132,12 @@ class InterfaceModelsTab extends Component {
   // Render the entire contents of the tab
   render() {
     let addClass = 'material-icons add-button';
+    let addTextClass = 'add-text'
     let editClass = 'glyphicon glyphicon-pencil edit-button';
     let removeClass = 'glyphicon glyphicon-trash remove-button';
     if (this.state.overallMode != MODE.NONE) {
       addClass += ' disabled';
+      addTextClass += ' disabled';
       editClass += ' disabled';
       removeClass += ' disabled';
     }
@@ -163,7 +165,7 @@ class InterfaceModelsTab extends Component {
       <tr key='addModel' className='action-row'>
         <td colSpan="3">
           <i className={addClass} onClick={this.addModel}>add_circle</i>
-          {translate('add.interface.model')}
+          <span className={addTextClass} onClick={this.addModel}>{translate('add.interface.model')}</span>
         </td>
       </tr>
     );

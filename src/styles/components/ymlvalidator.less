@@ -28,9 +28,6 @@
     background-color: white;
     margin-top: 1em;
   }
-  .button-with-icon {
-    margin-top: 1.2em;
-  }
   .validate-result-icon {
     position: relative;
     top: 0.4em;
@@ -41,6 +38,14 @@
     &.invalid {
       color: @errorcolor;
     }
+  }
+  .refresh-icon {
+    animation: spin 3s infinite 0.5s linear;
+  }
+
+  @keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
   }
 }
 
@@ -99,6 +104,7 @@
   .service-heading {
     display: inline-flex;
     line-height: 1.5em;
+    cursor: pointer;
   }
 }
 

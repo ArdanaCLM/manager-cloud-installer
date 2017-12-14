@@ -17,6 +17,7 @@ import '../Deployer.css';
 import { translate } from '../localization/localize.js';
 import BaseWizardPage from './BaseWizardPage.js';
 import { ActivePickerButton } from '../components/Buttons.js';
+import { InfoBanner } from '../components/Messages.js';
 
 class CloudModelSummary extends BaseWizardPage {
   constructor(props) {
@@ -54,14 +55,14 @@ class CloudModelSummary extends BaseWizardPage {
       'NEUTRON-ROLE': translate('model.summary.role.displayname.NEUTRON-ROLE'),
       'IRONIC-COMPUTE-ROLE': translate('model.summary.role.displayname.IRONIC-COMPUTE-ROLE')
     };
-    var NOT_FOUND = 'Custom component type';
+    var NOT_FOUND = translate('model.summary.role.component.NOT_FOUND');
 
     return displayNames[role] || NOT_FOUND;
   }
 
   getDescription() {
-    if (! this.state.activeItem) {
-      return '';
+    if (!this.state.activeItem) {
+      return (<div className='no-component-centered'>{translate('no.component.select')}</div>);
     }
 
     //TODO: Improve these descriptions
@@ -82,7 +83,9 @@ class CloudModelSummary extends BaseWizardPage {
     };
     var NOT_FOUND = translate('model.summary.role.description.NOT_FOUND');
     var role = this.state.controlPlane.getIn(this.getKey(this.state.activeItem, 1)).get('server-role');
-    return descriptions[role] || NOT_FOUND;
+    let desc = descriptions[role] || NOT_FOUND;
+
+    return <InfoBanner message={desc} />;
   }
 
   // convert a delimited string (normally the state.activeItem) into a list.  Optionally

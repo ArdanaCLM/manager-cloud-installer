@@ -38,7 +38,7 @@ function NextButton(props) {
 
 class ActionButton extends Component {
   render() {
-    let buttonClass = 'btn ' + (this.props.type ? 'btn-' + this.props.type : 'btn-primary ') +
+    let buttonClass = 'btn ' + (this.props.type ? 'btn-' + this.props.type + ' ' : 'btn-primary ') +
       (this.props.isDisabled ? ' disabled' : '');
     buttonClass += (this.props.lastButton) ? 'last-button' : '';
     return (
@@ -99,7 +99,7 @@ class LoadFileButton extends Component {
     const hidden = { display: 'none' };
     return (
       <span>
-        <ActionButton
+        <ActionButton type='link'
           clickAction={this.onClickShownButton}
           displayLabel={this.props.displayLabel}
           isDisabled={this.props.isDisabled || false}
