@@ -106,13 +106,13 @@ class ServerGroupsTab extends Component {
 
     let addClass = 'material-icons add-button';
     addClass = this.state.showServerGroupDetails ? addClass + ' disabled' : addClass;
+    let addTextClass = 'add-text';
+    addTextClass = this.state.showServerGroupDetails ? addTextClass + ' disabled' : addTextClass;
     let actionRow = (
       <tr key='serverGroupAction' className='action-row'>
-        <td><i className={addClass} onClick={this.addServerGroup}>
-          add_circle</i>{translate('add.server.group')}</td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><i className={addClass} onClick={this.addServerGroup}>add_circle</i>
+          <span className={addTextClass} onClick={this.addServerGroup}>{translate('add.server.group')}</span></td>
+        <td colSpan='3'/>
       </tr>
     );
 

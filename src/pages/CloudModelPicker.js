@@ -145,14 +145,29 @@ class CloudModelPicker extends BaseWizardPage {
     }
   }
 
-  render() {
-    let details = '';
-    const template = this.templates.find(template => template.name === this.state.selectedModelName);
-    if(template) {
-      // details is the html help content read from model template fetched from the backend server.
-      // It should be safe to be rendered as the raw html content in the details view.
-      details = template['overview'];
+  renderDetails = () => {
+    let detailContent = '';
+    if(this.state.selectedModelName) {
+      let details = '';
+      const template = this.templates.find(template => template.name === this.state.selectedModelName);
+      if (template) {
+        // details is the html help content read from model template fetched from the backend server.
+        // It should be safe to be rendered as the raw html content in the details view.
+        details = template['overview'];
+      }
+      detailContent =
+        (<div><h3>{translate('model.picker.' + this.state.selectedModelName)}</h3>
+          <div className='model-details' dangerouslySetInnerHTML={{__html: details}}/></div>);
     }
+    else {
+      detailContent =
+        (<div className='no-component-centered'>{translate('no.component.select')}</div>);
+    }
+
+    return (<div className='details-container'>{detailContent}</div>);
+  }
+
+  render() {
 
     const btns = this.simpleModels.map((name,idx) =>
       <PickerButton
@@ -169,12 +184,8 @@ class CloudModelPicker extends BaseWizardPage {
         </div>
         <div className='wizard-content'>
           {this.renderLoadingMask()}
-          <div className='picker-container'>
-            {btns}
-          </div>
-          <div className='details-container'>
-            <div className='model-details' dangerouslySetInnerHTML={{__html: details}}/>
-          </div>
+          <div className='picker-container'>{btns}</div>
+          {this.renderDetails()}
           <div className='action-btn-container'>
             <div className='action-btn-with-info'>
               <div className='info-heading'>

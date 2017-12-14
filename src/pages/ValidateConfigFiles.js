@@ -24,6 +24,7 @@ import { Tabs, Tab } from 'react-bootstrap';
 import ServiceTemplatesTab from './ValidateConfigFiles/ServiceTemplatesTab.js';
 import Dropdown from '../components/Dropdown.js';
 import HelpText from '../components/HelpText.js';
+import { InfoBanner } from '../components/Messages.js';
 
 const INVALID = 0;
 const VALID = 1;
@@ -104,9 +105,16 @@ class EditFile extends Component {
 class DisplayFileList extends Component {
   getMessage() {
     if (this.props.valid === UNKNOWN) {
-      return (<div>{translate('validate.config.files.msg.info')}</div>);
+      return (
+        <div>
+          <InfoBanner message={translate('validate.config.files.msg.info1')}/>
+          <InfoBanner message={translate('validate.config.files.msg.info2')}/>
+        </div>);
     } else if (this.props.valid === VALIDATING) {
-      return (<div>{translate('validate.config.files.msg.validating')}</div>);
+      return (
+        <div> <i className='material-icons refresh-icon'>refresh</i>
+          {translate('validate.config.files.msg.validating')}</div>
+      );
     } else if (this.props.valid === VALID) {
       return (<div>{translate('validate.config.files.msg.valid')}</div>);
     } else {
@@ -119,7 +127,7 @@ class DisplayFileList extends Component {
     if (this.props.valid === VALID) {
       return (<i className='material-icons validate-result-icon valid'>check_circle</i>);
     } else if (this.props.valid === INVALID) {
-      return (<i className='material-icons validate-result-icon invalid'>cancel</i>);
+      return (<i className='material-icons validate-result-icon invalid'>error</i>);
     }
   }
 
@@ -151,7 +159,7 @@ class DisplayFileList extends Component {
           </div>
           <div>
             <ActionButton
-              className='button-with-icon'
+              isDisabled={this.props.valid === VALIDATING}
               displayLabel={translate('validate.config.files.validate')}
               clickAction={() => this.props.onValidateClick()}/>
             {this.getIcon()}

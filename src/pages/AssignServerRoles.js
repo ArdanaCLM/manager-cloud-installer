@@ -1084,7 +1084,7 @@ class AssignServerRoles extends BaseWizardPage {
       // When there are no servers yet discovered, the tab shows just
       // two buttons instead of content
       return (
-        <div className='btn-row centered'>
+        <div className='centered'>
           <ActionButton
             clickAction={this.handleAddServerManually}
             displayLabel={translate('add.server.add')}/>

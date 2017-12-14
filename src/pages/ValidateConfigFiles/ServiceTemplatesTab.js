@@ -17,7 +17,7 @@ import { translate } from '../../localization/localize.js';
 import { ActionButton } from '../../components/Buttons.js';
 import { alphabetically } from '../../utils/Sort.js';
 import { fetchJson, postJson } from '../../utils/RestUtils.js';
-import { ErrorMessage } from '../../components/Messages.js';
+import { ErrorMessage, InfoBanner } from '../../components/Messages.js';
 import { ServerInput } from '../../components/ServerUtils.js';
 
 class EditTemplateFile extends Component {
@@ -161,7 +161,8 @@ class ServiceTemplatesTab extends Component {
       );
     }
     else {
-      return (<div className='col-xs-6'>{translate(('validate.config.service.info'))}</div>);
+      let desc = translate('validate.config.service.info');
+      return (<div className='col-xs-6'><InfoBanner message={desc}/></div>);
     }
   }
 
@@ -179,10 +180,8 @@ class ServiceTemplatesTab extends Component {
         });
       return (
         <li key={index}>
-          <span className='service-heading'>
-            <i className='material-icons'
-              onClick={() => this.handleToggleService(item)}>keyboard_arrow_down</i>
-            {item.service}</span>
+          <span className='service-heading' onClick={() => this.handleToggleService(item)}>
+            <i className='material-icons'>keyboard_arrow_down</i>{item.service}</span>
           <ul className='file-list'>{fileList}</ul>
         </li>
       );
@@ -190,10 +189,8 @@ class ServiceTemplatesTab extends Component {
     else { // when service not expanded
       return (
         <li key={index}>
-          <span className='service-heading'>
-            <i className='material-icons'
-              onClick={() => this.handleToggleService(item)}>keyboard_arrow_right</i>
-            {item.service}</span>
+          <span className='service-heading' onClick={() => this.handleToggleService(item)}>
+            <i className='material-icons'>keyboard_arrow_right</i>{item.service}</span>
         </li>
       );
     }

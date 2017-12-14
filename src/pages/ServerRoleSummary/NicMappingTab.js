@@ -268,10 +268,12 @@ class NicMappingTab extends Component {
   render() {
 
     let addClass = 'material-icons add-button';
+    let addTextClass = 'add-text';
     let editClass = 'glyphicon glyphicon-pencil edit-button';
     let removeClass = 'glyphicon glyphicon-trash remove-button';
     if (this.state.mode != MODE.NONE) {
       addClass += ' disabled';
+      addTextClass += ' disabled';
       editClass += ' disabled';
       removeClass += ' disabled';
     }
@@ -298,7 +300,7 @@ class NicMappingTab extends Component {
       <tr key='addNicMapping' className='action-row'>
         <td colSpan="3">
           <i className={addClass} onClick={this.addNicMapping}>add_circle</i>
-          {translate('add.nic.mapping')}
+          <span className={addTextClass} onClick={this.addNicMapping}>{translate('add.nic.mapping')}</span>
         </td>
       </tr>
     );
