@@ -55,7 +55,7 @@ class CloudModelSummary extends BaseWizardPage {
       'NEUTRON-ROLE': translate('model.summary.role.displayname.NEUTRON-ROLE'),
       'IRONIC-COMPUTE-ROLE': translate('model.summary.role.displayname.IRONIC-COMPUTE-ROLE')
     };
-    var NOT_FOUND = translate('model.summary.role.description.NOT_FOUND');
+    var NOT_FOUND = translate('model.summary.role.component.NOT_FOUND');
 
     return displayNames[role] || NOT_FOUND;
   }

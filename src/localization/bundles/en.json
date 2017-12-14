@@ -367,5 +367,6 @@
     "model.summary.role.description.SWPAC-ROLE" : "Describe SWPAC Nodes",
     "model.summary.role.description.NEUTRON-ROLE" : "Describe Neutron Nodes",
     "model.summary.role.description.IRONIC-COMPUTE-ROLE" : "Describe Ironic Compute Nodes",
-    "model.summary.role.description.NOT_FOUND" : "Describe the fact that the customer must have created this role"
+    "model.summary.role.description.NOT_FOUND" : "Describe the fact that the customer must have created this role",
+    "model.summary.role.component.NOT_FOUND": "Custom component type"
 }
