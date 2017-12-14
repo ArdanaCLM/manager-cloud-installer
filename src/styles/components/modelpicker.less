@@ -37,6 +37,23 @@
   vertical-align: top;
 }
 
+.filter-bar-container {
+  display: flex;
+  margin-left: 10px;
+  margin-bottom: 3em;
+  .filter-line-header {
+    margin-right: 2em;
+  }
+  .filter-box {
+    margin-right: 2em;
+    margin-top: 3px;
+  }
+  .filter-box > .server-detail-select > .rounded-corner {
+    width: 17em;
+    height: 30px;
+  }
+}
+
 .model-details > ul, ol {
   margin-top: 0;
   margin-bottom: 11px;
@@ -66,16 +83,5 @@
 
 .model-details > .dl-horizontal dd:after {
   clear: both;
-}
-
-.action-btn-container {
-  .action-btn-with-info {
-    display: inline-block;
-    margin: 0 3em 0 1em;
-    .info-heading {
-      margin: 0px 30px 5px 0px;
-      color: @info-link-color;
-    }
-  }
 }
 
